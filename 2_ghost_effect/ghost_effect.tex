@@ -25,6 +25,7 @@
 \newcommand{\Kn}{\mathrm{Kn}}
 \newcommand{\dd}{\:\mathrm{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\pderder}[2][]{\frac{\partial^2 #1}{\partial #2^2}}
 
 \begin{document}
 
@@ -35,15 +36,15 @@
 Для описания жидкости и газа в общем виде используются уравнения сохранения массы, импульса и энергии:
 \begin{gather}
 	\pder[\rho]{t} + \pder{x_i}(\rho v_i) = 0, \label{eq:mass}\\
-	\pder{t}(\rho v_i) + \pder{x_i}(\rho v_i v_j + p_{ij}) = \rho F_i, \label{eq:momentum}\\
+	\pder{t}(\rho v_i) + \pder{x_j}(\rho v_i v_j + p_{ij}) = \rho F_i, \label{eq:momentum}\\
 	\pder{t}\left[\rho\left(e+\frac{v_i^2}2\right)\right] +
-		\pder{x_i}\left[\rho v_j\left(e+\frac{v_i^2}2\right)+v_i p_{ij}+q_i\right] = \rho v_j F_j. \label{eq:energy}
+		\pder{x_j}\left[\rho v_j\left(e+\frac{v_i^2}2\right)+v_i p_{ij}+q_j\right] = \rho v_j F_j. \label{eq:energy}
 \end{gather}
 Макроскопические параметры: \(\rho\) "--- плотность, \(v_i\) "--- скорость, \(p_{ij}\) "--- тензор напряжений,
 \(e\) "--- удельная внутренняя энергия, \(q_i\) "--- тепловой поток. \(F_i\) "--- внешняя сила.
 Для идеального одноатомного газа внутренняя энергия~\(e\) зависит только от температуры~\(T\):
 \[ e = \frac32RT,\]
-где \(R\) "--- универсальная газовая постоянная. Давление выражается через уравнение состояния:
+где \(R=k_B/m\) "--- удельная газовая постоянная. Давление выражается через уравнение состояния:
 \[ p = \rho RT. \]
 
 Для замыкания уравнений сохранения~\eqref{eq:mass}--\eqref{eq:energy}
@@ -102,13 +103,19 @@
 
 Конечным результатом анализа является следующая система уравнений для \(T_0\), \(v_{i1}\), \(p_2\)
 на основе модели твёрдых сфер:
-\begin{align*}
-	\pder{x_i}(\rho_0v_{i1}) &= 0, \\
-	\rho_0v_{j1}\pder[v_{i1}]{x_j} &= -\frac12\pder[p_2^\dag]{x_i} \\
-		&+ \frac12\pder{x_j}\left[\gamma_1\sqrt{T_0}\left(\pder[v_{1i}]{x_j}+\pder[v_{1j}]{x_i}-\frac23\pder[v_{1k}]{x_k}\delta_{ij}\right)\right]\\
-		&+ \gamma_7\pder[T_0]{x_i}\pder[T_0]{x_j}\left(\frac{u_{1j}}{\gamma_2T_0\sqrt{T_0}} + \frac{T_0}4\pder[T_0]{x_j} \right), \\
-	\rho_0v_{i1}\pder[T_0]{x_i} &= \frac{\gamma_2}2\pder{x_i}\left(\sqrt{T_0}\pder[T_0]{x_i}\right).
-\end{align*}
+\begin{align}
+	\pder{x_i}(\rho_0v_{i1}) &= 0, \label{eq:asymptotic1} \\
+	\rho_0v_{j1}\pder[v_{i1}]{x_j} &= -\frac12\pder[p_2^\dag]{x_i} \notag\\
+		&+ \frac12\pder{x_j}\left[\gamma_1\sqrt{T_0}\left(
+			\pder[v_{1i}]{x_j}+\pder[v_{1j}]{x_i}-\frac23\pder[v_{1k}]{x_k}\delta_{ij}\right
+		)\right] \notag\\
+		&+ \gamma_7\pder[T_0]{x_i}\pder[T_0]{x_j}\left(
+			\frac{u_{1j}}{\gamma_2T_0\sqrt{T_0}} + \frac{T_0}4\pder[T_0]{x_j}
+		\right), \label{eq:asymptotic2} \\
+	\rho_0v_{i1}\pder[T_0]{x_i} &= \frac{\gamma_2}2\pder{x_i}\left(
+		\sqrt{T_0}\pder[T_0]{x_i}
+	\right). \label{eq:asymptotic3}
+\end{align}
 Давления \(p_0\), \(p_1\) являются константами,
 \[ 
 	p_2^\dag = p_2 + 
@@ -120,23 +127,42 @@
 Для модели твёрдых сфер безразмерные коэффициенты переноса равны
 \begin{alignat*}{2}
 	\gamma_1 &= 1.270042427, &\quad \gamma_2 &= 1.922284066, \\
-	\gamma_3 &= 1.947906335, &\quad \gamma_7 &= 1.758705. \\
+	\gamma_3 &= 1.947906335, &\quad \gamma_7 &= 1.758705.
 \end{alignat*}
 
-Граничные условия на простой твёрдой границе с диффузным отражением имеют вид:
-\begin{gather*}
-	T_0 = T_{w0},
-	\frac{}{sqrt{T_{w0}}
-\end{gather*}
+Граничные условия на границе с диффузным отражением имеют вид:
+\begin{gather}
+	T_0 = T_{w0}, \\
+	\left\{
+	\begin{aligned}
+		& \frac{(v_{j1}-v_{wj1})(\delta_{ij}-n_jn_i)}{\sqrt{T_{w0}}} = 
+			-\frac{K_1}{p_0}\pder[T_0]{x_j}(\delta_{ij}-n_jn_i), \\
+		& v_{j1}n_j = 0.
+	\end{aligned}
+	\right.
+\end{gather}
+Здесь \(n_i\) "--- нормаль к поверхности, \(v_{wj1}\), \(T_{w0}\) "--- скорость и температура границы.
+\(K_1\) "--- безразмерный коэффициент температурного скачка. Для модели твёрдых сфер 
+\[ K_1 = -0.6463. \]
 
+\subsection{Эффект призрака}
 
+Из системы \eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} видно, что в гидродинамическом пределе (при \(\Kn\to0\))
+газ в общем случае не описывается уравнением Фурье.
+На распределение температуры \(T=T_0\) влияет член скорости первого порядка малости \(v_{i1}\).
+Таким образом, \(v_{i1}\) инфинитезимальным образом влияет на само поле скоростей \(v_i\),
+но конечным на поле температуры.
+Данная особенность асимптотического решения называется эффектом призрака [Соне].
 
+Сходимость к уравнению Фурье наблюдается только в частном случае при \(v_{i1} = 0\).
+Это возможно только при параллельности изотермических поверхностей:
+\begin{equation}
+	e_{ijk}\pder[T_0]{x_j}\pder{x_k}\left(\pder[T_0]{x_l}\right)^2 = 0.
+\end{equation}
 
 \section{Постановка задачи}
 
-Рассмотрим плоскую периодическую геометрию, как на рис.~\ref{pic:geometry}.
-
-\begin{wrapfigure}{r}{5cm}
+\begin{wrapfigure}{r}{7.4cm}
 	\vspace{-10pt}
 	\centering
 	\usetikzlibrary{decorations.pathreplacing}
@@ -162,11 +188,55 @@
 		\node at (-.05,2) [left, label] {\(L/2\)};
 		\node at (2,-.05) [below, label] {\(L/2\)};
 	\end{tikzpicture}
-	\vspace{-20pt}
+	\vspace{-15pt}
 	\caption{Геометрия задачи.}\label{pic:geometry}
-	\vspace{-10pt}
+	\vspace{-5pt}
 \end{wrapfigure}
+
+Рассмотрим плоскую периодическую геометрию, как на рис.~\ref{pic:geometry}.
+Газ расположен между двумя покоющимися (\(u_{wi} = 0\)) бесконечными параллельными пластинами,
+разделённых на расстояние \(L\). Температура распределена на них по синусоидальному закону:
+\begin{equation}
+	T_w = 1-\alpha\cos{\frac{2\pi x}L}.
+\end{equation}
+
+В силу симметрии задачи расчётная область представляет собой квадрат со стороной \(L/2\).
+На рисунке выделена серым цветом.
+
+Интерес представляет сравнение температурных полей, полученных на основе уравнения Фурье и кинетической теории.
+С помощью прямого численного моделирования уравнения Больцмана проанализируем сходимость решения для малых \(\Kn\).
+
+Столкновения молекул газа описывается моделью твёрдых сфер. От пластин происходит полное диффузное отражение. 
+
 \section{Решение задачи в гидродинамическом пределе}
+
+В классической газовой динамике поставленная задача описывается простым уравнением теплопроводности:
+\begin{equation}\label{eq:classic_solution}
+	\pder{x_i}\left(\sqrt{T}\pder[T]{x_i}\right) = 0.
+\end{equation}
+Здесь учтено, что теплопроводность идеального одноатомного газа, состоящего из твёрдых сфер,
+пропорциональна \(\sqrt{T}\).
+ 
+Граничные условия на твёрдой стенке:
+\[ T = T_w, \]
+на плоскостях симметрии:
+\[ \pder[T]{x_i}n_i = 0. \]
+
+Точное решение, получаемое асимптотически из уравнения Больцмана (\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3})
+в пределе \(\Kn \to 0\), выражается системой:
+\begin{align*}
+        \pder[v_{i1}]{x_i}T &= v_{i1}\pder[T]{x_i}, \\
+        e_{lmi}\pder{x_m}\left\{
+		\frac{v_{j1}}{T}\pder[v_{i1}]{x_j}
+		\right.&- \frac{\gamma_1}2\pder{x_j}\left[\sqrt{T}\left(\pder[v_{1i}]{x_j}+\pder[v_{1j}]{x_i}-\frac23\pder[v_{1k}]{x_k}\delta_{ij}\right)\right] \\
+		&-\left. \gamma_7\pder[T]{x_i}\pder[T]{x_j}\left(\frac{u_{1j}}{\gamma_2T\sqrt{T}} + \frac{T}4\pder[T]{x_j} \right)
+	\right\} = 0, \\
+        v_{i1}\pder[T]{x_i} &= \frac{\gamma_2}4\sqrt{T}\left[\left(\pder[T]{x_i}\right)^2 + T\pderder[T]{x_i}\right].
+\end{align*}
+Ротор от~\eqref{eq:asymptotic2} позволяет избавиться от \(p_2^\dag\).
+Для простоты константное давление \(p_0\) взято единичным:
+\[ p = p_0 = 1. \]
+Индекс у температуры \(T\) исчез, поскольку при \(k=0\) получается точное равенство \(T=T_0\).
 
 \section{Решение для произвольных чисел Кнудсена}
 
