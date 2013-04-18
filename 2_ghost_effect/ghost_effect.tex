@@ -31,7 +31,7 @@
 	backend=biber,
 	style=alphabetic,
 	language=british,
-    natbib=true,
+	natbib=true,
 	sorting=nyt,
 	url=false,
 	eprint=false,
@@ -147,15 +147,15 @@
 Конечным результатом анализа является следующая система уравнений для \(T_0\), \(v_{i1}\), \(p_2\)
 на основе модели твёрдых сфер:
 \begin{align}
-	\pder{x_i}(\rho_0v_{i1}) &= 0, \label{eq:asymptotic1} \\
-	\rho_0v_{j1}\pder[v_{i1}]{x_j} &= -\frac12\pder[p_2^\dag]{x_i} \notag\\
-		&+ \frac12\pder{x_j}\left[\gamma_1\sqrt{T_0}\left(
-			\pder[v_{1i}]{x_j}+\pder[v_{1j}]{x_i}-\frac23\pder[v_{1k}]{x_k}\delta_{ij}\right
+	\pder{x_i}\left(\frac{p_0v_{i1}}{T_0}\right) &= 0, \label{eq:asymptotic1} \\
+	\frac{p_0v_{j1}}{T_0}\pder[v_{i1}]{x_j} &= -\frac12\pder[p_2^\dag]{x_i} \notag\\
+		&+ \frac{\gamma_1}2\pder{x_j}\left[\sqrt{T_0}\left(
+			\pder[v_{i1}]{x_j}+\pder[v_{j1}]{x_i}-\frac23\pder[v_{k1}]{x_k}\delta_{ij}\right
 		)\right] \notag\\
-		&+ \gamma_7\pder[T_0]{x_i}\pder[T_0]{x_j}\left(
-			\frac{u_{1j}}{\gamma_2T_0\sqrt{T_0}} + \frac{T_0}4\pder[T_0]{x_j}
+		&+ \frac{\gamma_7}{T_0}\pder[T_0]{x_i}\pder[T_0]{x_j}\left(
+			\frac{v_{j1}}{\gamma_2\sqrt{T_0}} - \frac1{4p_0}\pder[T_0]{x_j}
 		\right), \label{eq:asymptotic2} \\
-	\rho_0v_{i1}\pder[T_0]{x_i} &= \frac{\gamma_2}2\pder{x_i}\left(
+	\frac{p_0v_{i1}}{T_0}\pder[T_0]{x_i} &= \frac{\gamma_2}2\pder{x_i}\left(
 		\sqrt{T_0}\pder[T_0]{x_i}
 	\right). \label{eq:asymptotic3}
 \end{align}
@@ -165,7 +165,6 @@
 		\frac{2\gamma_3}{3p_0}\pder{x_k}\left(T_0\pder[T_0]{x_k}\right) -
 		\frac{\gamma_7}{6p_0}\left(\pder[T_0]{x_k}\right)^2,
 \]
-\[ \rho_0 = \frac{p_0}{T_0}. \]
 
 Для модели твёрдых сфер безразмерные коэффициенты переноса равны
 \begin{alignat*}{2}
@@ -173,16 +172,19 @@
 	\gamma_3 &= 1.947906335, &\quad \gamma_7 &= 1.758705.
 \end{alignat*}
 
+Первые два коэффициента соответствуют вязкости и теплопроводности:
+\[ \mu = \frac{\sqrt\pi}2\gamma_1, \quad \lambda = \frac{5\sqrt\pi}2\gamma_2. \]
+
 Граничные условия на границе с диффузным отражением имеют вид:
 \begin{gather}
-	T_0 = T_{w0}, \\
+	T_0 = T_{w0}, \label{eq:bound:T} \\
 	\left\{
 	\begin{aligned}
 		& \frac{(v_{j1}-v_{wj1})(\delta_{ij}-n_jn_i)}{\sqrt{T_{w0}}} = 
 			-\frac{K_1}{p_0}\pder[T_0]{x_j}(\delta_{ij}-n_jn_i), \\
 		& v_{j1}n_j = 0.
 	\end{aligned}
-	\right.
+	\right. \label{eq:bound:v}
 \end{gather}
 Здесь \(n_i\) "--- нормаль к поверхности, \(v_{wj1}\), \(T_{w0}\) "--- скорость и температура границы.
 \(K_1\) "--- безразмерный коэффициент температурного скачка. Для модели твёрдых сфер 
@@ -205,6 +207,14 @@
 
 \section{Постановка задачи}
 
+Рассмотрим плоскую периодическую геометрию, как на рис.~\ref{pic:geometry}.
+Газ расположен между двумя покоющимися (\(u_{wi} = 0\)) бесконечными параллельными пластинами,
+разделёнными на единичное расстояние. Температура распределена на них по синусоидальному закону:
+\begin{equation}
+	T_w = 1-\alpha\cos(2\pi x).
+\end{equation}
+Будем рассматривать случай \(\alpha=1/2\).
+
 \begin{wrapfigure}{r}{7.4cm}
 	\vspace{-10pt}
 	\centering
@@ -226,24 +236,17 @@
 		\draw[blue, thick, interface](4.3,4) -- (-0.3,4);
 		\draw[<->] (4.1,3.7) -- (4.4,3) node[right] {\(T_w(x)\)} -- (2.55,.2);
 		\node at (-.02,-.02) [below left, label] {0};
-		\node at (4.02,-.02) [below right, label] {\(L\)};
-		\node at (-.02,4.02) [above left, label] {\(L\)};
-		\node at (-.05,2) [left, label] {\(L/2\)};
-		\node at (2,-.05) [below, label] {\(L/2\)};
+		\node at (4.02,-.02) [below right, label] {\(1\)};
+		\node at (-.02,4.02) [above left, label] {\(1\)};
+		\node at (-.05,2) [left, label] {\(1/2\)};
+		\node at (2,-.05) [below, label] {\(1/2\)};
 	\end{tikzpicture}
 	\vspace{-15pt}
-	\caption{Геометрия задачи.}\label{pic:geometry}
-	\vspace{-5pt}
+	\caption{Геометрия задачи}\label{pic:geometry}
+	\vspace{-15pt}
 \end{wrapfigure}
 
-Рассмотрим плоскую периодическую геометрию, как на рис.~\ref{pic:geometry}.
-Газ расположен между двумя покоющимися (\(u_{wi} = 0\)) бесконечными параллельными пластинами,
-разделёнными на расстояние \(L\). Температура распределена на них по синусоидальному закону:
-\begin{equation}
-	T_w = 1-\alpha\cos{\frac{2\pi x}L}.
-\end{equation}
-
-В силу симметрии задачи расчётная область представляет собой квадрат со стороной \(L/2\).
+В силу симметрии задачи расчётная область представляет собой квадрат со стороной \(1/2\).
 На рисунке выделена серым цветом.
 
 Столкновения молекул газа описывается моделью твёрдых сфер. От пластин происходит полное диффузное отражение. 
@@ -255,29 +258,77 @@
 \section{Решение задачи в гидродинамическом пределе}
 
 Для уравнения теплопроводности~\eqref{eq:heat_equation} граничные условия имеет простейший вид:
-на твёрдой стенке
+на твёрдой поверхности
 \[ T = T_w, \]
 на плоскостях симметрии
 \[ \pder[T]{x_i}n_i = 0. \]
+Получаемое таким образом температурное поле изображено на рис.~\ref{fig:isotemp:heat}.
 
-Кинетическое решение~\eqref{eq:asymptotic1}"--~\eqref{eq:asymptotic3} выражается системой:
+\begin{figure}[ht]
+	\centering
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{fluid_dynamics/T_heat}
+		\caption{уравнение теплопроводности}
+		\label{fig:isotemp:heat}
+	\end{subfigure}
+	~
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{fluid_dynamics/T_asym}
+		\caption{асимптотическая теория}
+		\label{fig:isotemp:asym}
+	\end{subfigure}
+	\caption{Изотермические линии в гидродинамическом пределе}\label{fig:isotemp}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics{fluid_dynamics/U_asym}
+	\caption{Поле скоростей \(u_i\) в гидродинамическом пределе (цветом показан модуль скорости)}\label{fig:velocity:asym}
+\end{figure}
+
+Асимптотическое кинетическое решение~\eqref{eq:asymptotic1}"--~\eqref{eq:asymptotic3} выражается системой
+\begin{align}
+	\pder{x_i}\left(\frac{u_i}T\right) &= 0, \label{eq:as:cont} \\
+	\pder{x_j}\left(\frac{u_iu_j}{T}\right)
+		&-\frac{\gamma_1}2\pder{x_j}\left[\sqrt{T}\left(
+			\pder[u_i]{x_j}+\pder[u_j]{x_i}-\frac23\pder[u_k]{x_k}\delta_{ij}\right
+		)\right] \notag\\
+		&- \frac{\gamma_7}T\pder[T]{x_i}\pder[T]{x_j}\left(\frac{u_j}{\gamma_2\sqrt{T}} - \frac{1}4\pder[T]{x_j}\right) \notag\\
+		&= -\frac1{2p_0}\pder[p_2^\dag]{x_i}, \label{eq:as:mom} \\
+	\pder[u_i]{x_i} &= \frac{\gamma_2}2\pder{x_i}\left(\sqrt{T}\pder[T]{x_i}\right). \label{eq:as:temp}
+\end{align}
+Здесь выполнена простая замена
+\[ u_i = p_0v_{i1}. \]
+Индекс у температуры \(T\) исчез, поскольку при \(k=0\) получается точное равенство \[T=T_0.\]
+
+Граничные условия на твёрдой поверхности получаются из~\eqref{eq:bound:T}"--~\eqref{eq:bound:v}:
 \begin{align*}
-        \pder[v_{i1}]{x_i}T &= v_{i1}\pder[T]{x_i}, \\
-        e_{lmi}\pder{x_m}\left\{
-		\frac{v_{j1}}{T}\pder[v_{i1}]{x_j}
-		\right.&- \frac{\gamma_1}2\pder{x_j}\left[\sqrt{T}\left(\pder[v_{1i}]{x_j}+\pder[v_{1j}]{x_i}-\frac23\pder[v_{1k}]{x_k}\delta_{ij}\right)\right] \\
-		&-\left. \gamma_7\pder[T]{x_i}\pder[T]{x_j}\left(\frac{u_{1j}}{\gamma_2T\sqrt{T}} + \frac{T}4\pder[T]{x_j} \right)
-	\right\} = 0, \\
-        v_{i1}\pder[T]{x_i} &= \frac{\gamma_2}4\sqrt{T}\left[\left(\pder[T]{x_i}\right)^2 + T\pderder[T]{x_i}\right].
+	T &= T_w, \\
+	u_x &= -K_1\sqrt{T_w}\pder[T_w]{x}, \\
+	u_z &= 0.
 \end{align*}
-Ротор от~\eqref{eq:asymptotic2} позволяет избавиться от \(p_2^\dag\).
-Для простоты константное давление \(p_0\) взято единичным:
-\[ p = p_0 = 1. \]
-Индекс у температуры \(T\) исчез, поскольку при \(k=0\) получается точное равенство \(T=T_0\).
+
+Ротор от~\eqref{eq:as:mom} позволяет исключить \(p_2^\dag\) из системы,
+однако численное решение проще выполнить непосредственно в таком виде
+общеизвестными итерационными методами для решения стационарных гидродинамических задач.
+Уравнение непрерывности~\eqref{eq:as:cont} вместе с уравнением импульса~\eqref{eq:as:mom}
+решаются, например, с помощью алгоритма SIMPLE~\cite{Caretto1972}.
+
+В настоящей работе система уравнений~\eqref{eq:as:cont}"--~\eqref{eq:as:mom} решена
+на готовой вычислительной платформе OpenFOAM\textregistered{}~\cite{Tabor1998}
+с помощью специально разработанного солвера.
+
+Искомое распределение температуры вычислено с большой точностью и показано
+на рис.~\ref{fig:isotemp:asym} в сравнении с решением уравнения теплопроводности.
+Дополнительно на рис.~\ref{fig:velocity:asym} показано поле скоростей \(u_i\).
 
 \section{Решение для произвольных чисел Кнудсена}
 
 \section{Сравнение результатов}
+
+
 
 \printbibliography
 
