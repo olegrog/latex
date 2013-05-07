@@ -13,7 +13,7 @@ py.rcParams.update(params)
 import numpy as np
 
 from scipy.interpolate import interp1d
-x,y = py.loadtxt('Y1_2.txt').T
+x,y = py.loadtxt('../transport/Y1_2.txt').T
 Y1 = interp1d(x, y, kind='cubic')
 
 L   = 	0.5
