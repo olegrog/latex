@@ -15,7 +15,7 @@ import numpy as np
 kappa = 2.129475
 w=2
 
-files=('R10','R16','R20','R26','R40')
+files=('R10','R14','R16','R20','R26','R40')
 
 for f in files:
 	data = py.loadtxt(f+'.txt')

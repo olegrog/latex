@@ -14,15 +14,14 @@ import numpy as np
 
 L = 0.5
 
-#data = py.loadtxt('heat.txt').T
-#T,X,Y = data[0], data[1], data[2]
-data = py.loadtxt('asymptotic_N50.txt').T
-T,X,Y = data[1], data[5], data[6]
+data = py.loadtxt('kn003.txt').T
+T,X,Y = data[0], data[4], data[5]
 N = np.sqrt(X.size)
-X = np.reshape(X,(N,N))
-Y = np.flipud(L-np.reshape(Y,(N,N)))
+M = X.max()
+X = np.reshape(X,(N,N)) * L/M
+Y = np.reshape(Y,(N,N)) * L/M
 x,y = X[0,:], Y[:,0]
-T = np.flipud(np.reshape(T,(N,N)))
+T = np.reshape(T,(N,N))
 
 levels=np.arange(.5,1.6,.1)
 cmap = py.cm.get_cmap('coolwarm')
