@@ -1,0 +1,47 @@
+1. Автор:
+	Рогозин Олег Анатольевич, olegrog@yandex.ru.
+
+2. Место работы:
+	Московский физико-технический институт,
+	г. Долгопрудный, Институтский пер., д. 9,
+	аспирант.
+
+3. Название статьи:
+	Моделирование теплопередачи и конвекции сжимаемого газа в континуальном пределе.
+
+4. Аннотация:
+	В классической газодинамике в континуальном пределе (число Кнудсена стремится к нулю)
+	поведение газа описывается уравнениями Эйлера и уравнением теплопроводности.
+	Строгий асимптотический анализ кинетического уравнения Больцмана ограничивает область
+	их применения и приводит к более сложным дифференциальным уравнениям.
+	На базе вычислительной платформы OpenFOAM® был разработан специальный солвер
+	для моделирования слабо разреженного газа в произвольной геометрии.
+	Выполнены характерные расчёты, раскрывающие новые эффекты и существенные отличия
+	от решения классического уравнения теплопроводности.
+
+5. Ключевые слова:
+	численное моделирование, уравнение Больцмана, уравнения Навье-Стокса, тепловое скольжение, термострессовая конвекция.
+
+1. Author:
+	Oleg Rogozin, o.a.rogozin@gmail.com.
+
+2. Place of work:
+	Moscow Institute of Physics and Technology,
+	Dolgoprudnyy, Institutskiy per., 9,
+	postgraduate student.
+
+3. Title of the article:
+	Heat and mass transfer simulation of a compressible gas in the continuum limit.
+
+4. Abstract:
+	In the classical gas dynamics in the continuum limit (Knudsen number tends to zero)
+	behavior of the gas is described by the Euler and heat equations.
+	A rigorous asymptotic analysis of the Boltzmann equation limits the scope of their
+	application and leads to a more complex set of differential equations.	
+	On the basis of the CFD platform OpenFOAM® a special solver is designed for
+	simulation a sligthly rarefied gas in an arbitrary geometry.
+	Considered typical problems reveal new effects and significant differences
+	from the classical solutions of the heat equation.
+
+5. Keywords:
+	Numerical simulation, Boltzmann equation, Navier-Stokes equations, Thermal creep flow, Nonlinear thermal-stress flow.
