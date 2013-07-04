@@ -1,53 +1,31 @@
-\documentclass[english,a4paper,10pt]{article}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{babel}
-\usepackage{csquotes}
-
+%&pdflatex
+\documentclass[preprint]{elsarticle}
+\usepackage[english]{babel}
 \usepackage{fullpage}
-\usepackage{indentfirst}
-\usepackage[font=small,labelfont=bf,labelsep=period]{caption}
 \usepackage{graphicx}
-\usepackage{wrapfig}
-\usepackage{floatflt}
-
 \usepackage{amssymb, amsmath}
-
-\usepackage[
-	pdfauthor={Oleg Rogozin},
-	pdftitle={
-		Computer simulation of a stationary gas in the continuum limit with considerable temperature gradients
-	},
-	colorlinks,pdftex, unicode]{hyperref}
 
 \newcommand{\Kn}{\mathrm{Kn}}
 \newcommand{\dd}{\:\mathrm{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
 \newcommand{\pderder}[2][]{\frac{\partial^2 #1}{\partial #2^2}}
 
-\usepackage[
-	backend=biber,
-	style=numeric,
-	natbib=true,
-	maxbibnames=99, minbibnames=99,
-	language=american,
-	babel=other,
-	sorting=none,
-	url=false,
-	eprint=false,
-	pagetracker,
-	firstinits]{biblatex}
-\bibliography{asymptoticSBFoam_eng}
+\begin{document}
+
+\begin{frontmatter}
 
 \title{
 	Computer simulation of a stationary gas in the continuum limit with considerable temperature gradients
 }
-\author{Oleg Rogozin}
-\date{}
 
-\begin{document}
+\author{O.A.~Rogozin}
+\ead{o.a.rogozin@gmail.com}
+\address[mipt]{
+	Moscow Institute of Physics and Technology,
+	9 Institutskiy pereulok, g. Dolgoprudny,
+	Moskovskaya obl., Russian Federation
+}
 
-\maketitle
 \begin{abstract}
 	Classical fluid dynamics describes a behavior of gas in terms of the Navier--Stokes
 	set of equations that converges to the Euler set in the continuum limit.
@@ -57,12 +35,14 @@
 	numerical simulation of a slightly rarefied gas in an arbitrary geometry with a finite Reynolds number.
 	Considered two-dimensional problems clearly illustrate significant flows eluding
 	from the solution of the conventional equations.
-
-	\hbox{}\noindent \textbf{Key words:}
-	numerical simulation, Boltzmann equation, Navier--Stokes equations, thermal creep flow,
-	nonlinear thermal-stress flow.
 \end{abstract}
 
+\begin{keyword}
+	numerical simulation \sep Boltzmann equation \sep Navier--Stokes equations \sep thermal creep flow \sep
+	nonlinear thermal-stress flow
+\end{keyword}
+
+\end{frontmatter}
 
 \section{Introduction}
 
@@ -197,14 +177,6 @@ For a hard-sphere gas, dimensionless transfer coefficients are equal
 The first two ones correspond to the viscosity and the thermal conductivity:
 \[ \mu = \frac{\sqrt\pi}2\gamma_1, \quad \lambda = \frac{5\sqrt\pi}2\gamma_2. \]
 
-\begin{wrapfigure}{r}{6.5cm}
-	\vspace{-10pt}
-	\includegraphics{transport/Y1}
-	\vspace{-20pt}
-	\caption{The function of the Knudsen layer \(Y_1(\eta)\) for a hard-sphere gas}\label{fig:Y1}
-	\vspace{5pt}
-\end{wrapfigure}
-
 Diffuse-reflection boundary conditions are
 \begin{gather}
 	T_0 = T_w, \label{eq:bound:T} \\
@@ -248,6 +220,24 @@ The Knudsen layer introduces a correction to \(u_{i1}\) for a hard-sphere gas:
 \end{equation}
 The function \(Y_1(\eta)\) is tabulated, for example, in~\cite{Sone2002, Sone2007} and is shown in Fig.~\ref{fig:Y1}.
 
+\begin{figure}[ht]
+	\centering
+	\begin{minipage}{.48\textwidth}
+		\centering
+		\includegraphics{transport_Y1}
+		\caption{The function of the Knudsen layer \(Y_1(\eta)\) for a hard-sphere gas}
+		\label{fig:Y1}
+	\end{minipage}
+	\quad
+	\begin{minipage}{.48\textwidth}
+		\centering
+		\includegraphics{plates_geometry}
+		\vspace{13pt}
+		\caption{Geometry of the problem with two parallel plates}
+		\label{fig:geometry}
+	\end{minipage}
+\end{figure}
+
 Generally, for \(\Kn\to0\), gas is not described by the heat-conduction equation~\eqref{eq:heat_equation}.
 Equation~\eqref{eq:asymptotic3} converges to it only in the special case \(u_{i1} = 0\).
 We can identify three reasons why this condition is not met:
@@ -265,14 +255,19 @@ and the third one has only an implicit impact from them.
 
 \section{Numerical simulation}
 
-\begin{wrapfigure}{r}{6cm}
-	\vspace{-20pt}
+\begin{figure}[ht]
 	\centering
-	\includegraphics{tikz/bobylev}
-	\vspace{-20pt}
-	\caption{The geometry of the problem}\label{fig:geometry}
-	\vspace{-5pt}
-\end{wrapfigure}
+	\includegraphics{plates_T_asym}
+	\caption{The temperature field \(T\), obtained from the asymptotic theory}
+	\label{fig:moving:T_asym}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics{plates_T_heat}
+	\caption{Temperature field \(T\), obtained from the heat-conduction equation}
+	\label{fig:moving:T_heat}
+\end{figure}
 
 Special solver of the system~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}
 has been developed based on open source CFD toolbox OpenFOAM\textregistered{}~\cite{Tabor1998},
@@ -306,29 +301,15 @@ We consider the special case:
 Due to the problem symmetry computational domain represents a rectangle \(0<x<1, 0<z<1/2\)
 (a gray background in Fig.~\ref{fig:geometry}).
 
-\begin{figure}[ht]
+\begin{figure}
 	\centering
-	\includegraphics{moving_wall/T_asym}
-	\caption{The temperature field \(T\), obtained from the asymptotic theory}
-	\label{fig:moving:T_asym}
-\end{figure}
-
-\begin{figure}[ht]
-	\centering
-	\includegraphics{moving_wall/T_heat}
-	\caption{Temperature field \(T\), obtained from the heat-conduction equation}
-	\label{fig:moving:T_heat}
-\end{figure}
-
-\begin{figure}[ht]
-	\centering
-	\includegraphics{moving_wall/U_0}
+	\includegraphics{plates_U_0}
 	\caption{The velocity field \(u_{i1}\) with \(\Kn = 0\)}\label{fig:moving:fluid}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}
 	\centering
-	\includegraphics{moving_wall/U_001}
+	\includegraphics{plates_U_001}
 	\caption{The velocity field \(u_{i1}\) with \(\Kn=0.01\)}\label{fig:moving:kn001}
 \end{figure}
 
@@ -353,15 +334,15 @@ Infinitesimal \(u_w\) has also the finite impact on the temperature field throug
 
 \subsection{Gas between two cylinders and spheres}
 
-\begin{figure}[ht]
+\begin{figure}
 	\centering
-	\includegraphics{noncoaxial/cylinders}
+	\includegraphics{noncoaxial_cylinders}
 	\caption{Stationary field \(u_{i1}\) between two noncoaxial cylinders}\label{fig:cylinders}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics{noncoaxial/spheres}
+	\includegraphics{noncoaxial_spheres}
 	\caption{Stationary field \(u_{i1}\) between two nonconcentric spheres}\label{fig:spheres}
 \end{figure}
 
@@ -391,7 +372,7 @@ In this case, the velocity pattern becomes as in Fig.~\ref{fig:spheres}.
 
 \begin{figure}
 	\centering
-	\includegraphics{elliptic/U}
+	\includegraphics{elliptic}
 	\caption{Stationary field \(u_{i1}\) between coaxial elliptical cylinders}
 	\label{fig:elliptic}
 \end{figure}
@@ -409,16 +390,15 @@ We consider the special case:
 	\centering
 	\begin{minipage}{.48\textwidth}
 		\centering
-		\includegraphics{elliptic/alpha}
-		\captionof{figure}{The maximum magnitude of \(u_{i1}\) versus the temperature ratio of the cylinders \(\alpha\)}
+		\includegraphics{elliptic_alpha}
+		\caption{The maximum magnitude of \(u_{i1}\) versus the temperature ratio of the cylinders \(\alpha\)}
 		\label{fig:maxU}
 	\end{minipage}
 	\quad
 	\begin{minipage}{.48\textwidth}
 		\centering
-		\includegraphics{elliptic/temper}
- 		\vspace{-11pt}
-		\captionof{figure}{The difference in temperature fields \(\delta T\) along the \(x\) for \(\alpha = 5\)}
+		\includegraphics{elliptic_temper}
+		\caption{The difference in temperature fields \(\delta T\) along the \(x\) for \(\alpha = 5\)}
 		\label{fig:deltaT}
 	\end{minipage}
 \end{figure}
@@ -457,7 +437,8 @@ The problems examined above clearly demonstrate some temperature effects of
 a slightly rarefied gas: the thermal creep flow and the nonlinear thermal-stress flow,
 which lie outside the scope of the Navier--Stokes set of equations.
 
-\printbibliography
+\bibliographystyle{elsarticle-num}
+\bibliography{elsarticle}
 
 \end{document}
 
