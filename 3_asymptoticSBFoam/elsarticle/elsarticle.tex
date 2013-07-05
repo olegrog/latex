@@ -1,7 +1,7 @@
 %&pdflatex
-\documentclass[preprint]{elsarticle}
+\documentclass[review,3p,draft]{elsarticle}
 \usepackage[english]{babel}
-\usepackage{fullpage}
+\usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{amssymb, amsmath}
 
@@ -224,14 +224,14 @@ The function \(Y_1(\eta)\) is tabulated, for example, in~\cite{Sone2002, Sone200
 	\centering
 	\begin{minipage}{.48\textwidth}
 		\centering
-		\includegraphics{transport_Y1}
+		\includegraphics{Fig1}
 		\caption{The function of the Knudsen layer \(Y_1(\eta)\) for a hard-sphere gas}
 		\label{fig:Y1}
 	\end{minipage}
 	\quad
 	\begin{minipage}{.48\textwidth}
 		\centering
-		\includegraphics{plates_geometry}
+		\includegraphics{Fig2}
 		\vspace{13pt}
 		\caption{Geometry of the problem with two parallel plates}
 		\label{fig:geometry}
@@ -257,14 +257,14 @@ and the third one has only an implicit impact from them.
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics{plates_T_asym}
+	\includegraphics{Fig3}
 	\caption{The temperature field \(T\), obtained from the asymptotic theory}
 	\label{fig:moving:T_asym}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics{plates_T_heat}
+	\includegraphics{Fig4}
 	\caption{Temperature field \(T\), obtained from the heat-conduction equation}
 	\label{fig:moving:T_heat}
 \end{figure}
@@ -303,13 +303,13 @@ Due to the problem symmetry computational domain represents a rectangle \(0<x<1,
 
 \begin{figure}
 	\centering
-	\includegraphics{plates_U_0}
+	\includegraphics{Fig5}
 	\caption{The velocity field \(u_{i1}\) with \(\Kn = 0\)}\label{fig:moving:fluid}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics{plates_U_001}
+	\includegraphics{Fig6}
 	\caption{The velocity field \(u_{i1}\) with \(\Kn=0.01\)}\label{fig:moving:kn001}
 \end{figure}
 
@@ -336,13 +336,13 @@ Infinitesimal \(u_w\) has also the finite impact on the temperature field throug
 
 \begin{figure}
 	\centering
-	\includegraphics{noncoaxial_cylinders}
+	\includegraphics{Fig7}
 	\caption{Stationary field \(u_{i1}\) between two noncoaxial cylinders}\label{fig:cylinders}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics{noncoaxial_spheres}
+	\includegraphics{Fig8}
 	\caption{Stationary field \(u_{i1}\) between two nonconcentric spheres}\label{fig:spheres}
 \end{figure}
 
@@ -372,7 +372,7 @@ In this case, the velocity pattern becomes as in Fig.~\ref{fig:spheres}.
 
 \begin{figure}
 	\centering
-	\includegraphics{elliptic}
+	\includegraphics{Fig9}
 	\caption{Stationary field \(u_{i1}\) between coaxial elliptical cylinders}
 	\label{fig:elliptic}
 \end{figure}
@@ -390,14 +390,14 @@ We consider the special case:
 	\centering
 	\begin{minipage}{.48\textwidth}
 		\centering
-		\includegraphics{elliptic_alpha}
+		\includegraphics{Fig10}
 		\caption{The maximum magnitude of \(u_{i1}\) versus the temperature ratio of the cylinders \(\alpha\)}
 		\label{fig:maxU}
 	\end{minipage}
 	\quad
 	\begin{minipage}{.48\textwidth}
 		\centering
-		\includegraphics{elliptic_temper}
+		\includegraphics{Fig11}
 		\caption{The difference in temperature fields \(\delta T\) along the \(x\) for \(\alpha = 5\)}
 		\label{fig:deltaT}
 	\end{minipage}
