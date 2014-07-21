@@ -1,0 +1,228 @@
+\documentclass[ucs]{beamer}
+\usetheme{Frankfurt}
+\usepackage[utf8x]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,russian]{babel}
+
+\usepackage{amssymb, amsmath, amsfonts}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,fit,positioning,shapes.multipart,shapes.geometric,shapes.symbols,mindmap}
+
+\title{Стереовизуализация}
+\author{Рогозин Олег}
+\institute{
+	Научно-исследовательский центр <<Курчатовский институт>>\\
+	Московский физико-технический институт (государственный университет)
+}
+\date{\today}
+
+\newcommand{\dd}{\:\mathrm{d}}
+\newcommand{\Kn}{\mathrm{Kn}}
+\newcommand{\TV}{\mathrm{TV}}
+
+\begin{document}
+
+\frame{\titlepage}
+\begin{frame}
+	\frametitle{Содержание}
+	\tableofcontents
+\end{frame}
+
+\section{Обзор}
+
+\begin{frame}
+	\frametitle{Стереоскопические технологии}
+	\begin{center}
+		\vspace{-20pt}
+		\begin{tikzpicture}[node distance=4cm,every path/.style={draw,>=latex',very thick},thick,
+							block/.style={rectangle,text width=3cm,text=white,text badly centered,rounded corners,minimum height=3em}]
+			\node[block,fill=blue] (Gla) {Стереоочки};
+			\node[block,fill=green!50!black,below of=Gla,node distance=2.5cm] (Pol) {Поляризационные};
+			\node[block,fill=green!50!black,left of=Pol] (Ana) {Анаглифические};
+			\node[block,fill=green!50!black,right of=Pol] (Shut) {Затворные};
+			\draw[->] (Gla.west) to [bend right=30] (Ana);
+			\draw[->] (Gla.east) to [bend left=30] node[above right] () {активные} (Shut);
+			\draw[->] (Gla) to node[left] () {пассивные\(\quad\quad\)} (Pol);
+			\node[block,fill=olive,below of=Pol,node distance=2.5cm] (Pol1) {Кинотеатры};
+			\node[block,fill=olive,left of=Pol1] (Ana1) {Любители};
+			\node[block,fill=olive,right of=Pol1] (Shut1) {Геймеры \\ Дом. кинотеатры \\ Профессионалы};
+			\draw[->] (Ana) to  (Ana1);
+			\draw[->] (Shut) to (Shut1);
+			\draw[->] (Pol) to (Pol1);
+		\end{tikzpicture}
+	\end{center}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Стереоскопические технологии}
+	\begin{center}
+		\vspace{-20pt}
+		\begin{tikzpicture}[node distance=4cm,every path/.style={draw,>=latex',very thick},thick,
+							block/.style={rectangle,text width=3cm,text=white,text badly centered,rounded corners,minimum height=3em}]
+			\node[block,fill=blue] (Vars) {Варианты реализации};
+			\node[block,fill=green!50!black,below of=Vars,node distance=2.5cm] (Side) {Side-by-side};
+			\node[block,fill=green!50!black,left of=Side] (V3D) {nVidia 3D Vision};
+			\node[block,fill=green!50!black,right of=Side] (FP) {Frame packing};
+			\draw[->] (Vars.west) to [bend right=30] node[above left] () {визуализация} (V3D);
+			\draw[->] (Vars.east) to [bend left=30] node[above right] () {кино} (FP);
+			\draw[->] (Vars) to (Side);
+			\node[block,fill=olive,below of=Side,node distance=2.5cm] (Side1) {Горизонтальная \\ стереопара};
+			\node[block,fill=olive,left of=Side1] (V3D1) {Мерцающее \\ изображение};
+			\node[block,fill=olive,right of=Side1] (FP1) {Двойное \\ изображение};
+			\draw[->] (V3D) to node[right,text width=2cm] () {DirectX \\ OpenGL} (V3D1);
+			\draw[->] (FP) to node[left] () {HDMI 1.4} (FP1);
+			\draw[->] (Side) to (Side1);
+			\node[below of=V3D1,node distance=1cm] () {видеокарта};
+			\node[below of=Side1,node distance=1cm] () {проектор};
+			\node[below of=FP1,node distance=1cm] () {проектор};
+		\end{tikzpicture}
+	\end{center}
+\end{frame}
+
+\section{Технология nVidia 3D Vision}
+
+\begin{frame}
+	\frametitle{Маркентинг nVidia}
+	\begin{center}
+		\vspace{-20pt}
+		\begin{tikzpicture}[node distance=4cm,every path/.style={draw,>=latex',very thick},thick,
+							block/.style={rectangle,text width=3cm,text=white,text badly centered,rounded corners,minimum height=3em}]
+			\node[block,fill=blue] (nVid) {nVidia};
+			\node[block,fill=green!50!black!30!white,below of=nVid, node distance=2.5cm] (Tesl) {Tesla};
+			\node[block,fill=green!50!black,left of=Tesl] (Quad) {Quadro};
+			\node[block,fill=green!50!black,right of=Tesl] (GeF) {GeForce};
+			\draw[->] (nVid.west) to [bend right=30] node[above left] () {визуализация} (Quad);
+			\draw[->] (nVid.east) to [bend left=30] node[above right] () {игры} (GeF);
+			\draw[->] (nVid) to (Tesl);
+			\node[block,fill=olive!30!white,below of=Tesl, node distance=2.5cm] (Tesl1) {GPU};
+			\node[block,fill=olive,left of=Tesl1] (Quad1) {3D Vision Pro \\ OpenGL Stereo \\ Quad Buffering};
+			\node[block,fill=olive,right of=Tesl1] (GeF1) {3D Vision \\ Direct3D \\ Full Screen};
+			\draw[->] (Quad) to (Quad1);
+			\draw[->] (GeF) to (GeF1);
+			\draw[->] (Tesl) to (Tesl1);
+		\end{tikzpicture}
+	\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Конфигурация 3D Vision}
+	\begin{block}{Требования}
+		\begin{itemize}
+			\item монитор или проектор, поддерживающий 3D Vision \\
+			\item кабель с высокой пропускной способностью \\
+			\item фирменные затворные очки 3D очки \\
+			\item излучатель для синхронизации \\
+			\item драйвера nVidia версией >= 260.19.36
+		\end{itemize}
+	\end{block}
+	\begin{block}{Настройка}
+		\scriptsize
+		\begin{verbatim}
+			Section "Screen"
+			    ...
+			    Option "Stereo" "11"
+			EndSection
+		\end{verbatim}
+		\begin{verbatim}
+			sudo nvidia-xconfig --stereo=11
+		\end{verbatim}
+	\end{block}
+\end{frame}
+
+\section{Стереопара Side-by-Side}
+
+\begin{frame}[fragile]
+	\frametitle{Режима Side-by-Side}
+	Самый простой и распространённый
+	\begin{block}{Требования}
+		Для реализации необходим только:
+		\begin{itemize}
+			\item стереопроектор, поддерживающий режим Side-by-Side \\	
+		\end{itemize}
+		Для JVC DLA-X7 понадобятся:
+		\begin{itemize}
+			\item синхронизирующий ИК-эмиттер JVC PK-EM \\
+			\item затворные очки JVC PK-AG1-B \\
+		\end{itemize}
+	\end{block}
+	\begin{block}{Настройка}
+		Необходимо подать на видеовыход
+		\begin{itemize}
+			\item горизонтальная стереопара (left/right half width)
+			\item на весь экран
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\section{Технология Frame Packing}
+
+\begin{frame}[fragile]
+	\frametitle{Режим Frame Packing}
+	\begin{block}{Требования}
+		\scriptsize
+		\begin{itemize}
+			\item стереопроектор, поддерживающий режим Frame Packing \\
+			\item хороший видеокабель (например, HDMI High Speed Cable) \\
+		\end{itemize}
+		Поддерживаемые режимы:
+		\begin{itemize}
+			\item 1280x1470@60 (рекомендован для игр) \\
+			\item 1920x2205@24 (рекомендован для кинопросмотра) \\
+		\end{itemize}
+	\end{block}
+	\begin{block}{Конфигурация}
+		\tiny
+		\begin{verbatim}
+			Section "Monitor"
+			    Identifier     "Projector"
+			    Modeline       "1280x1470_60" 148.5  1280 1390 1430 1650 1470 1475 1480 1500 +hsync +vsync
+			    Modeline       "1920x2205_24" 148.32 1920 2558 2602 2750 2205 2209 2214 2250 +hsync +vsync
+			EndSection
+			...
+			Section "Screen"
+			    ...
+			    Monitor        "Projector"
+			    Option         "ExactModeTimingsDVI" "True"
+			    Option         "metamodes" "DFP-2: 1920x2205_24"
+			EndSection
+		\end{verbatim}
+	\end{block}
+	\scriptsize
+	nVidia продаёт за \$40 3DTV Play
+\end{frame}
+
+\section*{}
+\begin{frame}[fragile]
+	\frametitle{Использование}
+	\scriptsize
+	\begin{block}{OpenGL Stereo}
+		\begin{verbatim}
+			paraview --stereo --stereo-type="Crystal Eyes"
+			mplayer -vo gl:stereo=3
+			bino -n -f -o stereo demo.avi
+		\end{verbatim}
+	\end{block}
+	\begin{block}{Side-by-Side}
+		\begin{verbatim}
+			echo "stereo on" > script && ./jmol.sh -k -s script file.pdb
+			bino -n -f -o left-right-half demo.avi
+		\end{verbatim}
+	\end{block}
+	\begin{block}{Frame Packing}
+		\begin{verbatim}
+			bino -n -f -o hdmi-frame-pack demo.avi
+		\end{verbatim}
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Заключение}
+	\begin{itemize}
+		\item профессинальное стерео --- OpenGL Stereo --- 3D Vision \\
+		\item простое и нетребовательное стерео --- стереопары \\
+		\item высокое качество видео --- HDMI Frame Packing \\
+	\end{itemize}
+\end{frame}
+
+\end{document}
