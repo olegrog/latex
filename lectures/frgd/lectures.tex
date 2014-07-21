@@ -1,0 +1,152 @@
+\documentclass[ucs,english,russian]{beamer}
+\usepackage[utf8x]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage{iwona} % [math]
+
+\usetheme{Antibes} % AnnArbor, Antibes, JuanLesPins
+\usecolortheme{crane} % seahorse, crane
+\usefonttheme{professionalfonts}
+\useoutertheme{mytree}
+
+\title{Динамика жидкости и разреженного газа}
+\author{Рогозин Олег}
+\institute{Московский физико-технический институт}
+\date{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% choose the lecture below %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\includeonlylecture{week1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\AtBeginLecture{
+	\frame{
+		\centering{\Large Лекция \insertshortlecture/8} \\ \bigskip
+		\begin{beamercolorbox}[ht=5.5ex,dp=2.5ex]{section in head/foot}
+			\centering\Huge\insertlecture
+		\end{beamercolorbox}
+	}
+}
+\AtBeginPart{
+	\frame{
+		\frametitle{Содержание}\tableofcontents
+	}
+}
+\newcommand{\dd}{\:\mathrm{d}}
+\newcommand{\D}{\mathrm{d}}
+\newcommand{\Kn}{\mathrm{Kn}}
+\newcommand{\Hence}{\quad\Longrightarrow\quad}
+\DeclareMathOperator*{\Div}{div}
+\DeclareMathOperator*{\Grad}{grad}
+\DeclareMathOperator*{\Rot}{rot}
+\DeclareMathOperator*{\Const}{const}
+\newcommand{\blue}[1]{ {\color{blue} #1} }
+
+\begin{document}
+
+\frame{\titlepage}
+
+\lecture[1]{Идеальная жидкость}{week1}
+\part{Идеальная жидкость}
+\section{Уравнения движения}
+\begin{frame}
+	\frametitle{Математическое описание}
+	Используем \blue{5 независимых функций}:
+		\( \mathbf{v}(\mathbf{r},t),\quad p(\mathbf{r},t),\quad \rho(\mathbf{r},t) \)
+	В идеальной жидкости пренебрегаем \alert{диссипативными} и \alert{тепловыми} процессами.
+	
+	Соотвественно \blue{5 уравнений движений}:
+	\begin{itemize}
+		\item уравнение непрерывности \( \frac{\D\rho}{\D t} = 0  \)
+		\item уравнения Эйлера \( \frac{\D\mathbf{v}}{\D t} = - \frac1\rho\Grad{p} \)
+		\item адиабатичность движения \( \frac{\D s}{\D t} = 0 \)
+	\end{itemize}
+	\( \frac\D{\D t} \) --- субстанциональная производная
+\end{frame}
+
+\begin{frame}
+	\frametitle{Уравнение непрерывности}
+	\begin{block}{}
+		\vspace{-10pt}
+		\[
+			\alert{\frac\D{\D t}\int\rho\dd V \equiv}
+			\frac{\partial}{\partial t}\int\rho\dd V + \oint\rho\mathbf{v}\dd\mathbf{f} = 0
+			\Hence \frac{\partial\rho}{\partial t} + \Div\rho\mathbf{v} = 0
+		\]
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Уравнение Эйлера}
+	\begin{block}{}
+		\[
+			\int\rho\frac{\D\mathbf{v}}{\D t}\dd V = -\oint p\dd\mathbf{f}
+			\Hence \rho\frac{\D\mathbf{v}}{\D t} + \Grad p = 0
+			% for proof consider \int\mathrm{div}g\mathbf{A} = \oint g\mathbf{A}\dd f
+		\]
+		\[
+			\frac{\D\mathbf{v}}{\D t} = \frac{\partial\mathbf{v}}{\partial t} + (\mathbf{v}\nabla)\mathbf{v}
+			\Hence \frac{\partial\mathbf{v}}{\partial t} + (\mathbf{v}\nabla)\mathbf{v} = -\frac1\rho\Grad{p}
+		\]
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Адиабатичность движения}
+	\begin{block}{тепловая функция единицы массы}
+		\[ \D w = T\dd s + \frac1\rho\dd p = \frac1\rho\dd p \]
+	\end{block}
+	\begin{block}{из векторного анализа}
+		\[ \frac1{2}\Grad{\mathbf{v}^2} = [\mathbf{v}\Rot\mathbf{v}] + (\mathbf{v}\nabla)\mathbf{v} \]
+	\end{block}
+	\vspace{-20pt}
+	\[
+		\frac{\partial\mathbf{v}}{\partial t} - [\mathbf{v}\Rot\mathbf{v}] = -\Grad\left(w+\frac{v^2}2\right)
+		\Hence \frac{\partial}{\partial t}\Rot\mathbf{v} = \Rot[\mathbf{v}\Rot\mathbf{v}]
+	\]
+\end{frame}
+
+\section{Гидростатика}
+
+
+\section{Уравнение Эйлера}
+\begin{frame}
+% 	\frametitle{Расщепление уравнения Больцмана}
+	\begin{definition} % theorem, lemma, proof, corollary, or example
+	A \alert{prime number} is a number that has exactly two divisors.
+	\end{definition}
+	Hello!
+	\[f(x)=\int x^2 dx\]
+	\begin{itemize}
+	\item Answered Questions
+	\begin{itemize}
+	\item How many primes are there?
+	\end{itemize}
+	\item Open Questions
+	\begin{itemize}
+	\item Is every even number the sum of two primes?
+	\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\section{Уравнение Бернулли}
+\begin{frame}
+ 	\frametitle{Расщепление уравнения Больцмана}
+	\begin{definition} % theorem, lemma, proof, corollary, or example
+	A \alert{prime number} is a number that has exactly two divisors.
+	\end{definition}
+	Hello!
+
+\end{frame}
+
+\section{Теорема Томпсона}
+\section{Несжимаемая жидкость}
+\subsection{Функция тока}
+\section{Потенциальное движение}
+\subsection{Парадокс Даламбера}
+
+\lecture[2]{Вязкая жидкость}{week2}
+\part{Вязкая жидкость}
+
+\end{document}
+
