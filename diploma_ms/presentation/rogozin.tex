@@ -1,0 +1,452 @@
+\documentclass[ucs]{beamer}
+\usetheme{Frankfurt}
+\usepackage[utf8x]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,russian]{babel}
+
+\usepackage{amssymb, amsmath, amsfonts}
+
+\usepackage{pgfmath}
+\usepackage{tikz}
+\usetikzlibrary{arrows,fit,positioning,shapes.multipart,shapes.geometric,shapes.symbols,mindmap}
+
+\title{Дипломная работа \newline\newline Решение классических задач динамики разреженного газа проекционным методом дискретных ординат}
+\author{Рогозин Олег Анатольевич}
+\institute{
+	Московский физико-технический институт (государственный университет) \\
+	Научно-исследовательский центр <<Курчатовский институт>> \\
+	Вычислительный центр РАН им. Дородницына
+}
+\date{}
+
+\newcommand{\dd}{\:\mathrm{d}}
+\newcommand{\Kn}{\mathrm{Kn}}
+\newcommand{\TV}{\mathrm{TV}}
+
+\begin{document}
+
+\frame{\titlepage}
+\begin{frame}
+	\frametitle{Содержание}
+	\tableofcontents
+\end{frame}
+
+\section{Актуальность задачи}
+
+\begin{frame}
+	\frametitle{Почему кинетическая теория?}
+	\begin{center}
+		\vspace{-20pt}
+		\begin{tikzpicture}[node distance=4cm,every path/.style={draw,>=latex',very thick},thick,
+							block/.style={rectangle,text width=2.6cm,text=white,text badly centered,rounded corners,minimum height=4em}]
+			\node[block,fill=blue] (Liu) {Лиувилль\\\(6N\)};
+			\node[block,fill=blue,right of=Liu] (Boltz) {Больцман\\6};
+			\node[block,fill=blue,right of=Boltz] (NS) {Навье"--~Стокс\\3};
+			\draw[->] (Liu.north) to [bend left=60] node[above,text width=4cm,text centered] {молекулярный хаос} (Boltz);
+			\draw[->] (Boltz) to [bend left=60] node[above,text width=4cm,text centered] {?} (NS.north);
+			\pause[2]
+	 		\node[below of=Boltz, node distance=2cm] (dummy) {};
+			\node[block,fill=red,left of=dummy, node distance=2cm,minimum height=2em,text width=2cm] (Hilb) {Гильберт};
+			\node[block,fill=red,right of=dummy, node distance=2cm,minimum height=2em,text width=3cm] (CE) {Чэпмен"--~Энског};
+			\draw[->] (Boltz.west) to [bend right=30] (Hilb);
+			\draw[->] (Boltz.east) to [bend left=30] (CE);
+			\draw[->,dashed] (CE.east) to [bend right=30] node[right] (tmp) {\(\Kn\to0\)} (NS);
+			\pause[3]
+	 		\node[below of=Hilb, node distance=2cm] (dummy2) {};
+			\node[block,fill=green!50!black,node distance=2cm,left of=dummy2,minimum height=2em,text width=3cm] (linear) {Линейная теория};
+			\node[block,fill=green!50!black,node distance=2cm,right of=dummy2,minimum height=2em,text width=3cm] (nonlin) {Нелинейная теория};
+			\draw[->] (Hilb.west) to [bend right=45] (linear);
+			\draw[->] (Hilb.east) to [bend left=45] (nonlin);
+			\pause[4]
+			\node[block,fill=olive,right of=nonlin,minimum height=2em,text width=3cm] (ghost) {Эффект призрака};
+	 		\draw[->] (nonlin) to (ghost);
+			\draw[->,dashed] (CE.east) to [bend right=30] node[starburst,fill=yellow] (tmp2) {} (NS);
+	 		\draw[->] (ghost) to [bend right=30] (tmp2);
+		\end{tikzpicture}
+	\end{center}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Почему проекционный метод?}
+	\begin{center}
+		\vspace{-20pt}
+		\begin{tikzpicture}[node distance=4cm,every path/.style={draw,>=latex',very thick},thick,
+							block/.style={rectangle split,rectangle split parts=2,rectangle split part fill={blue, blue!70!red},
+											text width=3cm,text=white,text badly centered,rounded corners,minimum height=4em},
+							method/.style={ellipse,fill=green!50!black,text width=2cm,text=white,text badly centered,minimum height=3em,node distance=2cm}]
+			\node[block] (slightly) {Слабо разреженный газ \nodepart{second} \(\Kn \ll 1\)};
+			\node[block,right of=slightly] (trans) {Переходный режим \nodepart{second} \(\Kn \sim 1\)};
+			\node[block,right of=trans] (highly) {Сильно разреженный газ \nodepart{second} \(\Kn \gg 1\)};
+			\node[method,below of=highly] (DSMC) {DSMC};
+			\node[method,below of=trans] (unknow) {?};
+			\node[method,below of=slightly] (NS) {NS + slip};
+			\pause[2]
+			\node[method,below of=unknow] (PMDO) {PMDO};
+			\draw[->] (PMDO) to (unknow);
+			\pause[3]
+			\node[cloud,cloud puffs=9,aspect=2,fill=red!40,inner sep=-8pt,node distance=3cm,above right of=trans] (nano) {Нанотехнологии};
+			\draw[->] (nano) to [bend right=45] (trans);
+		\end{tikzpicture}
+	\end{center}
+\end{frame}
+
+\section{Численный метод}
+\begin{frame}
+	\frametitle{Расщепление уравнения Больцмана}
+	\[
+		{\partial{f} \over \partial{t}} + \boldsymbol{\xi} \cdot {\partial{f} \over \partial\mathbf{r}} = 
+		\int\limits_{\mathbb R^3} \int\limits_0^{2\pi} \int\limits_0^{b_m} 
+		(f_1' f' - f_1 f) gb \dd{b} \dd\varepsilon \dd\boldsymbol\xi_1
+	\]
+	\begin{columns}[c]
+		\begin{column}{6cm}
+			\begin{enumerate}
+				\item уравнение переноса
+				\begin{itemize}
+					\item \(\displaystyle{\partial{f} \over \partial{t}} + \boldsymbol\xi \cdot {\partial{f} \over \partial\mathbf{r}} = 0\)
+				\end{itemize}
+				\item интеграл столкновений
+				\begin{itemize}
+					\item \(\displaystyle{\partial{f} \over \partial{t}} = J(f)\)
+				\end{itemize}
+				\item вычисление макропараметров
+				\begin{itemize}
+					\item \(n = \int f \dd\boldsymbol\xi$
+					\item \(\mathbf{u} = \frac{1}{n}\int \boldsymbol\xi f \dd\boldsymbol\xi\)
+					\item \(T = \frac{m}{3nk}\int c^2 f \dd\boldsymbol\xi\)
+					\item \(P_{ij} = m \int c_i c_j f \dd\boldsymbol\xi\)
+					\item \(\mathbf{q} = \frac{m}{2} \int c^2 \mathbf{c} f \dd\boldsymbol\xi\)
+				\end{itemize}
+			\end{enumerate}
+		\end{column}
+		\begin{column}{6cm}
+			\centering{Симметричная схема расщепления} \\
+			\bigskip
+			\includegraphics[width=\columnwidth]{pics/split_scheme.pdf}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Применяемые сетки и левая часть уравнения Больцмана}
+	\begin{columns}[c]
+		\column{0.5\columnwidth}
+			\centering{Пространственные сетки\\}
+				\smallskip
+				\includegraphics[width=3cm]{pics/rectangle_mesh.pdf}\\
+				\bigskip
+			Консервативная TVD-схема второго порядка точности
+		\[ {f^{n+1}_i-f^n_i \over \tau} = \xi{f^{n+1/2}_{i+1/2} - f^{n+1/2}_{i-1/2}  \over h} \]
+		\[ f^{n+1/2}_{i+1/2} = f^n_i+\frac{1-\gamma}{2}\alert{\varphi\left(\frac{f^n_{i}-f^n_{i-1}}{f^n_{i+1}-f^n_i}\right)} (f^n_{i+1}-f^n_i), \xi>0 \]
+		\column{0.5\columnwidth}
+			\centering{Скоростная сетка\\}
+			\bigskip
+			\begin{tikzpicture}[scale=.1]
+				\foreach \x in {-15,...,15}
+					\foreach \y in {-15,...,15}
+					{
+						\pgfmathtruncatemacro\mynumber{\x^2+\y^2}
+						\ifnum \mynumber<225
+							\pgfpathrectangle{\pgfpoint{\x cm}{\y cm}}{\pgfpoint{1cm}{1cm}}
+						\fi
+					}
+				\pgfusepath{draw}
+			\end{tikzpicture}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Оптимальные ограничители}
+	Предлагается использовать два различных ограничителя:\\\bigskip
+	\begin{itemize}
+		\item для \alert{грубых} сеток и \alert{разрывных} решений \alert{\textit{wide superbee}}
+			\[ \varphi(\theta,\alert\gamma) = \max\left(\min\left(\dfrac2{\gamma}\theta,1\right),\min\left(\theta,\dfrac2{1-\gamma}\right)\right) \] \\
+		\item для \alert{гладких} решений \alert{\textit{wide third}} 
+			\[ \varphi(\theta,\alert\gamma) = \min\left(\dfrac2{\gamma}\theta,\dfrac{(\gamma+1)\theta+(2-\gamma)}{3},\dfrac2{1-\gamma}\right) \] \\
+	\end{itemize}
+	\begin{block}{}\scriptsize
+		\textit{Введение в численные методы в динамике разреженного газа}: учеб. пособие \\
+		/ Аникин Ю.А., Клосс Ю.Ю., \textbf{Рогозин О.А.}, Сазыкина Т.А., Черемисин Ф.Г. — \\
+		М.: МФТИ, 2011. — 80 с. — ISBN 978-5-7417-0381-6.
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Сравнение ограничителей}
+	\begin{columns}
+		\column{.5\textwidth}
+		\centering{MC}\\
+		\includegraphics[width=\textwidth]{conver/mc}\\
+		\centering{superbee}\\
+		\includegraphics[width=\textwidth]{conver/superbee}\\
+		\centering{первый порядок}\\
+		\includegraphics[width=\textwidth]{conver/first}\\
+		\column{.5\textwidth}
+		\centering{wide third}\\
+		\includegraphics[width=\textwidth]{conver/third_g}\\
+		\centering{wide superbee}\\
+		\includegraphics[width=\textwidth]{conver/superbee_g}\\
+	\end{columns}
+	\begin{block}{}\scriptsize
+		\textbf{Рогозин О.А.} \textit{Сравнение TVD-ограничителей}
+		// Труды 53-й научной конференции МФТИ — С. 97–98. — 
+		М.: МФТИ, 2010. — ISBN 978-5-7417-0328-1. \\ \smallskip\tiny
+		http://mipt.ru/nauka/53conf/Arhiv+dokladov/FOPF/MFPMNS.02-arpggtje60p.rar
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Правая часть уравнения Больцмана}
+	\begin{itemize}
+		\item симметризация по \(\boldsymbol\xi\) и \(\boldsymbol\xi'_1\)
+			\[
+				J(\boldsymbol\xi_\gamma) = \int\delta(\boldsymbol\xi-\boldsymbol\xi_\gamma)
+				(f_1' f' - f_1 f) gb \dd{b} \dd\varepsilon \dd\boldsymbol\xi \dd\boldsymbol\xi_1
+			\]
+		\item переход от интегрирования к суммированию
+			\[ \int\dots\dd{b}\dd\varepsilon\dd\boldsymbol\xi\dd\boldsymbol\xi_1 \to \sum\limits_{\nu=1}^{N_\nu}\dots \]
+		\item 8D интегрирующая сетка Коробова \( \{b_\nu,\varepsilon_\nu,\boldsymbol\xi_{\alpha_\nu},\boldsymbol\xi_{\beta_\nu}\} \)
+	\end{itemize}
+	\begin{block}{}\scriptsize
+		Черемисин Ф.Г. \textit{Консервативный метод вычисления интеграла столкновений Больцмана}
+			// Доклады РАН. — 1997. — Т. 357, № 1. — С. 53—56.
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Проекционный метод}
+	\begin{columns}
+		\begin{column}{4cm}
+			\begin{tikzpicture}[scale=.4, >=latex',thick]
+				\draw[step=1, gray, very thin] (-5.4,-5.4) grid (5.4,5.4);
+				\draw (0,0) circle (5);
+				\draw[->] (0,0)--(4,-3) node[below right] {\footnotesize\(\boldsymbol\xi_\alpha\)};
+				\draw[->] (0,0)--(-4,3) node[above left] {\footnotesize\(\boldsymbol\xi_\beta\)};
+				\draw[->] (0,0)--(4.77,1.5);
+				\draw[->] (0,0)--(-4.77,-1.5);
+				\draw (-5,-2) circle (.1) node[anchor=north] {\footnotesize\(\boldsymbol\xi_{\lambda+s}\)};
+				\draw (-4,-1) circle (.1) node[anchor=south] {\footnotesize\(\boldsymbol\xi_\lambda\)};
+				\draw (5,2) circle (.1) node[anchor=south] {\footnotesize\(\boldsymbol\xi_{\mu-s}\)};
+				\draw (4,1) circle (.1) node[anchor=north] {\footnotesize\(\boldsymbol\xi_\mu\)};
+			\end{tikzpicture}
+		\end{column}
+		\begin{column}{6cm}
+			\[ 
+				\boldsymbol\xi_{\alpha_\nu},\boldsymbol\xi_{\beta_\nu}\in \Omega \rightarrow
+				\boldsymbol\xi'_{\alpha_\nu},\boldsymbol\xi'_{\beta_\nu}\notin \Omega 
+			\]
+			\begin{center}
+			\pause[2]
+			\alert{Проецирование на \(\Omega\)}\\\smallskip\smallskip
+			\begin{tikzpicture}[every node/.style={circle,draw=blue!50,fill=blue!20,thick,inner sep=0pt,minimum size=8mm}, >=latex',thick, node distance=.5]
+				\node (alpha) {\footnotesize\(\boldsymbol\xi_\alpha'\)};
+				\node (lambda) [below left=of alpha] {\footnotesize\(\boldsymbol\xi_\lambda\)};
+				\node (lambdas) [below right=of alpha] {\footnotesize\(\boldsymbol\xi_{\lambda+s}\)};
+				\draw [->] (alpha) to (lambda);
+				\draw [->] (alpha) to (lambdas);
+			\end{tikzpicture}
+			\hspace{3mm}
+			\begin{tikzpicture}[every node/.style={circle,draw=blue!50,fill=blue!20,thick,inner sep=0pt,minimum size=8mm}, >=latex',thick, node distance=.5]
+				\node (beta) {\footnotesize\(\boldsymbol\xi_\beta'\)};
+				\node (mu) [below left=of beta] {\footnotesize\(\boldsymbol\xi_\mu\)};
+				\node (mus) [below right=of beta] {\footnotesize\(\boldsymbol\xi_{\mu-s}\)};
+				\draw [->] (beta) to (mu);
+				\draw [->] (beta) to (mus);
+			\end{tikzpicture}
+			\end{center}
+		\end{column}
+	\end{columns}
+	\pause[3]
+	\bigskip\centering \alert{Регуляризация \(f'\) и \(f'_1\)}
+	\begin{columns}
+		\column{.3\textwidth}
+		\begin{block}{\centering с сохранением}
+			\begin{itemize}
+				\item массы \\
+				\item импульса \\
+				\item энергии \\
+			\end{itemize}
+		\end{block}
+		\column{.5\textwidth}
+		\begin{block}{\centering с нарушением}
+			\begin{itemize}
+				\item старших моментов \\
+				\item молекулярного потенциала \\
+			\end{itemize}
+		\end{block}
+	\end{columns}
+
+\end{frame}
+
+\section{Моделирование}
+
+\begin{frame}
+	\frametitle{Проблемно-моделирующая среда}
+	\begin{columns}
+		\column{.5\textwidth}
+		\begin{center}
+			Структура\\
+			\includegraphics[width=\textwidth]{pics/pse1}
+		\end{center}
+		\column{.5\textwidth}
+		\begin{center}
+			Алгоритм\\
+			\includegraphics[width=\textwidth]{pics/pse2}
+		\end{center}
+		\vspace{-10pt}
+		\begin{block}{}\tiny
+			Додулад О.И., Клосс Ю.Ю., Мартынов Д.В., \textbf{Рогозин О.А.}, Рябченков В.В., Шувалов П.В., Черемисин Ф.Г. 
+			\textit{Проблемно-моделирующая среда для расчётов и анализа газокинетических процессов} 
+			// Нано- и микросистемная техника. — № 2. — С. 12–17. — 2011.
+		\end{block}
+
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Разреженный газ между 2 параллельными пластинами}
+	\begin{columns}
+		\column{.6\textwidth}
+		\centering
+		\begin{tikzpicture}[dashdot/.style={dash pattern=on .4pt off 3pt on 4pt off 3pt},
+							>=latex',thick, scale=1]
+			\fill[gray!20] (0,0) -- (3.6,0) -- (3.6,1.5) -- (0,1.5) -- cycle;
+			\draw[dashdot] (-.2,0) -- (3.8,0);
+			\draw[very thick] (0,1.5) -- (3.6,1.5);
+			\draw[<->] (.7,0) -- (.7,.75) node[left] {\(\dfrac{L}{2}\)} -- (.7,1.5);
+			\draw[<->] (3.2,0) node[above] {\(z\)} -- (2.4,0) -- (2.4,.8) node[right] {\(x\)};
+		\end{tikzpicture}\\
+		\bigskip
+		\begin{itemize}
+			\item одномерная задача \\
+			\item линейная \(\left|\frac{\partial \hat{h}_i}{\partial x_i}\right| \ll 1 \) \\
+			\item диффузное отражение \(\alpha=1\) \\
+			\item одноатомный идеальный газ \\
+			\item модель твердых сфер \\
+		\end{itemize}
+		\column{.5\textwidth}
+		\setbeamertemplate{items}[circle]
+		\setbeamerfont{item projected}{size=\large}
+		\setbeamerfont{itemize/enumerate body}{size=\large}
+		\begin{enumerate}
+			\item течение Куэтта \\
+			\item перенос тепла \\
+			\item течение Пуазёйля \\
+			\item тепловая транспирация \\
+		\end{enumerate}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Течение Куэтта и перенос тепла}
+	\begin{columns}
+		\column{.55\textwidth}
+		\begin{center}
+			Сдвиговое напряжение\\
+			\includegraphics[width=\textwidth]{pics/couette_stress}
+		\end{center}
+		\column{.55\textwidth}
+		\begin{center}
+			Поток тепла\\
+			\includegraphics[width=\textwidth]{pics/heat_qflow}
+		\end{center}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Исследование погрешности}
+	\begin{columns}
+		\column{.8\textwidth}
+		\begin{center}
+			Значение относительной ошибки\\
+			\includegraphics[width=\textwidth]{pics/error}
+		\end{center}
+		\column{.2\textwidth}
+		\begin{center}
+			Сходимость 2/3 порядка по объёму скоростной сетки
+		\end{center}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Течение Куэтта}
+	\begin{columns}
+		\column{.55\textwidth}
+		\begin{center}
+			Поток через половину сечения\\
+			\includegraphics[width=\textwidth]{pics/couette_flow}
+		\end{center}
+		\column{.55\textwidth}
+		\begin{center}
+			Продольный поток тепла\\
+			\includegraphics[width=\textwidth]{pics/couette_qflow}
+		\end{center}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{История решения задачи Пуазёйля}
+	\begin{itemize}
+		\item \textit{James Clark Maxwell, 1879} \\ формулировка условий скольжения газа вдоль стенок \\
+		\item \textit{Martin Knudsen, 1909} \\ экспериментальное определение минимума потока газа \\
+		\item \textit{Carlo Cercignani, 1963} \\ первое численное решение на основе кинетического уравнения БКВ \\
+		\item \textit{Taku Ohwada, Yoshio Sone, Kazuo Aoki, 1989} \\ точное решение задачи для модели твёрдых сфер \\
+		\item \textit{Timothee Ewart et al., 2007} \\ прецизионный эксперимент для широкого диапазона чисел Кнудсена \\
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Течение Пуазёйля}
+	\begin{center}
+		Поток через сечение\\
+		\includegraphics[width=.8\textwidth]{pics/poiseuille}
+	\end{center}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Тепловое скольжение и насосы Кнудсена}
+	\vspace{-10pt}
+	\begin{center}
+		\includegraphics[width=.8\textwidth]{pics/pump}
+	\end{center}
+	\vspace{-20pt}
+	\begin{columns}
+		\column{.6\textwidth}
+		\begin{center}
+			\includegraphics[width=\textwidth]{pics/periodic}
+		\end{center}
+		\vspace{-20pt}
+		\begin{block}{}\tiny
+			Клосс Ю.Ю., \textbf{Рогозин О.А.},Черемисин Ф.Г.
+			\textit{Компьютерное моделирование многоступенчатого микронасоса Кнудсена в плоской геометрии}
+			// Нано- и микросистемная техника. — № 6. — С. 24–31. — 2010.
+		\end{block}
+		\column{.4\textwidth}
+		\begin{center}
+			\includegraphics[width=\textwidth]{pics/10kn2x}
+		\end{center}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Экспериментальный образец}
+	\begin{center}
+		Университет Южной Калифорнии\\
+		\includegraphics[width=.8\textwidth]{pics/example}
+	\end{center}
+\end{frame}
+
+\section*{}
+\begin{frame}
+	\frametitle{Заключение}
+	В ходе работы выполнено:
+	\begin{itemize}
+		\item проектировка и разработка многопроцессорной \alert{PSE} (проблемно-моделирующей среды) \\
+		\item исследование и поиск оптимальных \alert{TVD схем} на 5-точечном шаблоне \\
+		\item \alert{верификация} численного метода на основе линейной теории (\(\mathrm{Re}\ll1\)) \\
+		\item моделирование многоступенчатого \alert{насоса Кнудсена} \\
+	\end{itemize}
+\end{frame}
+
+
+\end{document}

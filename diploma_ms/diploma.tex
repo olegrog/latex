@@ -1,0 +1,73 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8x]{inputenc}
+
+\usepackage{amssymb, amsmath, amsfonts}
+	\numberwithin{equation}{section}
+\usepackage[english,russian]{babel}
+\usepackage{multirow}
+\usepackage[font=small,labelfont=bf,labelsep=period]{caption}
+% \usepackage{xfrac}
+\usepackage{indentfirst}
+\usepackage{array}
+\usepackage{subfig}
+\usepackage{rotating}
+\usepackage{caption}
+\usepackage{wrapfig}
+\usepackage{amsthm}
+\usepackage{pgfmath}
+\usepackage{tikz}
+\usetikzlibrary{mindmap}
+\usetikzlibrary{decorations.text}
+\usetikzlibrary{arrows,fit,positioning,shapes.multipart}
+\usepackage[pdfauthor={Oleg Rogozin},%
+pdftitle={Diploma},%
+colorlinks,%
+pagebackref,pdftex, unicode]{hyperref}
+
+\title{Дипломная работа. \\ Решение классических задач динамики разреженного газа проекционным методом дискретных ординат}
+\author{Рогозин Олег}
+
+\newcommand{\D}{\mathrm{d}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\Kn}{\mathrm{Kn}}
+\newcommand{\TV}{\mathrm{TV}}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Введение}
+\input{intro}
+
+\section{Кинетическое уравнение Больцмана. Методы его решения}
+\input{boltzmann}
+
+\section{Численное решение уравнения Больцмана}
+
+\subsection{Схема расщепления}
+взять у Олега
+
+\subsection{Уравнение переноса. TVD схемы}
+\input{limiters}
+
+\subsection{Интеграл столкновений. Проекционный метод дискретных ординат}
+списываем у Олега
+
+\section{Проблемно-моделирующая среда}
+\input{pse}
+
+\section{Моделирование классических задач динамики разреженного газа}
+\input{problems}
+
+\subsection{Течение Куэтта и задача переноса тепла}
+\input{couette_heat}
+
+\subsection{Течение Пуазёйля}
+\input{poiseuille}
+
+\subsection{Тепловое скольжение и насосы Кнудсена}
+\input{knudsen}
+
+\end{document}
