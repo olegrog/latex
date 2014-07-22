@@ -1,0 +1,107 @@
+\documentclass[11pt,a4paper,sans,english]{moderncv}
+
+%% ModernCV themes
+\moderncvstyle{classic}					% style options are 'casual' (default), 'classic', 'oldstyle' and 'banking'
+\moderncvcolor{orange}
+\nopagenumbers{}
+
+%% Adjust the page margins
+\usepackage[scale=0.75]{geometry}
+
+%% Personal data
+\firstname{Oleg}
+\familyname{Rogozin}
+\title{}
+\address{Moskovskoe shosse, 21a}{141700 Dolgoprudny}
+\mobile{+7~(916)~660~09~52}
+\email{o.a.rogozin@gmail.com}
+\photo[64pt][0.4pt]{photo}
+
+%% Character encoding
+\usepackage[utf8]{inputenc}
+
+
+%\usepackage{mathpazo}
+\usepackage{babel}
+\usepackage{csquotes}
+\usepackage{fontenc}
+\usepackage{graphicx}
+
+\author{Oleg Rogozin}
+\title{Curriculum Vit\ae{}}
+\date{04/23/13}
+
+\usepackage[
+	backend=biber,
+	style=numeric,
+	language=auto,
+	maxbibnames=99, minbibnames=99,
+	natbib=true,
+	sorting=ydnt,
+	url=false,
+	eprint=false,
+	pagetracker,
+	firstinits]{biblatex}
+\bibliography{cv}
+
+\begin{document}
+\makecvtitle
+
+\section{Education}
+\cventry{2011--now}{Ph.D. (Physics and Mathematics)}{MIPT}{Dolgoprudny}{}{}
+\cventry{2009--2011}{M.Sc. (Applied Mathematics and Physics)}{MIPT}{Dolgoprudny}{\textit{4.88/5.00}}
+{The solution of classical problems of rarefied gas dynamics by the projection method of discrete ordinates}
+\cventry{2005--2009}{B.Sc. (Applied Mathematics and Physics)}{MIPT}{Dolgoprudny}{\textit{4.97/5.00}}
+{Nonequilibrium gas flows simulation in channels with different geometry on the basis of the Boltzmann equation}
+
+\section{Experience}
+
+\subsection{Research}
+\cventry{2009--now}{Doctoral Research}{MIPT}{Dolgoprudny}{}{
+	\begin{itemize}
+	\item Design and development Problem Solving Environment for High Performance Computing;
+	\item Computer simulation of kinetic Boltzmann equation;
+	\item Development numerical methods for Rarefied Gas Dynamics.
+	\end{itemize}
+}
+
+\subsection{Vocational}
+\cventry{2011--2012}{Software Engineer}{RNC Kurchatov Institute}{Moscow}{}{
+	\begin{itemize}
+	\item InfiniBand network troubleshooting on a supercomputer;
+	\item Create diagnostic tools for InfiniBand network;
+	\item Stereo 3D visualization.
+	\end{itemize}
+}
+
+\subsection{Teaching}
+\cventry{2012--2012}{Instructor}{MIPT}{Dolgoprudny}{}{
+	\begin{itemize}
+	\item Lectures on computer architecture for 2nd year students.
+	\end{itemize}
+}
+\cventry{2005--2006}{Instructor}{MIPT}{Dolgoprudny}{}{
+	\begin{itemize}
+	\item Extramural courses for university entrants.
+	\end{itemize}
+}
+
+\section{Languages}
+\cvdoubleitem{Russian}{Native}{English}{Upper-intermediate}
+\cvdoubleitem{German}{Basic}{French}{Basic}
+
+\section{Computer skills}
+\cvitem{OSes}{Windows, Linux (administration), MacOSX}
+\cvitem{Languages}{C++98/11, python, shell, assembler}
+\cvitem{Software}{Matlab/octave, OpenFOAM}
+\cvitem{Parallel}{MPI, OpenMP}
+\cvitem{Networking}{TCP/IP, InfiniBand}
+
+\section{Interests}
+\cvitem{Sport}{Skiing, Volleyball, Football, Table Tennis, Swimming, Chess}
+
+\renewcommand{\refname}{Publications}
+\nocite{*}
+\printbibliography
+
+\end{document}

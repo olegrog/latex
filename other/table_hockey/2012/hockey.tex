@@ -1,0 +1,130 @@
+\documentclass[10pt]{article}
+
+\usepackage{fullpage}
+\usepackage[a4paper,landscape]{geometry}
+\usepackage[utf8x]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{color}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{verbatim}
+
+\usepackage[normalem]{ulem}
+\usepackage{tikz}
+\usetikzlibrary{arrows,fit,positioning,shapes.multipart}
+
+\newcommand{\red}{\color{red}}
+\newcommand{\blue}{\color{blue}}
+\newcommand{\blank}{\cellcolor[gray]{.5}}
+\begin{document}
+\pagestyle{empty}
+
+%\part*{\centering Чемпионат МФТИ 2012 по настольному хоккею}
+%\centering	\textit{финальная стадия} 
+
+\begin{comment}
+\bigskip\bigskip\bigskip
+
+\begin{tikzpicture}[score/.style={below,text width=3.5cm,midway,text depth=6pt,font=\scriptsize},
+					score2/.style={below,text width=2.2cm,midway,text depth=6pt,font=\scriptsize},
+					player/.style={above,text width=3.5cm,midway,text depth=0pt,font=\itshape},
+					player2/.style={above,text width=2.2cm,midway,text depth=0pt,font=\itshape},
+					medal/.style={right,text depth=2pt,font=\itshape\large},
+					substitute/.style={midway,sloped,above,font=\scriptsize,blue,fill=white},
+					>=latex', thick, scale=1, domain=0:4]
+	\draw (0,9.0) -- (4,9.0) node[player] {{\blue A1} Рогозин}
+		-- (4,8.5) -- (0,8.5) node[player] {{\blue D2} Короленко};
+	\draw (0,8.0) -- (4,8.0) node[player] {{\blue B1} Ивановский}
+		-- (4,7.5) -- (0,7.5) node[player] {{\blue C2} Кожевников};
+	\draw (0,7.0) -- (4,7.0) node[player] {{\blue C1} Васнев}
+		-- (4,6.5) -- (0,6.5) node[player] {{\blue B2} Чихрадзе};
+	\draw (0,6.0) -- (4,6.0) node[player] {{\blue D1} Копьёв}
+		-- (4,5.5) -- (0,5.5) node[player] {{\blue A2} Ломко};
+	\draw (0,3.5) -- (4,3.5) node[player] {{\blue A3} Ахтямов}
+		-- (4,3.0) -- (0,3.0) node[player] {{\red L2} Кожевников};
+	\draw (0,2.5) -- (4,2.5) node[player] {{\blue B3} Штерн}
+		-- (4,2.0) -- (0,2.0) node[player] {{\red L1} Короленко};
+	\draw (0,1.5) -- (4,1.5) node[player] {{\blue C3} Бобарико}
+		-- (4,1.0) -- (0,1.0) node[player] {{\red L4} Ломко};
+	\draw (0,0.5) -- (4,0.5) node[player] {{\blue D3} Кочемировский}
+		-- (4,0.0) -- (0,0.0) node[player] {{\red L3} Чихрадзе};
+
+	\draw (4,8.75) node[left,red] {1} -- (8,8.75) node[player] {Рогозин} node[score,text width=3.7cm] {{\blue1:4}\,4:3ot\,3:2ot\,{\blue1:6}\,4:1\,{\blue4:5ot}\,5:4ot}
+		-- (8,7.75) -- (4,7.75) node[left,red] {2} node[player] {Ивановский} node[score] {5:1 3:2ot 4:1 6:0};
+	\draw (4,6.75) node[left,red] {3} -- (8,6.75) node[player] {Васнев} node[score] {2:1 4:2 {\blue1:2} 2:0 3:1}
+		-- (8,5.75) -- (4,5.75) node[left,red] {4} node[player] {Копьёв} node[score] {3:1 5:1 8:1 7:1};
+	\draw (4,3.25) -- (6.66,3.25) node[player2] {Ахтямов} node[score2] {1:0 3:1}
+		-- (6.66,2.25) -- (4,2.25) node[player2] {Штерн} node[score2] {2:1ot 1:0};
+	\draw (4,1.25) -- (6.66,1.25) node[player2] {Ломко} node[score2] {3:0 3:1}
+		-- (6.66,0.25) -- (4,0.25) node[player2] {Чихрадзе} node[score2] {3:2 {\blue1:2} 4:2};
+	\draw[->] (4.0,4.4) node[above,font=\itshape] {Егоров В.} -- (3.2,2.2) node[substitute] {substitute};
+	\draw[->] (6.6,4.4) node[above,font=\itshape] {Егоров Д.} -- (5.6,1.4) node[substitute] {substitute};
+
+	\draw (8,8.25) node[left,red] {5} -- (12,8.25) node[player] {Рогозин} node[score] {5:2 4:2 {\blue0:2} 2:1 3:2}
+		-- (12,6.25) -- (8,6.25) node[left,red] {6} node[player] {Копьёв} node[score] {{\blue2:4} 8:2 7:0 9:3 9:0};
+	\draw (6.66,3.75) -- (9.33,3.75) node[player2,text width=2.6cm] {{\red L5} Ивановский}
+		-- (9.33,2.75) -- (6.66,2.75) node[player2] {Ахтямов} node[score2] {2:0 7:0};
+	\draw (6.66,0.75) -- (9.33,0.75) node[player2] {Чихрадзе} node[score2] {1:0 1:0ot}
+		-- (9.33,-0.25) -- (6.66,-0.25) node[player2] {{\red L6} Васнев};
+
+	\draw (9.33,3.25) -- (12,3.25) node[player2] {Ивановский} node[score2] {{\blue0:1ot} 2:1 5:4ot}
+		-- (12,0.25) -- (9.33,0.25) node[player2] {Васнев} node[score2] {2:1 6:1};
+
+	\draw[->] (12,7.25) node[left,red] {7} -- (16,7.25) node[player] {Копьёв} node[score] {4:1 3:2 5:1 4:3} node[medal] {gold};
+	\draw[->] (12,5.25) -- (16,5.25) node[player] {{\red L7} Рогозин} node[medal] {silver};
+	\draw[->] (12,1.75) -- (16,1.75) node[player] {Ивановский} node[score] {{\blue0:2} 3:1 1:0} node[medal] {bronze};
+\end{tikzpicture}
+\pagebreak
+\end{comment}
+%\part*{\centering Чемпионат МФТИ 2012 по настольному хоккею}
+%\centering	\textit{групповая стадия} 
+
+\vspace{1cm}
+\hspace{-5cm}
+\begin{tabular}{|c|p{2.8cm}|c|c|c|c|c|c|c|c|}
+	\multicolumn{9}{c}{\bf Group A} \\ \hline
+	& \bf Player & \bf1 & \bf2 & \bf3 & \bf4 & \bf5 & \bf Pts & \bf F-A & \bf Pl \\ \hline
+	\multirow{2}{*}{\bf1}&\multirow{2}{*}{\itРогозин}      & \blank & 1:1 & 6:6 & \red4:1 & \red4:0 &\multirow{2}{*}{13}&\multirow{2}{*}{+21}&\multirow{2}{*}{I} \\ && \blank & 4:4 & \red6:0 & \red5:0 & \red4:1 &&& \\ \hline
+	\multirow{2}{*}{\bf2}&\multirow{2}{*}{\itЛомко}     & 1:1 & \blank & 3:3 & \red5:2 & \red2:1 &\multirow{2}{*}{13}&\multirow{2}{*}{+10}&\multirow{2}{*}{II} \\      && 4:4 & \blank & \red3:2 & \red2:0 & \red3:0 &&& \\ \hline
+	\multirow{2}{*}{\bf3}&\multirow{2}{*}{\itАхтямов}     & 6:6 & 3:3 & \blank & \red2:0 & \red7:2 &\multirow{2}{*}{6}&\multirow{2}{*}{-2}&\multirow{2}{*}{III} \\     && \blue0:6 & \blue2:3 & \blank & \blue2:3 & \blue3:4 &&& \\ \hline
+	\multirow{2}{*}{\bf4}&\multirow{2}{*}{\itПономарёв}     & \blue1:4 & \blue2:5 & \blue0:2 & \blank & \red4:1 &\multirow{2}{*}{4}&\multirow{2}{*}{-12}&\multirow{2}{*}{IV} \\     && \blue0:5 & \blue0:2 & \red3:2 & \blank & \blue1:2 &&& \\ \hline
+	\multirow{2}{*}{\bf5}&\multirow{2}{*}{\itВишняков}     & \blue0:4 & \blue1:2 & \blue2:7 & \blue1:4 & \blank &\multirow{2}{*}{4}&\multirow{2}{*}{-17}&\multirow{2}{*}{V} \\     && \blue1:4 & \blue0:3 & \red4:3 & \red2:1 & \blank &&& \\ \hline
+\end{tabular}
+\hspace{0.2cm}
+\begin{tabular}{|c|p{2.8cm}|c|c|c|c|c|c|c|c|}
+	\multicolumn{9}{c}{\bf Group B} \\ \hline
+	& \bf Player & \bf1 & \bf2 & \bf3 & \bf4 & \bf5 & \bf Pts & \bf F-A & \bf Pl \\ \hline
+	\multirow{2}{*}{\bf1}&\multirow{2}{*}{\itИвановский}      & \blank & \blue1:3 & \red3:0 & \red6:1 & \red4:1 &\multirow{2}{*}{14}&\multirow{2}{*}{+23}&\multirow{2}{*}{I} \\ && \blank & \red2:1 & \red2:1 & \red5:1 & \red8:0 &&& \\ \hline
+	\multirow{2}{*}{\bf2}&\multirow{2}{*}{\itЧихрадзе}     & \red3:1 & \blank & \red2:0 & \red2:1 & \red6:1 &\multirow{2}{*}{14}&\multirow{2}{*}{+14}&\multirow{2}{*}{II} \\      && \blue1:2 & \blank & \red1:0 & \red3:2 & \red4:1 &&& \\ \hline
+	\multirow{2}{*}{\bf3}&\multirow{2}{*}{\itШтерн}     & \blue0:3 & \blue0:2 & \blank & 0:0 & \red4:1 &\multirow{2}{*}{6}&\multirow{2}{*}{-3}&\multirow{2}{*}{III} \\     && \blue1:2 & \blue0:1 & \blank & 1:1 & \red2:1 &&& \\ \hline
+	\multirow{2}{*}{\bf4}&\multirow{2}{*}{\itЕгоров В.}     & \blue1:6 & \blue1:2 & 0:0 & \blank & \red1:0 &\multirow{2}{*}{6}&\multirow{2}{*}{-8}&\multirow{2}{*}{IV} \\     && \blue1:5 & \blue2:3 & 1:1 & \blank & \red4:2 &&& \\ \hline
+	\multirow{2}{*}{\bf5}&\multirow{2}{*}{\itГолованов}     & \blue1:4 & \blue1:6 & \blue1:4 & \blue0:1 & \blank &\multirow{2}{*}{0}&\multirow{2}{*}{-26}&\multirow{2}{*}{V} \\     && \blue0:8 & \blue1:4 & \blue1:2 & \blue2:4 & \blank &&& \\ \hline
+\end{tabular}
+\hspace{-5cm}
+
+\vspace{.5cm}
+
+\hspace{-5cm}
+\begin{tabular}{|c|p{2.8cm}|c|c|c|c|c|c|c|c|}
+	\multicolumn{9}{c}{\bf Group C} \\ \hline
+	& \bf Player & \bf1 & \bf2 & \bf3 & \bf4 & \bf5 & \bf Pts & \bf F-A & \bf Pl \\ \hline
+	\multirow{2}{*}{\bf1}&\multirow{2}{*}{\itВаснев}      & \blank & \red7:0 & \red5:2 & \red6:0 & \red4:0 &\multirow{2}{*}{16}&\multirow{2}{*}{+36}&\multirow{2}{*}{I} \\ && \blank & \red4:0 & \red5:1 & \red6:2 & \red4:0 &&& \\ \hline
+	\multirow{2}{*}{\bf2}&\multirow{2}{*}{\itКожевников}     & \blue0:7 & \blank & \red4:0 & 2:2 & \red2:1 &\multirow{2}{*}{9}&\multirow{2}{*}{-4}&\multirow{2}{*}{II} \\      && \blue0:4 & \blank & \blue0:2 & \red3:0 & \red1:0 &&& \\ \hline
+	\multirow{2}{*}{\bf3}&\multirow{2}{*}{\itБобарико}     & \blue2:5 & \blue0:4 & \blank & 3:3 & \red3:2 &\multirow{2}{*}{7}&\multirow{2}{*}{-6}&\multirow{2}{*}{III} \\     && \blue1:5 & \red2:0 & \blank & \blue0:2 & \red4:0 &&& \\ \hline
+	\multirow{2}{*}{\bf4}&\multirow{2}{*}{\itКоваль}     & \blue0:6 & 2:2 & 3:3 & \blank & \red3:1 &\multirow{2}{*}{6}&\multirow{2}{*}{-10}&\multirow{2}{*}{IV} \\     && \blue2:6 & \blue0:3 & \red2:0 & \blank & \blue1:2 &&& \\ \hline
+	\multirow{2}{*}{\bf5}&\multirow{2}{*}{\itГоловизин}     & \blue0:4 & \blue1:2 & \blue2:3 & \blue1:3 & \blank &\multirow{2}{*}{2}&\multirow{2}{*}{-16}&\multirow{2}{*}{V} \\     && \blue0:4 & \blue0:1 & \blue0:4 & \red2:1 & \blank &&& \\ \hline
+\end{tabular}
+\hspace{0.2cm}
+\begin{tabular}{|c|p{2.8cm}|c|c|c|c|c|c|c|c|}
+	\multicolumn{9}{c}{\bf Group D} \\ \hline
+	& \bf Player & \bf1 & \bf2 & \bf3 & \bf4 & \bf5 & \bf Pts & \bf F-A & \bf Pl \\ \hline
+	\multirow{2}{*}{\bf1}&\multirow{2}{*}{\itКопьёв}      & \blank & \red6:1 & \red6:1 & \red8:2 & \red5:0 &\multirow{2}{*}{16}&\multirow{2}{*}{+37}&\multirow{2}{*}{I} \\ && \blank & \red4:3 & \red6:1 & \red7:2 & \red5:0 &&& \\ \hline
+	\multirow{2}{*}{\bf2}&\multirow{2}{*}{\itКороленко}     & \blue1:6 & \blank & \red1:0 & \red4:0 & \red7:2 &\multirow{2}{*}{12}&\multirow{2}{*}{+16}&\multirow{2}{*}{II} \\  && \blue3:4 & \blank & \red6:2 & \red5:0 & \red5:2 &&& \\ \hline
+	\multirow{2}{*}{\bf3}&\multirow{2}{*}{\itКочемировский}     & \blue1:6 & \blue0:1 & \blank & \red3:1 & \red4:0 &\multirow{2}{*}{8}&\multirow{2}{*}{+1}&\multirow{2}{*}{III} \\     && \blue1:6 & \blue2:6 & \blank & \red6:0 & \red5:1 &&& \\ \hline
+	\multirow{2}{*}{\bf4}&\multirow{2}{*}{\itКорнеев}     & \blue2:8 & \blue0:4 & \blue1:3 & \blank & \blue0:2 &\multirow{2}{*}{2}&\multirow{2}{*}{-27}&\multirow{2}{*}{IV} \\     && \blue2:7 & \blue0:5 & \blue0:6 & \blank & \red4:1 &&& \\ \hline
+	\multirow{2}{*}{\bf5}&\multirow{2}{*}{\itКиселёв}     & \blue0:5 & \blue2:7 & \blue0:4 & \red2:0 & \blank &\multirow{2}{*}{2}&\multirow{2}{*}{-27}&\multirow{2}{*}{V} \\     && \blue0:5 & \blue2:5 & \blue1:5 & \blue1:4 & \blank &&& \\ \hline
+\end{tabular}
+\hspace{-5cm}
+
+\end{document}

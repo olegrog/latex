@@ -1,0 +1,152 @@
+\documentclass[10pt]{article}
+
+\usepackage{fullpage}
+\usepackage[a4paper,landscape]{geometry}
+\usepackage[utf8x]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{color}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{array}
+
+\usepackage[normalem]{ulem}
+\usepackage{tikz}
+\usetikzlibrary{arrows,fit,positioning,shapes.multipart}
+
+\newcommand{\red}{\color{red}}
+\newcommand{\blue}{\color{blue}}
+\newcommand{\blank}{\cellcolor[gray]{.5}}
+\begin{document}
+\pagestyle{empty}
+
+\part*{\centering Чемпионат МФТИ 2013 по настольному хоккею}
+\centering	\textit{финальная стадия} 
+
+\bigskip\bigskip\bigskip
+
+\begin{tikzpicture}[score/.style={below,text width=3.5cm,midway,text depth=6pt,font=\scriptsize},
+					score2/.style={below,text width=2.2cm,midway,text depth=6pt,font=\scriptsize},
+					player/.style={above,text width=3.5cm,midway,text depth=0pt,font=\itshape},
+					player2/.style={above,text width=2.2cm,midway,text depth=0pt,font=\itshape},
+					medal/.style={right,text depth=2pt,font=\itshape\large},
+					substitute/.style={midway,sloped,above,font=\scriptsize,blue},
+					>=latex', thick, scale=1, domain=0:4]
+	\draw (0,9.0) -- (4,9.0) node[player] {{\blue A1} }
+		-- (4,8.5) -- (0,8.5) node[player] {{\blue D2} };
+	\draw (0,8.0) -- (4,8.0) node[player] {{\blue B1} }
+		-- (4,7.5) -- (0,7.5) node[player] {{\blue C2} };
+	\draw (0,7.0) -- (4,7.0) node[player] {{\blue C1} }
+		-- (4,6.5) -- (0,6.5) node[player] {{\blue B2} };
+	\draw (0,6.0) -- (4,6.0) node[player] {{\blue D1} }
+		-- (4,5.5) -- (0,5.5) node[player] {{\blue A2} };
+	\draw (0,3.5) -- (4,3.5) node[player] {{\blue A3} }
+		-- (4,3.0) -- (0,3.0) node[player] {{\red L2} };
+	\draw (0,2.5) -- (4,2.5) node[player] {{\blue B3} }
+		-- (4,2.0) -- (0,2.0) node[player] {{\red L1} };
+	\draw (0,1.5) -- (4,1.5) node[player] {{\blue C3} }
+		-- (4,1.0) -- (0,1.0) node[player] {{\red L4} };
+	\draw (0,0.5) -- (4,0.5) node[player] {{\blue D3} }
+		-- (4,0.0) -- (0,0.0) node[player] {{\red L3} };
+
+	\draw (4,8.75) node[left,red] {1} -- (8,8.75) node[player] {} node[score] {}
+		-- (8,7.75) -- (4,7.75) node[left,red] {2} node[player] {} node[score] {};
+	\draw (4,6.75) node[left,red] {3} -- (8,6.75) node[player] {} node[score] {}
+		-- (8,5.75) -- (4,5.75) node[left,red] {4} node[player] {} node[score] {};
+	\draw (4,3.25) -- (6.66,3.25) node[player2] {} node[score2] {}
+		-- (6.66,2.25) -- (4,2.25) node[player2] {} node[score2] {};
+	\draw (4,1.25) -- (6.66,1.25) node[player2] {} node[score2] {}
+		-- (6.66,0.25) -- (4,0.25) node[player2] {} node[score2] {};
+% 	\draw[->] (3.2,4.5) node[right,font=\itshape] {} -- (2.4,3.9) node[substitute] {substitute};
+% 	\draw[->] (6.5,4.4) node[above,font=\itshape] {} -- (6,2.6) node[substitute,fill=white] {substitute};
+% 	\draw[->] (3.8,-.7) node[right,font=\itshape] {} -- (2.6,0.7) node[substitute,fill=white] {substitute};
+
+	\draw (8,8.25) node[left,red] {5} -- (12,8.25) node[player] {} node[score] {}
+		-- (12,6.25) -- (8,6.25) node[left,red] {6} node[player] {} node[score] {};
+	\draw (6.66,3.75) -- (9.33,3.75) node[player2] {{\red L6} }
+		-- (9.33,2.75) -- (6.66,2.75) node[player2] {} node[score2] {};
+	\draw (6.66,0.75) -- (9.33,0.75) node[player2] {} node[score2] {}
+		-- (9.33,-0.25) -- (6.66,-0.25) node[player2] {{\red L5} };
+
+	\draw (9.33,3.25) -- (12,3.25) node[player2] {} node[score2] {}
+		-- (12,0.25) -- (9.33,0.25) node[player2] {} node[score2] {};
+
+	\draw[->] (12,7.25) node[left,red] {7} -- (16,7.25) node[player] {} node[score] {} node[medal] {gold};
+	\draw[->] (12,5.25) -- (16,5.25) node[player] {{\red L7} } node[medal] {silver};
+	\draw[->] (12,1.75) -- (16,1.75) node[player] {} node[score] {} node[medal] {bronze};
+\end{tikzpicture}
+
+	\bigskip
+\pagebreak
+\part*{\centering Чемпионат МФТИ 2013 по настольному хоккею}
+\centering	\textit{групповая стадия} 
+
+\bigskip
+\hspace{-1.5cm}
+\begin{tabular}{|c|p{2.8cm}|c|c|c|c|c|c|c|c|}
+	\multicolumn{9}{c}{\bf Group A} \\ \hline
+	& \bf Player & \bf1 & \bf2 & \bf3 & \bf4 & \bf5 & \bf Pts & \bf F-A & \bf Pl \\ \hline
+	\multirow{2}{*}{\bf1}&\multirow{2}{*}{\itРогозин}      & \blank$\quad$ & \red$\quad$ & \red$\quad$ & \red$\quad$ & \red$\quad$ &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\ && \blank & \red & \blue & \red & \red &&& \\ \hline
+	\multirow{2}{*}{\bf2}&\multirow{2}{*}{\it}     & \blue & \blank & \red & \red & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\      && \blue & \blank &  & \red & \red &&& \\ \hline
+	\multirow{2}{*}{\bf3}&\multirow{2}{*}{\it}     & \blue & \blue & \blank & \red & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \red &  & \blank & \blue & \red &&& \\ \hline
+	\multirow{2}{*}{\bf4}&\multirow{2}{*}{\it}     & \blue & \blue & \blue & \blank & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \blue & \blue & \red & \blank & \red &&& \\ \hline
+	\multirow{2}{*}{\bf5}&\multirow{2}{*}{\it}     & \blue & \blue & \blue & \red & \blank &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \blue & \blue & \red & \red & \blank &&& \\ \hline
+\end{tabular}
+\hspace{0.2cm}
+\begin{tabular}{|c|p{2.8cm}|c|c|c|c|c|c|c|c|}
+	\multicolumn{9}{c}{\bf Group B} \\ \hline
+	& \bf Player & \bf1 & \bf2 & \bf3 & \bf4 & \bf5 & \bf Pts & \bf F-A & \bf Pl \\ \hline
+	\multirow{2}{*}{\bf1}&\multirow{2}{*}{\itИвановский}      & \blank$\quad$ & \red$\quad$ & \red$\quad$ & \red$\quad$ & \red$\quad$ &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\ && \blank & \red & \blue & \red & \red &&& \\ \hline
+	\multirow{2}{*}{\bf2}&\multirow{2}{*}{\it}     & \blue & \blank & \red & \red & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\      && \blue & \blank &  & \red & \red &&& \\ \hline
+	\multirow{2}{*}{\bf3}&\multirow{2}{*}{\it}     & \blue & \blue & \blank & \red & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \red &  & \blank & \blue & \red &&& \\ \hline
+	\multirow{2}{*}{\bf4}&\multirow{2}{*}{\it}     & \blue & \blue & \blue & \blank & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \blue & \blue & \red & \blank & \red &&& \\ \hline
+	\multirow{2}{*}{\bf5}&\multirow{2}{*}{\it}     & \blue & \blue & \blue & \red & \blank &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \blue & \blue & \red & \red & \blank &&& \\ \hline
+\end{tabular}
+\hspace{-1.5cm}
+\bigskip
+
+
+\hspace{-1.5cm}
+\begin{tabular}{|c|p{2.8cm}|c|c|c|c|c|c|c|c|}
+	\multicolumn{9}{c}{\bf Group C} \\ \hline
+	& \bf Player & \bf1 & \bf2 & \bf3 & \bf4 & \bf5 & \bf Pts & \bf F-A & \bf Pl \\ \hline
+	\multirow{2}{*}{\bf1}&\multirow{2}{*}{\itСемёнов}      & \blank$\quad$ & \red$\quad$ & \red$\quad$ & \red$\quad$ & \red$\quad$ &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\ && \blank & \red & \blue & \red & \red &&& \\ \hline
+	\multirow{2}{*}{\bf2}&\multirow{2}{*}{\it}     & \blue & \blank & \red & \red & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\      && \blue & \blank &  & \red & \red &&& \\ \hline
+	\multirow{2}{*}{\bf3}&\multirow{2}{*}{\it}     & \blue & \blue & \blank & \red & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \red &  & \blank & \blue & \red &&& \\ \hline
+	\multirow{2}{*}{\bf4}&\multirow{2}{*}{\it}     & \blue & \blue & \blue & \blank & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \blue & \blue & \red & \blank & \red &&& \\ \hline
+	\multirow{2}{*}{\bf5}&\multirow{2}{*}{\it}     & \blue & \blue & \blue & \red & \blank &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \blue & \blue & \red & \red & \blank &&& \\ \hline
+\end{tabular}
+\hspace{0.2cm}
+\begin{tabular}{|c|p{2.8cm}|c|c|c|c|c|c|c|c|}
+	\multicolumn{9}{c}{\bf Group D} \\ \hline
+	& \bf Player & \bf1 & \bf2 & \bf3 & \bf4 & \bf5 & \bf Pts & \bf F-A & \bf Pl \\ \hline
+	\multirow{2}{*}{\bf1}&\multirow{2}{*}{\itКопьёв}      & \blank$\quad$ & \red$\quad$ & \red$\quad$ & \red$\quad$ & \red$\quad$ &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\ && \blank & \red & \blue & \red & \red &&& \\ \hline
+	\multirow{2}{*}{\bf2}&\multirow{2}{*}{\it}     & \blue & \blank & \red & \red & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\      && \blue & \blank &  & \red & \red &&& \\ \hline
+	\multirow{2}{*}{\bf3}&\multirow{2}{*}{\it}     & \blue & \blue & \blank & \red & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \red &  & \blank & \blue & \red &&& \\ \hline
+	\multirow{2}{*}{\bf4}&\multirow{2}{*}{\it}     & \blue & \blue & \blue & \blank & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \blue & \blue & \red & \blank & \red &&& \\ \hline
+	\multirow{2}{*}{\bf5}&\multirow{2}{*}{\it}     & \blue & \blue & \blue & \red & \blank &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \blue & \blue & \red & \red & \blank &&& \\ \hline
+\end{tabular}
+\hspace{-1.5cm}
+\bigskip
+
+% \begin{tabular}{|c|p{2.8cm}|c|c|c|c|c|c|c|}
+% 	\multicolumn{9}{c}{\bf Group A} \\ \hline
+% 	& \bf Player & \bf1 & \bf2 & \bf3 & \bf4 & \bf Pts & \bf F-A & \bf Pl \\ \hline
+% 	\multirow{2}{*}{\bf1}&\multirow{2}{*}{\itРогозин}      & \blank$\quad$ & \red$\quad$ & \red$\quad$ & \red$\quad$ &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\ && \blank & \red & \blue & \red &&& \\ \hline
+% 	\multirow{2}{*}{\bf2}&\multirow{2}{*}{\it}        & \blue & \blank & \red & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\      && \blue & \blank &  & \red &&& \\ \hline
+% 	\multirow{2}{*}{\bf3}&\multirow{2}{*}{\it}& \blue & \blue & \blank & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \red &  & \blank & \blue &&& \\ \hline
+% 	\multirow{2}{*}{\bf4}&\multirow{2}{*}{\it}     & \blue & \blue & \blue & \blank &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \blue & \blue & \red & \blank &&& \\ \hline
+% \end{tabular}
+
+% \begin{tabular}{|c|p{2.8cm}|c|c|c|c|c|c|c|c|}
+% 	\multicolumn{9}{c}{\bf Group A} \\ \hline
+% 	& \bf Player & \bf1 & \bf2 & \bf3 & \bf4 & \bf5 & \bf Pts & \bf F-A & \bf Pl \\ \hline
+% 	\multirow{2}{*}{\bf1}&\multirow{2}{*}{\itРогозин}      & \blank$\quad$ & \red$\quad$ & \red$\quad$ & \red$\quad$ & \red$\quad$ &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\ && \blank & \red & \blue & \red & \red &&& \\ \hline
+% 	\multirow{2}{*}{\bf2}&\multirow{2}{*}{\it}     & \blue & \blank & \red & \red & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\      && \blue & \blank &  & \red & \red &&& \\ \hline
+% 	\multirow{2}{*}{\bf3}&\multirow{2}{*}{\it}     & \blue & \blue & \blank & \red & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \red &  & \blank & \blue & \red &&& \\ \hline
+% 	\multirow{2}{*}{\bf4}&\multirow{2}{*}{\it}     & \blue & \blue & \blue & \blank & \red &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \blue & \blue & \red & \blank & \red &&& \\ \hline
+% 	\multirow{2}{*}{\bf5}&\multirow{2}{*}{\it}     & \blue & \blue & \blue & \red & \blank &\multirow{2}{*}{}&\multirow{2}{*}{}&\multirow{2}{*}{} \\     && \blue & \blue & \red & \red & \blank &&& \\ \hline
+% \end{tabular}
+
+
+
+\end{document}

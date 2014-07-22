@@ -1,0 +1,154 @@
+%&pdflatex
+\documentclass[landscape,a4paper,12pt]{article}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{amssymb, amsmath, amsfonts}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{mindmap}
+\usetikzlibrary{decorations.text}
+\usetikzlibrary{arrows,fit,positioning,shapes.multipart}
+\usepackage{fullpage}
+
+%\usepackage[]{iwona}
+%\usepackage{mathpazo}
+%\usepackage{comicsans}
+%\usepackage{arev}
+%\usepackage{mathptmx}
+%\usepackage{pxfonts}
+%\usepackage{fouriernc}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section*{Схема статьи}
+\begin{tikzpicture}[block/.style={shape=rectangle,rounded corners,draw=blue!50,fill=blue!20,thick,inner sep=5pt,
+						minimum size=1cm,node distance=2cm,text badly centered},
+					    miniblock/.style={shape=rectangle,draw=blue!50,fill=blue!30,thick,inner sep=5pt,
+						minimum size=1cm,node distance=5mm,text badly centered},>=latex',thick]
+	\node[block,minimum width=4cm,minimum height=2.9cm] (in) at (2,1.55)			{};
+	\node[block,minimum width=4cm,minimum height=2.9cm] (mesh) at (2,-1.55)			{};
+	\node[block,minimum width=5.5cm,minimum height=6cm] (solver) at (7.5,0)			{};
+	\node[block,minimum width=3.5cm,minimum height=6cm] (out) at (12.75,0)	        {};
+	\draw [<-] (in.east)+(.75cm-1pt,0) to (in.east);
+	\draw [<-] (mesh.east)+(.75cm-1pt,0) to (mesh.east);
+	\draw [->] (solver) to (out);
+
+	\node[below] at (in.north) {\textbf{Входные данные}};
+	\node[miniblock,text width=3.5cm,inner sep=0pt] at (2,2) {Конфигурационный XML файл};
+	\node[miniblock,text width=3.5cm,inner sep=0pt] at (2,.8) {Интерактивная оболочка};
+
+	\node[below] at (mesh.north) {\textbf{Расчетная сетка}};
+	\node[miniblock,text width=3.5cm,inner sep=0pt] (rgen) at (2,-1.1) {Генератор сеток прямоугольных};
+	\node[miniblock,text width=3.5cm,inner sep=0pt] (gmsh) at (2,-2.3) {GSMH};
+
+	\node[below] at (solver.north) {\textbf{Солвер}};
+	\node[miniblock,rotate=90,text width=4cm] (int) at (9.4,0) {Интеграл столкновений};
+	\node[miniblock,text width=2.5cm] (rect)  at (6.5,1.5) {RectSolv};
+	\node[miniblock,text width=2.5cm] (gpu)   at (6.5,0) {GPUSolv};
+	\node[miniblock,text width=2.5cm] (unstr) at (6.5,-1.5) {UnstructSolv};
+	\draw [<->] (int.north)+(0,1.5) to (rect.east);
+	\draw [<->] (int.north) to (gpu.east);
+	\draw [<->] (int.north)+(0,-1.5) to (unstr.east);
+
+	\node[below,rotate=90] (visual) at (out.west) {\textit{Визуализация}};
+	\node[above,rotate=90] at (out.east) {\textbf{Выходные данные}};
+	\node[miniblock,text width=1.5cm] (gnu)  at (13,2.25) 	{Gnuplot};
+	\node[miniblock,text width=1.5cm] (para) at (13,0.75) 	{Paraview};
+	\node[miniblock,text width=1.5cm] (bk)   at (13,-0.75) {Bkviewer};
+	\node[miniblock,text width=1.5cm] (ncl)  at (13,-2.25) {NCL};
+	\draw [->] (visual.east) to[in=180,out=90] (gnu.west);
+	\draw [->] (visual.south)+(0,.75) to (para.west);
+	\draw [->] (visual.south)+(0,-.75) to (bk.west);
+	\draw [->] (visual.west) to[in=180,out=-90] (ncl.west);
+
+	\draw [->,dashed,thin] (rgen.east)+(0,.2) to[out=0,in=135] (rect.north);
+	\draw [->,dashed,thin] (rgen.east)+(0,-.2) to[out=0,in=135] (gpu.north);
+	\draw [->,dashed,thin] (gmsh.east) to[out=0,in=-135] (unstr.south);
+
+\end{tikzpicture}
+
+\section*{Структурная схема NSolver}
+\begin{tikzpicture}[every node/.style={shape=rectangle,rounded corners,draw=blue!50,fill=blue!20,thick,inner sep=5pt,
+ 					minimum size=1cm,node distance=1cm,text width=3cm,text badly centered}, >=latex',thick]
+	\node (solver) {\Large\textbf{NSolver}};
+	\node[shape=rectangle split,rectangle split parts=2,text width=6cm] (listeners) [above=of solver]
+		{\textit{Starter, Stopper, Saver, Logger, ...}\nodepart{second}\textbf{Listeners}};
+	\node (scheme)    [left=of solver]        {\textbf{Difference scheme}};
+	\node (integral)  [right=of solver]       {\textbf{Collision integral}};
+	\node (grid)      [below left=of solver]  {\textbf{Grid \\ Boundaries}};
+	\node (gases)     [below right=of solver] {\textbf{Gas parameters}};
+	\node (decomp)    [below=of solver]       {\textbf{Domain decomposition}};
+	\draw [<->] (listeners) to (solver);
+	\draw [<-]  (scheme)    to (solver);
+	\draw [<-]  (integral)  to (solver);
+	\draw [->]  (grid)      to (solver);
+	\draw [<->] (decomp)    to (solver);
+	\draw [->]  (gases)     to (solver);
+ \end{tikzpicture}
+
+\section*{Структурная схема NSolver (2 вариант)}
+\begin{tikzpicture}[level 1 concept/.append style={sibling angle=60,level distance=4.5cm}]
+ 
+	\path[mindmap,concept color=black,text=white,minimum size=2cm]
+	node[concept] {\LARGE\textbf{NSolver}}
+	[clockwise from=90]
+	child[concept color=green!50!black] {
+		node[concept] {\large{Listeners}}
+		[clockwise from=180]
+		child { node[concept] {Starter} }
+		child { node[concept] {Stopper} }
+		child { node[concept] {Saver} }
+		child { node[concept] {Logger} }
+	}
+	child[concept color=red,minimum size=2.5cm] { node[concept] {\large\textbf{Collision integral}} }
+	child[concept color=blue] { node[concept] {Gas parameters} }
+	child[concept color=orange] { node[concept] {Domain decomposition} }
+	child[concept color=blue] { node[concept] {Grid \\ Boundaries} }
+	child[concept color=red,minimum size=2.5cm] { node[concept] {\large\textbf{Difference scheme}} };
+\end{tikzpicture}
+ 
+ \section*{Блок-схема NSolver}
+ \begin{tikzpicture}[node distance=2cm,every path/.style={draw,>=latex',very thick},thick,
+					block/.style={rectangle,text width=3cm,text=white,text badly centered,rounded corners,minimum height=4em}]
+	\node[block,fill=blue] (init) {Считывание начальных данных};
+	\node[block,fill=orange,below of=init] (decomp) {Разбиение расчетной сетки на домены};
+	\node[block,fill=green!50!black,below of=decomp] (listeners) {Листенеры};
+	\node[below of=listeners] (dummy) {};
+	\node[block,fill=green!50!black,node distance=5cm,above left of=listeners] (save) {Сохранение результатов};
+	\node[block,fill=green!50!black,node distance=5cm,above right of=listeners] (stop) {Остановка расчёта};
+
+	\node[block,fill=red,left of=dummy, node distance=3cm] (ldiff) {Расчет уравнения переноса для \(\frac\tau2\)};
+	\node[block,fill=red,right of=dummy, node distance=3cm] (rdiff) {Расчет уравнения переноса для \(\frac\tau2\)};
+	\node[block,fill=red,below of=dummy] (integr) {Расчет интеграла столкновений \\ для \(\tau\)};
+
+	\draw[->] (init) to (decomp);
+	\draw[->] (decomp) to (listeners);
+	\draw[->] (listeners.east) to [bend left=45] (rdiff.north);
+	\draw[<-] (listeners.west) to [bend right=45] (ldiff.north);
+	\draw[<-] (integr.east) to [bend right=45] (rdiff.south);
+	\draw[->] (integr.west) to [bend left=45] (ldiff.south);
+	\draw[->] (listeners) to [bend right=30] node[right,text width=1.2cm,text centered] {если \\ нужно} (stop.south);
+	\draw[->] (listeners) to [bend left=30] node[left,text width=1.2cm,text centered] {если \\ нужно} (save.south) ;
+\end{tikzpicture}
+
+
+Перевод на русский считаю лучше не делать))
+
+Солвер хранит всю информацию в массиве ячеек (\textit{cells}) и границ (\textit{boundaries}).
+Набор ячеек считывается из сетки (\textit{grid}). Набор границ --- из геометрии (\textit{geometry}).
+Все ячейки знают про своих соседей, в т.ч. границ.
+Модуль \textit{Domain decomposition} нумерует все ячейки MPI\_rank-ом. Параметры газа (\textit{gas parameters}) --- это в т.ч. информация о смеси.
+\textit{Listeners} --- широкий класс объектов, которые вызываются с каждой итерацией.
+\textit{Starter} на нулевой итерации задаёт начальные условия.
+\textit{Stopper} останавливает итерационный процесс.
+\textit{Saver} периодически сохраняет необходимые данные.
+\textit{Logger} соотвественно регистрирует совершенные действия в журнале.
+Стрелки указывают на информационный поток.
+
+Жду жесткой критики и предложений))
+
+
+\end{document}

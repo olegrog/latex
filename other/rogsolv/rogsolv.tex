@@ -1,0 +1,96 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{amssymb, amsmath, amsfonts}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{mindmap}
+\usetikzlibrary{decorations.text}
+\usetikzlibrary{arrows,fit,positioning,shapes.multipart}
+\usepackage{fullpage}
+
+\begin{document}
+\thispagestyle{empty}
+
+\section{Схема программных модулей}
+\subsection{Организация вычислительного процесса}
+\begin{tikzpicture}[every node/.style={shape=rectangle,rounded corners,draw=blue!50,fill=blue!20,thick,inner sep=5pt,
+						minimum size=1cm,node distance=.5cm,text badly centered}, >=latex',thick]
+	\large\it\bf
+	\node (solver) {solver};
+	\node (manager) [below=of solver] {manager};
+	\node (writer) [below=of manager] {writer};
+	\node (printer) [left=of writer] {printer};
+	\node (timer) [right=of writer] {timer};
+	\node (cachef) [below=of writer] {cache\_f};
+	\draw [->] (solver.south) to (manager.north);
+	\draw [->] (manager.south) to (writer.north);
+	\draw [->] (manager) to (printer.north);
+	\draw [->] (manager) to (timer.north);
+	\draw [->] (writer.south) to (cachef.north);
+\end{tikzpicture}
+
+\subsection{Численная разностная схема}
+\begin{tikzpicture}[every node/.style={shape=rectangle,rounded corners,draw=blue!50,fill=blue!20,thick,inner sep=5pt,
+						minimum size=1cm,node distance=.5cm,text badly centered}, >=latex',thick]
+	\large\it\bf
+	\node (ds) {diff\_scheme};
+	\node (ci) [right=of ds] {ci};
+	\node (tvd) [below=of ds] {tvd\_scheme};
+	\node (first) [left=of tvd] {first\_scheme};
+	\node (mypow) [right=of tvd] {my\_pow};
+	\node (lims) [below=of tvd] {limiters};
+	\draw [dashed] (ds.east) to (ci.west);
+	\draw [->] (ci.south) to (mypow.north);
+	\draw [->] (ds) to (first.north);
+	\draw [->] (ds) to (tvd.north);
+	\draw [->] (tvd) to (lims.north);
+\end{tikzpicture}
+
+\subsection{Представление данных}
+\begin{tikzpicture}[every node/.style={shape=rectangle,rounded corners,draw=blue!50,fill=blue!20,thick,inner sep=5pt,
+						minimum size=1cm,node distance=.5cm,text badly centered}, >=latex',thick]
+	\large\it\bf
+	\node (box) {box};
+	\node (matrix) [below=of box] {matrix};
+	\node (vg) [below=of matrix] {vel\_grid};
+	\node (map) [right=of vg] {mapper};
+	\node (wall) [left=of box] {walls};
+	\node (init) [right=of box] {init\_conds};
+	\node (buf) [above=of box] {buffer};
+
+	\draw [->] (box) to (matrix);
+	\draw [->] (box) to (buf);
+	\draw [->] (box) to (wall);
+	\draw [->] (box) to (init);
+	\draw [->] (matrix) to (vg);
+	\draw [->] (vg) to (map);
+\end{tikzpicture}
+
+\section*{Блок-схема NSolver}
+\begin{tikzpicture}[node distance=2cm,every path/.style={draw,>=latex',very thick},thick,
+					block/.style={rectangle,text width=3cm,text=white,text badly centered,rounded corners,minimum height=4em}]
+	\node[block,fill=blue] (init) {Считывание начальных данных};
+	\node[block,fill=orange,below of=init] (decomp) {Разбиение расчетной сетки на домены};
+	\node[block,fill=green!50!black,below of=decomp] (listeners) {Листенеры};
+	\node[below of=listeners] (dummy) {};
+	\node[block,fill=green!50!black,node distance=5cm,above left of=listeners] (save) {Сохранение результатов};
+	\node[block,fill=green!50!black,node distance=5cm,above right of=listeners] (stop) {Остановка расчёта};
+
+	\node[block,fill=red,left of=dummy, node distance=3cm] (ldiff) {Расчет уравнения переноса для \(\frac\tau2\)};
+	\node[block,fill=red,right of=dummy, node distance=3cm] (rdiff) {Расчет уравнения переноса для \(\frac\tau2\)};
+	\node[block,fill=red,below of=dummy] (integr) {Расчет интеграла столкновений \\ для \(\tau\)};
+
+	\draw[->] (init) to (decomp);
+	\draw[->] (decomp) to (listeners);
+	\draw[->] (listeners.east) to [bend left=45] (rdiff.north);
+	\draw[<-] (listeners.west) to [bend right=45] (ldiff.north);
+	\draw[<-] (integr.east) to [bend right=45] (rdiff.south);
+	\draw[->] (integr.west) to [bend left=45] (ldiff.south);
+	\draw[->] (listeners) to [bend right=30] node[right,text width=1.2cm,text centered] {если \\ нужно} (stop.south);
+	\draw[->] (listeners) to [bend left=30] node[left,text width=1.2cm,text centered] {если \\ нужно} (save.south) ;
+\end{tikzpicture}
+
+\end{document}
