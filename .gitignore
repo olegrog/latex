@@ -1,17 +1,25 @@
 # Temporary LaTeX files
 *.aux
-*.bbl
-*.bcf
-*.blg
-*-blx.bib
-*.brf
 *.log
 *.nav
 *.out
-*.run.xml
 *.snm
 *.toc
+*.lof
+*.lot
 *.vrb
+
+# Temporary BibTeX and BibLaTeX files
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*-blx.bib
+*.brf
+
+# Temporary LaTeX endfloat files
+*.ttt
+*.fff
 
 # LaTeX Results
 *.eps
