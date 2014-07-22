@@ -27,6 +27,10 @@
 *.dvi
 *.zip
 
+# Gnuplot Tikz files
+*.table
+*.gnuplot
+
 # Backups
 *~
 *.backup
