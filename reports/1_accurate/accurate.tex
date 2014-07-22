@@ -1,0 +1,76 @@
+\documentclass[english,russian,a4paper,12pt]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage{babel}
+\usepackage{csquotes}
+\usepackage{fullpage}
+\usepackage{amssymb, amsmath, amsfonts}
+
+\usepackage[
+	pdfauthor={Rogozin Oleg},
+	pdftitle={Accurate ratios for hard-sphere model},
+	colorlinks,pdftex, unicode]{hyperref}
+
+\usepackage[
+	style=alphabetic,
+	language=british,
+	sorting=nyt,
+	url=false,
+	eprint=false,
+	pagetracker,
+	firstinits]{biblatex}
+\bibliography{accurate}
+
+\title{Точные соотношения для модели твёрдых сфер}
+\author{Рогозин Олег}
+
+\begin{document}
+
+\maketitle
+
+Сразу отметим, что система обозначений взята из~\cite{Sone2007}, там же можно найти более подробную информацию,
+в том числе различные коэффициенты скольжения.
+
+Итак, рассматривается одноатомный газ твёрдых сфер.
+Используются следующие безразмерные переменные:
+\begin{itemize}
+	\item плотность \(\rho_0\),
+	\item тепловая скорость \(\nu_0 = \sqrt{2RT_0}\),
+	\item длина свободного пробега \(\ell = \dfrac{m}{\pi\sqrt{2}\rho_0d_m^2}\).
+\end{itemize}
+Здесь \(R = k_B/m\) --- удельная газовая постоянная, \(\pi d_m^2\) --- сечение рассеяния твёрдых сфер.
+
+Точные значения коэффициентов получены на основе численного решения интегрального уравнения Больцмана--Гильберта (или Грэда--Гильберта).
+\begin{itemize}
+	\item вязкость \[\mu = \dfrac{\sqrt{\pi}}{4}\gamma_1 = 0.562772898, \quad \mu_0 = \rho_0\nu_0\ell, \]
+	\item теплопроводность \[\lambda = \dfrac{5\sqrt{\pi}}{8}\gamma_2 = 2.129474872, \quad \lambda_0 = R\rho_0\nu_0\ell, \]
+	\item число Прандтля \[\Pr = \dfrac{\gamma_1}{\gamma_2} = 0.660694457, \]
+	\item соотношение фон Кармана \[\dfrac{\mathrm{Ma}}{\mathrm{Re}\cdot\mathrm{Kn}} = \sqrt{\dfrac{3\pi}{40}}\gamma_1 = 0.616486822, \]
+\end{itemize}
+Впервые были вычислены в~\cite{Pekeris1957}, большее число знаков можно найти в~\cite{Ohwada1989a}.
+Для уравнения БГК \(\gamma_1 = \gamma_2 = 1\), а для модели твёрдых сфер:
+\[
+	\gamma_1 = 1.270042427, \quad \gamma_2 = 1.922284066.
+\]
+Безразмерные числа определяются как
+\[	\Pr = \frac{c_p\mu}{\lambda}, \quad \mathrm{Kn} = \frac{\ell}{L}, \quad
+	\mathrm{Ma} = \frac{U}{\sqrt{\gamma R T_0}}, \quad \mathrm{Re} = \frac{UL\rho_0}{\mu}, \]
+где \(L\) и \(U\) --- характерные длина и скорость течения, \(c_p=5/2\) --- удельная теплоёмкость,
+\(\gamma=c_p/c_v = 5/3\) --- отношение удельных теплоёмкостей.
+
+Для сравнения во втором приближении Чэпмена--Энскога\footnote
+{
+	Заметим, что в учебнике~\cite{Landau2002} допущена ошибка в значениях высших приближений Чэпмена"--~Энскога 
+	на стр.~53 в примечаниях к форм.~(5--6).
+}:
+\[ \mu^{(2)} = \frac{5\sqrt{\pi}}{16} = 0.553891828, \quad \varepsilon = 1.6\%, \]
+\[ \lambda^{(2)} = \frac{75\sqrt{\pi}}{64} = 2.077094357, \quad \varepsilon = 2.5\%, \]
+\[ \Pr{}^{(2)} = \frac{5R\mu^{(2)}}{2\lambda^{(2)}} = \frac{2}{3}, \quad \varepsilon = 0.9\%, \]
+
+Заметим, что при использовании в качестве единицы скорости \(\nu_0 = \sqrt{RT_0}\) значения \(\mu\) и \(\lambda\)
+необходимо домножить на \(\sqrt{2}\).
+
+\printbibliography
+
+\end{document}
+
