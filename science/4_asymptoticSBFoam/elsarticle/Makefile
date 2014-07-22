@@ -12,3 +12,16 @@ $(FILE).pdf: $(FILE).tex $(FILE).bib $(FIG)
 	bibtex $(FILE)
 	latex $(FILE)
 	latex $(FILE)
+
+
+clean:
+	rm -f $(FILE).aux
+	rm -f $(FILE).bbl
+	rm -f $(FILE).blg
+	rm -f $(FILE).fff
+	rm -f $(FILE).lof
+	rm -f $(FILE).log
+	rm -f $(FILE).spl
+	rm -f $(FILE).pdf
+	rm -f $(FILE).zip
+

@@ -36,10 +36,11 @@ U -= np.sqrt(T)*dTdx*Y1(np.outer(y,1/T)/k)
 U0 = np.reshape(U, ((2*N+1)*(N+1),))
 V = np.reshape(V0,dim)
 
+np.set_printoptions(threshold='nan')
 magU = np.sqrt(U*U+V*V)
 cmap = py.cm.get_cmap('coolwarm')
-lmax = 2.8 # 2.8 / 3.4
-count = 8
+lmax = 3.2 # 2.8 / 3.4
+count = 10
 levels = np.linspace(0, lmax, count+1)
 CF = py.contourf(x, y, magU, cmap=cmap, levels=levels)
 
