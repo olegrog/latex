@@ -1,0 +1,36 @@
+% Some tuning to epigraphs
+\setlength{\epigraphwidth}{.6\textwidth}
+\setlength{\beforeepigraphskip}{0em}
+
+% Indent a first paragraph
+\usepackage{indentfirst}
+
+\usepackage{titlesec}
+% Each section from a new page
+% Use \phantomsection for hyperref
+\newcommand{\sectionbreak}{\clearpage\phantomsection}
+% Increase spacing after the section titles
+\titlespacing*{\section}{0pt}{0pt}{20pt}
+% Increase font size in the section titles
+% Use raggedright to disable hyphenation
+\titleformat*{\section}{\Huge\bfseries\raggedright}
+\titleformat*{\paragraph}{\Huge\bfseries\raggedright}
+
+% Table of contents: sections with dots
+%\usepackage[titles]{tocloft}
+%\renewcommand{\cftsecdotsep}{\cftdot}
+
+% Bibliography without numbering for secondary sources
+\defbibenvironment{plain}
+	{\list{}
+		{\setlength{\leftmargin}{\bibhang}%
+		\setlength{\itemindent}{-\leftmargin}%
+		\setlength{\itemsep}{\bibitemsep}% 
+		\setlength{\parsep}{\bibparsep}}}
+	{\endlist}
+	{\item}
+
+\newcommand{\person}[1]{\textsc{#1}}
+% Prints author names as small caps
+% "hd" only for biblatex-gost
+\renewcommand{\mkbibhdnamelast}[1]{\person{#1}}
