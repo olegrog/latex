@@ -1,66 +1,79 @@
 %&pdflatex
-\documentclass[review,3p]{elsarticle}
+\documentclass[smallextended, referee]{svjour3} % svjour3: smallextended, referee
 \usepackage[english]{babel}
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{amssymb, amsmath}
 \usepackage{endfloat}
+\usepackage{cite}
 \usepackage{fixltx2e}
+\usepackage{fullpage}
 
 \newcommand{\Kn}{\mathrm{Kn}}
 \newcommand{\dd}{\:\mathrm{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
 \newcommand{\pderder}[2][]{\frac{\partial^2 #1}{\partial #2^2}}
 
-\begin{document}
+\journalname{Theoretical and Computational Fluid Dynamics}
 
-\begin{frontmatter}
+\begin{document}
 
 \title{
 	Computer simulation of a stationary gas in the continuum limit with considerable temperature gradients
 }
 
 \author{O.A.~Rogozin}
-\ead{o.a.rogozin@gmail.com}
-\address[mipt]{
+\institute{O.A.~Rogozin \at
 	Moscow Institute of Physics and Technology,
 	9 Institutskiy pereulok, g. Dolgoprudny,
-	Moskovskaya obl., Russian Federation
+	Moskovskaya obl., Russian Federation\\
+	\email{o.a.rogozin@gmail.com}  
 }
 
+\maketitle
+
 \begin{abstract}
-	Classical fluid dynamics describes a behavior of gas in terms of the Navier--Stokes
-	set of equations that converges to the Euler set in the continuum limit.
-	However, a rigorous asymptotic analysis of the Boltzmann equation confines the scope of its
-	application. Instead, it leads to a more complicated system of differential equations.
-	Based on the CFD toolbox OpenFOAM\textregistered{} a special solver is designed for
-	numerical simulation of a slightly rarefied gas in an arbitrary geometry with a finite Reynolds number.
-	Considered two-dimensional problems clearly illustrate significant flows eluding
-	from the solution of the conventional equations.
+	Classical fluid dynamics describes a behavior of gas in terms of the compressible Navier--Stokes
+	set of equations. However, a rigorous asymptotic analysis of the Boltzmann equation confines
+	the scope of its application and leads to a more complicated set of differential equations,
+	for example, when large temperature gradients are present. Based on the CFD platform
+	OpenFOAM\textregistered{} a special parallel solver is designed for numerical simulation of a slightly rarefied gas
+	in an arbitrary geometry with a finite Reynolds number. Considered two-dimensional problems
+	clearly illustrate significant flows eluding from the solution of the conventional equations.
+	\keywords{
+		numerical simulation \and Boltzmann equation \and Navier--Stokes equations \and thermal creep flow \and
+		nonlinear thermal-stress flow \and ghost effect
+	}
+	\PACS{47.45.-n,47.11.Df}
 \end{abstract}
-
-\begin{keyword}
-	numerical simulation \sep Boltzmann equation \sep Navier--Stokes equations \sep thermal creep flow \sep
-	nonlinear thermal-stress flow
-\end{keyword}
-
-\end{frontmatter}
 
 \section{Introduction}
 
-The Navier--Stokes set of equations is widely used for a gas simulation with a small mean free path.
-When the Knudsen number tends to zero, we usually turn to the Euler and the heat-conduction equations,
-since viscosity and thermal conductivity of a gas are of the same order of the Knudsen number.
-However, such a transition is not valid in general, e.g., for gas flows
-in a nonuniform temperature field with a finite Reynolds number~\cite{Kogan1976, Bobylev1996}.
-The aid comes from the asymptotic theory of the Boltzmann equation
-that yields correct equations on the macroscopic variables~\cite{Sone2002}.
+Let us consider a gas with a small mean free path in a closed vessel in the absence of gravity.
+For gas in the equilibrium state at rest, temperature field is governed by the heat-conduction equation.
+However, using the no slip boundary condition for the compressible Navier--Stokes set of equations
+is not valid if the vessel walls have a large temperature variation~\cite{Kogan1976, GhostEffect}.
+The correct equations on the macroscopic variables can be obtained from the asymptotic theory of
+the Boltzmann equation~\cite{Sone2002, Sone2007}.
+
+This new set of equations has the similar structure to the Navier--Stokes one,
+so appropriate numerical methods are formulated on the same principles that accepted in CFD.
+The first solutions presented in literature are based on the finite difference methods~\cite{GhostEffect, SoneCoaxial}.
+Following works treat with the finite volume methods~\cite{Laneryd2006, Laneryd2007}.
+The next stage is a parallel implementation of these numerical methods that allows
+to solve complex engineering problems.
+
+One of the modern CFD platforms, OpenFOAM\textregistered{}~\cite{OpenFOAM1998, OpenFOAM2010} has
+already an active endeavor to widen its scope to rarefied gas dynamics~\cite{Pantazis2012}.
+In the present work a parallel solver was developed within this open-source platform.
+The program code validation was carried out by means of some benchmark simulations,
+presented as illustrations in this paper.
 
 First, we outline the basic equations and the key points of the asymptotic theory,
 used in the implementation of the program solver.
 Then we present the results of numerical simulation for some specific problems
 and compare the obtained temperature fields to the classical solution
-of heat-conduction equation.
+of the heat-conduction equation.
 
 \section{The basic equations}
 
@@ -179,7 +192,8 @@ For a hard-sphere gas, dimensionless transfer coefficients are equal
 The first two ones correspond to the viscosity and the thermal conductivity:
 \[ \mu = \frac{\sqrt\pi}2\gamma_1, \quad \lambda = \frac{5\sqrt\pi}2\gamma_2. \]
 
-Diffuse-reflection boundary conditions are
+The fluid-dynamic boundary conditions based on the diffuse-reflection boundary conditions
+for Boltzmann equation look as follows:
 \begin{gather}
 	T_0 = T_w, \label{eq:bound:T} \\
 	\left\{
@@ -191,7 +205,7 @@ Diffuse-reflection boundary conditions are
 	\right. \label{eq:bound:v}
 \end{gather}
 Here \(n_i\) is the normal to the surface, \(u_{wj1}\), \(T_w\) are the velocity and the temperature of the boundary.
-\(K_1\) is the dimensionless factor of the temperature jump. For a hard-sphere gas,
+\(K_1\) is the dimensionless coefficient for the thermal creep. For a hard-sphere gas
 \[ K_1 = -0.6463. \]
 
 In the general case, the solution of the boundary-value problem cannot be expressed only
@@ -244,7 +258,7 @@ Generally, for \(\Kn\to0\), gas is not described by the heat-conduction equation
 Equation~\eqref{eq:asymptotic3} converges to it only in the special case \(u_{i1} = 0\).
 We can identify three reasons why this condition is not met:
 \begin{enumerate}
-	\item The boundary moves with the infinitesimal velocity: \(u_{wi} = u_{w1i} k\)~\cite{Bobylev1996}.
+	\item The boundary moves with the infinitesimal velocity: \(u_{wi} = u_{w1i} k\)~\cite{GhostEffect}.
 	\item The boundary temperature is nonuniform (thermal creep flow)~\cite{Bobylev1996}.
 	\item The isothermal surfaces are not parallel (nonlinear thermal-stress flow)~\cite{Kogan1976}:
 		\begin{equation}\label{eq:equilibrium}
@@ -272,11 +286,12 @@ and the third one has only an implicit impact from them.
 \end{figure}
 
 Special solver of the system~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}
-has been developed based on open source CFD toolbox OpenFOAM\textregistered{}~\cite{Tabor1998},
+has been developed based on open source CFD toolbox OpenFOAM\textregistered{}~\cite{OpenFOAM1998},
 which uses the finite-volume approach for evaluating partial derivatives.
 The continuity equation~\eqref{eq:asymptotic1} together with the momentum equation~\eqref{eq:asymptotic2}
-is solved with the commonly used implicit conservative algorithm SIMPLE~\cite{Caretto1972}.
-Unstructured grids are generated with open source package GMSH~\cite{Geuzaine2009}.
+is solved with the commonly used implicit conservative algorithm SIMPLE~\cite{SIMPLE}.
+A detailed description of this scheme for gas mixtures can be found in~\cite{Laneryd2007}.
+Unstructured grids are generated with open source package GMSH~\cite{GMSH}.
 
 All transport coefficients are taken in compliance with the hard-sphere model.
 Complete diffuse reflection is assumed from solid surfaces.
@@ -306,13 +321,13 @@ Due to the problem symmetry computational domain represents a rectangle \(0<x<1,
 \begin{figure}
 	\centering
 	\includegraphics{Fig5}
-	\caption{The velocity field \(u_{i1}\) with \(\Kn = 0\)}\label{fig:moving:fluid}
+	\caption{The fluid-dynamic part of the velocity field \(u_{i1}\)}\label{fig:moving:fluid}
 \end{figure}
 
 \begin{figure}
 	\centering
 	\includegraphics{Fig6}
-	\caption{The velocity field \(u_{i1}\) with \(\Kn=0.01\)}\label{fig:moving:kn001}
+	\caption{The velocity field \(u_{i1}\) with the Knudsen layer correction for \(\Kn=0.01\)}\label{fig:moving:kn001}
 \end{figure}
 
 The resulting temperature distribution in the continuum limit (Fig.~\ref{fig:moving:T_asym}) is shown
@@ -320,8 +335,7 @@ in comparison with the solution of the heat-conduction equation (Fig.~\ref{fig:m
 When \(k\to0\) classical solution is seen to have a qualitative distinction from the kinetic one: 
 the former comprises symmetry in the isothermal lines.
 
-The velocity field \(u_{i1}\) is shown for a zero (Fig.~\ref{fig:moving:fluid})
-and a finite Knudsen number (Fig.~\ref{fig:moving:kn001}).
+The velocity field \(u_{i1}\) is shown in Fig.~\ref{fig:moving:fluid} and Fig.~\ref{fig:moving:kn001}.
 The Knudsen layer correction~\eqref{eq:bound:v_K} is taken into account in the latter figure.
 We see that for small \(k\) the gas flow occurs in the thin Knudsen layer near the solid surface
 directed along boundary temperature gradient.
@@ -406,7 +420,7 @@ We consider the special case:
 \end{figure}
 
 Numerical simulation of a rarefied gas using the DSMC method in the current geometry
-for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{Sone1998}.
+for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{SoneCoaxial}.
 
 Calculation of such problems on the modern personal computer takes several minutes,
 that allows you to quickly perform parametric studies as well. As an example,
@@ -423,24 +437,36 @@ along the major axis of the outer cylinder.
 
 \section{Conclusion}
 
-In the continuum limit gas holds a Maxwell distribution, but
-macroscopic variables satisfy neither the Euler,
-nor the Navier--Stokes equations. They are determined by the system of equations
-containing the higher-order terms of gas rarefaction.
+The Navier--Stokes set of equations is valid in the presence of a strong convection.
+However, if the \(\mathrm{Re} \sim 1\) and the temperature variation in the gas is large
+it ceases to be correct. So-called Burnett stress terms (higher-order terms of gas rarefaction)
+begin to play a significant role in the gas behavior.
+In this case, the asymptotic analysis of the Boltzmann equation arrives on the scene and yields
+the correct set of equation solved in the present paper.
 
-The fundamental result of the present work consists in the developed universal solver
-for this system of equations and the proper boundary conditions.
-It makes possible to simulate all kind problems for arbitrary geometry with high speed and precision.
+It is worth to mention about a surprising property of the derived system. It is the ghost effect
+in the continuum limit. That is, in the limit when the Knudsen number vanishes,
+the gas flow vanishes in proportion to the Knudsen number. However, this infinitesimal flow
+has a finite effect on the temperature field.
+
+Currently, there is a lot of CFD platforms provides comprehensive capabilities for
+numerical simulation of the Navier--Stokes equations, but the present fluid-dynamic
+set of equations remains in the shadow. Thus, the paper aims to
+draw more attention for the CFD scope extension.
+
+The key result of the present work consists in the developed universal solver for
+the described set of equations and proper boundary conditions. It makes possible to
+simulate all kind problems for arbitrary geometry in high speed and precision.
 Calculations can be carried out both on a single personal computer and on a cluster.
-Solver owes so much its important advantages to CFD platform OpenFOAM\textregistered{}
+The solver owes so much its important advantages to open-source platform OpenFOAM\textregistered{}
 that served as the basis for the compact implementation of the utilized numerical methods.
 
-The problems examined above clearly demonstrate some temperature effects of
-a slightly rarefied gas: the thermal creep flow and the nonlinear thermal-stress flow,
-which lie outside the scope of the Navier--Stokes set of equations.
+The numerical examples examined above clearly demonstrate some temperature effects of
+a slightly rarefied gas lying outside the scope of the Navier--Stokes set of equations:
+the thermal creep flow and the nonlinear thermal-stress flow.
 
-\bibliographystyle{elsarticle-num}
-\bibliography{elsarticle}
+\bibliographystyle{spmpsci} % spbasic, spmpsci, spphys
+\bibliography{springer}
 
 \end{document}
 

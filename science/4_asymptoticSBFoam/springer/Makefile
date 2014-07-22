@@ -1,4 +1,4 @@
-FILE=elsarticle
+FILE=springer
 FIG=Fig*.pdf
 SOURCES=$(FILE).tex $(FILE).bib $(FIG) highlights.txt
 
