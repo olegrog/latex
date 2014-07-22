@@ -1,0 +1,28 @@
+# Temporary LaTeX files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*-blx.bib
+*.brf
+*.log
+*.nav
+*.out
+*.run.xml
+*.snm
+*.toc
+*.vrb
+
+# LaTeX Results
+*.eps
+*.pdf
+*.dvi
+*.zip
+
+# Backups
+*~
+*.backup
+*.bak
+
+# Hidden files
+.*
