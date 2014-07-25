@@ -19,7 +19,7 @@
 \begin{document}
 
 \title{
-	Computer simulation of a stationary gas in the continuum limit with considerable temperature gradients
+	Computer simulation of slightly rarefied gas flows driven by significant temperature variation and their continuum limit
 }
 
 \author{O.A.~Rogozin}
@@ -77,7 +77,7 @@ of the heat-conduction equation.
 
 \section{The basic equations}
 
-Liquids and gases are described by the conservation laws of mass, momentum and energy:
+Gases are described by the conservation laws of mass, momentum and energy:
 \begin{gather}
 	\pder[\rho]{t} + \pder{x_i}(\rho v_i) = 0, \label{eq:mass}\\
 	\pder{t}(\rho v_i) + \pder{x_j}(\rho v_i v_j + p_{ij}) = \rho F_i, \label{eq:momentum}\\
@@ -136,7 +136,7 @@ in the absence of gas motion \(v_i = 0\):
 \begin{equation}\label{eq:heat_equation}
 	\pder{x_i}\left(\sqrt{T}\pder[T]{x_i}\right) = 0.
 \end{equation}
-It takes into account that the thermal conductivity of an ideal gas is proportional to \(\sqrt{T}\).
+It takes into account that the thermal conductivity of a hard-sphere gas is proportional to \(\sqrt{T}\).
 
 For small \(k\) weak convective flow \(v = O(k)\) appears in the Navier--Stokes set of equations.
 It compensates a thermal conductivity term in~\eqref{eq:energy}.
@@ -183,7 +183,7 @@ Term \(\partial{p_2 ^ \dag} / \partial{x_i}\) participates in the system as the 
 in the Navier--Stokes set for incompressible gas.
 This fact determines the corresponding numerical methods for solving the above system.
 
-For a hard-sphere gas, dimensionless transfer coefficients are equal
+For a hard-sphere gas, dimensionless transport coefficients are equal
 \begin{alignat*}{2}
 	\gamma_1 &= 1.270042427, &\quad \gamma_2 &= 1.922284066, \\
 	\gamma_3 &= 1.947906335, &\quad \gamma_7 &= 1.758705.
@@ -259,7 +259,7 @@ Equation~\eqref{eq:asymptotic3} converges to it only in the special case \(u_{i1
 We can identify three reasons why this condition is not met:
 \begin{enumerate}
 	\item The boundary moves with the infinitesimal velocity: \(u_{wi} = u_{w1i} k\)~\cite{GhostEffect}.
-	\item The boundary temperature is nonuniform (thermal creep flow)~\cite{Bobylev1996}.
+	\item The boundary temperature is nonuniform (thermal creep flow)~\cite{GhostEffect}.
 	\item The isothermal surfaces are not parallel (nonlinear thermal-stress flow)~\cite{Kogan1976}:
 		\begin{equation}\label{eq:equilibrium}
 			e_{ijk}\pder[T_0]{x_j}\pder{x_k}\left(\pder[T_0]{x_l}\right)^2 = 0.
