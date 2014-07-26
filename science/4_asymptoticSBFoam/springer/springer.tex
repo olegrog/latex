@@ -13,6 +13,7 @@
 \newcommand{\dd}{\:\mathrm{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
 \newcommand{\pderder}[2][]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\Pder}[2][]{\partial#1/\partial#2}
 
 \journalname{Theoretical and Computational Fluid Dynamics}
 
@@ -153,19 +154,21 @@ It can be described only within the kinetic theory framework treating the asympt
 the Boltzmann equation for small Knudsen numbers.
 
 \section{The asymptotic analysis of the Boltzmann equation}
+
 A detailed mathematical derivation of the following results can be found in~\cite{Sone2002, Sone2007}.
 
-The analysis presented below is based on the conventional Hilbert expansion~\cite{Hilbert1912}
-of the distribution function \(f\) and the macroscopic variables \(h\):
-\[ f = f_0 + f_1k + f_2k^2 + \cdots, \]
-\[ h = h_0 + h_1k + h_2k^2 + \cdots \]
+The analysis presented below is based on the conventional Hilbert expansion
+of the distribution function \(f\) and the macroscopic variables \(h\)~\cite{Hilbert1912}:
+\[ f = f_0 + f_1k + f_2k^2 + \cdots, \quad h = h_0 + h_1k + h_2k^2 + \cdots \]
 with the additional condition
 \begin{equation}\label{eq:Mach_constraint}
-	\int\xi_if\dd\xi = O(k),
+	u_0 = 0.
 \end{equation}
 meaning that the Mach number is of the same order as the Knudsen number.
+Pressures \(p_0\) and \(p_1\) are constant due to degenerated Euler equation
+\(\Pder[p_0]{x_i} = 0 \) and \(\Pder[p_1]{x_i} = 0 \).
 
-The outcome embodies the following set of equations for stationary variables \(T_0\), \(u_{i1} = p_0v_{i1}\), \(p_2\):
+The following set of equations is resulted for variables \(T_0\), \(u_{i1} = p_0v_{i1}\), \(p_2\):
 \begin{align}
 	\pder{x_i}\left(\frac{u_{i1}}{T_0}\right) &= 0, \label{eq:asymptotic1} \\
 	\pder{x_j}\left(\frac{u_{i1}u_{j1}}{T_0}\right)
@@ -174,21 +177,22 @@ The outcome embodies the following set of equations for stationary variables \(T
 		)\right] \notag\\
 		&- \frac{\gamma_7}{T_0}\pder[T_0]{x_i}\pder[T_0]{x_j}\left(\frac{u_{j1}}{\gamma_2\sqrt{T_0}} - \frac{1}4\pder[T_0]{x_j}\right) \notag\\
 		&= -\frac1{2p_0}\pder[p_2^\dag]{x_i}, \label{eq:asymptotic2} \\
-	\pder[u_{i1}]{x_i} &= \frac{\gamma_2}2\pder{x_i}\left(\sqrt{T_0}\pder[T_0]{x_i}\right). \label{eq:asymptotic3}
+	\pder[u_{i1}]{x_i} &= \frac{\gamma_2}2\pder{x_i}\left(\sqrt{T_0}\pder[T_0]{x_i}\right), \label{eq:asymptotic3}
 \end{align}
-Pressures \(p_0\) and \(p_1\) are constant,
+where
 \[ 
 	p_2^\dag = p_2 + 
 		\frac{2\gamma_3}{3p_0}\pder{x_k}\left(T_0\pder[T_0]{x_k}\right) -
-		\frac{\gamma_7}{6p_0}\left(\pder[T_0]{x_k}\right)^2,
+		\frac{\gamma_7}{6p_0}\left(\pder[T_0]{x_k}\right)^2.
 \]
 The set of equations \eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} has a fluid-dynamic nature
 and is comparable to the Navier--Stokes equations for a compressible gas (\(\rho_0 = p_0/T_0\)).
 The formal difference consists in the additional thermal stress terms.
-Moreover, \(p_2^\dag\) is not included in the equation of state, therefore is determined up to a constant.
+Moreover, \(p_2^\dag\) is not included in the equation of state,
+so it is determined up to a constant factor.
 Term \(\partial{p_2 ^ \dag} / \partial{x_i}\) participates in the system as the pressure
 in the Navier--Stokes set for incompressible gas.
-This fact determines the corresponding numerical methods for solving the above system.
+This fact specifies the corresponding numerical methods for solving \eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
 
 For a hard-sphere gas, dimensionless transport coefficients are equal
 \begin{alignat*}{2}
@@ -196,37 +200,37 @@ For a hard-sphere gas, dimensionless transport coefficients are equal
 	\gamma_3 &= 1.947906335, &\quad \gamma_7 &= 1.758705.
 \end{alignat*}
 
-The first two ones correspond to the viscosity and the thermal conductivity:
-\[ \mu = \frac{\sqrt\pi}2\gamma_1, \quad \lambda = \frac{5\sqrt\pi}2\gamma_2. \]
+The first two ones are related to the conventional dimensional coefficients
+(the viscosity \(\mu\) and the thermal conductivity \(\lambda\)) for a hard-sphere gas:
+\[ \mu = \frac{\sqrt\pi}2\gamma_1\sqrt{T_0}, \quad \lambda = \frac{5\sqrt\pi}2\gamma_2\sqrt{T_0}. \]
 
 The fluid-dynamic boundary conditions based on the diffuse-reflection boundary conditions
 for Boltzmann equation look as follows:
 \begin{gather}
-	T_0 = T_w, \label{eq:bound:T} \\
+	T_0 = T_B, \label{eq:bound:T} \\
 	\left\{
 	\begin{aligned}
-		& \frac{(u_{j1}-u_{wj1})}{\sqrt{T_w}}(\delta_{ij}-n_in_j) = 
-			-K_1\pder[T_w]{x_j}(\delta_{ij}-n_in_j), \\
+		& \frac{(u_{j1}-u_{Bj1})}{\sqrt{T_B}}(\delta_{ij}-n_in_j) = 
+			-K_1\pder[T_B]{x_j}(\delta_{ij}-n_in_j), \\
 		& u_{j1}n_j = 0.
 	\end{aligned}
 	\right. \label{eq:bound:v}
 \end{gather}
-Here \(n_i\) is the normal to the surface, \(u_{wj1}\), \(T_w\) are the velocity and the temperature of the boundary.
-\(K_1\) is the dimensionless coefficient for the thermal creep. For a hard-sphere gas
+Here, \(n_i\) is the unit normal vector to the boundary pointing into the gas,
+\(u_{Bj1}\), \(T_B\) are the velocity and the temperature of the boundary.
+\(K_1\) is the dimensionless slip coefficient for the thermal creep. For a hard-sphere gas,
 \[ K_1 = -0.6463. \]
 
-In the general case, the solution of the boundary-value problem cannot be expressed only
-with the fluid-dynamic-type solution due to the sharp variation in the distribution function
-near the boundary.
-It is therefore necessary to introduce the so-called Knudsen-layer correction:
+The solution of the boundary-value problem cannot be expressed only with the fluid-dynamic-type
+solution due to the sharp variation in the distribution function near the boundary.
+Therefore, it is necessary to introduce the so-called Knudsen-layer correction:
 \begin{equation}
-	f = f_{FD} + f_K.
+	f = f_{FD} + f_K, \quad h = h_{FD} + h_K.
 \end{equation}
 The fluid-dynamic part \(f_{FD}\) is the solution presented above,
-and \(f_K\) decays exponentially with the distance to the boundary \(\eta\):
-\begin{equation}
-	f_K = O\left(e^{-\eta}\right), \quad \eta = \frac{x_in_i}k.
-\end{equation}
+and \(f_K\) decays exponentially with the distance to the boundary \(f_K = O\left(e^{-\eta}\right)\).
+The relation \( x_i = k\eta n_i(s_1,s_2) + x_{Bi}(s_1, s_2) \) gives a coordinate transformation
+from \((x_1,x_2,x_3)\) to \((\eta,s_1,s_2)\).
 
 Due to the infinitesimal Mach number (\ref{eq:Mach_constraint}) \(f_K\) is expanded
 in a power series of \(k\), starting from the first order:
@@ -261,15 +265,16 @@ The function \(Y_1(\eta)\) is tabulated, for example, in~\cite{Sone2002, Sone200
 	\end{minipage}
 \end{figure}
 
-Generally, for \(\Kn\to0\), gas is not described by the heat-conduction equation~\eqref{eq:heat_equation}.
-Equation~\eqref{eq:asymptotic3} converges to it only in the special case \(u_{i1} = 0\).
-We can identify three reasons why this condition is not met:
+As one can see from~\eqref{eq:asymptotic3}, gas is not always described
+by the heat-conduction equation~\eqref{eq:heat_equation}.
+Equation~\eqref{eq:asymptotic3} converges to~\eqref{eq:heat_equation} only if \(u_{i1} = 0\).
+This condition is not generally satisfied in three different cases:
 \begin{enumerate}
-	\item The boundary moves with the infinitesimal velocity: \(u_{wi} = u_{w1i} k\)~\cite{GhostEffect}.
-	\item The boundary temperature is nonuniform (thermal creep flow)~\cite{GhostEffect}.
-	\item The isothermal surfaces are not parallel (nonlinear thermal-stress flow)~\cite{Kogan1976}:
+	\item The boundary is moving with the velocity of the order of k: \(u_{B1i} \neq 0 \).
+	\item The boundary temperature is not uniform (thermal creep flow): \(\Pder[T_B]{x_i} \neq 0 \).
+	\item The isothermal surfaces are not parallel (nonlinear thermal-stress flow):
 		\begin{equation}\label{eq:equilibrium}
-			e_{ijk}\pder[T_0]{x_j}\pder{x_k}\left(\pder[T_0]{x_l}\right)^2 = 0.
+			e_{ijk}\pder[T_0]{x_j}\pder{x_k}\left(\pder[T_0]{x_l}\right)^2 \neq 0.
 		\end{equation}
 \end{enumerate}
 
