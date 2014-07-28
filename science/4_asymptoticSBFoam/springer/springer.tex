@@ -239,8 +239,8 @@ The Knudsen layer introduces a correction to \(u_{i1}\) for a hard-sphere gas:
 \begin{equation}
 	\left\{
 	\begin{aligned}
-		& \frac{u_{jK1}}{\sqrt{T_w}}(\delta_{ij}-n_in_j) = 
-			-\frac12\pder[T_w]{x_j} Y_1\left(\frac\eta{T_w}\right) (\delta_{ij}-n_in_j), \\
+		& \frac{u_{jK1}}{\sqrt{T_B}}(\delta_{ij}-n_in_j) =
+			-\frac12\pder[T_B]{x_j} Y_1\left(\frac\eta{T_B}\right) (\delta_{ij}-n_in_j), \\
 		& u_{jK1}n_j = 0.
 	\end{aligned}
 	\right. \label{eq:bound:v_K}
@@ -252,7 +252,7 @@ The function \(Y_1(\eta)\) is tabulated, for example, in~\cite{Sone2002, Sone200
 	\begin{minipage}{.48\textwidth}
 		\centering
 		\includegraphics{Fig1}
-		\caption{The function of the Knudsen layer \(Y_1(\eta)\) for a hard-sphere gas}
+		\caption{The function of the Knudsen layer \(Y_1(\eta)/2\) for a hard-sphere gas.}
 		\label{fig:Y1}
 	\end{minipage}
 	\quad
@@ -260,7 +260,8 @@ The function \(Y_1(\eta)\) is tabulated, for example, in~\cite{Sone2002, Sone200
 		\centering
 		\includegraphics{Fig2}
 		\vspace{13pt}
-		\caption{Geometry of the problem with two parallel plates}
+		\caption{Geometry of the problem: the gas is placed between two parallel plates
+			with the temperature distribution \(T_B\).}
 		\label{fig:geometry}
 	\end{minipage}
 \end{figure}
@@ -286,14 +287,16 @@ and the third one has only an implicit impact from them.
 \begin{figure}[ht]
 	\centering
 	\includegraphics{Fig3}
-	\caption{The temperature field \(T\), obtained from the asymptotic theory}
+	\caption{The temperature field \(T\), obtained from the asymptotic theory:
+		isothermal lines are placed above the contour lines.}
 	\label{fig:moving:T_asym}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics{Fig4}
-	\caption{Temperature field \(T\), obtained from the heat-conduction equation}
+	\caption{Temperature field \(T\), obtained from the heat-conduction equation:
+		isothermal lines are placed above the contour lines.}
 	\label{fig:moving:T_heat}
 \end{figure}
 
@@ -306,7 +309,7 @@ A detailed description of this scheme for gas mixtures can be found in~\cite{Lan
 Unstructured grids are generated with open source package GMSH~\cite{GMSH}.
 
 All transport coefficients are taken in compliance with the hard-sphere model.
-Complete diffuse reflection is assumed from solid surfaces.
+Complete diffuse reflection is assumed from a solid boundary.
 
 Nonuniform spatial grids are condensed in areas with large gradients of macroscopic variables.
 The residual of the solution for all considered problems does not exceed \(10^{-6}\).
@@ -317,11 +320,11 @@ Consider a plane periodic geometry shown in Fig.~\ref{fig:geometry}.
 The gas is placed between two infinite parallel plates
 that have a sinusoidal distribution of the temperature
 \begin{equation}
-	T_w = 1-\alpha\cos(2\pi x).
+	T_B = 1-\alpha\cos(2\pi x).
 \end{equation}
 Lower plate moves relative to the top with the velocity
 \begin{equation}
-	u_{wi} = (\beta\Kn,0,0).
+	u_{Bi} = (\beta\Kn,0,0).
 \end{equation}
 
 We consider the special case:
@@ -333,13 +336,17 @@ Due to the problem symmetry computational domain represents a rectangle \(0<x<1,
 \begin{figure}
 	\centering
 	\includegraphics{Fig5}
-	\caption{The fluid-dynamic part of the velocity field \(u_{i1}\)}\label{fig:moving:fluid}
+	\caption{The fluid-dynamic part of the velocity field \(u_{FDi1}\):
+		curves with arrows indicate the direction, contour lines show the magnitude.}
+	\label{fig:moving:fluid}
 \end{figure}
 
 \begin{figure}
 	\centering
 	\includegraphics{Fig6}
-	\caption{The velocity field \(u_{i1}\) with the Knudsen layer correction for \(\Kn=0.01\)}\label{fig:moving:kn001}
+	\caption{The velocity field \(u_{i1}\) with the Knudsen layer correction for \(\Kn=0.01\):
+		curves with arrows indicate the direction, contour lines show the magnitude.}
+	\label{fig:moving:kn001}
 \end{figure}
 
 The resulting temperature distribution in the continuum limit (Fig.~\ref{fig:moving:T_asym}) is shown
@@ -349,7 +356,7 @@ the former comprises symmetry in the isothermal lines.
 
 The velocity field \(u_{i1}\) is shown in Fig.~\ref{fig:moving:fluid} and Fig.~\ref{fig:moving:kn001}.
 The Knudsen layer correction~\eqref{eq:bound:v_K} is taken into account in the latter figure.
-We see that for small \(k\) the gas flow occurs in the thin Knudsen layer near the solid surface
+We see that for small \(k\) the gas flow occurs in the thin Knudsen layer near the solid boundary
 directed along boundary temperature gradient.
 This effect of the first order of \(k\) is called \textit{thermal creep flow}.
 
@@ -358,20 +365,24 @@ In the continuum limit the velocity field tends to zero:
 however \(u_{i1}\) remains finite and transforms the temperature field through~\eqref{eq:asymptotic3}.
 
 Moreover, it is important to note that the solution is very sensitive to the mutual velocity of the plates.
-Infinitesimal \(u_w\) has also the finite impact on the temperature field through \(u_{w1}\).
+Infinitesimal \(u_B\) has also the finite impact on the temperature field through \(u_{B1}\).
 
 \subsection{Gas between two cylinders and spheres}
 
 \begin{figure}
 	\centering
 	\includegraphics{Fig7}
-	\caption{Stationary field \(u_{i1}\) between two noncoaxial cylinders}\label{fig:cylinders}
+	\caption{The velocity field \(u_{i1}\) between two noncoaxial cylinders:
+		curves with arrows indicate the direction, contour lines show the magnitude.}
+	\label{fig:cylinders}
 \end{figure}
 
 \begin{figure}
 	\centering
 	\includegraphics{Fig8}
-	\caption{Stationary field \(u_{i1}\) between two nonconcentric spheres}\label{fig:spheres}
+	\caption{The velocity field \(u_{i1}\) between two nonconcentric spheres:
+		curves with arrows indicate the direction, contour lines show the magnitude.}
+	\label{fig:spheres}
 \end{figure}
 
 Now consider the case of the temperature gradient absence in the surrounding bodies at rest.
@@ -401,7 +412,8 @@ In this case, the velocity pattern becomes as in Fig.~\ref{fig:spheres}.
 \begin{figure}
 	\centering
 	\includegraphics{Fig9}
-	\caption{Stationary field \(u_{i1}\) between coaxial elliptical cylinders}
+	\caption{The velocity field \(u_{i1}\) between coaxial elliptical cylinders:
+		curves with arrows indicate the direction, contour lines show the magnitude.}
 	\label{fig:elliptic}
 \end{figure}
 
@@ -419,14 +431,16 @@ We consider the special case:
 	\begin{minipage}{.48\textwidth}
 		\centering
 		\includegraphics{Fig10}
-		\caption{The maximum magnitude of \(u_{i1}\) versus the temperature ratio of the cylinders \(\alpha\)}
+		\caption{The maximum magnitude of \(u_{i1}\) versus the temperature ratio of the cylinders \(\alpha\).
+			The dashed line corresponds the cubic relation.}
 		\label{fig:maxU}
 	\end{minipage}
 	\quad
 	\begin{minipage}{.48\textwidth}
 		\centering
 		\includegraphics{Fig11}
-		\caption{The difference in temperature fields \(\delta T\) along the \(x\) for \(\alpha = 5\)}
+		\caption{Difference between temperature distributions \(\delta T\) of the heat-conduction equation
+			and the asymptotic theory along the \(x\) for \(\alpha = 5\).}
 		\label{fig:deltaT}
 	\end{minipage}
 \end{figure}
