@@ -1,4 +1,4 @@
-#!/usr/bin/gnuplot
+#!/usr/bin/env gnuplot
 
 set term epslatex standalone size 5,3.75 font 11 color dashed
 set out "flow.tex"

@@ -1,4 +1,4 @@
-#!/usr/bin/gnuplot
+#!/usr/bin/env gnuplot
 
 set term epslatex standalone size 4,3 font 11 color dashed
 set out "error.tex"
