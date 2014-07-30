@@ -149,7 +149,7 @@ It takes into account that the thermal conductivity of a hard-sphere gas is prop
 For small \(k\) weak convective flow \(v = O(k)\) appears in the Navier--Stokes set of equations.
 It compensates a thermal conductivity term in~\eqref{eq:energy}.
 Despite its disappearance for \(k\to0\), it has a finite influence on the temperature field.
-This finite effect produced by an infinitesimal quantity is called \textit{ghost effect}~\cite{Sone2002}.
+This finite effect produced by an infinitesimal quantity is called the \emph{ghost effect}~\cite{Sone2002}.
 It can be described only within the kinetic theory framework treating the asymptotic behavior of
 the Boltzmann equation for small Knudsen numbers.
 
@@ -162,7 +162,7 @@ of the distribution function \(f\) and the macroscopic variables \(h\)~\cite{Hil
 \[ f = f_0 + f_1k + f_2k^2 + \cdots, \quad h = h_0 + h_1k + h_2k^2 + \cdots \]
 with the additional condition
 \begin{equation}\label{eq:Mach_constraint}
-	u_0 = 0.
+	u_{i0} = 0.
 \end{equation}
 meaning that the Mach number is of the same order as the Knudsen number.
 Pressures \(p_0\) and \(p_1\) are constant due to degenerated Euler equation
@@ -199,13 +199,13 @@ For a hard-sphere gas, dimensionless transport coefficients are equal
 	\gamma_1 &= 1.270042427, &\quad \gamma_2 &= 1.922284066, \\
 	\gamma_3 &= 1.947906335, &\quad \gamma_7 &= 1.758705.
 \end{alignat*}
-
 The first two ones are related to the viscosity \(\mu\) and
 the thermal conductivity \(\lambda\) for a hard-sphere gas:
 \begin{equation}
 	\mu = \frac{\gamma_1 m (RT^{(0)})^{1/2}}{4\sqrt\pi d_m^2}\sqrt{T_0}, \quad
-	\lambda = \frac{5\gamma_2 mR (RT^{(0)})^{1/2}}{8\sqrt\pi d_m^2}\sqrt{T_0}.
+	\lambda = \frac{5\gamma_2 mR (RT^{(0)})^{1/2}}{8\sqrt\pi d_m^2}\sqrt{T_0},
 \end{equation}	
+and \(\gamma_7\) is related to the \emph{nonlinear thermal-stress flow}.
 
 The fluid-dynamic boundary conditions based on the diffuse-reflection boundary conditions
 for Boltzmann equation look as follows:
@@ -221,7 +221,7 @@ for Boltzmann equation look as follows:
 \end{gather}
 Here, \(n_i\) is the unit normal vector to the boundary pointing into the gas,
 \(u_{Bj1}\), \(T_B\) are the velocity and the temperature of the boundary.
-\(K_1\) is the dimensionless slip coefficient for the thermal creep. For a hard-sphere gas,
+\(K_1\) is the dimensionless slip coefficient for the \emph{thermal creep flow}. For a hard-sphere gas,
 \[ K_1 = -0.6463. \]
 
 The solution of the boundary-value problem cannot be expressed only with the fluid-dynamic-type
@@ -365,7 +365,7 @@ The velocity field \(u_{i1}\) is shown in Fig.~\ref{fig:moving:fluid} and Fig.~\
 The Knudsen layer correction~\eqref{eq:bound:v_K} is taken into account in the latter figure.
 One can see that, for small \(k\), a gas flow along boundary temperature gradient occurs
 in the thin Knudsen layer. This flow, which is of the first order of \(k\), is called
-the \textit{thermal creep flow}.
+the \emph{thermal creep flow}.
 
 In the continuum limit, the velocity field tends to zero:
 \[ u_i = u_{i1}k + O(k^2) \to 0, \quad k\to0, \]
@@ -395,7 +395,7 @@ Infinitesimal \(u_B\) has also the finite impact on the temperature field throug
 Now, consider the case, where there is no temperature gradient on the surface of the surrounding bodies at rest.
 As stated above, even under such boundary conditions, convection flow can emerge
 due to nonparallelism of the isothermal surfaces~\eqref{eq:equilibrium}.
-This phenomenon has been called the \textit{nonlinear thermal-stress flow}
+This phenomenon is called the \emph{nonlinear thermal-stress flow}
 and is described first in~\cite{Kogan1971}.
 The nonlinear origin of this effect in the first order of the Knudsen number is relevant,
 because a linear thermal-stress flow appears only in the following order of smallness \(O(k^2)\).
