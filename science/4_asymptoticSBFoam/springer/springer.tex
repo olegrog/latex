@@ -261,7 +261,7 @@ The function \(Y_1(\eta)\) is tabulated, for example, in~\cite{Sone2002, Sone200
 		\includegraphics{Fig2}
 		\vspace{13pt}
 		\caption{Geometry of the problem: the gas is placed between two parallel plates
-			with the temperature distribution \(T_B\).}
+			with the periodical temperature distribution \(T_B\).}
 		\label{fig:geometry}
 	\end{minipage}
 \end{figure}
@@ -282,12 +282,12 @@ This condition is not generally satisfied in three different cases:
 The first two cases are directly determined by the boundary conditions,
 and the third one has only an implicit impact from them.
 
-\section{Numerical simulation}
+\section{Numerical simulation and discussions}
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics{Fig3}
-	\caption{The temperature field \(T\), obtained from the asymptotic theory:
+	\caption{The temperature field \(T\), obtained from the asymptotic theory in the continuum limit:
 		isothermal lines are placed above the contour lines.}
 	\label{fig:moving:T_asym}
 \end{figure}
@@ -300,19 +300,23 @@ and the third one has only an implicit impact from them.
 	\label{fig:moving:T_heat}
 \end{figure}
 
-Special solver of the system~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}
-has been developed based on open source CFD toolbox OpenFOAM\textregistered{}~\cite{OpenFOAM1998},
-which uses the finite-volume approach for evaluating partial derivatives.
-The continuity equation~\eqref{eq:asymptotic1} together with the momentum equation~\eqref{eq:asymptotic2}
-is solved with the commonly used implicit conservative algorithm SIMPLE~\cite{SIMPLE}.
+Present results are obtained with the special solver of the system~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
+It has been developed within the open-source CFD toolbox OpenFOAM\textregistered{}~\cite{OpenFOAM1998},
+based on the finite-volume approach for evaluating partial derivatives.
+The continuity equation~\eqref{eq:asymptotic1}, together with the momentum equation~\eqref{eq:asymptotic2},
+is solved with the commonly used implicit conservative SIMPLE algorithm~\cite{SIMPLE}.
 A detailed description of this scheme for gas mixtures can be found in~\cite{Laneryd2007}.
-Unstructured grids are generated with open source package GMSH~\cite{GMSH}.
+
+Unstructured spacial grids are generated with the open-source package GMSH~\cite{GMSH}.
+They are nonuniform and condensed in areas with large gradients of macroscopic variables.
+From 5000 to 100000 cells are used to achieve the residual of the solution
+that is not greater than \(10^{-6}\) for all considered problems.
+
+OpenFOAM\textregistered{} uses Kitware's ParaView\textregistered{} as a primary visualization system of results,
+but for present paper another open-source tool Matplotlib was chosen to create color vector illustrations.
 
 All transport coefficients are taken in compliance with the hard-sphere model.
 Complete diffuse reflection is assumed from a solid boundary.
-
-Nonuniform spatial grids are condensed in areas with large gradients of macroscopic variables.
-The residual of the solution for all considered problems does not exceed \(10^{-6}\).
 
 \subsection{Gas between two parallel plates}
 
@@ -327,10 +331,10 @@ Lower plate moves relative to the top with the velocity
 	u_{Bi} = (\beta\Kn,0,0).
 \end{equation}
 
-We consider the special case:
+The first example of simulation is for
 \[ \alpha=1/2, \quad \beta = 1. \]
 
-Due to the problem symmetry computational domain represents a rectangle \(0<x<1, 0<z<1/2\)
+Due to the problem symmetry, computational domain represents a rectangle \(0<x<1, 0<z<1/2\)
 (a gray background in Fig.~\ref{fig:geometry}).
 
 \begin{figure}
@@ -351,16 +355,16 @@ Due to the problem symmetry computational domain represents a rectangle \(0<x<1,
 
 The resulting temperature distribution in the continuum limit (Fig.~\ref{fig:moving:T_asym}) is shown
 in comparison with the solution of the heat-conduction equation (Fig.~\ref{fig:moving:T_heat}).
-When \(k\to0\) classical solution is seen to have a qualitative distinction from the kinetic one: 
-the former comprises symmetry in the isothermal lines.
+When \(k\to0\), classical solution has a qualitative distinction from the kinetic one: 
+there is a symmetry of the isothermal lines in the former one.
 
 The velocity field \(u_{i1}\) is shown in Fig.~\ref{fig:moving:fluid} and Fig.~\ref{fig:moving:kn001}.
 The Knudsen layer correction~\eqref{eq:bound:v_K} is taken into account in the latter figure.
-We see that for small \(k\) the gas flow occurs in the thin Knudsen layer near the solid boundary
-directed along boundary temperature gradient.
-This effect of the first order of \(k\) is called \textit{thermal creep flow}.
+One can see that, for small \(k\), a gas flow along boundary temperature gradient occurs
+in the thin Knudsen layer. This flow, which is of the first order of \(k\), is called
+the \textit{thermal creep flow}.
 
-In the continuum limit the velocity field tends to zero:
+In the continuum limit, the velocity field tends to zero:
 \[ u_i = u_{i1}k + O(k^2) \to 0, \quad k\to0, \]
 however \(u_{i1}\) remains finite and transforms the temperature field through~\eqref{eq:asymptotic3}.
 
@@ -385,24 +389,24 @@ Infinitesimal \(u_B\) has also the finite impact on the temperature field throug
 	\label{fig:spheres}
 \end{figure}
 
-Now consider the case of the temperature gradient absence in the surrounding bodies at rest.
-As stated above, even under such boundary conditions convection flow can emerge
+Now, consider the case, where there is no temperature gradient on the surface of the surrounding bodies at rest.
+As stated above, even under such boundary conditions, convection flow can emerge
 due to nonparallelism of the isothermal surfaces~\eqref{eq:equilibrium}.
-This phenomenon has been called the \textit{nonlinear thermal-stress flow} and first described in~\cite{Kogan1971}.
+This phenomenon has been called the \textit{nonlinear thermal-stress flow}
+and is described first in~\cite{Kogan1971}.
 The nonlinear origin of this effect in the first order of the Knudsen number is relevant,
 because a linear thermal-stress flow appears only in the following order of smallness \(O(k^2)\).
-
-This type of convection has a significant feature. It can occur in weightlessness
-whereas a finite gravity field is necessary for the conventional convection excitation.
+This type of convection has a important feature. It can occur in the state of weightlessness
+whereas a gas convection in classical sense can be driven only by a finite gravity field.
 
 Consider two cylinders of radius \(R_1 = 1\) and \(R_2 = r\)
 with temperatures \(T_1 = 1\) and \(T_2 = \alpha\), respectively.
 The cylinder axes are parallel; the distance between them is equal to \(d\).
 
-Fig.~\ref{fig:cylinders} presents the results of numerical simulation for the particular case:
+Fig.~\ref{fig:cylinders} presents the results of numerical simulation for
 \[ r = 2, \quad d = 1/2, \quad \alpha = 2. \]
-The resulting velocity field \(u_{i1}\) is much weaker than in the previous problem,
-so it has no noticeably visible influence on the temperature distribution.
+The velocity field \(u_{i1}\) for this problem is much weaker than in the previous example,
+so it has too small influence on the temperature distribution, which we skip to demonstrate.
 
 Together with cylinders, nonconcentric spheres can be simulated in the same geometry.
 In this case, the velocity pattern becomes as in Fig.~\ref{fig:spheres}.
@@ -417,14 +421,16 @@ In this case, the velocity pattern becomes as in Fig.~\ref{fig:spheres}.
 	\label{fig:elliptic}
 \end{figure}
 
-Consider the last problem in which the gas is placed between two coaxial elliptical cylinders
-in such a way that the major axes of the ellipses in cross section are perpendicular.
+In the last example, the gas is placed between two coaxial elliptical cylinders
+in such a way that the major axes of the ellipses in a cross section are perpendicular.
 Let the semi-minor axis of the outer cylinder be the characteristic length, while the semi-major one is \(a_1\).
 The semi-axes of the inner ellipse are \(b_0\) and \(a_0\) in length, respectively.
 The temperatures are equal to \(T_1 = 1\), \(T_2 = \alpha\) again.
 
-We consider the special case:
+In Fig.~\ref{fig:elliptic} the velocity field is shown for
 \[ a_1 = 1.5, \quad a_0 = 0.3, \quad b_0 = 0.7, \quad \alpha = 2. \]
+Numerical simulation of a rarefied gas using the DSMC method in the same geometry
+for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{SoneCoaxial}.
 
 \begin{figure}[ht]
 	\centering
@@ -445,20 +451,18 @@ We consider the special case:
 	\end{minipage}
 \end{figure}
 
-Numerical simulation of a rarefied gas using the DSMC method in the current geometry
-for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{SoneCoaxial}.
-
-Calculation of such problems on the modern personal computer takes several minutes,
-that allows you to quickly perform parametric studies as well. As an example,
+Calculation of presented problems on the modern personal computer (3.40GHz CPU)
+takes about several minutes for the most detailed spacial grids.
+This fact provides a great performance for parametric studies as well. As an example,
 the maximum magnitude of \(u_{i1}\) as a function of \(\alpha\) is shown in Fig.~\ref{fig:maxU}.
-For small \(\alpha\) this relation satisfies the cubic law:
+For small \(\alpha\),
 \begin{equation}
-	\mathrm{max}(u_{i1}) \propto \alpha^3.
+	\mathrm{max}(u_{i1}) \propto \alpha^3, \quad \alpha\to0.
 \end{equation}
 
-Finally, Fig.~\ref{fig:deltaT} illustrates the appropriate discrepancy between the temperature fields
+Finally, Fig.~\ref{fig:deltaT} illustrates the discrepancy between the temperature fields
 obtained from the asymptotic theory and the heat-conduction equation
-\[ \delta T = T_\mathrm{asym} - T_\mathrm{heat} \]
+\( \delta T = T_\mathrm{asym} - T_\mathrm{heat} \)
 along the major axis of the outer cylinder.
 
 \section{Conclusion}
