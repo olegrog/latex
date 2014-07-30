@@ -200,9 +200,12 @@ For a hard-sphere gas, dimensionless transport coefficients are equal
 	\gamma_3 &= 1.947906335, &\quad \gamma_7 &= 1.758705.
 \end{alignat*}
 
-The first two ones are related to the conventional dimensional coefficients
-(the viscosity \(\mu\) and the thermal conductivity \(\lambda\)) for a hard-sphere gas:
-\[ \mu = \frac{\sqrt\pi}2\gamma_1\sqrt{T_0}, \quad \lambda = \frac{5\sqrt\pi}2\gamma_2\sqrt{T_0}. \]
+The first two ones are related to the viscosity \(\mu\) and
+the thermal conductivity \(\lambda\) for a hard-sphere gas:
+\begin{equation}
+	\mu = \frac{\gamma_1 m (RT^{(0)})^{1/2}}{4\sqrt\pi d_m^2}\sqrt{T_0}, \quad
+	\lambda = \frac{5\gamma_2 mR (RT^{(0)})^{1/2}}{8\sqrt\pi d_m^2}\sqrt{T_0}.
+\end{equation}	
 
 The fluid-dynamic boundary conditions based on the diffuse-reflection boundary conditions
 for Boltzmann equation look as follows:
