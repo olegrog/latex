@@ -1,7 +1,9 @@
-\documentclass[english,russian,a4paper,12pt]{article}
+%&pdflatex
+\documentclass[a4paper,12pt]{article}
+\usepackage{amssymb, amsmath}
 \usepackage[utf8]{inputenc}
-\usepackage[T2A]{fontenc}
-\usepackage{babel}
+\usepackage[T2A,T1]{fontenc}
+\usepackage[english,russian]{babel}
 \usepackage{csquotes}
 % \IfFileExists{literat.sty}{\usepackage{literat}}{}
 
@@ -9,10 +11,9 @@
 \usepackage{indentfirst}
 \usepackage[font=small,labelfont=bf,labelsep=period]{caption}
 
-\usepackage{amssymb, amsmath}
 \usepackage{wrapfig}
 \usepackage{graphicx}
-\usepackage{movie15}
+\usepackage{media9}
 
 \newcommand{\dd}{\:\mathrm{d}}
 \newcommand{\Kn}{\mathrm{Kn}}
@@ -24,6 +25,7 @@
 	colorlinks,pdftex, unicode]{hyperref}
 
 \usepackage[
+    backend=biber,
 	style=alphabetic,
 	language=british,
 	sorting=nyt,
@@ -45,7 +47,12 @@
 Одномерные задачи течения Ку\'{э}тта\footnote
 {
 	Дабы исключить неправильное произношение, приводим классическое французское произношение
-	\includemovie[poster=play.png]{10pt}{10pt}{couette.mp3}
+       \includemedia[
+        addresource=couette.mp3,
+        flashvars={
+            source=couette.mp3
+        }
+    ]{\large\(\blacksquare\)}{APlayer.swf}
 }
 и переноса тепла между двумя параллельными пластинами являются наиболее простыми,
 но основополагающими в динамике разреженного газа. В работе изучаются линейные приближения задач,
