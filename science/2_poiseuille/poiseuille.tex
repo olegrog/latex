@@ -1,24 +1,20 @@
-\documentclass[english,russian,a4paper,12pt]{article}
+%&pdflatex
+\documentclass[a4paper,12pt]{article}
+\usepackage{amssymb, amsmath}
+\usepackage[T2A,T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[T2A]{fontenc}
-\usepackage{babel}
+\usepackage[english,russian]{babel}
 \usepackage{csquotes}
-%\usepackage{type1ec} 
-%\usepackage{literat} %mathptmx
-%\IfFileExists{literat.sty}{\usepackage{literat}}{}
 
 \usepackage{fullpage}
 \usepackage{indentfirst}
-%\setlength{\parindent}{1cm}
 \usepackage[font=small,labelfont=bf,labelsep=period]{caption}
 
-\usepackage{amssymb, amsmath}
 \usepackage{wrapfig}
 \usepackage{graphicx}
 \usepackage{appendix}
 
-\usepackage{movie15}
-% \usepackage{pgfmath}
+\usepackage{media9}
 \usepackage{tikz}
 \usetikzlibrary{arrows,fit,positioning,shapes.multipart}
 
@@ -28,6 +24,7 @@
 	colorlinks, pdftex, unicode]{hyperref}
 
 \usepackage[
+    backend=biber,
 	style=alphabetic,
 	language=british,
 	sorting=nyt,
@@ -48,6 +45,7 @@
 \newcommand{\QHS}{\hat{Q}_{\rm{HS}}}
 
 \hbadness=9999 \newcount\hbadness \hfuzz=20pt % Make TeX shut up.
+
 \begin{document}
 \maketitle
 \tableofcontents
@@ -58,7 +56,12 @@
 	Поскольку ранее по типографским правилам буквы \textit{е} и \textit{ё} не различались,
 	распространённым стало чтение фамилии Пуазёйль через букву \textit{е}, однако здесь мы будем придерживаться
 	классической транслитерации французских слов.
-	\includemovie[poster=play.png]{10pt}{10pt}{pronunciation.mp3}
+	\includemedia[
+        addresource=pronunciation.mp3,
+        flashvars={
+            source=pronunciation.mp3
+        }
+    ]{\large\(\blacksquare\)}{APlayer.swf}
 }
 между двумя параллельными пластинами в широком диапазоне чисел Кнудсена.
 Ограничимся рассмотрением достаточно высоких температур, чтобы не учитывать квантовые эффекты.
@@ -296,7 +299,7 @@
 такой эксперимент должен достаточно описываться линейной теорией для \(\Kn\lessapprox10\)
 (отношение давлений на длине свободного пробега порядка \(10^{-2}\)).
 На модель плоской задачи можно уверенно опираться при \(\Kn\lessapprox1\), поскольку
-при б\textit{о}льших числах Кнудсена вклад в проводимость газа вносит конечность ширины канала.
+при б\'{о}льших числах Кнудсена вклад в проводимость газа вносит конечность ширины канала.
 
 Существенными стоит отметить следующие два положения.
 Во-первых, измерения проводились для гелия, для которого в большей мере справедлив молекулярный потенциал Леннарда-Джонса.
@@ -386,7 +389,7 @@
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics{pics/graph.pdf}
+	\includegraphics{pics/graph}
 	\caption{Зависимость потока массы \(Q\) от числа Кнудсена \(\Kn\).}\label{fig:graph}
 \end{figure}
 
