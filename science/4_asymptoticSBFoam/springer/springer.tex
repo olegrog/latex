@@ -77,7 +77,7 @@ The pioneering solutions are based on the finite difference methods~\cite{GhostE
 The finite volume method are applied in some recent works~\cite{Laneryd2006, Laneryd2007}.
 
 %%% Limitations
-Currently, many computational fluid dynamics (CFD) platforms provide comprehensive
+Nowadays, many CFD platforms provide comprehensive
 capabilities for numerical simulation of the Navier--Stokes equations,
 but the considered fluid-dynamic-type set of equations remains in the shadow.
 The present paper aims to improve this situation and
@@ -86,7 +86,7 @@ draw more attention to such CFD scope extensions.
 %%% Why OpenFOAM?
 One of the modern and promising CFD platforms, OpenFOAM\textregistered{}
 has been selected as a basis for numerical algorithms developing.
-OpenFOAM\textregistered{} is an object-oriented C++ library of classes and routines,
+OpenFOAM\textregistered{} is an object-oriented C++ library of classes and routines for parallel computation,
 providing a set of high-level tools for writing advanced CFD code~\cite{OpenFOAM1998}.
 It has a wide set of basic features, similar to any commercial one~\cite{OpenFOAM2010},
 and is a robust and reliable software widely used in the industry~\cite{BoilingFlows2009,
@@ -488,33 +488,26 @@ along the major axis of the outer cylinder.
 
 \section{Conclusion}
 
-The Navier--Stokes set of equations is valid in the presence of a strong convection.
-However, if the \(\mathrm{Re} \sim 1\) and the temperature variation in the gas is large
-it ceases to be correct. So-called Burnett stress terms (higher-order terms of gas rarefaction)
-begin to play a significant role in the gas behavior.
-In this case, the asymptotic analysis of the Boltzmann equation arrives on the scene and yields
-the correct set of equation solved in the present paper.
+%%% What it has been shown and achieved?
+In the present paper, OpenFOAM\textregistered{}, a free and open-source CFD platform,
+widely used and rapidly extending, is upgraded to deal with
+slightly rarefied gas flows driven by significant temperature variations.
+A reliable and rapid solver has been introduced on the basis of the appropriate
+equations and boundary conditions, derived from the asymptotic analysis of the Boltzmann equation.
+The program code has been validated by means of some benchmark simulations,
+presented as illustrations. Typical problems of the first order of Knudsen number
+have been considered: thermal creep flow and nonlinear thermal-stress flow.
 
-It is worth to mention about a surprising property of the derived system. It is the ghost effect
-in the continuum limit. That is, in the limit when the Knudsen number vanishes,
-the gas flow vanishes in proportion to the Knudsen number. However, this infinitesimal flow
-has a finite effect on the temperature field.
+%%% The meaning for the field
+OpenFOAM\textregistered{}, together with the newly implemented numerical algorithm,
+is an robust tool for numerical analysis of slightly rarefied gas problems
+on the kinetic basis. The principal advantage of the developed code is that
+it is easily extensible as an open-source software.
 
-Currently, there are many CFD platforms provides comprehensive capabilities for
-numerical simulation of the Navier--Stokes equations, but the present fluid-dynamic
-set of equations remains in the shadow. Thus, the paper aims to
-draw more attention for the CFD scope extension.
-
-The key result of the present work consists in the developed universal solver for
-the described set of equations and proper boundary conditions. It makes possible to
-simulate all kind problems for arbitrary geometry in high speed and precision.
-Calculations can be carried out both on a single personal computer and on a cluster.
-The solver owes so much its important advantages to open-source platform OpenFOAM\textregistered{}
-that served as the basis for the compact implementation of the utilized numerical methods.
-
-The numerical examples examined above clearly demonstrate some temperature effects of
-a slightly rarefied gas lying outside the scope of the Navier--Stokes set of equations:
-the thermal creep flow and the nonlinear thermal-stress flow.
+%%% Possible applications and extensions
+Hard-sphere gas and diffuse reflection are considered in this paper,
+but various molecular models and boundary conditions can be used as well.
+In addition, appropriate equations for gas mixtures can be also naturally implemented.
 
 \bibliographystyle{spphys} % spbasic, spmpsci, spphys
 \bibliography{springer}
