@@ -1,52 +1,6 @@
-% This file was created with JabRef 2.9b2.
-% Encoding: UTF-8
-
-@ARTICLE{SoneCoaxial,
-  author = {Aoki, K and Sone, Y and Waniguchi, Y},
-  title = {A rarefied gas flow induced by a temperature field: Numerical analysis
-	of the flow between two coaxial elliptic cylinders with different
-	uniform temperatures},
-  journal = {Computers \& Mathematics with Applications},
-  year = {1998},
-  volume = {35},
-  pages = {15--28},
-  number = {1},
-  publisher = {Elsevier}
-}
-
-@ARTICLE{SIMPLE,
-  author = {Caretto, LS and Curr, RM and Spalding, DB},
-  title = {Two numerical methods for three-dimensional boundary layers},
-  journal = {Computer Methods in Applied Mechanics and Engineering},
-  year = {1972},
-  volume = {1},
-  pages = {39--57},
-  number = {1},
-  publisher = {Elsevier}
-}
-
-@article{OpenFOAM2010,
-    title={Implementation of semi-discrete, non-staggered central schemes in a colocated, polyhedral, finite volume framework, for high-speed viscous flows},
-    author={Greenshields, Christopher J and Weller, Henry G and Gasparini, Luca and Reese, Jason M},
-    journal={International journal for numerical methods in fluids},
-    volume={63},
-    number={1},
-    pages={1--21},
-    year={2010},
-    publisher={Wiley Online Library}
-}
-
-@ARTICLE{GMSH,
-  author = {Geuzaine, Christophe and Remacle, Jean-Fran{\c{c}}ois},
-  title = {Gmsh: A 3-D finite element mesh generator with built-in pre-and post-processing
-	facilities},
-  journal = {International Journal for Numerical Methods in Engineering},
-  year = {2009},
-  volume = {79},
-  pages = {1309--1331},
-  number = {11},
-  publisher = {Wiley Online Library}
-}
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Asymptotic theory %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%
 
 @INBOOK{Hilbert1912,
   chapter = {22},
@@ -69,6 +23,10 @@
   author = {Sone, Yoshio}
 }
 
+%%%%%%%%%%%%%%%%%%%%
+%%%  Main works  %%%
+%%%%%%%%%%%%%%%%%%%%
+
 @ARTICLE{GhostEffect,
   author = {Sone, Yoshio and Aoki, Kazuo and Takata, Shigeru and Sugimoto, Hiroshi
 	and Bobylev, AV},
@@ -81,17 +39,6 @@
   volume = {8},
   pages = {628--638},
   number = {2}
-}
-
-@ARTICLE{OpenFOAM1998,
-  author = {Weller, Henry G and Tabor, G and Jasak, Hrvoje and Fureby, C},
-  title = {A tensorial approach to computational continuum mechanics using object-oriented
-	techniques},
-  journal = {Computers in physics},
-  year = {1998},
-  volume = {12},
-  pages = {620--631},
-  number = {6}
 }
 
 @ARTICLE{Kogan1971,
@@ -115,6 +62,23 @@
   number = {5}
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Numerical simulations %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@ARTICLE{SoneCoaxial,
+  author = {Aoki, K and Sone, Y and Waniguchi, Y},
+  title = {A rarefied gas flow induced by a temperature field: Numerical analysis
+	of the flow between two coaxial elliptic cylinders with different
+	uniform temperatures},
+  journal = {Computers \& Mathematics with Applications},
+  year = {1998},
+  volume = {35},
+  pages = {15--28},
+  number = {1},
+  publisher = {Elsevier}
+}
+
 @inproceedings{Laneryd2006,
     title={Thermal creep of a slightly rarefied gas through a channel with curved boundary},
     author={Laneryd, Carl-Johan Tor and Aoki, K and Degond, P and Mieussens, L},
@@ -131,11 +95,117 @@
     year={2007}
 }
 
-@inproceedings{Pantazis2012,
+%%%%%%%%%%%%%%%%
+%%% OpenFOAM %%%
+%%%%%%%%%%%%%%%%
+
+@ARTICLE{OpenFOAM1998,
+  author = {Weller, Henry G and Tabor, G and Jasak, Hrvoje and Fureby, C},
+  title = {A tensorial approach to computational continuum mechanics using object-oriented
+	techniques},
+  journal = {Computers in physics},
+  year = {1998},
+  volume = {12},
+  pages = {620--631},
+  number = {6}
+}
+
+@article{OpenFOAM2010,
+    title={Implementation of semi-discrete, non-staggered central schemes in a colocated, polyhedral, finite volume framework, for high-speed viscous flows},
+    author={Greenshields, Christopher J and Weller, Henry G and Gasparini, Luca and Reese, Jason M},
+    journal={International journal for numerical methods in fluids},
+    volume={63},
+    number={1},
+    pages={1--21},
+    year={2010},
+    publisher={Wiley Online Library}
+}
+
+@article{CoastalEngineering2013,
+  title={Realistic wave generation and active wave absorption for Navier--Stokes models: Application to OpenFOAM{\textregistered}},
+  author={Higuera, Pablo and Lara, Javier L and Losada, Inigo J},
+  journal={Coastal Engineering},
+  volume={71},
+  pages={102--118},
+  year={2013},
+  publisher={Elsevier}
+}
+
+@article{BoilingFlows2009,
+  title={CFD simulation of boiling flows using the volume-of-fluid method within OpenFOAM},
+  author={Kunkelmann, Christian and Stephan, Peter},
+  journal={Numerical Heat Transfer, Part A: Applications},
+  volume={56},
+  number={8},
+  pages={631--646},
+  year={2009},
+  publisher={Taylor \& Francis}
+}
+
+@article{TurbulentCombustion2011,
+  title={Implementation of the eddy dissipation model of turbulent non-premixed combustion in OpenFOAM},
+  author={Kassem, Hassan I and Saqr, Khalid M and Aly, Hossam S and Sies, Mohsin M and Wahid, Mazlan Abdul},
+  journal={International Communications in Heat and Mass Transfer},
+  volume={38},
+  number={3},
+  pages={363--367},
+  year={2011},
+  publisher={Elsevier}
+}
+
+@article{BiomassPyrolysis2013,
+  title={Development of a generalized numerical framework for simulating biomass fast pyrolysis in fluidized-bed reactors},
+  author={Xiong, Qingang and Kong, Song-Charng and Passalacqua, Alberto},
+  journal={Chemical Engineering Science},
+  volume={99},
+  pages={305--313},
+  year={2013},
+  publisher={Elsevier}
+}
+
+@inproceedings{HybridSolver2012,
     title={Hybrid continuum particle simulations of unsteady flows},
     author={Pantazis, Sarantis},
     booktitle={AIP Conference Proceedings},
     volume={1501},
     pages={451},
     year={2012}
+}
+
+%%%%%%%%%%%%%%%%%
+%%%   Other   %%%
+%%%%%%%%%%%%%%%%%
+
+@ARTICLE{GMSH,
+  author = {Geuzaine, Christophe and Remacle, Jean-Fran{\c{c}}ois},
+  title = {Gmsh: A 3-D finite element mesh generator with built-in pre-and post-processing
+	facilities},
+  journal = {International Journal for Numerical Methods in Engineering},
+  year = {2009},
+  volume = {79},
+  pages = {1309--1331},
+  number = {11},
+  publisher = {Wiley Online Library}
+}
+
+@ARTICLE{SIMPLE,
+  author = {Caretto, LS and Curr, RM and Spalding, DB},
+  title = {Two numerical methods for three-dimensional boundary layers},
+  journal = {Computer Methods in Applied Mechanics and Engineering},
+  year = {1972},
+  volume = {1},
+  pages = {39--57},
+  number = {1},
+  publisher = {Elsevier}
+}
+
+@article{SharipovCoefficients,
+  title={Data on the velocity slip and temperature jump on a gas-solid interface},
+  author={Sharipov, Felix},
+  journal={Journal of Physical and Chemical Reference Data},
+  volume={40},
+  number={2},
+  pages={023101},
+  year={2011},
+  publisher={AIP Publishing}
 }
