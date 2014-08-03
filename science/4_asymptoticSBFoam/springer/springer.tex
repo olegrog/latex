@@ -20,7 +20,7 @@
 \begin{document}
 
 \title{
-	Computer simulation of slightly rarefied gas flows driven by significant temperature variation and their continuum limit
+	Computer simulation of slightly rarefied gas flows driven by significant temperature variations and their continuum limit
 }
 
 \author{O.A.~Rogozin}
@@ -59,23 +59,29 @@
 
 %%% Current state of affairs
 The Navier--Stokes equations is widely used equations for modeling of a gas with the vanishing mean free path.
-Many powerful computational fluid dynamics (CFD) software packages are based on them.
-Rarefied gas effects, which is widely thought to take place only in the thin Knudsen layer,
+Slightly rarefied gas effects, which is widely thought to take place only in the thin Knudsen layer,
 can be taken into account using the slip conditions on the boundary~\cite{SharipovCoefficients}.
-However, some researches on the Boltzmann equation indicate that the Navier--Stokes set
-fails to describe the correct temperature fields even in the continuum limit
-in the certain situations~\cite{Kogan1976, GhostEffect}.
-The appropriate equations on the macroscopic variables and their associated boundary conditions
-are obtained from the asymptotic theory of the Boltzmann equation~\cite{Sone2002, Sone2007}.
+In some situations, however, the Navier--Stokes set fails to describe the correct temperature field
+even in the continuum limit~\cite{Kogan1976, GhostEffect}.
+When the Reynolds number is finite and the temperature variations are large:
+\[ \mathrm{Re} = O(1), \quad \frac1T\left|\pder[T]{x_i}\right| = O(1), \]
+higher-order terms of gas rarefaction begin to play a significant role in the gas behavior.
+In this case, the asymptotic analysis of the Boltzmann equation arrives on the scene and
+yields the appropriate equations on the macroscopic variables, together with
+their associated boundary conditions~\cite{Sone2002, Sone2007}.
 
 %%% Existing solutions
 This new set of equations has the similar structure to the Navier--Stokes one,
 so similar numerical methods can be utilized too.
 The pioneering solutions are based on the finite difference methods~\cite{GhostEffect, Kogan1976}.
 The finite volume method are applied in some recent works~\cite{Laneryd2006, Laneryd2007}.
+
 %%% Limitations
-Unfortunately, there is no available software library for numerical analysis
-of this new class of fluid-dynamic-type equations.
+Currently, many computational fluid dynamics (CFD) platforms provide comprehensive
+capabilities for numerical simulation of the Navier--Stokes equations,
+but the considered fluid-dynamic-type set of equations remains in the shadow.
+The present paper aims to improve this situation and
+draw more attention to such CFD scope extensions.
 
 %%% Why OpenFOAM?
 One of the modern and promising CFD platforms, OpenFOAM\textregistered{}
@@ -89,7 +95,7 @@ As for rarefied gas, OpenFOAM\textregistered{} has a standard solver for DSMC, t
 can be extended for hybrid simulations~\cite{HybridSolver2012}.
 Finally, the most important advantage of OpenFOAM\textregistered{} is its open-source code,
 so it is easy to add any modification to any part of the implementation.
-OpenFOAM\textregistered{} is also well documented and has a large and active community of users. 
+OpenFOAM\textregistered{} is also well documented and has a large and active community of users.
 
 \section{Basic equations}
 
@@ -318,7 +324,7 @@ This asymptotic behavior is called the \emph{ghost effect}~\cite{GhostEffect, So
 Present results are obtained with the special solver of the system~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
 It has been developed within the open-source CFD toolbox OpenFOAM\textregistered{}~\cite{OpenFOAM1998},
 based on the finite-volume approach for evaluating partial derivatives.
-The continuity equation~\eqref{eq:asymptotic1}, together with the momentum equation~\eqref{eq:asymptotic2},
+The continuity equation~\eqref{eq:asymptotic1}, along with the momentum equation~\eqref{eq:asymptotic2},
 is solved with the commonly used implicit conservative SIMPLE algorithm~\cite{SIMPLE}.
 A detailed description of this scheme for gas mixtures can be found in~\cite{Laneryd2007}.
 
@@ -423,8 +429,8 @@ Fig.~\ref{fig:cylinders} presents the results of numerical simulation for
 The velocity field \(u_{i1}\) for this problem is much weaker than in the previous example,
 so it has too small influence on the temperature distribution that we skip to demonstrate.
 
-Together with cylinders, nonconcentric spheres can be simulated in the same geometry.
-In this case, the velocity pattern becomes as in Fig.~\ref{fig:spheres}.
+Gas between nonconcentric spheres is simulated in the same geometry,
+as is between noncoaxial cylinders~\ref{fig:spheres}.
 
 \subsection{Gas between two elliptical cylinders}
 
