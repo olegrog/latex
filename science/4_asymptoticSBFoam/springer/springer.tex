@@ -28,7 +28,7 @@
 	Moscow Institute of Physics and Technology,
 	9 Institutskiy pereulok, g. Dolgoprudny,
 	Moskovskaya obl., Russian Federation\\
-	\email{o.a.rogozin@gmail.com}  
+	\email{o.a.rogozin@gmail.com}
 }
 
 \maketitle
@@ -139,7 +139,7 @@ In the continuum limit (\(\Kn\to0\)), we come to the Euler set of equations
 \begin{equation}
 	p_{ij} = p\delta_{ij}, \quad q_i = 0
 \end{equation}
-that makes it impossible to determine the temperature field.
+that makes it impossible to determine the temperature field of a gas at rest.
 The classical heat-conduction equation
 can be derived from~\eqref{eq:energy} and~\eqref{eq:heat_flow}
 in the absence of gas flows (\(v_i = 0\)):
@@ -174,15 +174,22 @@ It is also convenient to deal with the modified Knudsen number
 The analysis presented below is based on the conventional Hilbert expansion
 of the distribution function \(f\) and macroscopic variables \(h\)~\cite{Hilbert1912}:
 \[ f = f_0 + f_1k + f_2k^2 + \cdots, \quad h = h_0 + h_1k + h_2k^2 + \cdots \]
-under the additional condition
+under the additional assumption
 \begin{equation}\label{eq:Mach_constraint}
-	u_{i0} = 0
+	u_i = O(k)
 \end{equation}
-which means that the Mach number is of the same order as the Knudsen number.
-Pressures \(p_0\) and \(p_1\) are constant due to degenerated Euler equation
-\(\Pder[p_0]{x_i} = 0 \) and \(\Pder[p_1]{x_i} = 0 \).
+that means that the Mach number is of the same order as the Knudsen number.
+Moreover, let the external force be weak:
+\begin{equation}\label{eq:Force_constraint}
+	F_i = O(k^2).
+\end{equation}
+Conditions~\eqref{eq:Mach_constraint} and~\eqref{eq:Force_constraint} make the pressures
+\(p_0\) and \(p_1\) constant due to the degenerated momentum equation~\eqref{eq:momentum}:
+\begin{equation}
+	\pder[p_0]{x_i} = 0, \quad \pder[p_1]{x_i} = 0.
+\end{equation}
 
-The following set of equations for a time-independent case (\(\Pder{t} = 0\))
+Then, the following set of equations for a time-independent case (\(\Pder{t} = 0\))
 is obtained for variables \(T_0\), \(u_{i1} = p_0v_{i1}\), \(p_2^\dag\):
 \begin{align}
 	\pder{x_i}\left(\frac{u_{i1}}{T_0}\right) &= 0, \label{eq:asymptotic1} \\
@@ -191,18 +198,24 @@ is obtained for variables \(T_0\), \(u_{i1} = p_0v_{i1}\), \(p_2^\dag\):
 			\pder[u_{i1}]{x_j}+\pder[u_{j1}]{x_i}-\frac23\pder[u_{k1}]{x_k}\delta_{ij}\right
 		)\right] \notag\\
 		&- \frac{\gamma_7}{T_0}\pder[T_0]{x_i}\pder[T_0]{x_j}\left(\frac{u_{j1}}{\gamma_2\sqrt{T_0}} - \frac{1}4\pder[T_0]{x_j}\right) \notag\\
-		&= -\frac1{2p_0}\pder[p_2^\dag]{x_i}, \label{eq:asymptotic2} \\
+		&= -\frac1{2p_0}\pder[p_2^\dag]{x_i} + \frac{F_{i2}}{T_0}, \label{eq:asymptotic2} \\
 	\pder[u_{i1}]{x_i} &= \frac{\gamma_2}2\pder{x_i}\left(\sqrt{T_0}\pder[T_0]{x_i}\right), \label{eq:asymptotic3}
 \end{align}
 where
-\[ 
-	p_2^\dag = p_2 + 
+\begin{equation}\label{eq:dag_pressure}
+	p_2^\dag = p_2 +
 		\frac{2\gamma_3}{3p_0}\pder{x_k}\left(T_0\pder[T_0]{x_k}\right) -
 		\frac{\gamma_7}{6p_0}\left(\pder[T_0]{x_k}\right)^2.
-\]
+\end{equation}
 The set of equations \eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} has a fluid-dynamic nature
 and is comparable to the Navier--Stokes equations for a compressible gas (\(\rho_0 = p_0/T_0\)).
-The formal difference consists in the additional thermal stress terms.
+The formal difference consists in the additional thermal stress term.
+Comparing it with \(F_{i2}/T_0\), we find that
+\begin{equation}\label{eq:force}
+	k^2\gamma_7\pder[T_0]{x_i}\pder[T_0]{x_j}\left(\frac{u_{j1}}{\gamma_2\sqrt{T_0}} - \frac{1}4\pder[T_0]{x_j}\right)
+\end{equation}
+is the force acting on unit mass of the gas divided by \(2RT^{(0)}/L\).
+For a hard-sphere gas at rest, this force is opposite to the temperature gradient direction.
 
 It should be noted that \(p_2^\dag\) is not included in the equation of state and
 therefore is determined up to a constant factor.
@@ -231,7 +244,7 @@ for Boltzmann equation look as follows:
 	T_0 = T_B, \label{eq:bound:T} \\
 	\left\{
 	\begin{aligned}
-		& \frac{(u_{j1}-u_{Bj1})}{\sqrt{T_B}}(\delta_{ij}-n_in_j) = 
+		& \frac{(u_{j1}-u_{Bj1})}{\sqrt{T_B}}(\delta_{ij}-n_in_j) =
 			-K_1\pder[T_B]{x_j}(\delta_{ij}-n_in_j), \\
 		& u_{j1}n_j = 0.
 	\end{aligned}
@@ -241,6 +254,7 @@ Here, \(n_i\) is the unit normal vector to the boundary pointing into the gas,
 \(u_{Bj1}\), \(T_B\) are the velocity and the temperature of the boundary.
 \(K_1\) is the slip coefficient for the \emph{thermal creep flow}. For a hard-sphere gas,
 \[ K_1 = -0.6463. \]
+Thus, the direction of the thermal creep flow coincides with the temperature gradient.
 
 The solution of the boundary-value problem cannot be expressed only with the fluid-dynamic-type
 solution due to the sharp variation in the distribution function near the boundary.
@@ -292,16 +306,15 @@ The function \(Y_1(\eta)\) is tabulated, for example, in~\cite{Sone2002, Sone200
 As one can see from~\eqref{eq:asymptotic3}, gas is not always described correctly
 by the heat-conduction equation~\eqref{eq:heat_equation}.
 Equation~\eqref{eq:asymptotic3} converges to~\eqref{eq:heat_equation} only if \(u_{i1} = 0\).
-This condition is not satisfied in three different cases:
+In the absence of an external force, there are several reasons for this condition can be violated:
 \begin{enumerate}
-	\item The boundary is moving with the velocity of the order of k: \(u_{B1i} \neq 0 \).
+	\item The boundary is moving (boundary motion): \(u_{B1i} \neq 0 \).
 	\item The boundary temperature is not uniform (thermal creep flow): \(\Pder[T_B]{x_i} \neq 0 \).
 	\item The isothermal surfaces are not parallel (nonlinear thermal-stress flow):
 		\begin{equation}\label{eq:equilibrium}
 			e_{ijk}\pder[T_0]{x_j}\pder{x_k}\left(\pder[T_0]{x_l}\right)^2 \neq 0.
 		\end{equation}
 \end{enumerate}
-
 The first two cases are directly determined by the boundary conditions,
 and the third one has only an implicit impact from them.
 
@@ -345,6 +358,7 @@ but for present paper another open-source tool Matplotlib has been chosen to cre
 
 All transport coefficients are taken in compliance with the hard-sphere model.
 Complete diffuse reflection is assumed from a solid boundary.
+The external force is taken to be zero.
 
 \subsection{Gas between two parallel plates}
 
@@ -383,7 +397,7 @@ Due to the problem symmetry, computational domain represents a rectangle \(0<x<1
 
 The resulting temperature distribution in the continuum limit (Fig.~\ref{fig:moving:T_asym}) is shown
 in comparison with the solution of the heat-conduction equation (Fig.~\ref{fig:moving:T_heat}).
-When \(k\to0\), the classical solution has a qualitative distinction from the kinetic one: 
+When \(k\to0\), the classical solution has a qualitative distinction from the kinetic one:
 there is a symmetry of the isothermal lines in the former one.
 
 The velocity field \(u_{i1}\) is shown in Fig.~\ref{fig:moving:fluid} and Fig.~\ref{fig:moving:kn001}.
@@ -425,7 +439,7 @@ and is described first in~\cite{Kogan1971}.
 The nonlinear origin of this effect in the first order of the Knudsen number is relevant,
 because a linear thermal-stress flow appears only in the following order of smallness \(O(k^2)\).
 This type of convection has a important feature. It can occur in the state of weightlessness
-whereas a gas convection in classical sense can be driven only by a finite gravity field.
+whereas a gas convection in classical sense can be driven only by a finite external force.
 
 Consider two cylinders of radius \(R_1 = 1\) and \(R_2 = r\)
 with temperatures \(T_1 = 1\) and \(T_2 = \alpha\), respectively.
