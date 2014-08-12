@@ -34,16 +34,16 @@
 \maketitle
 
 \begin{abstract}
-	Classical fluid dynamics describes a behavior of gas in terms of the
-	Navier--Stokes equations. However, a rigorous asymptotic analysis of
-	the Boltzmann equation for small Knudsen numbers restricts the scope
-	of its application and, in a general case, leads to more complicated
-	sets of differential equations. Present paper deals with such one
-	that is valid for significant temperature variations and finite
-	Reynolds numbers. A special-purpose solver on the open-source CFD
-	platform OpenFOAM\textregistered{} is proposed for computer
-	simulation of a slightly rarefied gas in an arbitrary geometry. Some
-	temperature driven flows are considered as examples.
+	Classical fluid dynamics describes the behavior of gas in terms of
+	the Navier--Stokes equations. However, a rigorous asymptotic
+	analysis of the Boltzmann equation for small Knudsen numbers
+	restricts the scope of its application and leads to more complicated
+	sets of differential equations in the general case. The present paper
+	deals with the one which is valid for significant temperature
+	variations and finite Reynolds numbers. A special-purpose solver on
+	the open-source CFD platform OpenFOAM\textregistered{} is proposed
+	for computer simulation of a slightly rarefied gas in an arbitrary
+	geometry. Several temperature driven flows are considered as examples.
 	\keywords{
 		OpenFOAM \and
 		Boltzmann equation \and
@@ -58,8 +58,8 @@
 \section{Introduction}
 
 %%% Current state of affairs
-The Navier--Stokes equations is widely used equations for modeling of a gas with the vanishing mean free path.
-Slightly rarefied gas effects, which is widely thought to take place only in the thin Knudsen layer,
+The Navier--Stokes equations are widely used for modeling of a gas with the vanishing mean free path.
+Slightly rarefied gas effects, which are widely thought to take place only in the thin Knudsen layer,
 can be taken into account using the slip conditions on the boundary~\cite{SharipovCoefficients}.
 In some situations, however, the Navier--Stokes set fails to describe the correct density and temperature fields
 even in the continuum limit~\cite{Kogan1976, GhostEffect}.
@@ -77,14 +77,14 @@ The pioneering solutions are based on the finite difference methods~\cite{GhostE
 The finite volume method are applied in some recent works~\cite{Laneryd2006, Laneryd2007}.
 
 %%% Limitations
-Nowadays, many CFD platforms provide comprehensive
+Currently, many CFD platforms provide comprehensive
 capabilities for numerical simulation of the Navier--Stokes equations,
 but the considered fluid-dynamic-type set of equations remains in the shadow.
-The present paper aims to improve this situation and
+The goal of the present paper is to improve this situation and
 draw more attention to such CFD scope extensions.
 
 %%% Why OpenFOAM?
-One of the modern and promising CFD platforms, OpenFOAM\textregistered{}
+One of the modern and promising CFD platforms, OpenFOAM\textregistered{},
 has been selected as a basis for numerical algorithms developing.
 OpenFOAM\textregistered{} is an object-oriented C++ library of classes and routines for parallel computation,
 providing a set of high-level tools for writing advanced CFD code~\cite{OpenFOAM1998}.
@@ -113,13 +113,15 @@ For an ideal monatomic gas, the internal energy \(e = 3RT/2\) depends only on th
 \(R = k_B / m\) is the specific gas constant.
 The pressure is taken from the equation of state \( p = \rho RT \).
 
-By means of Newton's law for the stress tensor \(p_{ij}\) and Fourier's law the heat-flow vector \(q_i\),
-the conservation equations are closed to the Navier--Stokes set of equations
-\begin{gather}
+The Navier--Stokes set equations is obtained from the conservation equations with the help of Newton's law,
+\begin{equation}\label{eq:stress_tensor}
 	p_{ij} = p\delta_{ij} - \mu\left(\pder[v_i]{x_j}+\pder[v_j]{x_i}-\frac23\pder[v_k]{x_k}\delta_{ij}\right) -
-		\mu_B\pder[v_k]{x_k}\delta_{ij}, \label{eq:stress_tensor}\\
-	q_i = -\lambda\pder[T]{x_i}. \label{eq:heat_flow}
-\end{gather}
+		\mu_B\pder[v_k]{x_k}\delta_{ij},
+\end{equation}
+and Fourier's law,
+\begin{equation}\label{eq:heat_flow}
+	q_i = -\lambda\pder[T]{x_i}.
+\end{equation}
 Some of the transport coefficients are used here:
 the viscosity \(\mu\), the bulk viscosity \(\mu_B\), and the thermal conductivity \(\lambda\).
 The bulk velocity of an ideal monoatomic gas is zero (\(\mu_B = 0\)).
@@ -135,7 +137,7 @@ are proportional to the mean free path \(\ell\) and therefore to the Knudsen num
 	\mu = O(\Kn), \quad \lambda = O(\Kn).
 \end{equation}
 
-In the continuum limit (\(\Kn\to0\)), we come to the Euler set of equations
+In the continuum limit (\(\Kn\to0\)), we obtain the Euler set of equations where
 \begin{equation}
 	p_{ij} = p\delta_{ij}, \quad q_i = 0
 \end{equation}
@@ -146,7 +148,7 @@ in the absence of gas flows (\(v_i = 0\)):
 \begin{equation}\label{eq:heat_equation}
 	\pder{x_i}\left(\sqrt{T}\pder[T]{x_i}\right) = 0.
 \end{equation}
-Here, it takes into account that the thermal conductivity of a hard-sphere gas
+Here, it is taken into account that the thermal conductivity of a hard-sphere gas
 is proportional to \(\sqrt{T}\).
 
 A rigorous examination of the continuum limit shows that the infinitesimal thermal conduction term \(\Pder[q_j]{x_j}\)
@@ -220,16 +222,16 @@ For a hard-sphere gas at rest, this force is opposite to the temperature gradien
 It should be noted that \(p_2^\dag\) is not included in the equation of state and
 therefore is determined up to a constant factor.
 Term \(\partial{p_2 ^ \dag} / \partial{x_i}\) participates in the system as the pressure
-in the Navier--Stokes set for a incompressible gas.
+in the Navier--Stokes set for an incompressible gas.
 This fact specifies the class of suitable numerical methods
 for solving \eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
 
-For a hard-sphere gas, the transport coefficients are equal
+For a hard-sphere gas, the transport coefficients are
 \begin{alignat*}{2}
 	\gamma_1 &= 1.270042427, &\quad \gamma_2 &= 1.922284066, \\
 	\gamma_3 &= 1.947906335, &\quad \gamma_7 &= 1.758705.
 \end{alignat*}
-The first two ones are connected to the dimensional transport coefficients in the following way:
+The first two are connected to the dimensional transport coefficients in the following way:
 \begin{equation}
 	\mu = \gamma_1\sqrt{T_0} \frac{p^{(0)}L}{\sqrt{2RT^{(0)}}} k, \quad
 	\lambda = \frac{5\gamma_2}{2}\sqrt{T_0} \frac{p^{(0)}RL}{\sqrt{2RT^{(0)}}} k,
@@ -267,7 +269,7 @@ and \(f_K\) decays exponentially with the distance to the boundary \(f_K = O\lef
 The relation \( x_i = k\eta n_i(s_1,s_2) + x_{Bi}(s_1, s_2) \) gives a coordinate transformation
 from \((x_1,x_2,x_3)\) to \((\eta,s_1,s_2)\).
 
-Due to the infinitesimal Mach number (\ref{eq:Mach_constraint}) \(f_K\) is expanded
+Due to the infinitesimal Mach number~\eqref{eq:Mach_constraint}, \(f_K\) is expanded
 in a power series of \(k\), starting from the first order:
 \[ f_K = f_{K1} k + f_{K2} k ^ 2 + \cdots \]
 The Knudsen layer introduces a correction to \(u_{i1}\) for a hard-sphere gas:
@@ -303,10 +305,10 @@ The function \(Y_1(\eta)\) is tabulated, for example, in~\cite{Sone2002, Sone200
 
 \subsection{Some remarks on the continuum limit}
 
-As one can see from~\eqref{eq:asymptotic3}, gas is not always described correctly
+As one can see from~\eqref{eq:asymptotic3}, a gas is not always described correctly
 by the heat-conduction equation~\eqref{eq:heat_equation}.
 Equation~\eqref{eq:asymptotic3} converges to~\eqref{eq:heat_equation} if \(u_{i1} = 0\).
-In the absence of an external force, there are several reasons for this condition can be violated:
+In the absence of an external force, there are several reasons when this condition can be violated:
 \begin{enumerate}
 	\item The boundary is moving: \(u_{B1i} \neq 0 \).
 	\item The boundary temperature is not uniform: \(\Pder[T_B]{x_i} \neq 0 \).
@@ -316,7 +318,7 @@ In the absence of an external force, there are several reasons for this conditio
 		\end{equation}
 \end{enumerate}
 The first two cases are directly determined by the boundary conditions,
-the third one has only an implicit impact from them.
+and the third one has only an implicit impact from them.
 
 The set of equations~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} revealed the following interesting fact.
 In the continuum limit, the gas flows vanish, proportional to the Knudsen number.
@@ -341,7 +343,7 @@ This asymptotic behavior is called the \emph{ghost effect}~\cite{GhostEffect, So
 	\label{fig:moving:T_heat}
 \end{figure}
 
-Present results are obtained with the special solver of the system~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
+The present results are obtained with the special solver of the system~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
 It has been developed within the open-source CFD toolbox OpenFOAM\textregistered{}~\cite{OpenFOAM1998},
 based on the finite-volume approach for evaluating partial derivatives.
 The continuity equation~\eqref{eq:asymptotic1}, along with the momentum equation~\eqref{eq:asymptotic2},
@@ -354,7 +356,7 @@ From \(10^3\) to \(10^6\) cells are used to achieve the residual of the solution
 that is not greater than \(10^{-6}\) for all considered problems.
 
 OpenFOAM\textregistered{} uses Kitware's ParaView\textregistered{} as a primary visualization system of results,
-but for present paper another open-source tool Matplotlib has been chosen to create color vector illustrations.
+but for the present paper another open-source tool, Matplotlib, has been chosen to create color vector illustrations.
 
 All transport coefficients are taken in compliance with the hard-sphere model.
 Complete diffuse reflection is assumed from a solid boundary.
@@ -405,9 +407,8 @@ For small \(k\), a gas flow along the boundary temperature gradient occurs
 in the thin Knudsen layer. This flow, which is of the first order of \(k\), is called
 the \emph{thermal creep flow}.
 
-In the continuum limit, the velocity field tends to zero:
-\[ u_i = u_{i1}k + O(k^2) \to 0, \quad k\to0, \]
-however \(u_{i1}\) remains finite and transforms the temperature field through~\eqref{eq:asymptotic3}.
+In the continuum limit, the velocity field tends to zero~\eqref{eq:Mach_constraint},
+however \(u_{i1}\) remains finite and transforms the temperature field by means of~\eqref{eq:asymptotic3}.
 Such an asymptotic behavior of a system of differential equations is called the \emph{ghost effect}.
 Moreover, it is important to note that the asymptotic solution is very sensitive to the mutual velocity of the plates:
 infinitesimal \(u_B\) has also the finite impact on the temperature field through \(u_{B1}\).
@@ -441,15 +442,15 @@ that give the similar equations to~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3
 with slightly different transport coefficients.
 The nonlinear origin of this effect in the first order of the Knudsen number is relevant,
 because a linear thermal-stress flow appears only in the following order of smallness \(O(k^2)\).
-This type of convection has a important feature. It can occur in the state of weightlessness
-whereas a gas convection in classical sense can be driven only by a finite external force.
+This type of convection has an important feature. It can occur in the state of weightlessness
+whereas a gas convection in the classical sense can be driven only by a finite external force.
 Some experimental studies of the nonlinear thermal-stress flow can be found in~\cite{ExperimentsNTFS}.
 
 Consider two cylinders of radius \(R_1 = 1\) and \(R_2 = r\)
 with temperatures \(T_1 = 1\) and \(T_2 = \alpha\), respectively.
 The cylinder axes are parallel; the distance between them is equal to \(d\).
 
-Fig.~\ref{fig:cylinders} presents the results of numerical simulation for
+Fig.~\ref{fig:cylinders} presents the results of the numerical simulation for
 \[ r = 2, \quad d = 1/2, \quad \alpha = 2. \]
 The velocity field \(u_{i1}\) for this problem is much weaker than in the previous example,
 so it has too small influence on the temperature distribution that we skip to demonstrate.
@@ -469,7 +470,7 @@ In the last example, a gas is placed between two coaxial elliptical cylinders
 in such a way that the major axes of the ellipses are perpendicular in a cross section.
 Let the semi-minor axis of the outer cylinder be the characteristic length, while the semi-major one is \(a_1\).
 The semi-axes of the inner ellipse are \(b_0\) and \(a_0\) in length, respectively.
-The temperatures are equal to \(T_1 = 1\), \(T_2 = \alpha\) again.
+The temperatures are \(T_1 = 1\) and \(T_2 = \alpha\) again.
 
 In Fig.~\ref{fig:elliptic} the velocity field is shown for
 \[ a_1 = 1.5, \quad a_0 = 0.3, \quad b_0 = 0.7, \quad \alpha = 2. \]
