@@ -29,7 +29,6 @@
 \usepackage[
     pdfauthor={Oleg Rogozin},
     pdftitle={Response to the Reviewer's Comments},
-    colorlinks,
     pdftex,
     unicode
 ]{hyperref}
@@ -42,9 +41,11 @@ First of all, I express my gratitude for the extremely useful reviewers'
 comments, for they supply me with a professional view from the outside,
 help to correct important mistakes, and improve my own knowledge of
 subject. Following up on the given suggestions, I have revised the whole
-paper by adding clarifications at the crucial and vague spots. The
-introduction and the conclusion have been completely rewritten to express
-the meaning of the paper for the field more exactly.  
+paper by adding clarifications at the crucial and vague spots. Some
+supplementary discussions have been added. The list of references has
+been also extended. The introduction and the conclusion have been
+completely rewritten to express the meaning of the paper for the field
+more exactly.
 
 Below I indicate for each individual comment how I have dealt with it.
 
@@ -53,7 +54,7 @@ Below I indicate for each individual comment how I have dealt with it.
 \begin{quoting}
 1. The language should be improved by a native. It is little bit hard to
 read.
-\end{quoting} 
+\end{quoting}
 
 It is the only point that both reviews bring my attention. So I revise
 the whole text and correct many grammar mistakes, replace bad language
@@ -123,11 +124,11 @@ OpenFOAM\textregistered{} is also well documented and has a large and active com
 \begin{quoting}
 4. I think the ``Liquids and'' is not necessary at the beginning of
 section~2.
-\end{quoting} 
+\end{quoting}
 
 Corrected.
 
-\begin{quoting} 
+\begin{quoting}
 5. Please discuss more about the technical part of the inaccuracy of
 classical N-S equation in section~2.
 \end{quoting}
@@ -177,13 +178,13 @@ systematically considered only within the scope of kinetic theory.
 \end{leftbar}
 
 
-\begin{quoting} 
+\begin{quoting}
 6. Some literature citations are missing, e.g., (thermal creep flow)~[?]
 \end{quoting}
 
 Corrected.
 
-\begin{quoting} 
+\begin{quoting}
 7. The correspondence of the figures to the running cases seems not
 correct. Please be serious on your paper and check them carefully.
 \end{quoting}
@@ -193,20 +194,27 @@ I have double-checked all figures and have found neither mistakes nor ambiguitie
 Another referee did not found anything like that, too.
 I have tried my best to make the descriptions under the figures clearer.
 
-\begin{quoting} 
+\begin{quoting}
 8. I think there also need comparison in the cases of 4.2 and 4.3
 between the results from classical N-S equations and your derived
 equations.
 \end{quoting}
 
-{\Huge TODO}
+The classical Navier-Stokes equations have a trivial solution \(v_i = 0\).
+I have added an explicit remark about this fact.
 
-\begin{quoting} 
+\begin{leftbar}
+Now, consider the case, where there is no temperature gradient on the surface of the surrounding bodies at rest.
+The Navier--Stokes equations with any slip boundary conditions have a trivial solution \(u_i = 0\)
+that is, however, not valid for~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
+\end{leftbar}
+
+\begin{quoting}
 9. The conclusion should be re-written. It is unprofessional.
 \end{quoting}
 
 I have rewritten the conclusion entirely by focusing upon the following points.
-\begin{itemize} 
+\begin{itemize}
 \item What it has been shown and achieved?
 \item The meaning for the field.
 \item Possible applications and extensions.
@@ -230,7 +238,7 @@ on the kinetic basis. The principal advantage of the developed code is that
 it is easily extensible as an open-source software.
 
 %%% Possible applications and extensions
-Hard-sphere gas and diffuse reflection are considered in this paper,
+A hard-sphere gas with the diffuse-reflection boundary condition are considered in this paper,
 but various molecular models and boundary conditions can be used as well.
 In addition, appropriate equations for gas mixtures can be also naturally implemented.
 \end{leftbar}
@@ -244,7 +252,7 @@ number in the left margin on each page) is not correct. This is true for
 hard-sphere molecules.
 \end{quoting}
 
-This is indeed correct. I have added a remark. 
+This is indeed correct. I have added the suggested remark.
 
 \begin{quoting}
 2. I do not understand the sentence ``For small k weak convective flow \(v
@@ -255,9 +263,9 @@ should be revised.
 \end{quoting}
 
 I agree with the referee that this paragraph is turn to be vague.
-As for convective flow, I intended to describe, why the simple replacement of limit \(v\to0\)
-by equality \(v=0\) leads to the illegal equations governing the temperature field.
-I have rewritten the paragraph as follows. 
+As for the convective flow, I intended to describe, why the simple replacement of the limit \(v\to0\)
+by the equality \(v=0\) leads to the illegal equations governing the temperature field.
+I have rewritten the paragraph as follows.
 \begin{leftbar}
 A rigorous examination of the continuum limit shows that the infinitesimal thermal conduction term \(\Pder[q_j]{x_j}\)
 can be of the same order as the thermal convective term \(\Pder[pv_j]{x_j}\) in the energy equation~\eqref{eq:energy}.
@@ -318,9 +326,9 @@ Conditions~\eqref{eq:Mach_constraint} and~\eqref{eq:Force_constraint} make the p
 \end{leftbar}
 It is worth mentioning that I have added the external force in the asymptotic analysis of
 the Boltzmann equation after major revision.
-Thus, a new assumption~\eqref{eq:Force_constraint} has arisen. 
+Thus, a new assumption~\eqref{eq:Force_constraint} has arisen.
 
-\begin{quoting} 
+\begin{quoting}
 4. Are the symbols \(\mu\) and \(\nu\) in line 28 on page 5 dimensionless?
 If so, this should be stated clearly. Then, \(\sqrt T_0\) should be
 included on the right-hand sides of the equations for \(\mu\) and
@@ -348,7 +356,7 @@ I have inserted a short remark in the beginning of section~3.
 Unless explicitly otherwise stated, all variables are further assumed to be dimensionless.
 \end{leftbar}
 
-\begin{quoting} 
+\begin{quoting}
 5. The definition of \(\eta\) in Eq. (19) is wrong. The stretched normal
 coordinate \(\eta\) is defined as \(x_i = k\eta n_i + x_{Bi}\), where \(n_i\) is the unit normal
 vector to the boundary pointing into the gas, and \(x_{Bi}\) is the projection
@@ -367,7 +375,7 @@ from \((x_1,x_2,x_3)\) to \((\eta,s_1,s_2)\).
 Moreover, in accordance with the referee's notation for boundary condition,
 I have changed mine in the paper: from \(h_w\) to \(h_B\).
 
-\begin{quoting} 
+\begin{quoting}
 6. It is not clear what the items 1, 2, and 3 (lines 35--39, page~6)
 mean. I would suggest ``This condition is not generally satisfied because
 \begin{enumerate}
@@ -379,23 +387,24 @@ then \(u_{i1} \neq 0\) (nonlinear thermal stress flow).''
 \end{enumerate}
 \end{quoting}
 
-Indeed, equal sign was confused with the sign of inequality.
-I have corrected the paragraph, but deviated from the referee's suggestion,
-because of 
+Indeed, the equal sign has a place instead of the sign of inequality in the last formula.
+Moreover, I think the effects, thermal creep flow and nonlinear thermal stress flow, should
+be discussed separately from this list of reasons. For example, they are introduced in section~4.
+So I have corrected the paragraph, but deviated from the referee's suggestion.
 \begin{leftbar}
-Equation~\eqref{eq:asymptotic3} converges to~\eqref{eq:heat_equation} only if \(u_{i1} = 0\).
+Equation~\eqref{eq:asymptotic3} converges to~\eqref{eq:heat_equation} only if \(\Pder[u_{i1}]{x_i} = 0\).
 In the absence of an external force, there are several reasons for this condition can be violated:
 \begin{enumerate}
-	\item The boundary is moving (boundary motion): \(u_{B1i} \neq 0 \).
-	\item The boundary temperature is not uniform (thermal creep flow): \(\Pder[T_B]{x_i} \neq 0 \).
-	\item The isothermal surfaces are not parallel (nonlinear thermal-stress flow):
+	\item The boundary is moving: \(u_{B1i} \neq 0 \).
+	\item The boundary temperature is not uniform: \(\Pder[T_B]{x_i} \neq 0 \).
+	\item The isothermal surfaces are not parallel:
 		\begin{equation}\label{eq:equilibrium}
 			e_{ijk}\pder[T_0]{x_j}\pder{x_k}\left(\pder[T_0]{x_l}\right)^2 \neq 0.
 		\end{equation}
 \end{enumerate}
 \end{leftbar}
 
-\begin{quoting} 
+\begin{quoting}
 7. In Figs.~5 and 6, does the color scale on the right margin mean the
 contour lines of the speed \(|u_{i1}|\)?
 \end{quoting}
@@ -407,7 +416,7 @@ The velocity field \(u_{i1}\) with the Knudsen layer correction for \(\Kn=0.01\)
 curves with arrows indicate the direction, contour lines show the magnitude.
 \end{leftbar}
 
-\begin{quoting} 
+\begin{quoting}
 8. First, the system of equations that the author solves in this paper
 is the correct system to describe the thermal creep flows and nonlinear
 thermal stress flows when the temperature variation is large and the
@@ -419,8 +428,8 @@ points should be discussed separately. The ghost effect is relevant to
 the second point. In the present paper, these two points are sometimes
 mixed up. Therefore, it is hard to understand the author's claim. For
 example, the title of the paper is misleading. It says ``stationary gas
-in the continuum limit''. However, Fig. 6 shows the flow at \(Kn=0.01\).
-This contradicts the title. Also in Figs. 7--9, the reader only sees the
+in the continuum limit''. However, Fig.~6 shows the flow at \(Kn=0.01\).
+This contradicts the title. Also in Figs.~7--9, the reader only sees the
 flows. The title could be, for example, ``Computer simulation of
 slightly rarefied gas flows driven by significant temperature variation
 and their continuum limit''.
@@ -429,7 +438,7 @@ and their continuum limit''.
 I have realized the idea and revised the whole paper to separate these two points.
 I have used the proposed title, too.
 
-\begin{leftbar} 
+\begin{leftbar}
 \end{leftbar}
 
 \begin{quoting}
