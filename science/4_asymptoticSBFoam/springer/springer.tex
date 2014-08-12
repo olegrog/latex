@@ -37,7 +37,7 @@
 	Classical fluid dynamics describes a behavior of gas in terms of the
 	Navier--Stokes equations. However, a rigorous asymptotic analysis of
 	the Boltzmann equation for small Knudsen numbers restricts the scope
-	of its application and in a general case leads to more complicated
+	of its application and, in a general case, leads to more complicated
 	sets of differential equations. Present paper deals with such one
 	that is valid for significant temperature variations and finite
 	Reynolds numbers. A special-purpose solver on the open-source CFD
@@ -99,7 +99,7 @@ OpenFOAM\textregistered{} is also well documented and has a large and active com
 
 \section{Basic equations}
 
-The behavior of a gas is governed by the conservation equations of mass, momentum and energy:
+The behavior of a gas is governed by the conservation equations of mass, momentum, and energy:
 \begin{gather}
 	\pder[\rho]{t} + \pder{x_i}(\rho v_i) = 0, \label{eq:mass}\\
 	\pder{t}(\rho v_i) + \pder{x_j}(\rho v_i v_j + p_{ij}) = \rho F_i, \label{eq:momentum}\\
@@ -165,7 +165,7 @@ can be found in~\cite{Sone2002, Sone2007}.
 Unless explicitly otherwise stated, all variables are further assumed to be dimensionless
 by taking the following reference quantities:
 the length \(L\), the pressure \(p^{(0)}\), the temperature \(T^{(0)}\),
-the velocity \((2RT^{(0)})^{1/2}\) and the heat-flow vector \(p^{(0)}(2RT^{(0)})^{1/2}\).
+the velocity \((2RT^{(0)})^{1/2}\), and the heat-flow vector \(p^{(0)}(2RT^{(0)})^{1/2}\).
 It is also convenient to deal with the modified Knudsen number
 \[ k = \frac{\sqrt\pi}2\frac{\ell^{(0)}}{L} = \frac{m}{2\sqrt{2\pi} d_m^2 \rho^{(0)}L}. \]
 
@@ -178,7 +178,7 @@ under the additional assumption
 \begin{equation}\label{eq:Mach_constraint}
 	u_i = O(k)
 \end{equation}
-that means that the Mach number is of the same order as the Knudsen number.
+means that the Mach number is of the same order as the Knudsen number.
 Moreover, let the external force be weak:
 \begin{equation}\label{eq:Force_constraint}
 	F_i = O(k^2).
@@ -250,10 +250,10 @@ for Boltzmann equation look as follows:
 	\end{aligned}
 	\right. \label{eq:bound:v}
 \end{gather}
-Here, \(n_i\) is the unit normal vector to the boundary pointing into the gas,
-\(u_{Bj1}\), \(T_B\) are the velocity and the temperature of the boundary.
-\(K_1\) is the slip coefficient for the \emph{thermal creep flow}. For a hard-sphere gas,
-\[ K_1 = -0.6463. \]
+Here, \(n_i\) is the unit normal vector to the boundary, pointing into the gas.
+\(u_{Bj1}\) is the velocity of the boundary, and \(T_B\) is its temperature.
+\(K_1\) is the slip coefficient related to the \emph{thermal creep flow}.
+For a hard-sphere gas, \[ K_1 = -0.6463. \]
 Thus, the direction of the thermal creep flow coincides with the temperature gradient.
 
 The solution of the boundary-value problem cannot be expressed only with the fluid-dynamic-type
@@ -305,18 +305,18 @@ The function \(Y_1(\eta)\) is tabulated, for example, in~\cite{Sone2002, Sone200
 
 As one can see from~\eqref{eq:asymptotic3}, gas is not always described correctly
 by the heat-conduction equation~\eqref{eq:heat_equation}.
-Equation~\eqref{eq:asymptotic3} converges to~\eqref{eq:heat_equation} only if \(u_{i1} = 0\).
+Equation~\eqref{eq:asymptotic3} converges to~\eqref{eq:heat_equation} if \(u_{i1} = 0\).
 In the absence of an external force, there are several reasons for this condition can be violated:
 \begin{enumerate}
-	\item The boundary is moving (boundary motion): \(u_{B1i} \neq 0 \).
-	\item The boundary temperature is not uniform (thermal creep flow): \(\Pder[T_B]{x_i} \neq 0 \).
-	\item The isothermal surfaces are not parallel (nonlinear thermal-stress flow):
+	\item The boundary is moving: \(u_{B1i} \neq 0 \).
+	\item The boundary temperature is not uniform: \(\Pder[T_B]{x_i} \neq 0 \).
+	\item The isothermal surfaces are not parallel:
 		\begin{equation}\label{eq:equilibrium}
 			e_{ijk}\pder[T_0]{x_j}\pder{x_k}\left(\pder[T_0]{x_l}\right)^2 \neq 0.
 		\end{equation}
 \end{enumerate}
 The first two cases are directly determined by the boundary conditions,
-and the third one has only an implicit impact from them.
+the third one has only an implicit impact from them.
 
 The set of equations~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} revealed the following interesting fact.
 In the continuum limit, the gas flows vanish, proportional to the Knudsen number.
@@ -328,7 +328,7 @@ This asymptotic behavior is called the \emph{ghost effect}~\cite{GhostEffect, So
 \begin{figure}[ht]
 	\centering
 	\includegraphics{Fig3}
-	\caption{The temperature field \(T\) obtained from the asymptotic theory in the continuum limit:
+	\caption{The temperature field \(T_0\) obtained from the asymptotic theory:
 		isothermal lines are placed above the contour lines.}
 	\label{fig:moving:T_asym}
 \end{figure}
@@ -363,19 +363,18 @@ The external force is taken to be zero.
 \subsection{Gas between two parallel plates}
 
 Consider a plane periodic geometry shown in Fig.~\ref{fig:geometry}.
-The gas is placed between two infinite parallel plates
-that have a sinusoidal distribution of the temperature
+A gas is placed between two infinite parallel plates
+both have a periodic distribution of the temperature
 \begin{equation}
 	T_B = 1-\alpha\cos(2\pi x).
 \end{equation}
-Lower plate moves relative to the top with the velocity
+The upper plate is at rest, the lower plate moves with the small velocity
 \begin{equation}
 	u_{Bi} = (\beta\Kn,0,0).
 \end{equation}
 
 The first example of simulation is for
 \[ \alpha=1/2, \quad \beta = 1. \]
-
 Due to the problem symmetry, computational domain represents a rectangle \(0<x<1, 0<z<1/2\)
 (a gray background in Fig.~\ref{fig:geometry}).
 
@@ -395,23 +394,23 @@ Due to the problem symmetry, computational domain represents a rectangle \(0<x<1
 	\label{fig:moving:kn001}
 \end{figure}
 
-The resulting temperature distribution in the continuum limit (Fig.~\ref{fig:moving:T_asym}) is shown
+The resulting temperature field (Fig.~\ref{fig:moving:T_asym}) is shown
 in comparison with the solution of the heat-conduction equation (Fig.~\ref{fig:moving:T_heat}).
-When \(k\to0\), the classical solution has a qualitative distinction from the kinetic one:
-there is a symmetry of the isothermal lines in the former one.
+In the continuum limit, \(T=T_0\), so we can see that the classical fluid-dynamic solution
+has a finite distinction from the kinetic one.
 
-The velocity field \(u_{i1}\) is shown in Fig.~\ref{fig:moving:fluid} and Fig.~\ref{fig:moving:kn001}.
+The resulting velocity field \(u_{i1}\) is shown in Fig.~\ref{fig:moving:fluid} and Fig.~\ref{fig:moving:kn001}.
 The Knudsen layer correction~\eqref{eq:bound:v_K} is taken into account in the latter figure.
-One can see that, for small \(k\), a gas flow along boundary temperature gradient occurs
+For small \(k\), a gas flow along the boundary temperature gradient occurs
 in the thin Knudsen layer. This flow, which is of the first order of \(k\), is called
 the \emph{thermal creep flow}.
 
 In the continuum limit, the velocity field tends to zero:
 \[ u_i = u_{i1}k + O(k^2) \to 0, \quad k\to0, \]
 however \(u_{i1}\) remains finite and transforms the temperature field through~\eqref{eq:asymptotic3}.
-
-Moreover, it is important to note that the solution is very sensitive to the mutual velocity of the plates.
-Infinitesimal \(u_B\) has also the finite impact on the temperature field through \(u_{B1}\).
+Such an asymptotic behavior of a system of differential equations is called the \emph{ghost effect}.
+Moreover, it is important to note that the asymptotic solution is very sensitive to the mutual velocity of the plates:
+infinitesimal \(u_B\) has also the finite impact on the temperature field through \(u_{B1}\).
 
 \subsection{Gas between two cylinders and spheres}
 
@@ -432,14 +431,19 @@ Infinitesimal \(u_B\) has also the finite impact on the temperature field throug
 \end{figure}
 
 Now, consider the case, where there is no temperature gradient on the surface of the surrounding bodies at rest.
-As stated above, even under such boundary conditions, convection flow can emerge
+The Navier--Stokes equations with any slip boundary conditions have a trivial solution \(u_i = 0\)
+that is, however, not valid for~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
+As stated above, even under such boundary conditions, a convection flow can emerge
 due to nonparallelism of the isothermal surfaces~\eqref{eq:equilibrium}.
 This phenomenon is called the \emph{nonlinear thermal-stress flow}
-and is described first in~\cite{Kogan1971}.
+and is described first in~\cite{Kogan1971} with the Chapman--Enskog expansion
+that give the similar equations to~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} but
+with slightly different transport coefficients.
 The nonlinear origin of this effect in the first order of the Knudsen number is relevant,
 because a linear thermal-stress flow appears only in the following order of smallness \(O(k^2)\).
 This type of convection has a important feature. It can occur in the state of weightlessness
 whereas a gas convection in classical sense can be driven only by a finite external force.
+Some experimental studies of the nonlinear thermal-stress flow can be found in~\cite{ExperimentsNTFS}.
 
 Consider two cylinders of radius \(R_1 = 1\) and \(R_2 = r\)
 with temperatures \(T_1 = 1\) and \(T_2 = \alpha\), respectively.
@@ -449,9 +453,7 @@ Fig.~\ref{fig:cylinders} presents the results of numerical simulation for
 \[ r = 2, \quad d = 1/2, \quad \alpha = 2. \]
 The velocity field \(u_{i1}\) for this problem is much weaker than in the previous example,
 so it has too small influence on the temperature distribution that we skip to demonstrate.
-
-Gas between nonconcentric spheres is simulated in the same geometry,
-as is between noncoaxial cylinders~\ref{fig:spheres}.
+A gas between nonconcentric spheres is also simulated in the same geometry~\ref{fig:spheres}.
 
 \subsection{Gas between two elliptical cylinders}
 
@@ -463,8 +465,8 @@ as is between noncoaxial cylinders~\ref{fig:spheres}.
 	\label{fig:elliptic}
 \end{figure}
 
-In the last example, the gas is placed between two coaxial elliptical cylinders
-in such a way that the major axes of the ellipses in a cross section are perpendicular.
+In the last example, a gas is placed between two coaxial elliptical cylinders
+in such a way that the major axes of the ellipses are perpendicular in a cross section.
 Let the semi-minor axis of the outer cylinder be the characteristic length, while the semi-major one is \(a_1\).
 The semi-axes of the inner ellipse are \(b_0\) and \(a_0\) in length, respectively.
 The temperatures are equal to \(T_1 = 1\), \(T_2 = \alpha\) again.
@@ -493,7 +495,7 @@ for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{Sone
 	\end{minipage}
 \end{figure}
 
-Calculation of presented problems on the modern personal computer (3.40GHz CPU)
+A calculation of presented problems on the modern personal computer (3.40GHz CPU)
 takes about several minutes for the most detailed spacial grids.
 This fact provides a great performance for parametric studies as well. As an example,
 the maximum magnitude of \(u_{i1}\) as a function of \(\alpha\) is shown in Fig.~\ref{fig:maxU}.
@@ -526,7 +528,7 @@ on the kinetic basis. The principal advantage of the developed code is that
 it is easily extensible as an open-source software.
 
 %%% Possible applications and extensions
-Hard-sphere gas and diffuse reflection are considered in this paper,
+A hard-sphere gas with the diffuse-reflection boundary condition are considered in this paper,
 but various molecular models and boundary conditions can be used as well.
 In addition, appropriate equations for gas mixtures can be also naturally implemented.
 
