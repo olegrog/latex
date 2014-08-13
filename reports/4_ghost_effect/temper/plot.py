@@ -11,15 +11,16 @@ params = {'backend': 'pdf',
           'figure.figsize': [5,4]}
 py.rcParams.update(params)
 import numpy as np
+import sys
 
 files=['1.txt','2.txt']
 for f in files:
-	data = py.loadtxt(f)
-	x,y = data.T
-	p, = py.plot(x[1:], y[1:], 'o-', lw=2, clip_on=False, zorder=10)
-	c = py.getp(p,'color')
-	py.plot(x[1], y[1], 'D', clip_on=False, zorder=10, color=c)
-	py.plot(x[0], y[0], 's', clip_on=False, zorder=10, color=c)
+    data = py.loadtxt(f)
+    x,y = data.T
+    p, = py.plot(x[1:], y[1:], 'o-', lw=2, clip_on=False, zorder=10)
+    c = py.getp(p,'color')
+    py.plot(x[1], y[1], 'D', clip_on=False, zorder=10, color=c)
+    py.plot(x[0], y[0], 's', clip_on=False, zorder=10, color=c)
 
 bbox = dict(boxstyle="round", fc="0.9")
 arrow = dict(arrowstyle="->")
@@ -30,4 +31,4 @@ py.ylabel(r'$T$', y=.8, labelpad=-3, rotation=0)
 py.xlim(0,.05)
 
 py.tight_layout()
-py.savefig('temper.pdf')
+py.savefig(sys.argv[1])

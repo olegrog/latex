@@ -11,23 +11,24 @@ params = {'backend': 'pdf',
           'figure.figsize': [3.6,2.8]}
 py.rcParams.update(params)
 import numpy as np
+import sys
 
 L  = 0.5
-Kn = 0.01
+Kn = float(sys.argv[1])
 k  = np.sqrt(np.pi)/2*Kn
 
 def load_data():
-	rho,U,V,X,Y = data[1], data[2], data[3], data[4], data[5]
-	N = np.sqrt(X.size)
-	M = X.max()
-	X = np.reshape(X,(N,N)) * L/M
-	Y = np.reshape(Y,(N,N)) * L/M
-	x,y = X[0,:], Y[:,0]
-	U = np.reshape(U/rho,(N,N)) / k 
-	V = np.reshape(V/rho,(N,N)) / k
-	return U,V,x,y
+    rho,U,V,X,Y = data[1], data[2], data[3], data[4], data[5]
+    N = np.sqrt(X.size)
+    M = X.max()
+    X = np.reshape(X,(N,N)) * L/M
+    Y = np.reshape(Y,(N,N)) * L/M
+    x,y = X[0,:], Y[:,0]
+    U = np.reshape(U/rho,(N,N)) / k 
+    V = np.reshape(V/rho,(N,N)) / k
+    return U,V,x,y
 
-data = py.loadtxt('kn001.txt').T
+data = py.loadtxt(sys.argv[2]).T
 U,V,x,y = load_data()
 
 magU = np.sqrt(U*U+V*V)
@@ -48,4 +49,4 @@ ax.set_aspect('equal')
 ax.set_yticks([0,0.5])
 ax.set_xticks([0,0.5])
 py.tick_params(axis='both', direction='out')
-py.savefig('velocity.pdf', bbox_inches='tight')
+py.savefig(sys.argv[3], bbox_inches='tight')

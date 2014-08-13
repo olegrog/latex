@@ -11,10 +11,11 @@ params = {'backend': 'pdf',
           'figure.figsize': [3,3]}
 py.rcParams.update(params)
 import numpy as np
+import sys
 
 L = 0.5
 
-data = py.loadtxt('kn003.txt').T
+data = py.loadtxt(sys.argv[1]).T
 T,X,Y = data[0], data[4], data[5]
 N = np.sqrt(X.size)
 M = X.max()
@@ -31,7 +32,7 @@ levels = np.append(levels, 1.05)
 CS = py.contour(x, y, T, levels=levels, colors='k', linewidths=1)
 py.clabel(CS, levels[1::1],
           inline=True,
-	  use_clabeltext=True,
+          use_clabeltext=True,
           fmt='%g',
           fontsize=8)
 
@@ -45,4 +46,4 @@ ax.set_aspect('equal')
 ax.set_yticks([0,0.5])
 ax.set_xticks([0,0.5])
 py.tick_params(axis='both', direction='out')
-py.savefig('temperature.pdf', bbox_inches='tight')
+py.savefig(sys.argv[2], bbox_inches='tight')
