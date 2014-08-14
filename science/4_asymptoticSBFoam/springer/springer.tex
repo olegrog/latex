@@ -12,7 +12,8 @@
 \newcommand{\Kn}{\mathrm{Kn}}
 \newcommand{\dd}{\:\mathrm{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
-\newcommand{\pderder}[2][]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
+\newcommand{\pderder}[3][]{\frac{\partial^2#1}{\partial#2\partial#3}}
 \newcommand{\Pder}[2][]{\partial#1/\partial#2}
 
 \journalname{Theoretical and Computational Fluid Dynamics}
@@ -113,12 +114,12 @@ For an ideal monatomic gas, the internal energy \(e = 3RT/2\) depends only on th
 The pressure is taken from the equation of state \( p = \rho RT \).
 
 The Navier--Stokes set equations is obtained from the conservation equations with the help of Newton's law,
-\begin{equation}\label{eq:stress_tensor}
+\begin{equation}\label{eq:Newton_law}
     p_{ij} = p\delta_{ij} - \mu\left(\pder[v_i]{x_j}+\pder[v_j]{x_i}-\frac23\pder[v_k]{x_k}\delta_{ij}\right) -
         \mu_B\pder[v_k]{x_k}\delta_{ij},
 \end{equation}
 and Fourier's law,
-\begin{equation}\label{eq:heat_flow}
+\begin{equation}\label{eq:Fourier_law}
     q_i = -\lambda\pder[T]{x_i}.
 \end{equation}
 Some of the transport coefficients are used here:
@@ -142,7 +143,7 @@ In the continuum limit (\(\Kn\to0\)), we obtain the Euler set of equations where
 \end{equation}
 that makes it impossible to determine the temperature field of a gas at rest.
 The classical heat-conduction equation
-can be derived from~\eqref{eq:energy} and~\eqref{eq:heat_flow}
+can be derived from~\eqref{eq:energy} and~\eqref{eq:Fourier_law}
 in the absence of gas flows (\(v_i = 0\)):
 \begin{equation}\label{eq:heat_equation}
     \pder{x_i}\left(\sqrt{T}\pder[T]{x_i}\right) = 0.
@@ -197,8 +198,8 @@ is obtained for variables \(T_0\), \(u_{i1} = p_0v_{i1}\), \(p_2^\dag\):
     \pder{x_i}\left(\frac{u_{i1}}{T_0}\right) &= 0, \label{eq:asymptotic1} \\
     \pder{x_j}\left(\frac{u_{i1}u_{j1}}{T_0}\right)
         &-\frac{\gamma_1}2\pder{x_j}\left[\sqrt{T_0}\left(
-            \pder[u_{i1}]{x_j}+\pder[u_{j1}]{x_i}-\frac23\pder[u_{k1}]{x_k}\delta_{ij}\right
-        )\right] \notag\\
+            \pder[u_{i1}]{x_j} + \pder[u_{j1}]{x_i} - \frac23\pder[u_{k1}]{x_k}\delta_{ij}
+        \right)\right] \notag\\
         &- \frac{\gamma_7}{T_0}\pder[T_0]{x_i}\pder[T_0]{x_j}\left(\frac{u_{j1}}{\gamma_2\sqrt{T_0}} - \frac{1}4\pder[T_0]{x_j}\right) \notag\\
         &= -\frac{p_0}{2}\pder[p_2^\dag]{x_i} + \frac{p_0^2 F_{i2}}{T_0}, \label{eq:asymptotic2} \\
     \pder[u_{i1}]{x_i} &= \frac{\gamma_2}2\pder{x_i}\left(\sqrt{T_0}\pder[T_0]{x_i}\right), \label{eq:asymptotic3}
@@ -237,6 +238,24 @@ The first two are connected to the dimensional transport coefficients in the fol
     \lambda = \frac{5\gamma_2}{2}\sqrt{T_0} \frac{p^{(0)}RL}{\sqrt{2RT^{(0)}}} k,
 \end{equation}
 and \(\gamma_7\) is related to the \emph{nonlinear thermal-stress flow}.
+Other molecular models are easily applied by replacing these coefficients.
+Appropriate formulas for their numerical evaluation can be found in~\cite{GhostEffect, Sone2002, Sone2007}.
+
+The stress tensor and the heat-flow vector are obtained as follows:
+\begin{alignat*}{2}
+    p_{ij0} &= p_0\delta_{ij}, && \quad q_{i0} = 0, \\
+    p_{ij1} &= p_1\delta_{ij}, && \quad q_{i1} = -\frac{5\gamma_2}4\sqrt{T_0}\pder[T_0]{x_i}, \\
+    p_{ij2} &= p_2\delta_{ij}
+                &&- \frac{\gamma_1}{p_0}\sqrt{T_0}\left(
+                \pder[u_{i1}]{x_j} + \pder[u_{j1}]{x_i} - \frac23\pder[u_{k1}]{x_k}\delta_{ij}
+            \right) \\
+        & &&+ \frac{\gamma_7}{p_0}\left[
+                \pder[T_0]{x_i}\pder[T_0]{x_j} - \frac13\left(\pder[T_0]{x_k}\right)^2\delta_{ij}
+            \right] \\
+        & &&+ \frac{\gamma_3}{p_0} T_0\left(
+                \pderder[T_0]{x_i}{x_j} - \frac13\pderdual[T_0]{x_k}\delta_{ij}
+            \right).
+\end{alignat*}
 
 \subsection{Boundary conditions}
 
@@ -258,7 +277,7 @@ Here, \(n_i\) is the unit normal vector to the boundary, pointing into the gas.
 For a hard-sphere gas, \[ K_1 = -0.6463. \]
 Thus, the direction of the thermal creep flow coincides with the temperature gradient.
 
-The solution of the boundary-value problem cannot be expressed only with the fluid-dynamic-type
+The solution of the boundary-value problem cannot be expressed in terms of the fluid-dynamic-type
 solution due to the sharp variation in the distribution function near the boundary.
 Therefore, it is necessary to introduce the so-called Knudsen-layer correction:
 \begin{equation}
@@ -321,9 +340,11 @@ The first two cases are directly determined by the boundary conditions,
 and the third one has only an implicit impact from them.
 
 The set of equations~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} revealed the following interesting fact.
-In the continuum limit, the gas flows vanish, proportional to the Knudsen number.
-However, the infinitesimally weak flows have a finite impact on the temperature field.
-This asymptotic behavior is called the \emph{ghost effect}~\cite{GhostEffect, Sone2002, Sone2007}.
+In the continuum limit, the velocity field tends to zero, proportional to the Knudsen number,
+due to~\eqref{eq:Mach_constraint}, however infinitesimally weak flows
+have a finite impact on the temperature field.
+Such an asymptotic behavior of a system of differential equations
+is called the \emph{ghost effect}~\cite{GhostEffect, Sone2002, Sone2007}.
 
 \section{Numerical simulation and discussions}
 
@@ -366,19 +387,16 @@ The external force is taken to be zero.
 
 Consider a plane periodic geometry shown in Fig.~\ref{fig:geometry}.
 A gas is placed between two infinite parallel plates
-both have a periodic distribution of the temperature
+both have a periodic distribution of the temperature and the small velocity
 \begin{equation}
-    T_B = 1-\alpha\cos(2\pi x).
+    T_B = 1-\alpha\cos(2\pi x), \quad u_{Bi} = (\beta\Kn,0,0).
 \end{equation}
-The upper plate is at rest, the lower plate moves with the small velocity
-\begin{equation}
-    u_{Bi} = (\beta\Kn,0,0).
-\end{equation}
-
-The first example of simulation is for
-\[ \alpha=1/2, \quad \beta = 1. \]
-Due to the problem symmetry, computational domain represents a rectangle \(0<x<1, 0<z<1/2\)
+Due to the symmetry, the computational domain represents a rectangle \(0<x<1, 0<z<1/2\)
 (a gray background in Fig.~\ref{fig:geometry}).
+The problem is simulated for
+\[ \alpha=1/2, \quad \beta = 1 \]
+to compare with the reference solution in~\cite{GhostEffect}.
+Complete agreement between these results is a good verification of the solver validity.
 
 \begin{figure}
     \centering
@@ -396,22 +414,16 @@ Due to the problem symmetry, computational domain represents a rectangle \(0<x<1
     \label{fig:moving:kn001}
 \end{figure}
 
-The resulting temperature field (Fig.~\ref{fig:moving:T_asym}) is shown
+The temperature field (Fig.~\ref{fig:moving:T_asym}) is shown
 in comparison with the solution of the heat-conduction equation (Fig.~\ref{fig:moving:T_heat}).
 In the continuum limit, \(T=T_0\), so we can see that the classical fluid-dynamic solution
 has a finite distinction from the kinetic one.
 
-The resulting velocity field \(u_{i1}\) is shown in Fig.~\ref{fig:moving:fluid} and Fig.~\ref{fig:moving:kn001}.
+The velocity field \(u_{i1}\) is shown in Fig.~\ref{fig:moving:fluid} and Fig.~\ref{fig:moving:kn001}.
 The Knudsen layer correction~\eqref{eq:bound:v_K} is taken into account in the latter figure.
 For small \(k\), a gas flow along the boundary temperature gradient occurs
 in the thin Knudsen layer. This flow, which is of the first order of \(k\), is called
 the \emph{thermal creep flow}.
-
-In the continuum limit, the velocity field tends to zero~\eqref{eq:Mach_constraint},
-however \(u_{i1}\) remains finite and transforms the temperature field by means of~\eqref{eq:asymptotic3}.
-Such an asymptotic behavior of a system of differential equations is called the \emph{ghost effect}.
-Moreover, it is important to note that the asymptotic solution is very sensitive to the mutual velocity of the plates:
-infinitesimal \(u_B\) has also the finite impact on the temperature field through \(u_{B1}\).
 
 \subsection{Gas between two cylinders and spheres}
 
@@ -437,14 +449,14 @@ that is, however, not valid for~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
 As stated above, even under such boundary conditions, a convection flow can emerge
 due to nonparallelism of the isothermal surfaces~\eqref{eq:equilibrium}.
 This phenomenon is called the \emph{nonlinear thermal-stress flow}
-and is described first in~\cite{Kogan1971} with the Chapman--Enskog expansion
-that gives the similar equations to~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} but
-with slightly different transport coefficients.
+and is described first in~\cite{Kogan1971} in terms of the Chapman--Enskog expansion
+that gives the similar equations to~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}
+but with slightly different transport coefficients.
 The nonlinear origin of this effect in the first order of the Knudsen number is relevant,
 because a linear thermal-stress flow appears only in the following order of smallness \(O(k^2)\).
 This type of convection has an important feature. It can occur in the state of weightlessness
 whereas a gas convection in the classical sense can be driven only by a finite external force.
-Some experimental studies of the nonlinear thermal-stress flow can be found in~\cite{ExperimentsNTFS}.
+Some experimental studies of the nonlinear thermal-stress flow can be found in~\cite{ExperimentsNTFS2003}.
 
 Consider two cylinders of radius \(R_1 = 1\) and \(R_2 = r\)
 with temperatures \(T_1 = 1\) and \(T_2 = \alpha\), respectively.
@@ -454,7 +466,7 @@ Fig.~\ref{fig:cylinders} presents the results of the numerical simulation for
 \[ r = 2, \quad d = 1/2, \quad \alpha = 2. \]
 The velocity field \(u_{i1}\) for this problem is much weaker than in the previous example,
 so it has too small influence on the temperature distribution that we skip to demonstrate.
-A gas between nonconcentric spheres is also simulated in the same geometry~\ref{fig:spheres}.
+A gas between nonconcentric spheres is also simulated in the same geometry (Fig.~\ref{fig:spheres}).
 
 \subsection{Gas between two elliptical cylinders}
 
