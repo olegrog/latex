@@ -26,7 +26,7 @@ plot('beta250.raw', 0.25*np.pi, '-', 1, r'$\beta = \pi/4$', -1)
 plot('beta375.raw', 0.375*np.pi, '-', 1, r'$\beta = 3\pi/8$', -1)
 
 py.xlabel(r'$s$', labelpad=-5)
-py.ylabel(r'$M_z$', y=.75, labelpad=-5, rotation=0)
+py.ylabel(r'$M_{z2}$', y=.75, labelpad=-5, rotation=0)
 py.xlim(xmin, xmax)
 ax = py.axes()
 ax.set_xticks([xmin, xmax])
