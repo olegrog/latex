@@ -17,21 +17,18 @@ def plot(filename, factor, fmt, lw, label):
     F = F * factor
     py.plot(d, F, fmt, lw=lw, label=label)
 
-plot('elliptic.txt', 2, '-', 1, r'$\alpha = 5$')
-#plot('inverse.txt', 2, 'g-', 1, r'$\alpha = -5$')
+plot('cylinders.txt', -2, '-', 1, r'$\mathrm{cylinders}\;\alpha=5$')
+plot('spheres.txt', -100, '-', 1, r'$\mathrm{spheres}\;\alpha=5$')
 
-py.xlabel(r'$\beta$', labelpad=-5)
-py.ylabel(r'$\displaystyle\oint M_{z2} \mathrm{d}S$', labelpad=-15)
+py.xlabel(r'$d$', labelpad=-5)
+py.ylabel(r'$-\displaystyle\oint F_{x2} \mathrm{d}S$', labelpad=0)
+py.semilogx()
+py.semilogy()
 ax = py.axes()
-ax.set_xticks([0, 0.5])
-ax.set_yticks([0, -80])
-ax.set_xticklabels([r'$0$', r'$\pi/2$'])
+ax.set_xticks([1e-2, 1e-1, 1])
+ax.set_xticklabels([r'$10^{-2}$', '', r'$10^0$'])
 handles, labels = ax.get_legend_handles_labels()
 ax.legend(handles, labels, loc=0)
 
-from matplotlib.ticker import MultipleLocator
-ax.xaxis.set_minor_locator(MultipleLocator(0.25))
-ax.yaxis.set_minor_locator(MultipleLocator(10))
-
-py.savefig('moment_beta.pdf', bbox_inches='tight')
+py.savefig('forces.pdf', bbox_inches='tight')
 

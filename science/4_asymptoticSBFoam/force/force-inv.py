@@ -4,7 +4,7 @@ import pylab as py
 params = {'backend': 'pdf',
           'axes.labelsize': 10,
           'text.fontsize': 10,
-          'legend.fontsize': 10,
+          'legend.fontsize': 8,
           'xtick.labelsize': 9,
           'ytick.labelsize': 9,
           'text.usetex': True,
@@ -14,25 +14,24 @@ import numpy as np
 
 def plot(filename, factor, fmt, lw, label):
     d,Q,F = py.loadtxt(filename).T
-    F = F * factor / 1e3
+    F = F * factor
     py.plot(d, F, fmt, lw=lw, label=label)
 
-plot('cylinders.txt', -2, 'b-', 1, r'$\mathrm{cylinders}$')
-plot('spheres.txt', -100, 'g-', 1, r'$\mathrm{spheres}$')
+plot('cylinders-inv.txt', -2, '-', 1, r'$\mathrm{cylinders}\;\alpha=-5$')
+plot('spheres-inv.txt', -100, '-', 1, r'$\mathrm{spheres}\;\alpha=-5$')
 
-py.xlabel(r'$d$', labelpad=-3)
-py.ylabel(r'$-\displaystyle\frac{F_{i2}d_i}{d}\times10^{-3}$', labelpad=0)
-py.xlim(0, 0.9)
-py.ylim(0, 6)
+py.xlabel(r'$d$', labelpad=-5)
+py.ylabel(r'$-\displaystyle\oint F_{x2} \mathrm{d}S$', labelpad=-10)
+py.ylim(-50, 50)
 ax = py.axes()
-ax.set_xticks([0,0.3,0.6,0.9])
-ax.set_yticks([0,2,4,6])
+ax.set_xticks([0, 1])
 handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles, labels, loc=2)
+ax.legend(handles, labels, loc=0)
+ax.axhline(lw=.5, c='k', ls=':')
 
 from matplotlib.ticker import MultipleLocator
 ax.xaxis.set_minor_locator(MultipleLocator(0.1))
-ax.yaxis.set_minor_locator(MultipleLocator(1))
+ax.yaxis.set_minor_locator(MultipleLocator(10))
 
-py.savefig('force.pdf', bbox_inches='tight')
+py.savefig('forces-inv.pdf', bbox_inches='tight')
 
