@@ -26,20 +26,23 @@ p, pcov = curve_fit(func, x[ran], y[ran], p0=[0.02,3])
 print ran
 print p
 
-X = np.logspace(np.log10(xmin), np.log10(10), num=50)
-Y = func(X, p[0], p[1])
+X = np.logspace(np.log10(xmin-1), np.log10(10), num=50)
+Y = func(X+1, p[0], p[1])
 
 py.plot(x-1, y, '-', lw=2)
-py.plot(X-1, Y, '--', lw=1)
+py.plot(X, Y, '--', lw=1)
 
-py.xlabel(r'$\alpha$', labelpad=-3)
-py.ylabel(r'$(u_{i1})_{\mathrm{max}}$', y=.8, labelpad=-15, rotation=0)
+py.xlabel(r'$\alpha$', labelpad=-5)
+py.ylabel(r'$(u_{i1})_{\mathrm{max}}$', y=.8, labelpad=0, rotation=0)
 py.xlim(xmin-1, xmax-1)
+py.ylim(1e-8, 1e2)
 ax = py.axes()
 ax.set_xscale('log')
 ax.set_yscale('log')
-ax.set_xticks([1e-1,1e+1])
-ax.set_yticks([1e-9,1e-3,1e+2])
+ax.set_xticks([1e-2, 1e-1, 1, 1e+1])
+ax.set_yticks([1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 1e1, 1e2])
+ax.set_xticklabels(['', r'$10^{-1}$', '', r'$10^1$'])
+ax.set_yticklabels([r'$10^{-8}$', '', '', '', '', r'$10^{-3}$', '', '', '', '', r'$10^2$'])
 
 py.savefig('alpha.pdf', bbox_inches='tight')
 
