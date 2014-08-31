@@ -25,4 +25,4 @@ py.ylabel(r'$\displaystyle\frac{Y_1}2$', y=.75, labelpad=-2, rotation=0)
 py.xlim(0,5)
 py.ylim(1e-2,1)
 
-py.savefig('Y1.pdf', bbox_inches='tight')
+py.savefig('Y1_2.pdf', bbox_inches='tight')
