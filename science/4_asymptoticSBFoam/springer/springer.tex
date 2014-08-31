@@ -207,8 +207,8 @@ is obtained for variables \(T_0\), \(u_{i1} = p_0v_{i1}\), \(p_2^\dag\):
 where
 \begin{equation}\label{eq:dag_pressure}
     p_2^\dag = p_2
-        \frac{2\gamma_3}{3p_0}\pder{x_k}\left(T_0\pder[T_0]{x_k}\right) -
-        \frac{\gamma_7}{6p_0}\left(\pder[T_0]{x_k}\right)^2.
+        + \frac{2\gamma_3}{3p_0}\pder{x_k}\left(T_0\pder[T_0]{x_k}\right)
+        - \frac{\gamma_7}{6p_0}\left(\pder[T_0]{x_k}\right)^2.
 \end{equation}
 The set of equations \eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} has a fluid-dynamic nature
 and is comparable to the Navier--Stokes equations for a compressible gas (\(\rho_0 = p_0/T_0\)).
@@ -222,7 +222,7 @@ For a hard-sphere gas at rest, this force is opposite to the temperature gradien
 
 It should be noted that \(p_2^\dag\) is not included in the equation of state and
 therefore is determined up to a constant factor.
-Term \(\partial{p_2 ^ \dag} / \partial{x_i}\) participates in the system as the pressure
+Term \(\Pder[p_2^\dag]{x_i}\) participates in the system as the pressure
 in the Navier--Stokes set for an incompressible gas.
 This fact specifies the class of suitable numerical methods
 for solving \eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
@@ -249,12 +249,12 @@ The stress tensor and the heat-flow vector are obtained as follows:
                 &&- \frac{\gamma_1}{p_0}\sqrt{T_0}\left(
                 \pder[u_{i1}]{x_j} + \pder[u_{j1}]{x_i} - \frac23\pder[u_{k1}]{x_k}\delta_{ij}
             \right) \\
-        & &&+ \frac{\gamma_7}{p_0}\left[
-                \pder[T_0]{x_i}\pder[T_0]{x_j} - \frac13\left(\pder[T_0]{x_k}\right)^2\delta_{ij}
-            \right] \\
         & &&+ \frac{\gamma_3}{p_0} T_0\left(
                 \pderder[T_0]{x_i}{x_j} - \frac13\pderdual[T_0]{x_k}\delta_{ij}
-            \right).
+            \right) \\
+        & &&+ \frac{\gamma_7}{p_0}\left[
+                \pder[T_0]{x_i}\pder[T_0]{x_j} - \frac13\left(\pder[T_0]{x_k}\right)^2\delta_{ij}
+            \right].
 \end{alignat*}
 
 \subsection{Boundary conditions}
@@ -481,7 +481,7 @@ A gas between nonconcentric spheres is also simulated in the same geometry (Fig.
 In the last example, a gas is placed between two coaxial elliptical cylinders
 in such a way that the major axes of the ellipses are perpendicular in a cross section.
 Let the semi-minor axis of the outer cylinder be the characteristic length, while the semi-major one is \(a_1\).
-The semi-axes of the inner ellipse are \(b_0\) and \(a_0\) in length, respectively.
+The semi-axes of the inner ellipse are \(a_0\) and \(b_0\) in length.
 The temperatures are \(T_1 = 1\) and \(T_2 = \alpha\) again.
 
 In Fig.~\ref{fig:elliptic} the velocity field is shown for
