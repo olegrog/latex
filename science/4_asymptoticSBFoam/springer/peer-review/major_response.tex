@@ -189,10 +189,12 @@ Corrected.
 correct. Please be serious on your paper and check them carefully.
 \end{quoting}
 
-I have not got this point. Unfortunately, the referee did not indicate an exact place of the fault.
-I have double-checked all figures and have found neither mistakes nor ambiguities.
-Another referee did not found anything like that, too.
-I have tried my best to make the descriptions under the figures clearer.
+I have not got this point.
+Unfortunately, the referee did not specify a place of the fault.
+I have double-checked all figures and have found only one misprint:
+the axis of abscissas \(\alpha\) was presented instead of \(\alpha-1\) in Fig.~10.
+Another referee did not found any ambiguity in figures, too.
+I have tried to make more detailed and clear descriptions under the figures.
 
 \begin{quoting}
 8. I think there also need comparison in the cases of 4.2 and 4.3
@@ -215,21 +217,27 @@ that is, however, not valid for~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
 
 I have rewritten the conclusion entirely by focusing upon the following points.
 \begin{itemize}
-\item What it has been shown and achieved?
+\item The main achievements.
+\item Studied phenomena.
 \item The meaning for the field.
 \item Possible applications and extensions.
 \end{itemize}
 
 \begin{leftbar}
-%%% What it has been shown and achieved?
+%%% The main achievements
 In the present paper, OpenFOAM\textregistered{}, a free and open-source CFD platform,
 widely used and rapidly extending, is upgraded to deal with
 slightly rarefied gas flows driven by significant temperature variations.
 A reliable and rapid solver has been introduced on the basis of the appropriate
 equations and boundary conditions, derived from the asymptotic analysis of the Boltzmann equation.
 The program code has been validated by means of some benchmark simulations,
-presented as illustrations. Typical problems of the first order of Knudsen number
-have been considered: thermal creep flow and nonlinear thermal-stress flow.
+presented as illustrations.
+
+%%% Studied phenomena
+Typical temperature driven flows of the first order of the Knudsen number have been considered:
+thermal creep flow and nonlinear thermal-stress flow.
+The force of nonlinear thermal-stress nature, arising in the gas, is of the second order of
+the Knudsen number. It has been studied for several problems in detail.
 
 %%% The meaning for the field
 OpenFOAM\textregistered{}, together with the newly implemented numerical algorithm,
@@ -390,7 +398,7 @@ then \(u_{i1} \neq 0\) (nonlinear thermal stress flow).''
 Indeed, the equal sign has a place instead of the sign of inequality in the last formula.
 Moreover, I think the effects, thermal creep flow and nonlinear thermal stress flow, should
 be discussed separately from this list of reasons. For example, they are introduced in section~4.
-So I have corrected the paragraph, but deviated from the referee's suggestion.
+So I have corrected the paragraph, but deviated a little bit from the referee's suggestion.
 \begin{leftbar}
 Equation~\eqref{eq:asymptotic3} converges to~\eqref{eq:heat_equation} if \(u_{i1} = 0\).
 In the absence of an external force, there are several reasons for this condition can be violated:
@@ -412,8 +420,8 @@ contour lines of the speed \(|u_{i1}|\)?
 Yes, it is true. To prevent this ambiguity, I have added a few clarifications to the figure captions.
 
 \begin{leftbar}
-The velocity field \(u_{i1}\) with the Knudsen layer correction for \(\Kn=0.01\):
-curves with arrows indicate the direction, contour lines show the magnitude.
+The velocity field \(u_{i1}\) with the Knudsen layer correction for \(\Kn=0.01\).
+Curves with arrows indicate the direction, contour lines show the magnitude.
 \end{leftbar}
 
 \begin{quoting}

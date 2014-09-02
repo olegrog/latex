@@ -49,8 +49,7 @@
         Boltzmann equation \and
         Navier--Stokes equations \and
         thermal creep flow \and
-        nonlinear thermal-stress flow \and
-        ghost effect
+        nonlinear thermal-stress flow
     }
     \PACS{47.45.-n,47.11.Df}
 \end{abstract}
@@ -62,7 +61,7 @@ The Navier--Stokes equations are widely used for modeling of a gas with the vani
 Slightly rarefied gas effects, which are widely thought to take place only in the thin Knudsen layer,
 can be taken into account using the slip conditions on the boundary~\cite{SharipovCoefficients}.
 In some situations, however, the Navier--Stokes set fails to describe the correct density and temperature fields
-even in the continuum limit~\cite{Kogan1976, GhostEffect}.
+even in the continuum limit~\cite{Kogan1976, SoneBobylev96}.
 When the Reynolds number is finite and the temperature variations are large:
 \[ \mathrm{Re} = O(1), \quad \frac1T\left|\pder[T]{x_i}\right| = O(1), \]
 higher-order terms of gas rarefaction begin to play a significant role in the gas behavior.
@@ -70,10 +69,25 @@ In this case, the asymptotic analysis of the Boltzmann equation arrives on the s
 yields the appropriate equations on the macroscopic variables, together with
 their associated boundary conditions~\cite{Sone2002, Sone2007}.
 
-%%% Existing solutions
-This new set of equations has the similar structure to the Navier--Stokes one,
-so similar numerical methods can be utilized too.
-The pioneering solutions are based on the finite difference methods~\cite{GhostEffect, Kogan1976}.
+%%% Some background on studied flows
+This advanced set of equations reveals that some flows of the first order of the Knudsen number
+are caused in the gas due to temperature variations in the absence of the external force:
+thermal creep and nonlinear thermal-stress. The former is a well-known flow induced along a boundary
+with a nonuniform temperature~\cite{Maxwell1879Stresses, Ohwada1989Creep}.
+The latter occurs in the gas where the distance between isothermal surfaces varies along them~\cite{Kogan1976}.
+It is described first in terms of the Chapman--Enskog expansion~\cite{Kogan1971}.
+Later works are based on the Hilbert expansion~\cite{SoneBobylev96}.
+The nonlinear thermal-stress flow can be considered as another type of convection
+that occurs in the state of weightlessness.
+The nonlinear origin of this phenomenon is relevant, because a linear thermal-stress flow
+appears only in the next order of the Knudsen number~\cite{Sone1972Stress}.
+Detailed experimental study of the nonlinear thermal-stress flow is an intractable problem,
+but some attempts are maden in~\cite{ExperimentsNTFS2003}.
+
+%%% Existing numerical solutions
+From the computational point of view, the new set of equations has the similar structure
+to the Navier--Stokes one, so similar numerical methods can be utilized too.
+The pioneering solutions are based on the finite difference methods~\cite{SoneBobylev96, Kogan1976}.
 The finite volume method is applied in some recent works~\cite{Laneryd2006, Laneryd2007}.
 
 %%% Limitations
@@ -201,14 +215,14 @@ is obtained for variables \(T_0\), \(u_{i1} = p_0v_{i1}\), \(p_2^\dag\):
             \pder[u_{i1}]{x_j} + \pder[u_{j1}]{x_i} - \frac23\pder[u_{k1}]{x_k}\delta_{ij}
         \right)\right] \notag\\
         &- \frac{\gamma_7}{T_0}\pder[T_0]{x_i}\pder[T_0]{x_j}\left(\frac{u_{j1}}{\gamma_2\sqrt{T_0}} - \frac{1}4\pder[T_0]{x_j}\right) \notag\\
-        &= -\frac{p_0}{2}\pder[p_2^\dag]{x_i} + \frac{p_0^2 F_{i2}}{T_0}, \label{eq:asymptotic2} \\
+        &= -\frac12\pder[p_2^\dag]{x_i} + \frac{p_0^2 F_{i2}}{T_0}, \label{eq:asymptotic2} \\
     \pder[u_{i1}]{x_i} &= \frac{\gamma_2}2\pder{x_i}\left(\sqrt{T_0}\pder[T_0]{x_i}\right), \label{eq:asymptotic3}
 \end{align}
 where
 \begin{equation}\label{eq:dag_pressure}
-    p_2^\dag = p_2
-        + \frac{2\gamma_3}{3p_0}\pder{x_k}\left(T_0\pder[T_0]{x_k}\right)
-        - \frac{\gamma_7}{6p_0}\left(\pder[T_0]{x_k}\right)^2.
+    p_2^\dag = p_0 p_2
+        + \frac{2\gamma_3}{3}\pder{x_k}\left(T_0\pder[T_0]{x_k}\right)
+        - \frac{\gamma_7}{6}\left(\pder[T_0]{x_k}\right)^2.
 \end{equation}
 The set of equations \eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} has a fluid-dynamic nature
 and is comparable to the Navier--Stokes equations for a compressible gas (\(\rho_0 = p_0/T_0\)).
@@ -239,23 +253,23 @@ The first two are connected to the dimensional transport coefficients in the fol
 \end{equation}
 and \(\gamma_7\) is related to the \emph{nonlinear thermal-stress flow}.
 Other molecular models are easily applied by replacing these coefficients.
-Appropriate formulas for their numerical evaluation can be found in~\cite{GhostEffect, Sone2002, Sone2007}.
+Appropriate formulas for their numerical evaluation can be found in~\cite{SoneBobylev96, Sone2002, Sone2007}.
 
 The stress tensor and the heat-flow vector are obtained as follows:
-\begin{alignat*}{2}
-    p_{ij0} &= p_0\delta_{ij}, && \quad q_{i0} = 0, \\
-    p_{ij1} &= p_1\delta_{ij}, && \quad q_{i1} = -\frac{5\gamma_2}4\sqrt{T_0}\pder[T_0]{x_i}, \\
+\begin{alignat}{2}
+    p_{ij0} &= p_0\delta_{ij}, && \quad q_{i0} = 0, \label{eq:stress0}\\
+    p_{ij1} &= p_1\delta_{ij}, && \quad q_{i1} = -\frac{5\gamma_2}4\sqrt{T_0}\pder[T_0]{x_i}, \label{eq:stress1}\\
     p_{ij2} &= p_2\delta_{ij}
                 &&- \frac{\gamma_1}{p_0}\sqrt{T_0}\left(
                 \pder[u_{i1}]{x_j} + \pder[u_{j1}]{x_i} - \frac23\pder[u_{k1}]{x_k}\delta_{ij}
-            \right) \\
+            \right) \notag\\
         & &&+ \frac{\gamma_3}{p_0} T_0\left(
                 \pderder[T_0]{x_i}{x_j} - \frac13\pderdual[T_0]{x_k}\delta_{ij}
-            \right) \\
+            \right) \notag\\
         & &&+ \frac{\gamma_7}{p_0}\left[
                 \pder[T_0]{x_i}\pder[T_0]{x_j} - \frac13\left(\pder[T_0]{x_k}\right)^2\delta_{ij}
-            \right].
-\end{alignat*}
+            \right]. \label{eq:stress2}
+\end{alignat}
 
 \subsection{Boundary conditions}
 
@@ -307,14 +321,14 @@ The function \(Y_1(\eta)\) is tabulated, for example, in~\cite{Sone2002, Sone200
     \centering
     \begin{minipage}{.48\textwidth}
         \centering
-        \includegraphics{Fig1}
+        \includegraphics{Fig01}
         \caption{The function of the Knudsen layer \(Y_1(\eta)/2\) for a hard-sphere gas.}
         \label{fig:Y1}
     \end{minipage}
     \quad
     \begin{minipage}{.48\textwidth}
         \centering
-        \includegraphics{Fig2}
+        \includegraphics{Fig02}
         \vspace{13pt}
         \caption{Geometry of the problem: the gas is placed between two parallel plates
             with the periodical temperature distribution \(T_B\).}
@@ -343,14 +357,15 @@ The set of equations~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} revealed the
 In the continuum limit, the velocity field tends to zero, proportional to the Knudsen number,
 due to~\eqref{eq:Mach_constraint}, however infinitesimally weak flows
 have a finite impact on the temperature field.
-Such an asymptotic behavior of a system of differential equations
-is called the \emph{ghost effect}~\cite{GhostEffect, Sone2002, Sone2007}.
+This effect arises in the continuum world owing to the additional nonlinear thermal stress term
+in the momentum equation~\eqref{eq:asymptotic2}.
+Some authors refer to it as a \emph{ghost effect}~\cite{Sone2002, Sone2007}.
 
 \section{Numerical simulation and discussions}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics{Fig3}
+    \includegraphics{Fig03}
     \caption{The temperature field \(T_0\) obtained from the asymptotic theory:
         isothermal lines are placed above the contour lines.}
     \label{fig:moving:T_asym}
@@ -358,7 +373,7 @@ is called the \emph{ghost effect}~\cite{GhostEffect, Sone2002, Sone2007}.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics{Fig4}
+    \includegraphics{Fig04}
     \caption{Temperature field \(T\) obtained from the heat-conduction equation:
         isothermal lines are placed above the contour lines.}
     \label{fig:moving:T_heat}
@@ -371,10 +386,14 @@ The continuity equation~\eqref{eq:asymptotic1}, along with the momentum equation
 is solved with the commonly used implicit conservative SIMPLE algorithm~\cite{SIMPLE}.
 A detailed description of this scheme for gas mixtures can be found in~\cite{Laneryd2007}.
 
-Unstructured spatial grids are generated with the open-source package GMSH~\cite{GMSH}.
-They are nonuniform and condensed in areas with large gradients of macroscopic variables.
+Spatial grids are generated with the open-source package GMSH~\cite{GMSH}.
+They are nonuniform and condensed in areas of a large temperature variation.
 From \(10^3\) to \(10^6\) cells are used to achieve the residual of the solution
 that is not greater than \(10^{-6}\) for all considered problems.
+The temperature fields are evaluated at least with precision \(10^{-9}\).
+A modern personal computer (3.40GHz CPU) has been used to simulate presented problems.
+For the most detailed spatial grids, it takes about several minutes to reach the solution.
+This fact provides a great performance for parametric studies as well.
 
 OpenFOAM\textregistered{} uses Kitware's ParaView\textregistered{} as a primary visualization system of results,
 but for the present paper another open-source tool, Matplotlib, has been chosen to create color vector illustrations.
@@ -395,22 +414,22 @@ Due to the symmetry, the computational domain represents a rectangle \(0<x<1, 0<
 (a gray background in Fig.~\ref{fig:geometry}).
 The problem is simulated for
 \[ \alpha=1/2, \quad \beta = 1 \]
-to compare with the reference solution in~\cite{GhostEffect}.
+to compare with the reference solution in~\cite{SoneBobylev96}.
 Complete agreement between these results is a good verification of the solver validity.
 
 \begin{figure}
     \centering
-    \includegraphics{Fig5}
-    \caption{The fluid-dynamic part of the velocity field \(u_{FDi1}\):
-        curves with arrows indicate the direction, contour lines show the magnitude.}
+    \includegraphics{Fig05}
+    \caption{The fluid-dynamic part of the velocity field \(u_{FDi1}\).
+        Curves with arrows indicate the direction, contour lines show the magnitude.}
     \label{fig:moving:fluid}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics{Fig6}
-    \caption{The velocity field \(u_{i1}\) with the Knudsen layer correction for \(\Kn=0.01\):
-        curves with arrows indicate the direction, contour lines show the magnitude.}
+    \includegraphics{Fig06}
+    \caption{The velocity field \(u_{i1}\) with the Knudsen layer correction for \(\Kn=0.01\).
+        Curves with arrows indicate the direction, contour lines show the magnitude.}
     \label{fig:moving:kn001}
 \end{figure}
 
@@ -429,63 +448,150 @@ the \emph{thermal creep flow}.
 
 \begin{figure}
     \centering
-    \includegraphics{Fig7}
-    \caption{The velocity field \(u_{i1}\) between two noncoaxial cylinders:
-        curves with arrows indicate the direction, contour lines show the magnitude.}
+    \includegraphics{Fig07}
+    \caption{The velocity field \(u_{i1}\) between two noncoaxial cylinders for \(\alpha=5\).
+        Curves with arrows indicate the direction, contour lines show the magnitude.}
     \label{fig:cylinders}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics{Fig8}
-    \caption{The velocity field \(u_{i1}\) between two nonconcentric spheres:
-        curves with arrows indicate the direction, contour lines show the magnitude.}
+    \includegraphics{Fig08}
+    \caption{The velocity field \(u_{i1}\) between two nonconcentric spheres for \(\alpha=5\).
+        Curves with arrows indicate the direction, contour lines show the magnitude.}
     \label{fig:spheres}
 \end{figure}
 
 Now, consider the case, where there is no temperature gradient on the surface of the surrounding bodies at rest.
 The Navier--Stokes equations with any slip boundary conditions have a trivial solution \(u_i = 0\)
 that is, however, not valid for~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
-As stated above, even under such boundary conditions, a convection flow can emerge
+As stated above, even under such boundary conditions, the \emph{nonlinear thermal-stress flow} emerge
 due to nonparallelism of the isothermal surfaces~\eqref{eq:equilibrium}.
-This phenomenon is called the \emph{nonlinear thermal-stress flow}
-and is described first in~\cite{Kogan1971} in terms of the Chapman--Enskog expansion
-that gives the similar equations to~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}
-but with slightly different transport coefficients.
-The nonlinear origin of this effect in the first order of the Knudsen number is relevant,
-because a linear thermal-stress flow appears only in the following order of smallness \(O(k^2)\).
-This type of convection has an important feature. It can occur in the state of weightlessness
-whereas a gas convection in the classical sense can be driven only by a finite external force.
-Some experimental studies of the nonlinear thermal-stress flow can be found in~\cite{ExperimentsNTFS2003}.
 
 Consider two cylinders of radius \(R_1 = 1\) and \(R_2 = r\)
 with temperatures \(T_1 = 1\) and \(T_2 = \alpha\), respectively.
-The cylinder axes are parallel; the distance between them is equal to \(d\).
+We avoid to use \(\alpha < 1\) in favor of negative \(\alpha\)
+for antisymmetric case \(T_1 = -\alpha\) and \(T_2 = 1\).
+The cylinder axes are parallel; the distance between them is equal to \(d\) along \(x\) axis.
+
+\begin{figure}[ht]
+    \centering
+    \begin{minipage}{.48\textwidth}
+        \centering
+        \includegraphics{Fig09}
+        \caption{The total force acting on the inner cylinder (sphere)
+        	versus the distance between axes~\(d\) for positive~\(\alpha\).
+        	The dashed lines correspond to the linear relation.}
+        \label{fig:forces:total}
+    \end{minipage}
+    \quad
+    \begin{minipage}{.48\textwidth}
+        \centering
+        \includegraphics{Fig10}
+        \caption{The total force acting on the inner cylinder (sphere)
+        	versus the distance between axes~\(d\) for negative~\(\alpha\).}
+        \label{fig:forces:inverse}
+    \end{minipage}
+\end{figure}
 
 Fig.~\ref{fig:cylinders} presents the results of the numerical simulation for
-\[ r = 2, \quad d = 1/2, \quad \alpha = 2. \]
-The velocity field \(u_{i1}\) for this problem is much weaker than in the previous example,
-so it has too small influence on the temperature distribution that we skip to demonstrate.
+\[ r = 2, \quad d = 0.5, \quad \alpha = 5. \]
 A gas between nonconcentric spheres is also simulated in the same geometry (Fig.~\ref{fig:spheres}).
+In comparison with the previous example, the velocity field \(u_i\) is two orders of magnitude weaker.
+This is the primary reason why an experimental study of nonlinear thermal-stress flow is so complicated.
+
+Because of the nonuniform thermal stresses~\eqref{eq:stress2}, an internal force of the second order of \(k\),
+\(F_{i2} = -p_{ij2}n_j\), acting on the unit area of a body,
+arises in the gas (Fig.~\ref{fig:forces:total},~\ref{fig:forces:inverse}).
+When the outer cylinder is hotter than inner one, the equilibrium state \(d=0\) is steady;
+\(F_{i2}\) is proportional to the deviation for small \(d\).
+In the opposite case, when the outer cylinder is colder, the coaxial (concentric) arrangement is no longer stable.
+For \(\alpha=-5\), the distances \(d=0.69\) and \(d=0.94\) correspond to
+the single stable equilibrium states for cylinders and spheres respectively.
+The temperature gradient is included in the thermal stress force~\eqref{eq:force} as a cubic term.
+The same dependence is shown for the force acting on bodies (Fig.~\ref{fig:force:alpha}).
+
+\begin{figure}[ht]
+    \centering
+    \begin{minipage}{.48\textwidth}
+        \centering
+        \includegraphics{Fig11}
+        \caption{The total force acting on the inner cylinder
+        	versus the temperature ratio of the cylinders~\(\alpha\) for \(d=0.5\).
+        	The dashed line corresponds to the cubic relation.}
+        \label{fig:force:alpha}
+    \end{minipage}
+    \quad
+    \begin{minipage}{.48\textwidth}
+        \centering
+        \includegraphics{Fig12}
+        \caption{The profile of the acting force \(F_{x2}\) along the surface of
+        	the inner cylinder (sphere) in polar coordinates for \(d=0.5\).
+        	\(\varphi = -\pi/2\) corresponds to the point~\(x=d-1\),
+        	\(\varphi = \pi/2\) corresponds to the point~\(x=d+1\).}
+        \label{fig:force:phi}
+    \end{minipage}
+\end{figure}
+
+The profiles of the \(F_{i2}\) along the surface of the inner cylinder (sphere)
+are presented in Fig.~\ref{fig:force:phi}.
+A body at rest with a uniform boundary temperature is acted on by the force consisting on
+the following components:
+\begin{equation*}
+    p_0F_{i2} = - p_2^\dag n_i
+                - \left(\frac{5\gamma_7}{6} - \frac{\gamma_3}{6}\right) \left(\pder[T_0]{x_k}\right)^2 n_i
+                + \gamma_1\sqrt{T_0} \pder[u_{i1}]{x_j} n_j
+                - \gamma_3 T_0 \pderder[T_0]{x_i}{x_j} n_j.
+\end{equation*}
+This relation is easily obtained from~\eqref{eq:stress2} and~\eqref{eq:dag_pressure}.
+The contribution of each term to the total value is clearly demonstrated
+in Fig.~\ref{fig:terms:pos},~\ref{fig:terms:neg}.
+An accurate numerical analysis is required to obtain the reliable boundary field of
+the second derivative of temperature.
+For this purpose, we used a spatial transfinite mesh
+that bends around the bodies similar to isolines of the temperature field.
+
+\begin{figure}[ht]
+    \centering
+    \begin{minipage}{.48\textwidth}
+        \centering
+        \includegraphics{Fig13}
+        \caption{Components of the acting force along the surface of
+        	the inner cylinder for \(\alpha=5\) and \(d=0.5\).}
+        \label{fig:terms:pos}
+    \end{minipage}
+    \quad
+    \begin{minipage}{.48\textwidth}
+        \centering
+        \includegraphics{Fig14}
+        \caption{Components of the acting force along the surface of
+        	the inner cylinder for \(\alpha=-5\) and \(d=0.5\).}
+        \label{fig:terms:neg}
+    \end{minipage}
+\end{figure}
 
 \subsection{Gas between two elliptical cylinders}
 
 \begin{figure}
     \centering
-    \includegraphics{Fig9}
-    \caption{The velocity field \(u_{i1}\) between coaxial elliptical cylinders:
-        curves with arrows indicate the direction, contour lines show the magnitude.}
+    \includegraphics{Fig15}
+    \caption{The velocity field \(u_{i1}\) between coaxial elliptical cylinders
+    	for \(\beta = \pi/2\) (a) and \(\beta = \pi/4\) (b).
+        Curves with arrows indicate the direction, contour lines show the magnitude.
+         }
     \label{fig:elliptic}
 \end{figure}
 
 In the last example, a gas is placed between two coaxial elliptical cylinders
-in such a way that the major axes of the ellipses are perpendicular in a cross section.
-Let the semi-minor axis of the outer cylinder be the characteristic length, while the semi-major one is \(a_1\).
+in such a way that the major axes of the ellipses are rotated by an angle \(\beta\) in a cross section.
+Let the semi-minor axis of the outer cylinder be the characteristic length and lies on the \(y\) axis,
+while the semi-major one is \(a_1\) and lies on the \(x\) axis.
 The semi-axes of the inner ellipse are \(a_0\) and \(b_0\) in length.
-The temperatures are \(T_1 = 1\) and \(T_2 = \alpha\) again.
+For positive \(\alpha\), the temperature of the inner cylinder \(T_1 = 1\) and the outer one \(T_2 = \alpha\);
+for negative \(\alpha\), \(T_1 = -\alpha\) and \(T_2 = 1\).
 
 In Fig.~\ref{fig:elliptic} the velocity field is shown for
-\[ a_1 = 1.5, \quad a_0 = 0.3, \quad b_0 = 0.7, \quad \alpha = 2. \]
+\[ a_1 = 1.5, \quad a_0 = 0.3, \quad b_0 = 0.7, \quad \alpha = 5, \quad \beta = \pi/2. \]
 Numerical simulation of a rarefied gas using the DSMC method in the same geometry
 for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{SoneCoaxial}.
 
@@ -493,46 +599,76 @@ for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{Sone
     \centering
     \begin{minipage}{.48\textwidth}
         \centering
-        \includegraphics{Fig10}
-        \caption{The maximum magnitude of \(u_{i1}\) versus the temperature ratio of the cylinders \(\alpha\).
-            The dashed line corresponds the cubic relation.}
+        \includegraphics{Fig16}
+        \caption{The total moment of force acting on the inner cylinder
+        	versus~\(\beta\), the angle between the major axes of the cylinders.}
+        \label{fig:elliptic:beta}
+    \end{minipage}
+    \quad
+    \begin{minipage}{.48\textwidth}
+        \centering
+        \includegraphics{Fig17}
+        \caption{The profile of the moment \(M_{z2}\) along the surface of
+        	the inner cylinder for \(\alpha=5\).
+        	\(s=0\) and \(s=L_\mathrm{ell}\) correspond, respectively,
+        	to the upper (\(y>0\)) and lower (\(y<0\)) points on the axis of ordinates (\(x=0\)).
+        	\(L_\mathrm{ell}\) is the perimeter of the inner ellipse.}
+        \label{fig:elliptic:profiles}
+    \end{minipage}
+\end{figure}
+
+Consider the moment \(M_{i2} = e_{ijk}x_jF_{k2}\) of force acting on the unit area of the inner cylinder
+in dependence of the rotation angle \(\beta\). For symmetrical cases \(\beta=0\) and \(\beta=\pi/2\),
+the total moment are balanced (Fig.~\ref{fig:elliptic:beta}).
+When the outer cylinder is hotter that the inner one (\(\alpha > 1\)),
+there is the only stable equilibrium state \(\beta=0\), and \(\beta=\pi/2\) is unstable;
+in the opposite case (\(\alpha < -1\)), \(\beta=\pi/2\) is stable, and \(\beta=0\) is not.
+The corresponding profiles of the moment of force along the surface of the inner cylinder
+for different \(\beta\) are presented in Fig.~\ref{fig:elliptic:profiles}
+
+\begin{figure}[ht]
+    \centering
+    \begin{minipage}{.48\textwidth}
+        \centering
+        \includegraphics{Fig18}
+        \caption{The maximum magnitude of \(u_{i1}\) versus
+        	the temperature ratio of the cylinders \(\alpha\) for \(\beta=\pi/2\).
+            	The dashed line corresponds to the cubic relation.}
         \label{fig:maxU}
     \end{minipage}
     \quad
     \begin{minipage}{.48\textwidth}
         \centering
-        \includegraphics{Fig11}
+        \includegraphics{Fig19}
         \caption{Difference between temperature distributions \(\delta T\) of the heat-conduction equation
             and the asymptotic theory along the \(x\) for \(\alpha = 5\).}
         \label{fig:deltaT}
     \end{minipage}
 \end{figure}
 
-A calculation of presented problems on the modern personal computer (3.40GHz CPU)
-takes about several minutes for the most detailed spacial grids.
-This fact provides a great performance for parametric studies as well. As an example,
-the maximum magnitude of \(u_{i1}\) as a function of \(\alpha\) is shown in Fig.~\ref{fig:maxU}.
-For small \(\alpha\),
-\begin{equation}
-    \mathrm{max}(u_{i1}) \propto \alpha^3, \quad \alpha\to0.
-\end{equation}
-
+The maximum magnitude of \(u_{i1}\) in dependence of \(\alpha\) is shown in Fig.~\ref{fig:maxU}.
+For small \((\alpha-1)\), nonlinear thermal-stress flow diminished as a cubic function of temperature variations.
 Finally, Fig.~\ref{fig:deltaT} illustrates the discrepancy between the temperature fields
 obtained from the asymptotic theory and the heat-conduction equation
-\( \delta T = T_\mathrm{asym} - T_\mathrm{heat} \)
-along the major axis of the outer cylinder.
+\( \delta T = T_\mathrm{AT} - T_\mathrm{HC} \)
+along the major axis of the outer cylinder for \(\beta=\pi/2\).
 
 \section{Conclusion}
 
-%%% What it has been shown and achieved?
+%%% The main achievements
 In the present paper, OpenFOAM\textregistered{}, a free and open-source CFD platform,
 widely used and rapidly extending, is upgraded to deal with
 slightly rarefied gas flows driven by significant temperature variations.
 A reliable and rapid solver has been introduced on the basis of the appropriate
 equations and boundary conditions, derived from the asymptotic analysis of the Boltzmann equation.
 The program code has been validated by means of some benchmark simulations,
-presented as illustrations. Typical problems of the first order of Knudsen number
-have been considered: thermal creep flow and nonlinear thermal-stress flow.
+presented as illustrations.
+
+%%% Studied phenomena
+Typical temperature driven flows of the first order of the Knudsen number have been considered:
+thermal creep flow and nonlinear thermal-stress flow.
+The force of nonlinear thermal-stress nature, arising in the gas, is of the second order of
+the Knudsen number. It has been studied for several problems in detail.
 
 %%% The meaning for the field
 OpenFOAM\textregistered{}, together with the newly implemented numerical algorithm,
