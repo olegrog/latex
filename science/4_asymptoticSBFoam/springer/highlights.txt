@@ -1,4 +1,0 @@
--- A solver for a slighly rarefied gas with a finite Reynolds number was developed.
--- OpenFOAM is an open-source robust CFD platform to implement numerical methods.
--- A wide range of illustrative examples was considered.
--- Thermal creep flow and nonlinear thermal-stress flow were demonstrated.
