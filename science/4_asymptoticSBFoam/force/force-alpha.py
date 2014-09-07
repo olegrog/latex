@@ -21,7 +21,7 @@ F = -2 * F
 py.plot(alpha-1, F, '-', lw=1.5, label=r'$\mathrm{cylinders}\;d=0.5$')
 
 ran = np.where((alpha-1)>10)
-p, pcov = scipy.optimize.curve_fit(pow3, alpha[ran], F[ran], p0=[0.02,3])
+p, pcov = scipy.optimize.curve_fit(pow3, alpha[ran], F[ran], p0=[0.02, 3])
 print ran, p
 X = np.logspace(np.log10(0.1), np.log10(50), num=50)
 Y = pow3(X+1, p[0], p[1])

@@ -17,18 +17,18 @@ from scipy.interpolate import interp1d
 x,y = py.loadtxt('../transport/Y1_2.txt').T
 Y1 = interp1d(x, y, kind='cubic')
 
-L     =	0.5
-alpha =	0.5
+L     = 0.5
+alpha = 0.5
 beta  = 2./np.sqrt(np.pi)
-Kn    =	float(sys.argv[1])
-k     =	np.sqrt(np.pi)/2*Kn
+Kn    = float(sys.argv[1])
+k     = np.sqrt(np.pi)/2*Kn
 
-data = py.loadtxt('asym.txt').T
-U0,V0,X0,Y0 = data[2], data[3], data[5], data[6]
+data = py.loadtxt('asym.raw').T
+X0, Y0, U0, V0 = data[0], data[1], data[3], data[4]
 N = 50
-dim = (N+1,2*N+1)
-X = np.reshape(X0,dim)
-Y = np.reshape(Y0,dim)
+dim = (N+1, 2*N+1)
+X = np.reshape(X0, dim)
+Y = np.reshape(Y0, dim)
 x,y = X[0,:], Y[:,0]
 T = 1-alpha*np.cos(2*np.pi*x)
 dTdx = 2*np.pi*alpha*np.sin(2*np.pi*x)
@@ -51,8 +51,8 @@ interp = 'nn'
 N = 50
 xi = np.linspace(0, 1, 2*N)
 yi = np.linspace(0, .5, 4*N)
-U = griddata(X0,Y0,U0,xi,yi,interp=interp)
-V = griddata(X0,Y0,V0,xi,yi,interp=interp)
+U = griddata(X0, Y0, U0, xi, yi, interp=interp)
+V = griddata(X0, Y0, V0, xi, yi, interp=interp)
 py.streamplot(xi, yi, U, V, color='k', density=0.89, minlength=.2, arrowstyle='->')
 
 py.text(-.07, .4, r'$u_{i1}$', fontsize=10)

@@ -13,10 +13,10 @@ params = {'backend': 'pdf',
 py.rcParams.update(params)
 import numpy as np
 
-def plot(filename, factor, fmt, lw, label, xytext, va):
+def plot(filename, factor, label, xytext, va):
     d, Q, F = py.loadtxt(filename).T
     F = F * factor
-    py.plot(d, F, fmt, lw=lw, label=label)
+    py.plot(d, F, '-', lw=1.5, label=label)
     zero = np.where(np.diff(np.sign(F)))[0][1]
     x1, x2, y1, y2 = d[zero], d[zero+1], F[zero], F[zero+1]
     d0 = x1 - y1*(x2-x1)/(y2-y1)
@@ -26,8 +26,8 @@ def plot(filename, factor, fmt, lw, label, xytext, va):
         textcoords = 'offset points', ha = 'center', va = va,
         arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=-.2'))
 
-plot('cylinders-inv.txt', -2, '-', 1.5, r'$\mathrm{cylinders}\;\alpha=-5$', (-20, 20), 'bottom')
-plot('spheres-inv.txt', -100, '-', 1.5, r'$\mathrm{spheres}\;\alpha=-5$', (-20, -20), 'top')
+plot('cylinders-inv.txt', -2, r'$\mathrm{cylinders}\;\alpha=-5$', (-20, 20), 'bottom')
+plot('spheres-inv.txt', -100, r'$\mathrm{spheres}\;\alpha=-5$', (-20, -20), 'top')
 
 py.xlabel(r'$d$', labelpad=-5)
 py.ylabel(r'$-\displaystyle\oint p_0 F_{x2} \mathrm{d}S$', labelpad=-5)

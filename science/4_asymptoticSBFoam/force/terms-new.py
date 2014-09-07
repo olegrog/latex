@@ -32,13 +32,13 @@ read_data('ShearStress1')
 read_data('Pressure0')
 read_data('Pressure7')
 read_data('ShearStress3')
-read_data('Force')
 
 plot(data['Pressure0'], r'$\mathrm{term\;}p_2^\dag$')
 plot((5*g7-g3)/g7*data['Pressure7'], r'$\mathrm{term\;}(\partial T_0/\partial x_k)^2$')
 plot(data['ShearStress1'], r'$\mathrm{term\;}\partial u_{i1}/\partial x_j$')
 plot(data['ShearStress3'] - g3/g7*data['Pressure7'], r'$\mathrm{term\;}\partial^2 T_0/\partial x_i\partial x_j$')
 
+#read_data('Force')
 #plot(data['Force'], r'$b$')
 
 py.xlim(-np.pi/2, np.pi/2)

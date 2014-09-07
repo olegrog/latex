@@ -16,10 +16,10 @@ import scipy.optimize
 def pow1(x,A):
     return A*x**1
 
-def plot(filename, factor, fmt, lw, label):
+def plot(filename, factor, label):
     d, Q, F = py.loadtxt(filename).T
     F = F * factor
-    py.plot(d, F, fmt, lw=lw, label=label)
+    py.plot(d, F, '-', lw=1.5, label=label)
     ran = np.where(d < .05)
     p, pcov = scipy.optimize.curve_fit(pow1, d[ran], F[ran], p0=[1])
     print ran, p
@@ -27,8 +27,8 @@ def plot(filename, factor, fmt, lw, label):
     Y = pow1(X, p[0])
     py.plot(X, Y, 'k--', lw=.5,)
 
-plot('cylinders.txt', -2, '-', 1.5, r'$\mathrm{cylinders}\;\alpha=5$')
-plot('spheres.txt', -100, '-', 1.5, r'$\mathrm{spheres}\;\alpha=5$')
+plot('cylinders.txt', -2, r'$\mathrm{cylinders}\;\alpha=5$')
+plot('spheres.txt', -100, r'$\mathrm{spheres}\;\alpha=5$')
 
 py.xlabel(r'$d$', labelpad=-5)
 py.ylabel(r'$-\displaystyle\oint p_0 F_{x2} \mathrm{d}S$', labelpad=0)

@@ -15,17 +15,17 @@ from scipy.interpolate import spline
 
 d = 0.5
 xmin, xmax = -np.pi/2, np.pi/2
-def plot(name, fmt, lw, label):
+def plot(name, label):
     x,y,z,s1,s2,s3 = py.loadtxt(name + 'Force.raw').T
     newdata = np.dstack((np.arctan(y/(x-d)), s1))
     xnew, ynew = np.sort(np.dstack((np.arctan2(x-d,y), s1))[0].T, axis=1);
-    py.plot(xnew, np.poly1d(np.polyfit(xnew, ynew, 12))(xnew), fmt, lw=lw, label=label)
+    py.plot(xnew, np.poly1d(np.polyfit(xnew, ynew, 12))(xnew), '-', lw=1.5, label=label)
     py.plot(xnew, ynew, 'k-', lw=0.1)
 
-plot('cylinder',     '-', 1, r'$\mathrm{cylinders}\;\alpha=5$')
-plot('sphere',       '-', 1, r'$\mathrm{spheres}\;\alpha=5$')
-plot('cylinder-inv', '-', 1, r'$\mathrm{cylinders}\;\alpha=-5$')
-plot('sphere-inv',   '-', 1, r'$\mathrm{spheres}\;\alpha=-5$')
+plot('cylinder',     r'$\mathrm{cylinders}\;\alpha=5$')
+plot('sphere',       r'$\mathrm{spheres}\;\alpha=5$')
+plot('cylinder-inv', r'$\mathrm{cylinders}\;\alpha=-5$')
+plot('sphere-inv',   r'$\mathrm{spheres}\;\alpha=-5$')
 
 py.xlabel(r'$\varphi$', labelpad=-5)
 py.ylabel(r'$-p_0 F_{x2}$', y=.75, labelpad=-5, rotation=0)

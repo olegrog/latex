@@ -44,5 +44,5 @@ ax.set_yticks([1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 1e1, 1e2])
 ax.set_xticklabels(['', r'$10^{-1}$', '', r'$10^1$'])
 ax.set_yticklabels([r'$10^{-8}$', '', '', '', '', r'$10^{-3}$', '', '', '', '', r'$10^2$'])
 
-py.savefig('alpha.pdf', bbox_inches='tight')
+py.savefig('maxU-alpha.pdf', bbox_inches='tight')
 
