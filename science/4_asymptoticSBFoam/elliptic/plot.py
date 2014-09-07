@@ -16,7 +16,7 @@ d1 = py.loadtxt('heat5.txt')
 y1,x1 = d1.T
 d2 = py.loadtxt('asym5.txt')
 y2,x2 = d2.T
-py.plot(x1, y2-y1, '-', lw=2)
+py.plot(x1, y2-y1, '-', lw=1.5)
 
 py.xlabel(r'$x$', labelpad=-2)
 py.ylabel(r'$\delta T$', y=.8, labelpad=-10, rotation=0)

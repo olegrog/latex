@@ -29,10 +29,10 @@ print p
 X = np.logspace(np.log10(xmin-1), np.log10(10), num=50)
 Y = func(X+1, p[0], p[1])
 
-py.plot(x-1, y, '-', lw=2)
-py.plot(X, Y, '--', lw=1)
+py.plot(x-1, y, '-', lw=1.5)
+py.plot(X, Y, 'k--', lw=.5)
 
-py.xlabel(r'$\alpha$', labelpad=-5)
+py.xlabel(r'$\alpha-1$', labelpad=-5)
 py.ylabel(r'$(u_{i1})_{\mathrm{max}}$', y=.8, labelpad=0, rotation=0)
 py.xlim(xmin-1, xmax-1)
 py.ylim(1e-8, 1e2)
