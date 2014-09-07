@@ -16,17 +16,18 @@ import mpmath
 major, minor = .7, .3
 L = 2*major*mpmath.ellipe(1-np.square(minor/major))
 xmin, xmax = 0, 1
-def plot(filename, betta, fmt, lw, label, factor=1):
+def plot(filename, fmt, lw, label, factor=1):
     x,y = py.loadtxt(filename).T
     py.plot(x/L, y, fmt, lw=lw, label=label)
 
-plot('beta000.raw', 0, '-', 1, r'$\beta = 0$', -1)
-plot('beta125.raw', 0.125*np.pi, '-', 1, r'$\beta = \pi/8$', -1)
-plot('beta250.raw', 0.25*np.pi, '-', 1, r'$\beta = \pi/4$', -1)
-plot('beta375.raw', 0.375*np.pi, '-', 1, r'$\beta = 3\pi/8$', -1)
+plot('beta500.raw', '-', 1, r'$\beta = 0$', -1)
+plot('beta375.raw', '-', 1, r'$\beta = \pi/8$', -1)
+plot('beta250.raw', '-', 1, r'$\beta = \pi/4$', -1)
+plot('beta125.raw', '-', 1, r'$\beta = 3\pi/8$', -1)
+plot('beta000.raw', '-', 1, r'$\beta = \pi/2$', -1)
 
 py.xlabel(r'$s$', labelpad=-5)
-py.ylabel(r'$M_{z2}$', y=.75, labelpad=-5, rotation=0)
+py.ylabel(r'$p_0 M_{z2}$', y=.75, labelpad=-5, rotation=0)
 py.xlim(xmin, xmax)
 ax = py.axes()
 ax.set_xticks([xmin, xmax])
@@ -38,6 +39,7 @@ ax.axhline(lw=.5, c='k', ls=':')
 
 from matplotlib.ticker import MultipleLocator
 ax.xaxis.set_minor_locator(MultipleLocator(0.5*xmax))
+ax.yaxis.set_minor_locator(MultipleLocator(100))
 
 py.savefig('profiles.pdf', bbox_inches='tight')
 

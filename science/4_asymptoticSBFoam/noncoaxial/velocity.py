@@ -2,9 +2,10 @@
 
 import pylab as py
 params = {'backend': 'pdf',
+          'font.size': 10,
           'axes.labelsize': 10,
           'text.fontsize': 10,
-          'legend.fontsize': 10,
+          'legend.fontsize': 8,
           'xtick.labelsize': 9,
           'ytick.labelsize': 9,
           'text.usetex': True,
@@ -25,19 +26,14 @@ print "Magnitude of U (min, max):", magU.min(), magU.max()
 import matplotlib.tri as tri
 triang = tri.Triangulation(X,Y)
 
-def sqr(x):
-	return x*x
-
 xmid = X[triang.triangles].mean(axis=1)
 ymid = Y[triang.triangles].mean(axis=1)
-mask = np.where(sqr(xmid-d) + sqr(ymid) < sqr(1), 1, 0)
+mask = np.where(np.square(xmid-d) + np.square(ymid) < np.square(1), 1, 0)
 triang.set_mask(mask)
 
 lev = np.linspace(0, (int(magU.max()*10) + 1.)/10, 11)
-#lev = np.linspace(0, 2.6, 7)
 cmap = py.cm.get_cmap('coolwarm')
 CF = py.tricontourf(triang, magU, cmap=cmap, levels=lev)
-#py.tricontour(X, Y, magU, levels=lev, colors='k', linewidths=.5)
 
 from matplotlib.mlab import griddata
 N = 50
@@ -46,7 +42,7 @@ xi = np.linspace(-r, r, 2*N)
 yi = np.linspace(0 , r, N  )
 U = griddata(X,Y,U,xi,yi,interp=interp)
 V = griddata(X,Y,V,xi,yi,interp=interp)
-py.streamplot(xi, yi, U, V, color='k', density=1.5, minlength=.5)
+py.streamplot(xi, yi, U, V, color='k', density=1.5, minlength=.5, arrowstyle='->')
 
 py.text(1.5, 1.7, r'$u_{i1}\times10^{' + str(factor) + r'}$')
 py.text(.2, .8, r'$R_1, T_1$', zorder=50)

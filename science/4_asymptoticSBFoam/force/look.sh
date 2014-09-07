@@ -1,4 +1,6 @@
 #!/bin/bash
 
-rename "s/_interpolatedInner//;s/wall/$1/" wall*
-./terms.py $1 .5 && open terms-$1.pdf
+for f in $@; do
+    rename "s/_interpolatedInner//;s/wall/$f/" wall*
+    ./terms-new.py $f .5 && open terms-$f.pdf &
+done

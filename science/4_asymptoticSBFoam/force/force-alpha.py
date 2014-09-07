@@ -18,17 +18,17 @@ def pow3(x,A,k):
 
 alpha, Q, F = py.loadtxt('alpha.txt').T
 F = -2 * F
-py.plot(alpha-1, F, '-', lw=2, label=r'$\mathrm{cylinders}\;d=0.5$')
+py.plot(alpha-1, F, '-', lw=1.5, label=r'$\mathrm{cylinders}\;d=0.5$')
 
 ran = np.where((alpha-1)>10)
 p, pcov = scipy.optimize.curve_fit(pow3, alpha[ran], F[ran], p0=[0.02,3])
 print ran, p
 X = np.logspace(np.log10(0.1), np.log10(50), num=50)
 Y = pow3(X+1, p[0], p[1])
-py.plot(X, Y, '--', lw=1, label=r'$C(\alpha-1)^3$')
+py.plot(X, Y, 'k--', lw=.5)
 
 py.xlabel(r'$\alpha-1$', labelpad=-5)
-py.ylabel(r'$-\displaystyle\oint F_{x2} \mathrm{d}S$', labelpad=-5)
+py.ylabel(r'$-\displaystyle\oint p_0 F_{x2} \mathrm{d}S$', labelpad=-8)
 py.semilogx()
 py.semilogy()
 ax = py.axes()

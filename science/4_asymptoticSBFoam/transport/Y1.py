@@ -14,7 +14,7 @@ import numpy as np
 
 data = py.loadtxt('Y1_2.txt')
 x,y = data.T
-p, = py.plot(x, y, '-', lw=2)
+p, = py.plot(x, y, '-', lw=1.5)
 
 py.semilogy()
 py.axes().set_xticks([0,5])
