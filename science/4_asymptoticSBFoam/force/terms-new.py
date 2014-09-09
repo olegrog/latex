@@ -47,6 +47,7 @@ ax.set_xticks([-np.pi/2, np.pi/2])
 ax.set_xticklabels([r'$-\pi/2$', r'$\pi/2$'])
 from matplotlib.ticker import MultipleLocator
 ax.xaxis.set_minor_locator(MultipleLocator(np.pi/2))
+lp = 0
 
 if sys.argv[1] == 'cylinder':
     ax.yaxis.set_major_locator(MultipleLocator(100))
@@ -68,7 +69,7 @@ if sys.argv[1] == 'sphere-inv':
 py.xlabel(r'$\varphi$', labelpad=-5)
 py.ylabel(r'$-p_0 F_{x2}$', y=.75, labelpad=lp, rotation=0)
 handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles, labels, loc=2)
+ax.legend(handles, labels, loc=0)
 ax.axhline(lw=.5, c='k', ls=':')
 
 py.savefig('terms-' + sys.argv[1] + '.pdf', bbox_inches='tight')
