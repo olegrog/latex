@@ -24,15 +24,15 @@ pics:
 	cp ../noncoaxial/sphere5.pdf        Fig08.pdf
 	cp ../force/forces.pdf              Fig09.pdf
 	cp ../force/forces-inv.pdf          Fig10.pdf
-	cp ../force/forces-alpha.pdf        Fig11.pdf
-	cp ../force/profiles.pdf            Fig12.pdf
-	cp ../force/terms-cylinder.pdf      Fig13.pdf
-	cp ../force/terms-cylinder-inv.pdf  Fig14.pdf
-	cp ../elliptic/U.pdf                Fig15.pdf
-	cp ../moment/moment_beta.pdf        Fig16.pdf
-	cp ../moment/profiles.pdf           Fig17.pdf
-	cp ../elliptic/maxU-alpha.pdf       Fig18.pdf
-	cp ../elliptic/delta-x.pdf          Fig19.pdf
+	cp ../temper/F-alpha-noncoaxial.pdf Fig11.pdf
+	cp ../temper/F-alpha-inverse.pdf    Fig12.pdf
+	cp ../temper/U-alpha-cylinders.pdf  Fig13.pdf
+	cp ../force/profiles.pdf            Fig14.pdf
+	cp ../force/terms-cylinder.pdf      Fig15.pdf
+	cp ../force/terms-cylinder-inv.pdf  Fig16.pdf
+	cp ../elliptic/U.pdf                Fig17.pdf
+	cp ../moment/moment_beta.pdf        Fig18.pdf
+	cp ../moment/profiles.pdf           Fig19.pdf
 
 clean:
 	rm -f $(FILE).aux
