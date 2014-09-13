@@ -21,7 +21,7 @@ def plot(filename, factor, label, xytext, va):
     x1, x2, y1, y2 = d[zero], d[zero+1], F[zero], F[zero+1]
     d0 = x1 - y1*(x2-x1)/(y2-y1)
     py.annotate(
-        r'$d='+ "{0:.2f}".format(d0) + r'$',
+        r'$d='+ "{0:.3f}".format(d0) + r'$',
         xy=(d0,0), xytext=xytext,
         textcoords = 'offset points', ha = 'center', va = va,
         arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=-.2'))
