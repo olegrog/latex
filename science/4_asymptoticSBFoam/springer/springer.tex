@@ -10,7 +10,7 @@
 \usepackage{fullpage}
 
 \newcommand{\Kn}{\mathrm{Kn}}
-\newcommand{\dd}{\:\mathrm{d}}
+\newcommand{\dd}{\mathrm{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
 \newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
 \newcommand{\pderder}[3][]{\frac{\partial^2#1}{\partial#2\partial#3}}
@@ -169,7 +169,7 @@ A rigorous examination of the continuum limit shows that the infinitesimal therm
 can be of the same order as the thermal convective term \(\Pder[pv_j]{x_j}\) in the energy equation~\eqref{eq:energy}.
 In such a case, when the Mach number is the same order of as the Knudsen number,
 the heat-conduction equation~\eqref{eq:heat_equation} fails to describe
-the correct temperature field. Moreover, additional thermal stress terms of the second order of \(\Kn\)
+the correct temperature field. Moreover, additional thermal-stress terms of the second order of \(\Kn\)
 appears in the momentum equation~\eqref{eq:momentum}.
 These important modifications can be systematically considered only within the scope of kinetic theory.
 
@@ -193,7 +193,7 @@ of the distribution function \(f\) and macroscopic variables \(h\)~\cite{Hilbert
 \[ f = f_0 + f_1k + f_2k^2 + \cdots, \quad h = h_0 + h_1k + h_2k^2 + \cdots \]
 under the additional assumption
 \begin{equation}\label{eq:Mach_constraint}
-    u_i = O(k)
+    v_i = O(k)
 \end{equation}
 means that the Mach number is of the same order as the Knudsen number.
 Moreover, let the external force be weak:
@@ -226,7 +226,7 @@ where
 \end{equation}
 The set of equations \eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} has a fluid-dynamic nature
 and is comparable to the Navier--Stokes equations for a compressible gas (\(\rho_0 = p_0/T_0\)).
-The formal difference consists in the additional thermal stress term.
+The formal difference consists in the additional thermal-stress term.
 Comparing it with \(p_0^2F_{i2}/T_0\), we find that
 \begin{equation}\label{eq:force}
     k^2\frac{\gamma_7}{p_0^2}\pder[T_0]{x_i}\pder[T_0]{x_j}\left(\frac{u_{j1}}{\gamma_2\sqrt{T_0}} - \frac{1}4\pder[T_0]{x_j}\right)
@@ -255,38 +255,22 @@ and \(\gamma_7\) is related to the \emph{nonlinear thermal-stress flow}.
 Other molecular models are easily applied by replacing these coefficients.
 Appropriate formulas for their numerical evaluation can be found in~\cite{SoneBobylev96, Sone2002, Sone2007}.
 
-The stress tensor and the heat-flow vector are obtained as follows:
-\begin{alignat}{2}
-    p_{ij0} &= p_0\delta_{ij}, && \quad q_{i0} = 0, \label{eq:stress0}\\
-    p_{ij1} &= p_1\delta_{ij}, && \quad q_{i1} = -\frac{5\gamma_2}4\sqrt{T_0}\pder[T_0]{x_i}, \label{eq:stress1}\\
-    p_{ij2} &= p_2\delta_{ij}
-                &&- \frac{\gamma_1}{p_0}\sqrt{T_0}\left(
-                \pder[u_{i1}]{x_j} + \pder[u_{j1}]{x_i} - \frac23\pder[u_{k1}]{x_k}\delta_{ij}
-            \right) \notag\\
-        & &&+ \frac{\gamma_3}{p_0} T_0\left(
-                \pderder[T_0]{x_i}{x_j} - \frac13\pderdual[T_0]{x_k}\delta_{ij}
-            \right) \notag\\
-        & &&+ \frac{\gamma_7}{p_0}\left[
-                \pder[T_0]{x_i}\pder[T_0]{x_j} - \frac13\left(\pder[T_0]{x_k}\right)^2\delta_{ij}
-            \right]. \label{eq:stress2}
-\end{alignat}
-
 \subsection{Boundary conditions}
 
 The fluid-dynamic boundary conditions based on the diffuse-reflection boundary conditions
 for Boltzmann equation look as follows:
 \begin{gather}
-    T_0 = T_B, \label{eq:bound:T} \\
+    T_0 = T_{B0}, \label{eq:bound:T} \\
     \left\{
     \begin{aligned}
-        & \frac{(u_{j1}-u_{Bj1})}{\sqrt{T_B}}(\delta_{ij}-n_in_j) =
-            -K_1\pder[T_B]{x_j}(\delta_{ij}-n_in_j), \\
+        & \frac{(u_{j1}-u_{Bj1})}{\sqrt{T_{B0}}}(\delta_{ij}-n_in_j) =
+            -K_1\pder[T_{B0}]{x_j}(\delta_{ij}-n_in_j), \\
         & u_{j1}n_j = 0.
     \end{aligned}
     \right. \label{eq:bound:v}
 \end{gather}
 Here, \(n_i\) is the unit normal vector to the boundary, pointing into the gas.
-\(u_{Bj1}\) is the velocity of the boundary, and \(T_B\) is its temperature.
+\(u_{Bj1}k\) is the velocity of the boundary, and \(T_{B0}\) is its temperature.
 \(K_1\) is the slip coefficient related to the \emph{thermal creep flow}.
 For a hard-sphere gas, \[ K_1 = -0.6463. \]
 Thus, the direction of the thermal creep flow coincides with the temperature gradient.
@@ -309,8 +293,8 @@ The Knudsen layer introduces a correction to \(u_{i1}\) for a hard-sphere gas:
 \begin{equation}
     \left\{
     \begin{aligned}
-        & \frac{u_{jK1}}{\sqrt{T_B}}(\delta_{ij}-n_in_j) =
-            -\frac12\pder[T_B]{x_j} Y_1\left(\frac\eta{T_B}\right) (\delta_{ij}-n_in_j), \\
+        & \frac{u_{jK1}}{\sqrt{T_{B0}}}(\delta_{ij}-n_in_j) =
+            -\frac12\pder[T_{B0}]{x_j} Y_1\left(\frac\eta{T_{B0}}\right) (\delta_{ij}-n_in_j), \\
         & u_{jK1}n_j = 0.
     \end{aligned}
     \right. \label{eq:bound:v_K}
@@ -331,20 +315,86 @@ The function \(Y_1(\eta)\) is tabulated, for example, in~\cite{Sone2002, Sone200
         \includegraphics{Fig02}
         \vspace{13pt}
         \caption{Geometry of the problem: the gas is placed between two parallel plates
-            with the periodical temperature distribution \(T_B\).}
+            with the periodical temperature distribution \(T_{B0}\).}
         \label{fig:geometry}
     \end{minipage}
 \end{figure}
+
+\subsection{Force acting on a closed body}
+
+The stress tensor \(p_{ij}\) and the heat-flow vector \(q_i\) in a gas are obtained as follows:
+\begin{alignat}{2}
+    p_{ij0} &= p_0\delta_{ij}, && \quad q_{i0} = 0, \label{eq:stress0}\\
+    p_{ij1} &= p_1\delta_{ij}, && \quad q_{i1} = -\frac{5\gamma_2}4\sqrt{T_0}\pder[T_0]{x_i}, \label{eq:stress1}\\
+    p_{ij2} &= p_2\delta_{ij}
+                &&- \frac{\gamma_1}{p_0}\sqrt{T_0}\left(
+                \pder[u_{i1}]{x_j} + \pder[u_{j1}]{x_i} - \frac23\pder[u_{k1}]{x_k}\delta_{ij}
+            \right) \notag\\
+        & &&+ \frac{\gamma_3}{p_0} T_0\left(
+                \pderder[T_0]{x_i}{x_j} - \frac13\pderdual[T_0]{x_k}\delta_{ij}
+            \right) \notag\\
+        & &&+ \frac{\gamma_3 - \gamma_7}{p_0}\left[
+                \pder[T_0]{x_i}\pder[T_0]{x_j} - \frac13\left(\pder[T_0]{x_k}\right)^2\delta_{ij}
+            \right]. \label{eq:stress2}
+\end{alignat}
+The formula for \(q_{i1}\) coincides with Fourier's law~\eqref{eq:Fourier_law},
+but \(p_{ij2}\) contains the thermal-stress terms in addition to the viscous one.
+Due to the nonuniform stresses, an internal force of the second order of \(k\) per unit area,
+\(F_{i2} = -p_{ij2}n_j\), acting on a body, arises in the gas.
+The unit normal vector \(n_i\), as before, points into the gas.
+
+With the help of divergence theorem, the second-order differential term in Eq.~\eqref{eq:stress2}
+can be transformed during the integration over the body surface in the following way:
+\begin{align*}
+    \oint_S T_0\pderder[T_0]{x_i}{x_j} n_j\dd{S}
+        &= \oint_S \pder{x_i} \left( T_0\pderder[T_0]{x_i}{x_j} \right) n_j\dd{S}
+        - \oint_S \pder[T_0]{x_i}\pder[T_0]{x_j} n_j\dd{S} \\
+        &= \int_V \pder{x_i}\pder{x_j} \left( T_0 \pder[T_0]{x_j} \right) \dd{V}
+        - \oint_S \pder[T_0]{x_i}\pder[T_0]{x_j} n_j\dd{S} \\
+        &= \oint_S \left(\pder[T_0]{x_j}\right)^2 n_i\dd{S}
+        + \oint_S T_0\pderdual[T_0]{x_j} n_i\dd{S}
+        - \oint_S \pder[T_0]{x_i}\pder[T_0]{x_j} n_j\dd{S},
+\end{align*}
+where the integration is carrying out over the body volume \(V\) and the body surface \(S\).
+A part of the viscosity term can also be modified in the same manner:
+\begin{equation*}
+    \oint_S \sqrt{T_0}\pder[u_{j1}]{x_i} n_j\dd{S}
+        = \oint_S \pder{x_i} \left( \sqrt{T_0} u_{j1} \right) n_j\dd{S}
+        = \int_V \pder{x_i}\pder{x_j} \left( \sqrt{T_0} u_{j1} \right) \dd{V}
+        = \frac{3}{2}\oint_S \sqrt{T_0} \pder[u_{j1}]{x_j} n_i\dd{S}.
+\end{equation*}
+Here, the boundary condition~\eqref{eq:bound:v} and the continuity equation~\eqref{eq:asymptotic1} are used.
+
+Owing to the above formulas, the total force acting on a closed body
+is expressed in terms of \(T_0\), \(u_{i1}\), \(p^\dag_2\) in the following form:
+\begin{align}\label{eq:force:terms_general}
+    p_0 \oint_S F_{i2} \dd{S} =
+        &- \oint_S p_2^\dag n_i \dd{S} \notag\\
+        &+ \frac{5}{6}\gamma_1 \oint_S \sqrt{T_{B0}} \pder[u_{j1}]{x_j} n_i \dd{S}
+        + \gamma_1 \oint_S \sqrt{T_{B0}} \pder[u_{i1}]{x_j} n_j \dd{S} \notag\\
+        &- \frac{\gamma_7}{2} \oint_S \left(\pder[T_0]{x_j}\right)^2 n_i \dd{S}
+        + \gamma_7 \oint_S \pder[T_0]{x_i}\pder[T_0]{x_j} n_j \dd{S}.
+\end{align}
+In particular, a body at rest with a uniform boundary temperature is acted on by the force consisting on
+the following components:
+\begin{equation}\label{eq:force:terms}
+    p_0 \oint_S F_{i2} \dd{S} =
+        - \oint_S p_2^\dag n_i \dd{S} \\
+        + \gamma_1 \sqrt{T_{B0}} \oint_S \pder[u_{i1}]{x_j} n_j \dd{S}
+        + \frac{\gamma_7}{2} \oint_S \left(\pder[T_0]{x_j}\right)^2 n_i \dd{S}.
+\end{equation}
+The Knudsen-layer correction is excluded from the consideration since have a zero contribution to the total force.
+This fact can be easily proved by moving the surface of integration outside the Knudsen layer.
 
 \subsection{Some remarks on the continuum limit}
 
 As one can see from~\eqref{eq:asymptotic3}, a gas is not always described correctly
 by the heat-conduction equation~\eqref{eq:heat_equation}.
-Equation~\eqref{eq:asymptotic3} converges to~\eqref{eq:heat_equation} if \(u_{i1} = 0\).
+If \(u_{i1} = 0\), Eq.~\eqref{eq:asymptotic3} converges to Eq.~\eqref{eq:heat_equation}.
 In the absence of an external force, there are several reasons when this condition can be violated:
 \begin{enumerate}
     \item The boundary is moving: \(u_{B1i} \neq 0 \).
-    \item The boundary temperature is not uniform: \(\Pder[T_B]{x_i} \neq 0 \).
+    \item The boundary temperature is not uniform: \(\Pder[T_{B0}]{x_i} \neq 0 \).
     \item The isothermal surfaces are not parallel:
         \begin{equation}\label{eq:equilibrium}
             e_{ijk}\pder[T_0]{x_j}\pder{x_k}\left(\pder[T_0]{x_l}\right)^2 \neq 0.
@@ -357,7 +407,7 @@ The set of equations~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} revealed the
 In the continuum limit, the velocity field tends to zero, proportional to the Knudsen number,
 due to~\eqref{eq:Mach_constraint}, however infinitesimally weak flows
 have a finite impact on the temperature field.
-This effect arises in the continuum world owing to the additional nonlinear thermal stress term
+This effect arises in the continuum world owing to the additional nonlinear thermal-stress term
 in the momentum equation~\eqref{eq:asymptotic2}.
 Some authors refer to it as a \emph{ghost effect}~\cite{Sone2002, Sone2007}.
 
@@ -428,7 +478,7 @@ Complete agreement between these results is a good verification of the solver va
 \begin{figure}
     \centering
     \includegraphics{Fig06}
-    \caption{The velocity field \(u_{i1}\) with the Knudsen layer correction for \(\Kn=0.01\).
+    \caption{The velocity field \(u_{i1}\) with the Knudsen-layer correction for \(\Kn=0.01\).
         Curves with arrows indicate the direction, contour lines show the magnitude.}
     \label{fig:moving:kn001}
 \end{figure}
@@ -439,7 +489,7 @@ In the continuum limit, \(T=T_0\), so we can see that the classical fluid-dynami
 has a finite distinction from the kinetic one.
 
 The velocity field \(u_{i1}\) is shown in Fig.~\ref{fig:moving:fluid} and Fig.~\ref{fig:moving:kn001}.
-The Knudsen layer correction~\eqref{eq:bound:v_K} is taken into account in the latter figure.
+The Knudsen-layer correction~\eqref{eq:bound:v_K} is taken into account in the latter figure.
 For small \(k\), a gas flow along the boundary temperature gradient occurs
 in the thin Knudsen layer. This flow, which is of the first order of \(k\), is called
 the \emph{thermal creep flow}.
@@ -449,7 +499,7 @@ the \emph{thermal creep flow}.
 \begin{figure}
     \centering
     \includegraphics{Fig07}
-    \caption{The velocity field \(u_{i1}\) between two noncoaxial cylinders for \(\alpha=5\).
+    \caption{The velocity field \(u_{i1}\) between two noncoaxial cylinders for \(\tau=4\).
         Curves with arrows indicate the direction, contour lines show the magnitude.}
     \label{fig:cylinders}
 \end{figure}
@@ -457,24 +507,26 @@ the \emph{thermal creep flow}.
 \begin{figure}
     \centering
     \includegraphics{Fig08}
-    \caption{The velocity field \(u_{i1}\) between two nonconcentric spheres for \(\alpha=5\).
+    \caption{The velocity field \(u_{i1}\) between two nonconcentric spheres for \(\tau=4\).
         Curves with arrows indicate the direction, contour lines show the magnitude.}
     \label{fig:spheres}
 \end{figure}
 
+%%% State of problem
 Now, consider the case, where there is no temperature gradient on the surface of the surrounding bodies at rest.
 The Navier--Stokes equations with any slip boundary conditions have a trivial solution \(u_i = 0\)
 that is, however, not valid for~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
-As stated above, even under such boundary conditions, the \emph{nonlinear thermal-stress flow} emerge
-due to nonparallelism of the isothermal surfaces~\eqref{eq:equilibrium}.
+As stated above, even under such boundary conditions, the \emph{nonlinear thermal-stress flow}
+can emerge due to nonparallelism of the isothermal surfaces~\eqref{eq:equilibrium}.
 
-Consider two cylinders of radius \(R_1 = 1\) and \(R_2 = r\)
-with temperatures \(T_1 = 1\) and \(T_2 = \alpha\) respectively.
-When we use negative values of \(\alpha\), we mean the antisymmetric case: \(T_1 = -\alpha\) and \(T_2 = 1\).
+%%% Geometry
+Consider two cylinders of radii \(R_1 = 1\) and \(R_2 = r\)
+with temperatures \(T_1 = 1\) and \(T_2 = 1+\tau\) respectively.
 The cylinder axes are parallel; the distance between them is equal to \(d\) along \(x\) axis.
 
+%%% Velocity field
 Fig.~\ref{fig:cylinders} presents the results of the numerical simulation for
-\[ r = 2, \quad d = 0.5, \quad \alpha = 5. \]
+\[ r = 2, \quad d = 0.5, \quad \tau = 4. \]
 A gas between nonconcentric spheres is also simulated in the same geometry (Fig.~\ref{fig:spheres}).
 In comparison with the previous example, the velocity field \(u_i\) is two orders of magnitude weaker.
 This is the primary reason why an experimental study of nonlinear thermal-stress flow is so complicated.
@@ -484,148 +536,118 @@ This is the primary reason why an experimental study of nonlinear thermal-stress
     \begin{minipage}{.48\textwidth}
         \centering
         \includegraphics{Fig09}
-        \caption{The total force acting on the inner cylinder (sphere)
-        	versus the distance between axes~\(d\) for positive~\(\alpha\).
-        	The dashed lines correspond to the linear relation.}
-        \label{fig:forces:total}
+        \caption{The maximum magnitude of \(u_{i1}\) versus \(\tau\) for \(d=0.5\).
+                When \(\tau\) goes to zero, it is proportional to \(\tau^3\).
+                For large \(\tau\), it is proportional to \(\tau^{3/2}\).}
+        \label{fig:tau:maxU}
     \end{minipage}
     \quad
     \begin{minipage}{.48\textwidth}
         \centering
         \includegraphics{Fig10}
-        \caption{The total force acting on the inner cylinder (sphere)
-        	versus the distance between axes~\(d\) for negative~\(\alpha\).}
-        \label{fig:forces:inverse}
+        \caption{The profile of the components of the acting force \(F_{x2}\) along
+                the inner circle in polar coordinates for \(d=0.5\) and \(\tau=4\).
+                \(\varphi = -\pi/2\) corresponds to the point~\(x=d-1\),
+                \(\varphi = \pi/2\) corresponds to the point~\(x=d+1\).}
+        \label{fig:terms:inner}
     \end{minipage}
 \end{figure}
 
-Because of the nonuniform thermal stresses~\eqref{eq:stress2}, an internal force of the second order of \(k\),
-\(F_{i2} = -p_{ij2}n_j\), acting on the unit area of a body, arises in the gas.
-To evaluate the total force acting on the cylinder, we imply that its length is equal to unity.
-As noted above, \(p_{ij2}\) is determined up to the constant factor,
-so we have to impose an additional condition on \(p_{ij2}\), for example, the following one:
-\begin{equation}\label{eq:dag_condition}
-    \int p^\dag_{ij2}\mathrm{d}V = 0.
-\end{equation}
-Here, the three-dimensional integration is carried out over the whole domain where the gas presents.
+% NTSF vs tau
+The nonlinear thermal-stress flow decreases as a cubic function of small temperature variations
+owing to the fact that the temperature gradient is included in the thermal-stress force
+as a cubic term [see Eq.~\eqref{eq:force}]. In the presence of large temperature variations,
+the slope of this relation becomes less steep since the viscosity of a hard-sphere gas increases with temperature.
+This dependence is demonstrated in Fig.~\ref{fig:tau:maxU}.
 
-The total force acting on the inner cylinder in dependence of the distance between the axes
-is presented in Fig.~\ref{fig:forces:total},~\ref{fig:forces:inverse}.
-When the outer cylinder is hotter than inner one, the equilibrium state \(d=0\) is steady;
-\(F_{i2}\) is proportional to the deviation for small \(d\).
-In the opposite case, when the outer cylinder is colder, the coaxial (concentric) arrangement is no longer stable.
-For \(\alpha=-5\), the distances \(d=0.691\) and \(d=0.941\) correspond to
-the single stable equilibrium states for cylinders and spheres respectively.
+%%% A force and how we evaluate it
+Let us now examine the force acting on the cylinders.
+As noted above, \(p_{ij2}\) is determined up to the constant factor
+from the system~\eqref{eq:asymptotic1}-\eqref{eq:asymptotic3}.
+This constant factor makes no contribution to the total force acting on a body,
+but to evaluate a force per unit area, we have to impose an additional condition
+on \(p_{ij2}\), for example, the following one:
+\begin{equation}\label{eq:dag_condition}
+    \int_\Omega p^\dag_{ij2}\dd{V} = 0,
+\end{equation}
+where the three-dimensional integration is carried out over the whole domain \(\Omega\) where the gas presents.
 
 \begin{figure}[ht]
     \centering
     \begin{minipage}{.48\textwidth}
         \centering
         \includegraphics{Fig11}
-        \caption{The total force acting on the inner cylinder versus
-        	the temperature ratio of the cylinders~\(\alpha\) for \(d=0.5\) and positive \(\alpha\).
-        	When \(\alpha\) is about unity, it is proportional to \(\alpha-1\).
-            	For large \(\alpha\), it is proportional to \(\alpha^3\).}
-        \label{fig:alpha:total}
+        \caption{The profile of the components of the acting force \(F_{x2}\) along
+                the outer circle in polar coordinates for \(d=0.5\) and \(\tau=4\).
+                \(\varphi = -\pi/2\) corresponds to the point~\(x=-r\),
+                \(\varphi = \pi/2\) corresponds to the point~\(x=r\).}
+        \label{fig:terms:outer}
     \end{minipage}
     \quad
     \begin{minipage}{.48\textwidth}
         \centering
         \includegraphics{Fig12}
-        \caption{The total force acting on the inner cylinder versus
-        	the temperature ratio of the cylinders~\(\alpha\) for \(d=0.5\) and negative \(\alpha\).
-        	When \(-\alpha\) is about unity, it is proportional to \(-\alpha-1\).
-            	For large \(-\alpha\), it is proportional to \(\alpha^2\).}
-        \label{fig:alpha:inverse}
+        \caption{The profile of the components of the acting force \(F_{x2}\)
+                along the inner circle in polar coordinates
+                for \(d=0.5\) and the swapped temperatures \(T_1 = 5\), \(T_2 = 1\).
+                \(\varphi = -\pi/2\) corresponds to the point~\(x=d-1\),
+                \(\varphi = \pi/2\) corresponds to the point~\(x=d+1\).}
+        \label{fig:terms:inner-swap}
     \end{minipage}
 \end{figure}
 
-A body at rest with a uniform boundary temperature is acted on by the force consisting on
-the following components:
-\begin{equation}\label{eq:force:terms}
-    p_0F_{i2} = - p_2^\dag n_i
-                - \left(\frac{5\gamma_7}{6} - \frac{\gamma_3}{6}\right) \left(\pder[T_0]{x_k}\right)^2 n_i
-                + \gamma_1\sqrt{T_0} \pder[u_{i1}]{x_j} n_j
-                - \gamma_3 T_0 \pderder[T_0]{x_i}{x_j} n_j.
-\end{equation}
-This relation is easily obtained from~\eqref{eq:stress2} and~\eqref{eq:dag_pressure}.
+%%% Force profiles
+The contribution of each term of~\eqref{eq:force:terms} to the total value is showed
+in Fig.~\ref{fig:terms:inner},~\ref{fig:terms:outer},~\ref{fig:terms:inner-swap}.
+It is noted that the profile of the total value does not correspond to the real one of the force \(F_{i2}\)
+acting on the unit area, but only to the sum of all terms in~\eqref{eq:force:terms}.
 
-The total force acting on the inner cylinder in dependence of the temperature ratio of the cylinders
-is presented in Fig.~\ref{fig:alpha:total},~\ref{fig:alpha:inverse}.
-For small temperature variations, the total force is determined mainly
-by the mixed second order temperature derivatives
-that is proportional to the temperature gradient, i.\,e. to \(|\alpha-1|\).
-For large temperature variations, the total force is determined mainly
-by the square of the temperature gradient that is proportional to \(|\alpha-1|\sqrt{T_B}\) for a hard-sphere gas.
-When the inner cylinder is hotter than the outer one, the total force changes its sign twice.
-For \(1.1435 < -\alpha < 4.5725\), the cylinders repel each other.
-
-The maximum magnitude of \(u_{i1}\) in dependence of \(\alpha\) is also shown in Fig.~\ref{fig:alpha:maxU}.
-The nonlinear thermal-stress flow decreases as a cubic function of small temperature variations
-due to the fact that the temperature gradient is included in the thermal stress force
-as a cubic term [see Eq.~\eqref{eq:force}]. In the presence of large temperature variations,
-the slope of this relation becomes less steep since the viscosity of a hard-sphere gas increases with temperature.
+%%% Total force vs tau
+The cylinders are attracted with a force proportional to \(\tau^2\) over the entire temperature range.
+In Fig.~\ref{fig:terms:inner}, unlike the others, the pressure term is opposite to the thermal-stress one.
+For a hard-sphere gas, temperature gradient on the inner cylinder increases proportional to \(\tau^{3/2}\),
+but it is compensated by the hydrostatic pressure \(p^\dag_2\).
+If we swap the temperatures \(T_1\) and \(T_2\) (Fig.~\ref{fig:terms:inner-swap}),
+the total force changes neither its direction nor its magnitude.
 
 \begin{figure}[ht]
     \centering
     \begin{minipage}{.48\textwidth}
         \centering
         \includegraphics{Fig13}
-        \caption{The maximum magnitude of \(u_{i1}\) versus
-        	the temperature ratio of the cylinders \(\alpha\) for \(d=0.5\).
-            	When \(\alpha\) is about unity, it is proportional to \((\alpha-1)^3\).
-            	For large \(\alpha\), it is proportional to \(\alpha^{3/2}\).}
-        \label{fig:alpha:maxU}
+        \caption{The total force acting on the inner cylinder (sphere)
+                versus the distance between their axes~\(d\).
+                The dashed lines correspond to a linear relation.}
+        \label{fig:forces:total}
     \end{minipage}
     \quad
     \begin{minipage}{.48\textwidth}
         \centering
         \includegraphics{Fig14}
-        \caption{The profile of the acting force \(F_{x2}\) along the surface of
-        	the inner cylinder (sphere) in polar coordinates for \(d=0.5\).
-        	\(\varphi = -\pi/2\) corresponds to the point~\(x=d-1\),
-        	\(\varphi = \pi/2\) corresponds to the point~\(x=d+1\).}
-        \label{fig:force:phi}
+        \caption{The total force acting on the inner cylinder (sphere)
+                versus the distance between their axes~\(d\).
+                The dashed lines correspond to a linear relation for spheres
+                and to a power of \(3/2\) for cylinders.}
+        \label{fig:forces:inverse}
     \end{minipage}
 \end{figure}
 
-The profiles of the \(F_{i2}\) along the surface of the inner cylinder (sphere)
-are presented in Fig.~\ref{fig:force:phi}.
-The contribution of each term of~\eqref{eq:force:terms} to the total value is clearly demonstrated
-in Fig.~\ref{fig:terms:pos},~\ref{fig:terms:neg}.
-An accurate numerical analysis is required to obtain the reliable boundary field of
-the second derivative of temperature.
-For this purpose, we used a spatial transfinite mesh
-that bends around the bodies similar to isolines of the temperature field.
-
-\begin{figure}[ht]
-    \centering
-    \begin{minipage}{.48\textwidth}
-        \centering
-        \includegraphics{Fig15}
-        \caption{Components of the acting force along the surface of
-        	the inner cylinder for \(\alpha=5\) and \(d=0.5\).}
-        \label{fig:terms:pos}
-    \end{minipage}
-    \quad
-    \begin{minipage}{.48\textwidth}
-        \centering
-        \includegraphics{Fig16}
-        \caption{Components of the acting force along the surface of
-        	the inner cylinder for \(\alpha=-5\) and \(d=0.5\).}
-        \label{fig:terms:neg}
-    \end{minipage}
-\end{figure}
+%%% Electrostatic analogy and dependence of distance `d`
+The viscous term makes a minor contribution to the total force.
+If we neglect it at all, the acting force will be similar to the electrostatic force with potential \(T^{3/2}\).
+So the attractive force can be considered as in a cylindrical (spherical) capacitor.
+Its dependence of the distance between the axes is presented in Fig.~\ref{fig:forces:total},~\ref{fig:forces:inverse}.
+The corresponding solution for the same electrostatic problem can be found in~\cite{Smythe1968Electricity}.
+Calculating the total force acting on a cylinder, we imply that its length is equal to unity.
 
 \subsection{Gas between two elliptical cylinders}
 
 \begin{figure}
     \centering
-    \includegraphics{Fig17}
+    \includegraphics{Fig15}
     \caption{The velocity field \(u_{i1}\) between coaxial elliptical cylinders
-    	for \(\beta = \pi/2\) (a) and \(\beta = \pi/4\) (b).
-        Curves with arrows indicate the direction, contour lines show the magnitude.
-         }
+            for \(\beta = \pi/2\) (a) and \(\beta = \pi/4\) (b).
+        Curves with arrows indicate the direction, contour lines show the magnitude.}
     \label{fig:elliptic}
 \end{figure}
 
@@ -634,11 +656,10 @@ in such a way that the major axes of the ellipses are rotated by an angle \(\bet
 Let the semi-minor axis of the outer cylinder be the characteristic length and lies on the \(y\) axis,
 while the semi-major one is \(a_1\) and lies on the \(x\) axis.
 The semi-axes of the inner ellipse are \(a_0\) and \(b_0\) in length.
-For positive \(\alpha\), the temperature of the inner cylinder \(T_1 = 1\) and the outer one \(T_2 = \alpha\);
-for negative \(\alpha\), \(T_1 = -\alpha\) and \(T_2 = 1\).
+The temperature of the inner cylinder \(T_1 = 1\) and the outer one \(T_2 = 1+\tau\) again.
 
 In Fig.~\ref{fig:elliptic} the velocity field is shown for
-\[ a_1 = 1.5, \quad a_0 = 0.3, \quad b_0 = 0.7, \quad \alpha = 5, \quad \beta = \pi/2. \]
+\[ a_1 = 1.5, \quad a_0 = 0.3, \quad b_0 = 0.7, \quad \tau = 4. \]
 Numerical simulation of a rarefied gas using the DSMC method in the same geometry
 for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{SoneCoaxial}.
 
@@ -646,32 +667,32 @@ for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{Sone
     \centering
     \begin{minipage}{.48\textwidth}
         \centering
-        \includegraphics{Fig18}
-        \caption{The total moment of force acting on the inner cylinder
-        	versus~\(\beta\), the angle between the major axes of the cylinders.}
+        \includegraphics{Fig16}
+        \caption{The total moment of force acting on the inner elliptic cylinder
+                versus~\(\beta\), the angle between the major axes of the cylinders,
+                for \(\tau=4\).}
         \label{fig:elliptic:beta}
     \end{minipage}
     \quad
     \begin{minipage}{.48\textwidth}
         \centering
-        \includegraphics{Fig19}
-        \caption{The profile of the moment \(M_{z2}\) along the surface of
-        	the inner cylinder for \(\alpha=5\).
-        	\(s=0\) and \(s=L_\mathrm{ell}\) correspond, respectively,
-        	to the upper (\(y>0\)) and lower (\(y<0\)) points on the axis of ordinates (\(x=0\)).
-        	\(L_\mathrm{ell}\) is the perimeter of the inner ellipse.}
+        \includegraphics{Fig17}
+        \caption{The profile of the sum of the components of the moment \(M_{z2}\)
+                along the inner ellipse for \(\tau=4\).
+                \(s=0\) and \(s=L_\mathrm{ell}/2\) correspond, respectively,
+                to the upper (\(y>0\)) and lower (\(y<0\)) points on the axis of ordinates (\(x=0\)).
+                \(L_\mathrm{ell}\) is the perimeter of the inner ellipse.}
         \label{fig:elliptic:profiles}
     \end{minipage}
 \end{figure}
 
-Consider the moment \(M_{i2} = e_{ijk}x_jF_{k2}\) of force acting on the unit area of the inner cylinder
-in dependence of the rotation angle \(\beta\). For symmetrical cases \(\beta=0\) and \(\beta=\pi/2\),
-the total moment are balanced (Fig.~\ref{fig:elliptic:beta}).
-When the outer cylinder is hotter that the inner one (\(\alpha > 1\)),
-there is the only stable equilibrium state \(\beta=0\), and \(\beta=\pi/2\) is unstable;
-in the opposite case (\(\alpha < -1\)), \(\beta=\pi/2\) is stable, and \(\beta=0\) is not.
-The corresponding profiles of the moment of force along the surface of the inner cylinder
-for different \(\beta\) are presented in Fig.~\ref{fig:elliptic:profiles}.
+Examine the moment \(M_{i2} = e_{ijk}x_jF_{k2}\) of force acting on the inner cylinder
+per unit area in dependence of the rotation angle \(\beta\).
+The total moment are balanced in the symmetric cases \(\beta=0\) and \(\beta=\pi/2\),
+but only the perpendicular state (\(\beta=\pi/2\)) is stable (Fig.~\ref{fig:elliptic:beta}).
+The corresponding profiles (in a sense described in the previous subsection)
+of the moment of force along the inner ellipse for different \(\beta\)
+are presented in Fig.~\ref{fig:elliptic:profiles}.
 
 \section{Conclusion}
 
@@ -687,8 +708,8 @@ presented as illustrations.
 %%% Studied phenomena
 Typical temperature driven flows of the first order of the Knudsen number have been considered:
 thermal creep flow and nonlinear thermal-stress flow.
-The force of nonlinear thermal-stress nature, arising in the gas, is of the second order of
-the Knudsen number. It has been studied for several problems in detail.
+Forces of the second order of the Knudsen number, arising in the gas,
+has been studied for several problems too.
 
 %%% The meaning for the field
 OpenFOAM\textregistered{}, together with the newly implemented numerical solver,

@@ -1,11 +1,11 @@
 FIGURES=transport/Y1_2.pdf tikz/geometry.pdf simple/residual.pdf \
 	plane/T-heat.pdf plane/T-asym.pdf plane/U.pdf plane/U01.pdf \
 	noncoaxial/cylinder5.pdf noncoaxial/sphere5.pdf noncoaxial/inverse5.pdf noncoaxial/cylinder2.pdf \
-	force/forces.pdf force/forces-inv.pdf force/profiles.pdf \
-	force/terms-cylinder.pdf force/terms-cylinder-inv.pdf force/terms-sphere.pdf force/terms-sphere-inv.pdf \
+	force/forces.pdf force/forces-close.pdf force/profiles.pdf \
+	force/terms-cylinder-inner.pdf force/terms-cylinder-inner-inv.pdf force/terms-cylinder-outer.pdf \
 	elliptic/U.pdf elliptic/delta-x.pdf \
 	moment/profiles.pdf moment/moment-beta.pdf \
-	temper/F-alpha-inverse.pdf temper/F-alpha-noncoaxial.pdf temper/U-alpha-cylinders.pdf
+	temper/F-tau-noncoaxial.pdf temper/U-tau-cylinders.pdf
 SHELL=/bin/bash
 
 all: $(FIGURES)
@@ -43,23 +43,20 @@ noncoaxial/cylinder2.pdf: noncoaxial/cylinder2.raw noncoaxial/velocity.py
 force/forces.pdf: force/spheres.txt force/cylinders.txt force/force.py
 	cd force && ./force.py
 
-force/forces-inv.pdf: force/spheres-inv.txt force/cylinders.txt force/force-inv.py
-	cd force && ./force-inv.py
+force/forces-close.pdf: force/spheres.txt force/cylinders.txt force/force-close.py
+	cd force && ./force-close.py
 
 force/profiles.pdf: force/*Force.raw force/profile.py
 	cd force && ./profile.py
 
-force/terms-cylinder.pdf: force/cylinder[PS]*.raw force/terms-new.py
-	cd force && ./terms-new.py cylinder 0.5
+force/terms-cylinder-inner.pdf: force/cylinder-inner[HVT]*.raw force/terms.py
+	cd force && ./terms.py cylinder-inner 0.5
 
-force/terms-cylinder-inv.pdf: force/cylinder-inv[PS]*.raw force/terms-new.py
-	cd force && ./terms-new.py cylinder-inv 0.5
+force/terms-cylinder-inner-inv.pdf: force/cylinder-inner-inv[HVT]*.raw force/terms.py
+	cd force && ./terms.py cylinder-inner-inv 0.5
 
-force/terms-sphere.pdf: force/sphere[PS]*.raw force/terms-new.py
-	cd force && ./terms-new.py sphere 0.5
-
-force/terms-sphere-inv.pdf: force/sphere-inv[PS]*.raw force/terms-new.py
-	cd force && ./terms-new.py sphere-inv 0.5
+force/terms-cylinder-outer.pdf: force/cylinder-outer[HVT]*.raw force/terms.py
+	cd force && ./terms.py cylinder-outer 0
 
 elliptic/U.pdf: elliptic/elliptic.raw elliptic/rotated.raw elliptic/velocity.py
 	cd elliptic && ./velocity.py
@@ -73,14 +70,11 @@ moment/profiles.pdf: moment/beta*.raw moment/profile.py
 moment/moment-beta.pdf: moment/elliptic.txt moment/inverse.txt moment/moment.py
 	cd moment && ./moment.py
 
-temper/U-alpha-cylinders.pdf: temper/cylinders.txt temper/U-alpha.py
-	cd temper && ./U-alpha.py cylinders
+temper/U-tau-cylinders.pdf: temper/cylinders.txt temper/U-tau.py
+	cd temper && ./U-tau.py cylinders
 
-temper/F-alpha-noncoaxial.pdf: temper/cylinders.txt temper/spheres.txt temper/F-alpha.py
-	cd temper && ./F-alpha.py
-
-temper/F-alpha-inverse.pdf: temper/cylinders-inv.txt temper/F-alpha-inv.py
-	cd temper && ./F-alpha-inv.py
+temper/F-tau-noncoaxial.pdf: temper/cylinders.txt temper/spheres.txt temper/F-tau.py
+	cd temper && ./F-tau.py
 
 simple/residual.pdf: simple/convergence.py simple/p_0  simple/T_0  simple/Ux_0  simple/Uy_0
 	cd simple && ./convergence.py

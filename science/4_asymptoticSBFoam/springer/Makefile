@@ -14,25 +14,23 @@ $(FILE).pdf: $(FILE).tex $(FILE).bib $(FIG)
 	latex $(FILE)
 
 pics:
-	cp ../transport/Y1_2.pdf            Fig01.pdf
-	cp ../tikz/geometry.pdf             Fig02.pdf
-	cp ../plane/T-asym.pdf              Fig03.pdf
-	cp ../plane/T-heat.pdf              Fig04.pdf
-	cp ../plane/U.pdf                   Fig05.pdf
-	cp ../plane/U01.pdf                 Fig06.pdf
-	cp ../noncoaxial/cylinder5.pdf      Fig07.pdf
-	cp ../noncoaxial/sphere5.pdf        Fig08.pdf
-	cp ../force/forces.pdf              Fig09.pdf
-	cp ../force/forces-inv.pdf          Fig10.pdf
-	cp ../temper/F-alpha-noncoaxial.pdf Fig11.pdf
-	cp ../temper/F-alpha-inverse.pdf    Fig12.pdf
-	cp ../temper/U-alpha-cylinders.pdf  Fig13.pdf
-	cp ../force/profiles.pdf            Fig14.pdf
-	cp ../force/terms-cylinder.pdf      Fig15.pdf
-	cp ../force/terms-cylinder-inv.pdf  Fig16.pdf
-	cp ../elliptic/U.pdf                Fig17.pdf
-	cp ../moment/moment_beta.pdf        Fig18.pdf
-	cp ../moment/profiles.pdf           Fig19.pdf
+	cp ../transport/Y1_2.pdf                    Fig01.pdf
+	cp ../tikz/geometry.pdf                     Fig02.pdf
+	cp ../plane/T-asym.pdf                      Fig03.pdf
+	cp ../plane/T-heat.pdf                      Fig04.pdf
+	cp ../plane/U.pdf                           Fig05.pdf
+	cp ../plane/U01.pdf                         Fig06.pdf
+	cp ../noncoaxial/cylinder5.pdf              Fig07.pdf
+	cp ../noncoaxial/sphere5.pdf                Fig08.pdf
+	cp ../temper/U-tau-cylinders.pdf            Fig09.pdf
+	cp ../force/terms-cylinder-inner.pdf	    Fig10.pdf
+	cp ../force/terms-cylinder-outer.pdf        Fig11.pdf
+	cp ../force/terms-cylinder-inner-inv.pdf    Fig12.pdf
+	cp ../force/forces.pdf                      Fig13.pdf
+	cp ../force/forces-close.pdf                Fig14.pdf
+	cp ../elliptic/U.pdf                        Fig15.pdf
+	cp ../moment/moment-beta.pdf                Fig16.pdf
+	cp ../moment/profiles.pdf                   Fig17.pdf
 
 clean:
 	rm -f $(FILE).aux

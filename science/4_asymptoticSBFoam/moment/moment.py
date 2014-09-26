@@ -19,21 +19,20 @@ def plot(filename, factor, fmt, lw, label):
     py.plot(beta, M, fmt, lw=lw, label=label)
 
 plot('elliptic.txt', 2, '-', 1.5, r'$\alpha = 5$')
-plot('inverse.txt', 2, '-', 1.5, r'$\alpha = -5$')
+#plot('inverse.txt', 2, '-', 1.5, r'$\alpha = -5$')
 
 py.xlabel(r'$\beta$', labelpad=-5)
-py.ylabel(r'$\displaystyle\oint p_0 M_{z2} \mathrm{d}S$', labelpad=-15)
+py.ylabel(r'$\displaystyle p_0 \oint M_{z2} \mathrm{d}S$', labelpad=0)
 ax = py.axes()
 ax.set_xticks([0, 0.5])
-ax.set_yticks([-80, 0, 10])
 ax.set_xticklabels([r'$0$', r'$\pi/2$'])
 handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles, labels, loc=0)
+#ax.legend(handles, labels, loc=0)
 ax.axhline(lw=.5, c='k', ls=':')
 
 from matplotlib.ticker import MultipleLocator
 ax.xaxis.set_minor_locator(MultipleLocator(0.25))
-ax.yaxis.set_minor_locator(MultipleLocator(10))
+#ax.yaxis.set_minor_locator(MultipleLocator(10))
 
 py.savefig('moment-beta.pdf', bbox_inches='tight')
 

@@ -27,15 +27,15 @@ def plot(filename, label, factor):
     py.plot(x, F, '-', lw=1.5, label=label)
     return x, F
 
-x, F = plot('cylinders.txt', r'$\mathrm{cylinders}\;\alpha=5$', -2)
-plot_dash_line(1, 0)
+x, F = plot('cylinders.txt', r'$\mathrm{cylinders}$', -2)
+plot_dash_line(2, 0)
 plot_dash_line(3, -1)
 
-#x, F = plot('spheres.txt', r'$\mathrm{spheres}\;\alpha=5$', -100)
+#x, F = plot('spheres.txt', r'$\mathrm{spheres}$', -100)
 #plot_dash_line(1, 0)
 #plot_dash_line(3, -1)
 
-py.xlabel(r'$\alpha-1$', labelpad=5)
+py.xlabel(r'$\tau$', labelpad=5)
 py.ylabel(r'$-p_0F_{x2}$', y=.8, labelpad=0, rotation=0)
 py.loglog()
 py.xlim(1e-2, 1e2)
@@ -47,5 +47,5 @@ ax = py.axes()
 from matplotlib.ticker import LogLocator
 ax.yaxis.set_major_locator(LogLocator(1e4))
 
-py.savefig('F-alpha-noncoaxial.pdf', bbox_inches='tight')
+py.savefig('F-tau-noncoaxial.pdf', bbox_inches='tight')
 
