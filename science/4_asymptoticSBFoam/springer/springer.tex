@@ -602,11 +602,31 @@ in Fig.~\ref{fig:terms:inner},~\ref{fig:terms:outer},~\ref{fig:terms:inner-swap}
 It is noted that the profile of the total value does not correspond to the real one of the force \(F_{i2}\)
 acting on the unit area, but only to the sum of all terms in~\eqref{eq:force:terms}.
 
+\begin{figure}[ht]
+    \centering
+    \begin{minipage}{.48\textwidth}
+        \centering
+        \includegraphics{Fig13}
+        \caption{The total force acting on the inner cylinder versus \(\tau\) for \(d=0.5\).}
+        \label{fig:tau:force-inner}
+    \end{minipage}
+    \quad
+    \begin{minipage}{.48\textwidth}
+        \centering
+        \includegraphics{Fig14}
+        \caption{The total force acting on the outer cylinder versus \(\tau\) for \(d=0.5\).}
+        \label{fig:tau:force-outer}
+    \end{minipage}
+\end{figure}
+
 %%% Total force vs tau
-The cylinders are attracted with a force proportional to \(\tau^2\) over the entire temperature range.
-In Fig.~\ref{fig:terms:inner}, unlike the others, the pressure term is opposite to the thermal-stress one.
+The cylinders are attracted with a force proportional to \(\tau^2\) over the entire temperature range,
+although individual components do not obey this relation (Fig.~\ref{fig:tau:force-inner}, \ref{fig:tau:force-outer}).
 For a hard-sphere gas, temperature gradient on the inner cylinder increases proportional to \(\tau^{3/2}\),
 but it is compensated by the hydrostatic pressure \(p^\dag_2\).
+So the pressure term is opposite to the thermal-stress one on the inner cylinder
+(Fig.~\ref{fig:terms:inner}, \ref{fig:tau:force-inner}).
+The viscous term makes a minor contribution to the total force.
 If we swap the temperatures \(T_1\) and \(T_2\) (Fig.~\ref{fig:terms:inner-swap}),
 the total force changes neither its direction nor its magnitude.
 
@@ -614,7 +634,7 @@ the total force changes neither its direction nor its magnitude.
     \centering
     \begin{minipage}{.48\textwidth}
         \centering
-        \includegraphics{Fig13}
+        \includegraphics{Fig15}
         \caption{The total force acting on the inner cylinder (sphere)
                 versus the distance between their axes~\(d\).
                 The dashed lines correspond to a linear relation.}
@@ -623,7 +643,7 @@ the total force changes neither its direction nor its magnitude.
     \quad
     \begin{minipage}{.48\textwidth}
         \centering
-        \includegraphics{Fig14}
+        \includegraphics{Fig16}
         \caption{The total force acting on the inner cylinder (sphere)
                 versus the distance between their axes~\(d\).
                 The dashed lines correspond to a linear relation for spheres
@@ -633,18 +653,22 @@ the total force changes neither its direction nor its magnitude.
 \end{figure}
 
 %%% Electrostatic analogy and dependence of distance `d`
-The viscous term makes a minor contribution to the total force.
-If we neglect it at all, the acting force will be similar to the electrostatic force with potential \(T^{3/2}\).
-So the attractive force can be considered as in a cylindrical (spherical) capacitor.
-Its dependence of the distance between the axes is presented in Fig.~\ref{fig:forces:total},~\ref{fig:forces:inverse}.
-The corresponding solution for the same electrostatic problem can be found in~\cite{Smythe1968Electricity}.
+The acting force is similar to the electrostatic force with potential \(T\),
+so the attractive force can be considered as in a cylindrical (spherical) capacitor.
+One can write down the total force in the following form:
+\begin{equation}
+    p_0\oint_S F_{x2}\dd{S} = \pder[C]{d} \tau^2,
+\end{equation}
+where \(C\) is an analog of the electrical capacity depending on the distance between the cylinders axes \(d\).
+This dependence is presented in Fig.~\ref{fig:forces:total}, \ref{fig:forces:inverse}.
 Calculating the total force acting on a cylinder, we imply that its length is equal to unity.
+The corresponding solution for the same electrostatic problem can be found in~\cite{Smythe1968Electricity}.
 
 \subsection{Gas between two elliptical cylinders}
 
 \begin{figure}
     \centering
-    \includegraphics{Fig15}
+    \includegraphics{Fig17}
     \caption{The velocity field \(u_{i1}\) between coaxial elliptical cylinders
             for \(\beta = \pi/2\) (a) and \(\beta = \pi/4\) (b).
         Curves with arrows indicate the direction, contour lines show the magnitude.}
@@ -667,7 +691,7 @@ for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{Sone
     \centering
     \begin{minipage}{.48\textwidth}
         \centering
-        \includegraphics{Fig16}
+        \includegraphics{Fig18}
         \caption{The total moment of force acting on the inner elliptic cylinder
                 versus~\(\beta\), the angle between the major axes of the cylinders,
                 for \(\tau=4\).}
@@ -676,7 +700,7 @@ for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{Sone
     \quad
     \begin{minipage}{.48\textwidth}
         \centering
-        \includegraphics{Fig17}
+        \includegraphics{Fig19}
         \caption{The profile of the sum of the components of the moment \(M_{z2}\)
                 along the inner ellipse for \(\tau=4\).
                 \(s=0\) and \(s=L_\mathrm{ell}/2\) correspond, respectively,
@@ -722,7 +746,7 @@ A hard-sphere gas with the diffuse-reflection boundary condition is considered i
 but various molecular models and boundary conditions can be used as well.
 In addition, appropriate equations for gas mixtures can be also naturally implemented.
 
-\section{acknowledgements}
+\section{Acknowledgements}
 I would like to thank Dr. Oscar Friedlander for fruitful discussions,
 which led to a significant improvement in the quality of the present paper.
 

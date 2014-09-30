@@ -26,11 +26,13 @@ pics:
 	cp ../force/terms-cylinder-inner.pdf	    Fig10.pdf
 	cp ../force/terms-cylinder-outer.pdf        Fig11.pdf
 	cp ../force/terms-cylinder-inner-inv.pdf    Fig12.pdf
-	cp ../force/forces.pdf                      Fig13.pdf
-	cp ../force/forces-close.pdf                Fig14.pdf
-	cp ../elliptic/U.pdf                        Fig15.pdf
-	cp ../moment/moment-beta.pdf                Fig16.pdf
-	cp ../moment/profiles.pdf                   Fig17.pdf
+	cp ../temper/F-tau-cylinders-inner.pdf      Fig13.pdf
+	cp ../temper/F-tau-cylinders-outer.pdf      Fig14.pdf
+	cp ../force/forces.pdf                      Fig15.pdf
+	cp ../force/forces-close.pdf                Fig16.pdf
+	cp ../elliptic/U.pdf                        Fig17.pdf
+	cp ../moment/moment-beta.pdf                Fig18.pdf
+	cp ../moment/profiles.pdf                   Fig19.pdf
 
 clean:
 	rm -f $(FILE).aux

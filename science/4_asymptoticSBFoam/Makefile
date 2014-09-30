@@ -5,7 +5,7 @@ FIGURES=transport/Y1_2.pdf tikz/geometry.pdf simple/residual.pdf \
 	force/terms-cylinder-inner.pdf force/terms-cylinder-inner-inv.pdf force/terms-cylinder-outer.pdf \
 	elliptic/U.pdf elliptic/delta-x.pdf \
 	moment/profiles.pdf moment/moment-beta.pdf \
-	temper/F-tau-noncoaxial.pdf temper/U-tau-cylinders.pdf
+	temper/F-tau-cylinders-inner.pdf temper/F-tau-cylinders-outer.pdf temper/U-tau-cylinders.pdf
 SHELL=/bin/bash
 
 all: $(FIGURES)
@@ -73,8 +73,11 @@ moment/moment-beta.pdf: moment/elliptic.txt moment/inverse.txt moment/moment.py
 temper/U-tau-cylinders.pdf: temper/cylinders.txt temper/U-tau.py
 	cd temper && ./U-tau.py cylinders
 
-temper/F-tau-noncoaxial.pdf: temper/cylinders.txt temper/spheres.txt temper/F-tau.py
-	cd temper && ./F-tau.py
+temper/F-tau-cylinders-inner.pdf: temper/cylinders.txt temper/F-tau.py
+	cd temper && ./F-tau.py cylinders inner
+
+temper/F-tau-cylinders-outer.pdf: temper/cylinders.txt temper/F-tau.py
+	cd temper && ./F-tau.py cylinders outer
 
 simple/residual.pdf: simple/convergence.py simple/p_0  simple/T_0  simple/Ux_0  simple/Uy_0
 	cd simple && ./convergence.py

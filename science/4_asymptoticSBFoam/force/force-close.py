@@ -31,7 +31,7 @@ plot('cylinders.txt', 2, r'$\mathrm{cylinders}\;\tau=4$', 1.5)
 plot('spheres.txt', 100, r'$\mathrm{spheres}\;\tau=4$', 1)
 
 py.xlabel(r'$1-d$', labelpad=-5)
-py.ylabel(r'$\displaystyle \left(p_0\oint F_{x2} \mathrm{d}S \right)^{-1}$', labelpad=0)
+py.ylabel(r'$\displaystyle \left(p_0\oint_S F_{x2} \mathrm{d}S \right)^{-1}$', labelpad=0)
 py.loglog()
 py.ylim(1e-5, 1e-1)
 ax = py.axes()
