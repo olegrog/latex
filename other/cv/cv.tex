@@ -1,3 +1,4 @@
+%&pdflatex
 \documentclass[11pt,a4paper,sans,english]{moderncv}
 
 %% ModernCV themes
@@ -29,7 +30,7 @@
 
 \author{Oleg Rogozin}
 \title{Curriculum Vit\ae{}}
-\date{04/23/13}
+\date{\today}
 
 \usepackage[
 	backend=biber,
@@ -59,30 +60,37 @@
 \subsection{Research}
 \cventry{2009--now}{Doctoral Research}{MIPT}{Dolgoprudny}{}{
 	\begin{itemize}
-	\item Design and development Problem Solving Environment for High Performance Computing;
-	\item Computer simulation of kinetic Boltzmann equation;
-	\item Development numerical methods for Rarefied Gas Dynamics.
+	\item Creation of the Problem Solving Environment for High Performance Computing
+	\item Computer simulation of the kinetic and fluid-dynamics equations
+	\item Development and implementation of numerical methods for Rarefied Gas Dynamics
 	\end{itemize}
 }
 
 \subsection{Vocational}
+\cventry{2013--2014}{Software Engineer}{iBinom}{Moscow}{}{
+	\begin{itemize}
+	\item Backend development based on NodeJS
+	\item Configuration and integration of Amazon Web Services
+	\item Design of the special-purpose file system over Amazon S3
+	\end{itemize}
+}
 \cventry{2011--2012}{Software Engineer}{RNC Kurchatov Institute}{Moscow}{}{
 	\begin{itemize}
-	\item InfiniBand network troubleshooting on a supercomputer;
-	\item Create diagnostic tools for InfiniBand network;
-	\item Stereo 3D visualization.
+	\item InfiniBand network troubleshooting on a supercomputer
+	\item Create diagnostic tools (shell) for InfiniBand network
+	\item Stereo 3D visualization
 	\end{itemize}
 }
 
 \subsection{Teaching}
 \cventry{2012--2012}{Instructor}{MIPT}{Dolgoprudny}{}{
 	\begin{itemize}
-	\item Lectures on computer architecture for 2nd year students.
+	\item Lectures on computer architecture for 2nd year students
 	\end{itemize}
 }
 \cventry{2005--2006}{Instructor}{MIPT}{Dolgoprudny}{}{
 	\begin{itemize}
-	\item Extramural courses for university entrants.
+	\item Extramural courses for university entrants
 	\end{itemize}
 }
 
@@ -91,9 +99,9 @@
 \cvdoubleitem{German}{Basic}{French}{Basic}
 
 \section{Computer skills}
-\cvitem{OSes}{Windows, Linux (administration), MacOSX}
-\cvitem{Languages}{C++98/11, python, shell, assembler}
-\cvitem{Software}{Matlab/octave, OpenFOAM}
+\cvitem{OSes}{Windows, Linux (administration), OS X}
+\cvitem{Languages}{C++98/11, python, javascript, shell, SQL, assembler}
+\cvitem{Software}{OpenFOAM, Matlab/octave, Hadoop}
 \cvitem{Parallel}{MPI, OpenMP}
 \cvitem{Networking}{TCP/IP, InfiniBand}
 
