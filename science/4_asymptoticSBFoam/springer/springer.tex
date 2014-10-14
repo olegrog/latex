@@ -34,19 +34,19 @@
 \maketitle
 
 \begin{abstract}
-    Classical fluid dynamics describes the behavior of gas in terms of the Navier--Stokes equations.
-    However, a rigorous asymptotic analysis of the Boltzmann equation for small Knudsen numbers
-    restricts the scope of its application and leads, in the general case,
-    to more complicated sets of differential equations.
-    The present paper deals with the one which is valid for significant
-    temperature variations and finite Reynolds numbers.
-    A special-purpose solver on the open-source CFD platform OpenFOAM\textregistered{} is proposed
-    for computer simulation of a slightly rarefied gas in an arbitrary geometry.
-    Several temperature driven flows are considered as examples.
+    A rigorous asymptotic analysis of the Boltzmann equation for small Knudsen numbers
+    leads, in the general case, to more complicated sets of differential equations
+    than widely used to describe the behavior of gas in terms of classical fluid dynamics.
+    The present paper deals with such one that is valid for significant temperature variations
+    and finite Reynolds numbers at the same time (slow nonisothermal flow equations).
+    A finite-volume solver developed on the open-source CFD platform OpenFOAM\textregistered{}
+    is proposed for computer simulation of a slightly rarefied gas in an arbitrary geometry.
+    Typical temperature driven flows are considered as numerical examples.
+    A force acting on uniformly heated bodies is studied as well.
     \keywords{
         OpenFOAM \and
         Boltzmann equation \and
-        Navier--Stokes equations \and
+        SNIT flow equations \and
         thermal creep flow \and
         nonlinear thermal-stress flow
     }
@@ -56,14 +56,16 @@
 \section{Introduction}
 
 %%% Current state of affairs
-The Navier--Stokes equations are widely used for modeling of a gas with the vanishing mean free path.
+The Navier--Stokes set of equations are usually used for modeling of a gas with the vanishing mean free path.
 Slightly rarefied gas effects, which are widely thought to take place only in the thin Knudsen layer,
-can be taken into account using the slip conditions on the boundary~\cite{SharipovCoefficients}.
-In some situations, however, the Navier--Stokes set fails to describe the correct density and temperature fields
-even in the continuum limit~\cite{Kogan1976, SoneBobylev96}.
-When the Reynolds number is finite and the temperature variations are large:
+are taken into account using special slip conditions on the boundary~\cite{SharipovCoefficients}.
+In some situations, however, the Navier--Stokes set fails to describe the correct density
+and temperature fields even in the continuum limit~\cite{Kogan1976}.
+
+When the Reynolds number is finite as well as the temperature variations:
 \[ \mathrm{Re} = O(1), \quad \frac1T\left|\pder[T]{x_i}\right| = O(1), \]
 higher-order terms of gas rarefaction begin to play a significant role in the gas behavior.
+Following~\cite{Kogan1976}, we will call such flows as~\emph{slow nonisothermal}.
 In this case, the asymptotic analysis of the Boltzmann equation arrives on the scene and
 yields the appropriate equations on the macroscopic variables, together with
 their associated boundary conditions~\cite{Sone2002, Sone2007}.
@@ -81,14 +83,14 @@ that occurs in the state of weightlessness.
 The nonlinear origin of this phenomenon is relevant, because a linear thermal-stress flow
 appears only in the next order of the Knudsen number~\cite{Sone1972Stress}.
 Detailed experimental study of the nonlinear thermal-stress flow is an intractable problem,
-but some attempts are maden in~\cite{ExperimentsNTFS2003}.
+but some attempts are made in~\cite{ExperimentsNTFS2003}.
 
 %%% Existing numerical solutions
 From the computational point of view, the new set of equations has the similar structure
 to the Navier--Stokes one, so similar numerical methods can be utilized too.
-The pioneering solutions are based on the finite difference
+The pioneering solutions are based on the finite-difference
 methods~\cite{SoneBobylev96, Aleksandrov2002Tube, Aleksandrov2008Particle}.
-The finite volume method is applied in some recent works~\cite{Laneryd2006, Laneryd2007}.
+The finite-volume method is applied in some recent works~\cite{Laneryd2006, Laneryd2007}.
 
 %%% Limitations
 Currently, many CFD platforms provide comprehensive
@@ -103,9 +105,9 @@ has been selected as a basis for numerical algorithms developing.
 OpenFOAM\textregistered{} is an object-oriented C++ library of classes and routines for parallel computation,
 providing a set of high-level tools for writing advanced CFD code~\cite{OpenFOAM1998}.
 It has a wide set of basic features, similar to any commercial one~\cite{OpenFOAM2010},
-and is a robust and reliable software widely used in the industry~\cite{BoilingFlows2009,
+and is a robust software widely used in the industry~\cite{BoilingFlows2009,
 TurbulentCombustion2011, CoastalEngineering2013, BiomassPyrolysis2013}.
-As for rarefied gas, OpenFOAM\textregistered{} has a standard solver for DSMC, that
+As for rarefied gas, OpenFOAM\textregistered{} has a standard solver for DSMC, which
 can be extended for hybrid simulations~\cite{HybridSolver2014}.
 Finally, the most important advantage of OpenFOAM\textregistered{} is its open-source code,
 so it is easy to add any modification to any part of the implementation.
@@ -117,7 +119,7 @@ The behavior of a gas is governed by the conservation equations of mass, momentu
 \begin{gather}
     \pder[\rho]{t} + \pder{x_i}(\rho v_i) = 0, \label{eq:mass}\\
     \pder{t}(\rho v_i) + \pder{x_j}(\rho v_i v_j + p_{ij}) = \rho F_i, \label{eq:momentum}\\
-    \pder{t}\left[\rho\left(e+\frac{v_i^2}2\right)\right]
+    \pder{t}\left[\rho\left(e+\frac{v_i^2}2\right)\right] +
         \pder{x_j}\left[\rho v_j\left(e+\frac{v_i^2}2\right)+v_i p_{ij}+q_j\right] = \rho v_j F_j. \label{eq:energy}
 \end{gather}
 Macroscopic variables have the following notation: the density \(\rho\), the flow velocity \(v_i\),
@@ -127,18 +129,18 @@ For an ideal monatomic gas, the internal energy \(e = 3RT/2\) depends only on th
 \(R = k_B / m\) is the specific gas constant.
 The pressure is taken from the equation of state \( p = \rho RT \).
 
-The Navier--Stokes set equations is obtained from the conservation equations with the help of Newton's law,
+The Navier--Stokes set equations is obtained from the conservation equations with the help of Newton's law
 \begin{equation}\label{eq:Newton_law}
     p_{ij} = p\delta_{ij} - \mu\left(\pder[v_i]{x_j}+\pder[v_j]{x_i}-\frac23\pder[v_k]{x_k}\delta_{ij}\right) -
         \mu_B\pder[v_k]{x_k}\delta_{ij},
 \end{equation}
-and Fourier's law,
+and Fourier's law
 \begin{equation}\label{eq:Fourier_law}
     q_i = -\lambda\pder[T]{x_i}.
 \end{equation}
 Some of the transport coefficients are used here:
 the viscosity \(\mu\), the bulk viscosity \(\mu_B\), and the thermal conductivity \(\lambda\).
-The bulk velocity of an ideal monoatomic gas is zero (\(\mu_B = 0\)).
+The bulk viscosity of an ideal monoatomic gas is zero (\(\mu_B = 0\)).
 
 The Knudsen number \(\Kn = \ell/L\), the parameter characterizing the rate of rarefaction of the gas,
 is determined by the ratio of the mean free path \[ \ell = \frac{m}{\sqrt2\pi d_m^2 \rho} \]
@@ -151,13 +153,12 @@ are proportional to the mean free path \(\ell\) and therefore to the Knudsen num
     \mu = O(\Kn), \quad \lambda = O(\Kn).
 \end{equation}
 
-In the continuum limit (\(\Kn\to0\)), we obtain the Euler set of equations where
+In the continuum limit (\(\Kn\to0\)), we obtain the Euler set of equations:
 \begin{equation}
-    p_{ij} = p\delta_{ij}, \quad q_i = 0
+    p_{ij} = p\delta_{ij}, \quad q_i = 0,
 \end{equation}
-that makes it impossible to determine the temperature field of a gas at rest.
-The classical heat-conduction equation
-can be derived from~\eqref{eq:energy} and~\eqref{eq:Fourier_law}
+which makes it impossible to determine the temperature field of a gas at rest.
+The classical heat-conduction equation is derived from~\eqref{eq:energy} and~\eqref{eq:Fourier_law}
 in the absence of gas flows (\(v_i = 0\)):
 \begin{equation}\label{eq:heat_equation}
     \pder{x_i}\left(\sqrt{T}\pder[T]{x_i}\right) = 0.
@@ -224,8 +225,10 @@ where
         + \frac{2\gamma_3}{3}\pder{x_k}\left(T_0\pder[T_0]{x_k}\right)
         - \frac{\gamma_7}{6}\left(\pder[T_0]{x_k}\right)^2.
 \end{equation}
-The set of equations \eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} has a fluid-dynamic nature
-and is comparable to the Navier--Stokes equations for a compressible gas (\(\rho_0 = p_0/T_0\)).
+The fluid-dynamic-type equations \eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}
+are comparable to the Navier--Stokes equations for a compressible gas (\(\rho_0 = p_0/T_0\)).
+According to the pioneering authors~\cite{Kogan1971, Kogan1976, ExperimentsNTFS2003},
+they are called \emph{slow nonisothermal (SNIT) flow equations}.
 The formal difference consists in the additional thermal-stress term.
 Comparing it with \(p_0^2F_{i2}/T_0\), we find that
 \begin{equation}\label{eq:force}
@@ -257,7 +260,7 @@ Appropriate formulas for their numerical evaluation can be found in~\cite{SoneBo
 
 \subsection{Boundary conditions}
 
-The fluid-dynamic boundary conditions based on the diffuse-reflection boundary conditions
+The fluid-dynamic-type boundary conditions based on the diffuse-reflection boundary conditions
 for Boltzmann equation look as follows:
 \begin{gather}
     T_0 = T_{B0}, \label{eq:bound:T} \\
@@ -315,7 +318,7 @@ The function \(Y_1(\eta)\) is tabulated, for example, in~\cite{Sone2002, Sone200
         \includegraphics{Fig02}
         \vspace{13pt}
         \caption{Geometry of the problem: the gas is placed between two parallel plates
-            with the periodical temperature distribution \(T_{B0}\).}
+            with a periodic temperature distribution \(T_B(x)\) and a velocity \(u_{Bi}\).}
         \label{fig:geometry}
     \end{minipage}
 \end{figure}
@@ -341,7 +344,7 @@ The formula for \(q_{i1}\) coincides with Fourier's law~\eqref{eq:Fourier_law},
 but \(p_{ij2}\) contains the thermal-stress terms in addition to the viscous one.
 Due to the nonuniform stresses, an internal force of the second order of \(k\) per unit area,
 \(F_{i2} = -p_{ij2}n_j\), acting on a body, arises in the gas.
-The unit normal vector \(n_i\), as before, points into the gas.
+The unit normal vector \(n_i\) points into the gas as before.
 
 With the help of divergence theorem, the second-order differential term in Eq.~\eqref{eq:stress2}
 can be transformed during the integration over the body surface in the following way:
@@ -375,8 +378,8 @@ is expressed in terms of \(T_0\), \(u_{i1}\), \(p^\dag_2\) in the following form
         &- \frac{\gamma_7}{2} \oint_S \left(\pder[T_0]{x_j}\right)^2 n_i \dd{S}
         + \gamma_7 \oint_S \pder[T_0]{x_i}\pder[T_0]{x_j} n_j \dd{S}.
 \end{align}
-In particular, a body at rest with a uniform boundary temperature is acted on by the force consisting on
-the following components:
+In particular, a body at rest (\(u_{Bi} =0 \)) with a uniform boundary temperature (\(T_B = \mathrm{const}\))
+is acted on by the force consisting on the following components:
 \begin{equation}\label{eq:force:terms}
     p_0 \oint_S F_{i2} \dd{S} =
         - \oint_S p_2^\dag n_i \dd{S} \\
@@ -416,25 +419,28 @@ Some authors refer to it as a \emph{ghost effect}~\cite{Sone2002, Sone2007}.
 \begin{figure}[ht]
     \centering
     \includegraphics{Fig03}
-    \caption{The temperature field \(T_0\) obtained from the asymptotic theory:
-        isothermal lines are placed above the contour lines.}
+    \caption{The temperature field \(T_0\) obtained from the SNIT flow equations.
+        The isothermal lines are placed above the contour lines.}
     \label{fig:moving:T_asym}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
     \includegraphics{Fig04}
-    \caption{Temperature field \(T\) obtained from the heat-conduction equation:
-        isothermal lines are placed above the contour lines.}
+    \caption{Temperature field \(T\) obtained from the heat-conduction equation.
+        The isothermal lines are placed above the contour lines.}
     \label{fig:moving:T_heat}
 \end{figure}
 
-The present results are obtained with the special solver of the system~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
-It has been developed within the open-source CFD toolbox OpenFOAM\textregistered{}~\cite{OpenFOAM1998},
+The present results were obtained using the special-purpose solver of
+the SNIT flow equations~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
+It has been developed on the open-source CFD platform OpenFOAM\textregistered{}~\cite{OpenFOAM1998},
 based on the finite-volume approach for evaluating partial derivatives.
 The continuity equation~\eqref{eq:asymptotic1}, along with the momentum equation~\eqref{eq:asymptotic2},
-is solved with the commonly used implicit conservative SIMPLE algorithm~\cite{SIMPLE}.
-A detailed description of this scheme for gas mixtures can be found in~\cite{Laneryd2007}.
+is solved using the implicit conservative SIMPLE algorithm~\cite{SIMPLE}.
+A detailed description of the similar scheme for gas mixtures can be found in~\cite{Laneryd2007}.
+According to the naming convention adopted in OpenFOAM\textregistered{},
+the introduced solver can be called as \verb+snitSimpleFoam+.
 
 Spatial grids are generated with the open-source package GMSH~\cite{GMSH}.
 They are nonuniform and condensed in areas of a large temperature variation.
@@ -443,7 +449,7 @@ that is not greater than \(10^{-6}\) for all considered problems.
 The temperature fields are evaluated at least with precision \(10^{-9}\).
 A modern personal computer (3.40GHz CPU) has been used to simulate presented problems.
 For the most detailed spatial grids, it takes about several minutes to reach the solution.
-This fact provides a great performance for parametric studies as well.
+This fact provides a great performance for parametric studies.
 
 OpenFOAM\textregistered{} uses Kitware's ParaView\textregistered{} as a primary visualization system of results,
 but for the present paper another open-source tool, Matplotlib, has been chosen to create color vector illustrations.
@@ -455,8 +461,8 @@ The external force is taken to be zero.
 \subsection{Gas between two parallel plates}
 
 Consider a plane periodic geometry shown in Fig.~\ref{fig:geometry}.
-A gas is placed between two infinite parallel plates
-both have a periodic distribution of the temperature and the small velocity
+A gas is placed between two infinite parallel plates,
+both with the periodic distribution of the temperature and the small velocity:
 \begin{equation}
     T_B = 1-\alpha\cos(2\pi x), \quad u_{Bi} = (\beta\Kn,0,0).
 \end{equation}
@@ -485,7 +491,7 @@ Complete agreement between these results is a good verification of the solver va
 
 The temperature field (Fig.~\ref{fig:moving:T_asym}) is shown
 in comparison with the solution of the heat-conduction equation (Fig.~\ref{fig:moving:T_heat}).
-In the continuum limit, \(T=T_0\), so we can see that the classical fluid-dynamic solution
+In the continuum limit, \(T=T_0\), and one can see that the classical fluid-dynamic solution
 has a finite distinction from the kinetic one.
 
 The velocity field \(u_{i1}\) is shown in Fig.~\ref{fig:moving:fluid} and Fig.~\ref{fig:moving:kn001}.
@@ -513,9 +519,9 @@ the \emph{thermal creep flow}.
 \end{figure}
 
 %%% State of problem
-Now, consider the case, where there is no temperature gradient on the surface of the surrounding bodies at rest.
-The Navier--Stokes equations with any slip boundary conditions have a trivial solution \(u_i = 0\)
-that is, however, not valid for~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
+Now, consider the case where there is no temperature gradient on the surface of the surrounding bodies at rest.
+The Navier--Stokes equations with any slip boundary conditions have a trivial solution \(u_i = 0\),
+which is, however, not valid for~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
 As stated above, even under such boundary conditions, the \emph{nonlinear thermal-stress flow}
 can emerge due to nonparallelism of the isothermal surfaces~\eqref{eq:equilibrium}.
 
@@ -602,8 +608,11 @@ where the three-dimensional integration is carried out over the whole domain \(\
 %%% Force profiles
 The contribution of each term of~\eqref{eq:force:terms} to the total value is showed
 in Fig.~\ref{fig:terms:inner},~\ref{fig:terms:outer},~\ref{fig:terms:inner-swap}.
-It is noted that the profile of the total value does not correspond to the real one of the force \(F_{i2}\)
+Note that the depicted profile of the total value does not correspond to the real profile of the force \(F_{i2}\)
 acting on the unit area, but only to the sum of all terms in~\eqref{eq:force:terms}.
+Actually, an evaluation of the acting force at a certain point requires the calculation
+of the mixed second-order partial derivatives on the boundary,
+which is a complicated problem within the finite-volume method.
 
 \begin{figure}[ht]
     \centering
@@ -732,7 +741,7 @@ are presented in Fig.~\ref{fig:elliptic:profiles}.
 In the present paper, OpenFOAM\textregistered{}, a free and open-source CFD platform,
 widely used and rapidly extending, is upgraded to deal with
 slightly rarefied gas flows driven by significant temperature variations.
-A reliable and rapid solver has been introduced on the basis of the appropriate
+A finite-volume solver has been introduced on the basis of the appropriate
 equations and boundary conditions, derived from the asymptotic analysis of the Boltzmann equation.
 The program code has been validated by means of some benchmark simulations,
 presented as illustrations.
@@ -755,8 +764,8 @@ but various molecular models and boundary conditions can be used as well.
 In addition, appropriate equations for gas mixtures can be also naturally implemented.
 
 \section{Acknowledgements}
-I would like to thank Dr. Oscar Friedlander for fruitful discussions,
-which led to a significant improvement in the quality of the present paper.
+I would like to thank Dr. Oscar Friedlander for fruitful discussions and valuable comments,
+some of which led to the qualitative improvement of the present work.
 
 \bibliographystyle{spphys} % spbasic, spmpsci, spphys
 \bibliography{springer}
