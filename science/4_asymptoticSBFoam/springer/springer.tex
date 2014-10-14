@@ -662,10 +662,15 @@ One can write down the total force in the following form:
 \begin{equation}
     p_0\oint_S F_{x2}\dd{S} = \pder[C]{d} \tau^2,
 \end{equation}
-where \(C\) is an analog of the electrical capacity depending on the distance between the cylinders axes \(d\).
-This dependence is presented in Fig.~\ref{fig:forces:total}, \ref{fig:forces:inverse}.
-Calculating the total force acting on a cylinder, we imply that its length is equal to unity.
-The corresponding solution for the same electrostatic problem can be found in~\cite{Smythe1968Electricity}.
+where \(C\) is an analog of the capacitance depending on the distance between the axes \(d\).
+The electrostatic solution gives the following formulas for cylinders and spheres~\cite{Smythe1968Electricity}:
+\begin{equation}
+    C_\mathrm{cyl} \propto \frac1{\theta}, \quad
+    C_\mathrm{sph} \propto  \sum_{n=1}^\infty \frac{R_1 R_2 \sinh\theta} {R_2\sinh n\theta - R_1\sinh (n-1)\theta}, \quad
+    \cosh\theta = \frac{R_1^2 + R_2^2 - d^2}{2 R_1 R_2}
+\end{equation}
+We imply that the length of cylinders is equal to unity.
+The real dependence is presented in Fig.~\ref{fig:forces:total}, \ref{fig:forces:inverse}.
 
 \subsection{Gas between two elliptical cylinders}
 
