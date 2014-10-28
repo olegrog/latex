@@ -63,7 +63,7 @@
 \section{Introduction}
 
 %%% Current state of affairs
-The Navier--Stokes set of equations are usually used for modeling of a gas with the vanishing mean free path.
+The Navier--Stokes set of equations is usually used for modeling of a gas with the vanishing mean free path.
 Slightly rarefied gas effects, which are widely thought to take place only in the thin Knudsen layer,
 are taken into account using special slip conditions on the boundary~\cite{SharipovCoefficients}.
 In some situations, however, the Navier--Stokes set fails to describe the correct density
@@ -80,7 +80,8 @@ their associated boundary conditions~\cite{Sone2002, Sone2007}.
 %%% Some background on studied flows
 This advanced set of equations reveals that some flows of the first order of the Knudsen number
 are caused in the gas due to temperature variations in the absence of the external force:
-thermal creep and nonlinear thermal-stress. The former is a well-known flow induced along a boundary
+the thermal creep flow and the nonlinear thermal-stress flow.
+The former is a well-known flow induced along a boundary
 with a nonuniform temperature~\cite{Maxwell1879Stresses, Ohwada1989Creep}.
 The latter occurs in the gas where the distance between isothermal surfaces varies along them~\cite{Kogan1976}.
 It is described first in terms of the Chapman--Enskog expansion~\cite{Kogan1971}.
@@ -103,7 +104,7 @@ The finite-volume method is applied in some recent works~\cite{Laneryd2006, Lane
 Currently, many CFD platforms provide comprehensive
 capabilities for numerical simulation of the Navier--Stokes equations,
 but the considered fluid-dynamic-type set of equations remains in the shadow.
-The goal of the present paper is to improve this situation and
+The goal of the present paper was to improve this situation and
 draw more attention to such CFD scope extensions.
 
 %%% Why OpenFOAM?
@@ -129,7 +130,7 @@ The behavior of a gas is governed by the conservation equations of mass, momentu
     \pder{t}\left[\rho\left(e+\frac{v_i^2}2\right)\right] +
         \pder{x_j}\left[\rho v_j\left(e+\frac{v_i^2}2\right)+v_i p_{ij}+q_j\right] = \rho v_j F_j. \label{eq:energy}
 \end{gather}
-Macroscopic variables have the following notation: the density \(\rho\), the flow velocity \(v_i\),
+Macroscopic variables have the following notations: the density \(\rho\), the flow velocity \(v_i\),
 the stress tensor \(p_{ij}\), the specific internal energy \(e\), and the heat-flow vector \(q_i\).
 Finally, \(F_i\) denotes the external force.
 For an ideal monatomic gas, the internal energy \(e = 3RT/2\) depends only on the temperature;
@@ -145,7 +146,7 @@ and Fourier's law
 \begin{equation}\label{eq:Fourier_law}
     q_i = -\lambda\pder[T]{x_i}.
 \end{equation}
-Some of the transport coefficients are used here:
+Some of the transport coefficients used here are as follows:
 the viscosity \(\mu\), the bulk viscosity \(\mu_B\), and the thermal conductivity \(\lambda\).
 The bulk viscosity of an ideal monoatomic gas is zero (\(\mu_B = 0\)).
 
@@ -393,7 +394,7 @@ is acted on by the force consisting on the following components:
         + \gamma_1 \sqrt{T_{B0}} \oint_S \pder[u_{i1}]{x_j} n_j \dd{S}
         + \frac{\gamma_7}{2} \oint_S \left(\pder[T_0]{x_j}\right)^2 n_i \dd{S}.
 \end{equation}
-The Knudsen-layer correction is excluded from the consideration since have a zero contribution to the total force.
+The Knudsen-layer correction is excluded from the consideration since has a zero contribution to the total force.
 This fact can be easily proved by moving the surface of integration outside the Knudsen layer.
 
 \subsection{Some remarks on the continuum limit}
@@ -415,7 +416,7 @@ and the third one has only an implicit impact from them.
 
 The set of equations~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3} revealed the following interesting fact.
 In the continuum limit, the velocity field tends to zero, proportional to the Knudsen number,
-due to~\eqref{eq:Mach_constraint}, however infinitesimally weak flows
+due to~\eqref{eq:Mach_constraint}; however, infinitesimally weak flows
 have a finite impact on the temperature field.
 This effect arises in the continuum world owing to the additional nonlinear thermal-stress term
 in the momentum equation~\eqref{eq:asymptotic2}.
@@ -451,10 +452,10 @@ the introduced solver can be called as \verb+snitSimpleFoam+.
 
 Spatial grids are generated with the open-source package GMSH~\cite{GMSH}.
 They are nonuniform and condensed in areas of a large temperature variation.
-From \(10^3\) to \(10^6\) cells are used to achieve the residual of the solution
+\(10^3\) to \(10^6\) cells are used to achieve the residual of the solution
 that is not greater than \(10^{-6}\) for all considered problems.
 The temperature fields are evaluated at least with precision \(10^{-9}\).
-A modern personal computer (3.40GHz CPU) has been used to simulate presented problems.
+A modern personal computer (3.40 GHz CPU) has been used to simulate presented problems.
 For the most detailed spatial grids, it takes about several minutes to reach the solution.
 This fact provides a great performance for parametric studies.
 
@@ -469,7 +470,7 @@ The external force is taken to be zero.
 
 Consider a plane periodic geometry shown in Fig.~\ref{fig:geometry}.
 A gas is placed between two infinite parallel plates,
-both with the periodic distribution of the temperature and the small velocity:
+both with the periodic distribution of the temperature and with the small velocity:
 \begin{equation}
     T_B = 1-\alpha\cos(2\pi x), \quad u_{Bi} = (\beta\Kn,0,0).
 \end{equation}
@@ -501,7 +502,7 @@ in comparison with the solution of the heat-conduction equation (Fig.~\ref{fig:m
 In the continuum limit, \(T=T_0\), and one can see that the classical fluid-dynamic solution
 has a finite distinction from the kinetic one.
 
-The velocity field \(u_{i1}\) is shown in Fig.~\ref{fig:moving:fluid} and Fig.~\ref{fig:moving:kn001}.
+The velocity field \(u_{i1}\) is shown in Figs.~\ref{fig:moving:fluid} and~\ref{fig:moving:kn001}.
 The Knudsen-layer correction~\eqref{eq:bound:v_K} is taken into account in the latter figure.
 For small \(k\), a gas flow along the boundary temperature gradient occurs
 in the thin Knudsen layer. This flow, which is of the first order of \(k\), is called
@@ -534,11 +535,11 @@ can emerge due to nonparallelism of the isothermal surfaces~\eqref{eq:equilibriu
 
 %%% Geometry
 Consider two cylinders of radii \(R_1 = 1\) and \(R_2 = r\)
-with temperatures \(T_1 = 1\) and \(T_2 = 1+\tau\) respectively.
+with temperatures \(T_1 = 1\) and \(T_2 = 1+\tau\), respectively.
 The cylinder axes are parallel; the distance between them is equal to \(d\) along \(x\) axis.
 
 %%% Velocity field
-Fig.~\ref{fig:cylinders} presents the results of the numerical simulation for
+Figure~\ref{fig:cylinders} presents the results of the numerical simulation for
 \[ r = 2, \quad d = 0.5, \quad \tau = 4. \]
 A gas between nonconcentric spheres is also simulated in the same geometry (Fig.~\ref{fig:spheres}).
 In comparison with the previous example, the velocity field \(u_i\) is two orders of magnitude weaker.
@@ -571,7 +572,7 @@ The nonlinear thermal-stress flow decreases as a cubic function of small tempera
 owing to the fact that the temperature gradient is included in the thermal-stress force
 as a cubic term [see Eq.~\eqref{eq:force}].
 Therefore, when square of temperature variations becomes comparable to the Knudsen number,
-one should takes into account the gas effects of the second order of Knudsen number~\cite{Sone1989Noncoaxial}.
+one should take into account the gas effects of the second order of Knudsen number~\cite{Sone1989Noncoaxial}.
 In the presence of large temperature variations,
 the slope of the relation becomes less steep since the viscosity of a hard-sphere gas increases with temperature.
 This dependence is demonstrated in Fig.~\ref{fig:tau:maxU}.
@@ -579,7 +580,7 @@ This dependence is demonstrated in Fig.~\ref{fig:tau:maxU}.
 %%% A force and how we evaluate it
 Let us now examine the force acting on the cylinders.
 As noted above, \(p_{ij2}\) is determined up to the constant factor
-from the system~\eqref{eq:asymptotic1}-\eqref{eq:asymptotic3}.
+from the system~\eqref{eq:asymptotic1}--\eqref{eq:asymptotic3}.
 This constant factor makes no contribution to the total force acting on a body,
 but to evaluate a force per unit area, we have to impose an additional condition
 on \(p_{ij2}\), for example, the following one:
@@ -614,7 +615,7 @@ where the three-dimensional integration is carried out over the whole domain \(\
 
 %%% Force profiles
 The contribution of each term of~\eqref{eq:force:terms} to the total value is showed
-in Fig.~\ref{fig:terms:inner},~\ref{fig:terms:outer},~\ref{fig:terms:inner-swap}.
+in Figs.~\ref{fig:terms:inner},~\ref{fig:terms:outer} and~\ref{fig:terms:inner-swap}.
 Note that the depicted profile of the total value does not correspond to the real profile of the force \(F_{i2}\)
 acting on the unit area, but only to the sum of all terms in~\eqref{eq:force:terms}.
 Actually, an evaluation of the acting force at a certain point requires the calculation
@@ -640,11 +641,11 @@ which is a complicated problem within the finite-volume method.
 
 %%% Total force vs tau
 The cylinders are attracted with a force proportional to \(\tau^2\) over the entire temperature range,
-although individual components do not obey this relation (Fig.~\ref{fig:tau:force-inner}, \ref{fig:tau:force-outer}).
+although individual components do not obey this relation (Figs.~\ref{fig:tau:force-inner}, \ref{fig:tau:force-outer}).
 For a hard-sphere gas, temperature gradient on the inner cylinder increases proportional to \(\tau^{3/2}\),
 but it is compensated by the hydrostatic pressure \(p^\dag_2\).
 So the pressure term is opposite to the thermal-stress one on the inner cylinder
-(Fig.~\ref{fig:terms:inner}, \ref{fig:tau:force-inner}).
+(Figs.~\ref{fig:terms:inner}, \ref{fig:tau:force-inner}).
 The viscous term makes a minor contribution to the total force.
 If we swap the temperatures \(T_1\) and \(T_2\) (Fig.~\ref{fig:terms:inner-swap}),
 the total force changes neither its direction nor its magnitude.
@@ -686,7 +687,7 @@ The electrostatic solution gives the following formulas for cylinders and sphere
     \cosh\theta = \frac{R_1^2 + R_2^2 - d^2}{2 R_1 R_2}
 \end{equation}
 We imply that the length of cylinders is equal to unity.
-The real dependence is presented in Fig.~\ref{fig:forces:total}, \ref{fig:forces:inverse}.
+The real dependence is presented in Figs.~\ref{fig:forces:total} and \ref{fig:forces:inverse}.
 
 \subsection{Gas between two elliptical cylinders}
 
@@ -706,7 +707,7 @@ while the semi-major one is \(a_1\) and lies on the \(x\) axis.
 The semi-axes of the inner ellipse are \(a_0\) and \(b_0\) in length.
 The temperature of the inner cylinder \(T_1 = 1\) and the outer one \(T_2 = 1+\tau\) again.
 
-In Fig.~\ref{fig:elliptic} the velocity field is shown for
+In Fig.~\ref{fig:elliptic}, the velocity field is shown for
 \[ a_1 = 1.5, \quad a_0 = 0.3, \quad b_0 = 0.7, \quad \tau = 4. \]
 Numerical simulation of a rarefied gas using the DSMC method in the same geometry
 for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{SoneCoaxial}.
@@ -736,7 +737,7 @@ for a wide range of Knudsen numbers \(0.1\le\Kn\le5\) can be found in~\cite{Sone
 
 Examine the moment \(M_{i2} = e_{ijk}x_jF_{k2}\) of force acting on the inner cylinder
 per unit area in dependence of the rotation angle \(\beta\).
-The total moment are balanced in the symmetric cases \(\beta=0\) and \(\beta=\pi/2\),
+The total moment is balanced in the symmetric cases \(\beta=0\) and \(\beta=\pi/2\),
 but only the perpendicular state (\(\beta=\pi/2\)) is stable (Fig.~\ref{fig:elliptic:beta}).
 The corresponding profiles (in a sense described in the previous subsection)
 of the moment of force along the inner ellipse for different \(\beta\)
@@ -754,10 +755,10 @@ The program code has been validated by means of some benchmark simulations,
 presented as illustrations.
 
 %%% Studied phenomena
-Typical temperature driven flows of the first order of the Knudsen number have been considered:
-thermal creep flow and nonlinear thermal-stress flow.
+Typical temperature-driven flows of the first order of the Knudsen number have been considered:
+the thermal creep flow and the nonlinear thermal-stress flow.
 Forces of the second order of the Knudsen number, arising in the gas,
-has been studied for several problems too.
+have been studied for several problems too.
 
 %%% The meaning for the field
 OpenFOAM\textregistered{}, together with the newly implemented numerical solver,
@@ -775,7 +776,7 @@ The author expresses his gratitude to Dr. Oscar Friedlander
 for fruitful discussions and valuable comments.
 \end{acknowledgements}
 
-\bibliographystyle{spphys} % spbasic, spmpsci, spphys
+\bibliographystyle{spmpsci} % spbasic, spmpsci, spphys
 \bibliography{springer}
 
 \end{document}
