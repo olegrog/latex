@@ -1,9 +1,12 @@
 PROJECT=couette_heat
-FIGURES=couette/graph.pdf couette/flow.pdf couette/qflow.pdf heat/graph.pdf error/error.pdf
+FIGURES=tikz/geometry.pdf couette/graph.pdf couette/flow.pdf couette/qflow.pdf heat/graph.pdf error/error.pdf
 SOURCES=$(PROJECT).tex $(PROJECT).bib $(FIGURES)
 SHELL=/bin/bash
 
 all: $(PROJECT).pdf
+
+tikz/geometry.pdf: tikz/geometry.tex
+	cd tikz && latex geometry
 
 heat/graph.pdf:	heat/qflow.txt heat/sone.txt heat/bgkw.txt heat/graph.sh
 	cd heat && ./graph.sh && pdflatex graph
