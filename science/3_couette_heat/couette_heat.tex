@@ -25,17 +25,22 @@
 \usepackage[
     pdfauthor={Rogozin Oleg},
     pdftitle={Couette Flow and Heat Transfer between Two Parallel Plates},
-    colorlinks,pdftex, unicode]{hyperref}
+    colorlinks, pdftex, unicode
+]{hyperref}
+\usepackage{cleveref}
 
 \usepackage[
     backend=biber,
-    style=alphabetic,
-    language=british,
-    sorting=nyt,
-    url=false,
-    eprint=false,
-    pagetracker,
-    firstinits]{biblatex}
+    hyperref=true,
+    autolang=other,                 % multi-language
+    mincrossrefs=100,               % to prevent implicit inserts into bibliography
+    maxnames=100,                   % print all authors
+    style=gost-numeric,
+    movenames=false,                % only for biblatex-gost
+    sorting=none,
+    doi=false,
+    isbn=false
+]{biblatex}
 \bibliography{couette_heat}
 
 \usepackage[toc]{appendix}
@@ -54,12 +59,12 @@
 
 Одномерные задачи течения Куэтта и переноса тепла между двумя параллельными пластинами являются наиболее простыми,
 но основополагающими в динамике разреженного газа. В работе изучаются линейные приближения задач,
-которые соответствуют малым градиентам макропараметров. В такой постановке они хорошо изучены
+которые соответствуют малым градиентам макроскопических величин. В такой постановке они хорошо изучены
 для всего диапазона чисел Кнудсена, и при этом подробно табулированы с высокой точностью.
 Целью работы является верификация проекционного метода решения кинетического уравнения Больцмана
 на основе точного решения линеаризованного приближения.
 
-\section{Постановка задачи}
+\section{Постановка задачи и основные уравнения}
 
 Рассмотрим одноатомный идеальный газ между двумя бесконечными параллельными пластинами с полным диффузным отражением.
 Ось абсцисс направлена параллельно пластинам, расстояние между которыми равно \(L\).
@@ -68,8 +73,6 @@
 Течение Куэтта образуется при относительном движении пластин друг относительно друга с продольной скоростью
 вдоль оси абсцисс, при этом температура стенок одинакова и остаётся постоянной.
 Задача переноса тепла ставится для фиксированного отношения температур покоящихся пластин.
-
-\section{Основные уравнения}
 
 В работе будем иметь дело с безразмерными величинами, такими, что макроскопические величины будут
 иметь следующий вид: давление \(pp^{(0)}\), температура \(TT^{(0)}\), плотность \(\rho p^{(0)}/RT^{(0)}\)
@@ -80,8 +83,8 @@
 За единицу длины примем расстояние между пластинами \(L\).
 Расчётная область, представленная на рис.~\ref{fig:geometry} серым фоном,
 лежит в диапазоне \(0 \le y\le 1/2\) вследствие антисимметрии задачи.
-Температура и скорость верхней пластины (\(y=1/2\)) равны \((1+\Delta T/2)T^{(0)}\)
-и \((U/2)(2RT^{(0)})^{1/2}\), соответственно.
+Температура и скорость верхней пластины (\(y=1/2\)) равны \((1+\Delta{T}/2)T^{(0)}\)
+и \((\Delta{v}/2)(2RT^{(0)})^{1/2}\), соответственно.
 
 \begin{figure}[ht]
     \centering
@@ -107,7 +110,8 @@
     \zeta'_i = \zeta_i + \alpha_i\alpha_j(\zeta_{j*}-\zeta_j), \quad
     \zeta'_{i*} = \zeta_{i*} - \alpha_i\alpha_j(\zeta_{j*}-\zeta_j).
 \]
-Функция \(B\) определяется законом межмолекулярного взаимодействия.
+Ядро \(B(\alpha_i(\zeta_{i*}-\zeta_i)|,|\zeta_{i*}-\zeta_i|)\)
+определяется законом межмолекулярного взаимодействия.
 В частном случае модели твёрдых сфер
 \begin{equation}
     B = \frac{|\alpha_i(\zeta_{i*}-\zeta_i)|}{4\sqrt{2\pi}}.
@@ -130,6 +134,187 @@
     q_i &= \int(\zeta_i-v_i)(\zeta_j-v_j)^2 f \boldsymbol{\dd\zeta}.
 \end{alignat*}
 
+\subsection{Линеаризация задачи}
+\newcommand{\edzeta}{E\boldsymbol{\dd\zeta}}
+
+Линеаризованное уравнение Больцмана
+\begin{equation}\label{eq:linear_Boltzmann}
+    \zeta_i \pder[\phi]{x_i} = \frac1k \mathcal{L}(\phi),
+\end{equation}
+с линеаризованным оператором столкновения
+\begin{equation}\label{eq:linear_ci}
+    \mathcal{L}(\phi) = \int E_*(\phi'+\phi'_*-\phi-\phi_*) B
+    \dd \Omega(\boldsymbol{\alpha}) \boldsymbol{\dd \zeta_*}
+\end{equation}
+справедливо для слабо возмущённого решения
+\begin{equation}\label{eq:linear_condition}
+    \phi = \frac{f}{E} - 1 \ll 1, \quad E(\zeta) = \frac1{\pi^{3/2}}\exp\left(\zeta^2\right).
+\end{equation}
+Cлабо возмущённое локальное максвелловское распределение
+\begin{equation}\label{eq:linear_maxwellian}
+    \phi_e = \omega + 2\zeta_i v_i + \left(\zeta_i^2-\frac32\right)\tau
+\end{equation}
+удобно выражается через соответствующие макроскопические величины:
+\begin{equation}
+    \omega = \rho-1, \quad \tau = T-1, \quad P_{ij} = p_{ij} - \delta_{ij}.
+\end{equation}
+
+Задача о газе между двумя параллельными пластинами линеаризуется,
+когда на внешние параметры наложены следующие условия:
+\begin{equation}\label{eq:weak_perturbation}
+    \Delta{v}\ll 1, \quad \Delta{T}\ll 1,
+\end{equation}
+при этом функция распределения допускает расщепление
+\begin{equation}\label{eq:linear_solution}
+    \phi = \Delta{v} \zeta_x \Phi_C(y,\zeta_y,\zeta) + \Delta{T} \Phi_H(y,\zeta_y,\zeta),
+    \quad \zeta = (\zeta_i^2)^{1/2},
+\end{equation}
+на задачи течения Куэтта (\(\Phi_C\)) и переноса тепла (\(\Phi_H\)):
+\begin{equation}\label{eq:linear_equations}
+    \zeta_y \pder[\Phi_C]{y} = \frac1{k\zeta_x}\mathcal{L}(\zeta_x\Phi_C), \quad
+    \zeta_y \pder[\Phi_H]{y} = \frac1{k}\mathcal{L}(\Phi_H),
+\end{equation}
+с граничными условиями на верхней пластине
+\begin{equation}\label{eq:linear_bc1}
+    \Phi_C^- \left(\frac12,\zeta_y,\zeta\right) = 1, \quad
+    \Phi_H^- \left(\frac12,\zeta_y,\zeta\right) = 2\sqrt\pi\int_{\zeta_y>0}\zeta_y\Phi_H^+ \edzeta + \frac{\zeta^2}2-1, \quad
+    \zeta_y < 0
+\end{equation}
+и плоскости антисимметрии
+\begin{equation}\label{eq:linear_bc2}
+    \Phi_C^+ (0,\zeta_y,\zeta) = -\Phi_C^- (0,-\zeta_y,\zeta), \quad
+    \Phi_H^+ (0,\zeta_y,\zeta) = -\Phi_H^- (0,-\zeta_y,\zeta).
+\end{equation}
+При этом мы ввели следующие обозначения:
+\begin{equation}\label{eq:linear_pm_phi}
+    \Phi_C^\pm \equiv \Phi_C (\zeta_y \gtrless 0), \quad
+    \Phi_H^\pm \equiv \Phi_H (\zeta_y \gtrless 0).
+\end{equation}
+
+В итоге макроскопические величины выражаются следующим образом:
+\begin{gather*}
+    \frac{\omega_{H}}{\Delta{T}} = \int \Phi_H \edzeta, \quad
+    \frac{v_{xC}}{\Delta{v}} = \int \zeta_x^2 \Phi_C \edzeta, \quad
+    \frac{\tau_{H}}{\Delta{T}} = \int \left(\frac23\zeta^2-1\right) \Phi_H \edzeta, \\
+    \frac{P_{xxH}}{\Delta{T}} = 2\int \zeta_x^2 \Phi_H \edzeta, \quad
+    \frac{P_{yyH}}{\Delta{T}} = 2\int \zeta_y^2 \Phi_H \edzeta, \quad
+    \frac{P_{xyC}}{\Delta{v}} = 2\int \zeta_x^2 \zeta_y \Phi_C \edzeta, \\
+    \frac{q_{xC}}{\Delta{v}} = \int \zeta_x^2 \zeta^2 \Phi_C \edzeta - \frac52 \frac{v_{xC}}{\Delta{v}}, \quad
+    \frac{q_{yH}}{\Delta{T}} = \int \zeta_y \zeta^2 \Phi_H \edzeta.
+\end{gather*}
+
+\section{Основные методы решения}
+
+\subsection{Свободномолекулярное решение}
+
+Бесстолкновительное линеаризованное уравнение Больцмана
+\begin{equation}\label{eq:linear_free}
+    \zeta_i \pder[\phi]{x_i} = 0
+\end{equation}
+для течения Куэтта и переноса тепла имеет простое решение
+в виде двухстороннего максвелловского распределения
+\begin{equation}\label{eq:free_solution}
+    \Phi_C^\pm = \mp 1, \quad
+    \Phi_H^\pm = \mp \left(\frac{\zeta^2}{2}-1\right),
+\end{equation}
+которое даёт следующие значения макроскопических величин:
+\begin{gather}\label{eq:free_macro}
+    \omega_{H} = \tau_{H} = 0, \quad
+    v_{xC} = q_{xC} = 0, \quad
+    P_{xxH} = P_{yyH} = 0, \notag \\
+    \frac{P_{xyC}}{\Delta{v}} = -\frac1{\sqrt\pi}, \quad
+    \frac{q_{yH}}{\Delta{T}} = -\frac1{\sqrt\pi}.
+\end{gather}
+
+\subsection{Асимптотическая теория для малых чисел Кнудсена}
+
+При малых \(k\) имеет место асимптотическое решение гидродинамического типа:
+\begin{equation}\label{eq:small_solution}
+    \Phi_C = \frac{2y - \zeta_y \mathcal{B}(\zeta) k}{1-2k_0k}, \quad
+    \Phi_H = \frac1{1+2d_1k}\left[ \left(\zeta^2-\frac52\right)y
+        - \zeta_y \mathcal{A}(\zeta)k \right],
+\end{equation}
+в котором использованы специальные функции \( \mathcal{A}(\zeta) \) и \( \mathcal{B}(\zeta) \),
+определяемые через интегральные уравнения для каждого молекулярного потенциала:
+\begin{gather}
+    \mathcal{L}[\zeta_i \mathcal{A}(\zeta)] = -\zeta_i \left( \zeta^2 - \frac52 \right),
+    \quad \int_0^\infty \zeta^4 \mathcal{A}(\zeta)E\dd\zeta = 0, \label{eq:def_A} \\
+    \mathcal{L}\left[\left(\zeta_i\zeta_j-\frac{\zeta^2}3\delta_{ij}\right) \mathcal{B}(\zeta)\right]
+        = -2 \left(\zeta_i\zeta_j-\frac{\zeta^2}3\delta_{ij}\right). \label{eq:def_B}
+\end{gather}
+Решение~\eqref{eq:small_solution} не удовлетворяет граничным условиям~\eqref{eq:linear_bc1},
+поэтому дополнительно корректируется в кнудсеновском слое,
+что приводит к следующим значениям макроскопических величин:
+\begin{equation}\label{eq:small_macro}
+    \begin{gathered}
+    \frac{\omega_{H}}{\Delta{T}} = \frac{-y + [\Omega_1(\eta_-)-\Omega_1(\eta_+)]k}{1+2d_1k}, \quad
+    \frac{\tau_{H}}{\Delta{T}} = \frac{y + [\Theta_1(\eta_-)-\Theta_1(\eta_+)]k}{1+2d_1k}, \\
+    \frac{v_{xC}}{\Delta{v}} = \frac{y - [Y_0(\eta_-)-Y_0(\eta_+)]k}{1-2k_0k}, \\
+    \frac{P_{xxH}}{\Delta{T}} = \frac{P_{yyH}}{\Delta{T}} = \frac{\omega_{H}+\tau_{H}}{3\Delta{T}}, \quad
+    \frac{P_{xyC}}{\Delta{v}} = - \frac{\gamma_1 k}{1-2k_0k}, \\
+    \frac{q_{xC}}{\Delta{v}} = \frac{[H_A(\eta_-)-H_A(\eta_+)]k}{1-2k_0k}, \quad
+    \frac{q_{yH}}{\Delta{T}} = - \frac{5\gamma_2}4 \frac{k}{1+2d_1k}.
+    \end{gathered}
+\end{equation}
+где определены транспортные коэффициенты
+\begin{equation}\label{eq:transport_coeffs}
+    \gamma_1 = \frac{8\pi}{15}\int_0^\infty \zeta^6 \mathcal{B}(\zeta)E\dd\zeta, \quad
+    \gamma_2 = \frac{16\pi}{15}\int_0^\infty \zeta^6 \mathcal{A}(\zeta)E\dd\zeta,
+\end{equation}
+и коэффициенты скольжения \(k_0\), \(d_1\), а также функции кнудсеновского слоя
+\(\Omega_1(\eta)\), \(\Theta_1(\eta)\), \(Y_0(\eta)\), \(H_A(\eta)\),
+убывающие экспоненциально [\(=O(e^{-\eta})\)].
+Кроме того,
+\begin{equation}\label{eq:def_eta}
+     \eta_\pm = \frac{1 \mp 2y}{2k}.
+\end{equation}
+Приведённые коэффициенты и функции для кинетической модели БКВ и газа твёрдых сфер
+табулированы в~\cite{Sone2007}.
+
+\subsection{Решение уравнения БКВ}
+
+Линеаризованное модельное уравнение БКВ (Больцмана"--~Крука"--~Веландера)
+представляет собой уравнение~\eqref{eq:linear_Boltzmann} с линеаризованным интегралом столкновения
+\begin{equation}\label{eq:linear_bkw}
+    \mathcal{L}(\phi) = -\phi + \omega + 2\zeta_i v_i + \left(\zeta_i^2-\frac32\right)\tau,
+\end{equation}
+для которого уравнения~\eqref{eq:linear_equations} принимают вид
+\begin{equation}\label{eq:linear_bkw_equations}
+    \zeta_y \pder[\Phi_C]{y} = \frac1{k}\left( \frac{2v_x}{\Delta{v}} - \Phi_C \right), \quad
+    \zeta_y \pder[\Phi_H]{y} = \frac1{k}\left[ \frac{\omega}{\Delta{T}}
+        + \left(\zeta_i^2-\frac32\right)\frac{\tau}{\Delta{T}} - \Phi_H \right].
+\end{equation}
+Задача Куэтта решается в следующем виде:
+\begin{equation}\label{eq:bkw_couette}
+    \Phi_C^\pm = \mp \exp\left(\mp\frac{\eta_\mp}{\zeta_y}\right) +
+        \int_{\mp\frac12}^y \frac1{k\zeta_y} \exp \left(-\frac{y-s}{k\zeta_y}\right) g(s) \dd{s},
+\end{equation}
+где \(g(y) \equiv 2v_{xC}/\Delta v\) находится из интегрального уравнения Фредгольма второго рода\footnote{
+    В монографии М.Н.~Когана <<Динамика разреженного газа>>~(1967)~\cite{Kogan1967}
+    допущена опечатка в форм.~(2.46): пропущены знаки модуля.
+} (см.~\cref{sec:numerical_bkw})
+\begin{equation}\label{eq:bkw_g_equation}
+    \sqrt\pi g(y) = \mathcal{T}_0(\eta_+) - \mathcal{T}_0(\eta_-)
+        + \frac1k \int_0^{\frac12} \left[ \mathcal{T}_{-1}\left(\frac{|y-s|}{k}\right)
+        - \mathcal{T}_{-1}\left(\frac{y+s}{k}\right) \right] g(s) \dd{s}.
+\end{equation}
+Здесь \(\mathcal{T}_n(s)\) "--- специальные функции Абрамовица (см.~\cref{sec:Abramowitz}).
+Остальные макроскопические величины вычисляются следующим образом:
+\begin{gather}\label{eq:bkw_couette_macro}
+    \frac{P_{xyC}}{\Delta v} = -\frac{2k}{\sqrt\pi} \left(
+        \mathcal{T}_2(0)-\mathcal{T}_2(1/k)
+        + \frac1k\int_0^{\frac12}\left[
+            \mathcal{T}_1\left(\frac{\frac12-s}k\right)-\mathcal{T}_1\left(\frac{\frac12+s}k\right)
+        \right]g(s)\dd{s}
+        \right) \\
+    \frac{q_{xC}}{\Delta v} = \frac1{2\sqrt\pi}\left(
+        \mathcal{T}_2(\eta_+)-\mathcal{T}_2(\eta_-)
+        + \frac1k\int_0^{\frac12}\left[
+            \mathcal{T}_1\left(\frac{|y-s|}k\right)-\mathcal{T}_1\left(\frac{y+s}k\right)
+        \right]g(s)\dd{s}
+        \right) - \frac{g(y)}4
+\end{gather}
+
 \section{Методика численного решения уравнения Больцмана}
 
 Кинетическое уравнение Больцмана решалось симметричным методом расщепления на уравнение переноса
@@ -149,7 +334,7 @@
 при условии что их размер не превышал единицы.
 
 Для взятия интеграла столкновений применялись сетки Коробова размером от 0.1 до 1 млн. точек.
-Стационарные значения макропараметров усредненялись на последних 500 временных итераций,
+Стационарные значения макроскопических величин усредненялись на последних 500 временных итераций,
 что обеспечивало точность не ниже 0.1\%.
 
 Для ускорения расчётов в качестве начальной функции распределения выбиралось тринадцатимоментное приближение Грэда
@@ -158,9 +343,9 @@
     \left( 1+\frac{\hat p_{ij}c_ic_j}{\hat p\hat T} + \frac4{5}\frac{\hat q_ic_i}{\hat p\hat T}\left(\frac{c_i^2}{\hat T}-\frac5{2}\right) \right),
     \quad c_i = \zeta_i - \hat v_i
 \]
-с соответствующими точному решению профилями макропараметров.
+с соответствующими точному решению профилями макроскопических величин.
 
-В задаче Куэтта относительная скорость пластин равнялась \(\hat{U}=0.01\),
+В задаче Куэтта относительная скорость пластин равнялась \(\hat{\Delta{v}}=0.01\),
 и такое же значение отношения температур \(\hat{T}_1/\hat{T}_2\) использовалось в задаче теплопереноса.
 Этого достаточно, чтобы обеспечить линейность задачи с точностью порядка 0.01\%.
 
@@ -276,7 +461,7 @@
 линеаризованного уравнения.
 
 Выявлены две проблемы. Во-первых, плохая сходимость погрешности аппроксимации теплового потока по отношению к
-объёму используемой памяти. Возможным решением является корректировка всех значений макропараметров
+объёму используемой памяти. Возможным решением является корректировка всех значений макроскопических величин
 по их отклонению в бесстолкновительном режиме при используемом \(R_\Omega\) от некоторого большего \(R_\Omega\),
 при котором результаты можно считать достоверными.
 

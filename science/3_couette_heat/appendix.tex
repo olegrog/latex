@@ -1,7 +1,85 @@
-\section{Линеаризация задачи}
+\section{Функции Абрамовица}\label{sec:Abramowitz}
 
-\section{Асимптотическая теория для малых чисел Кнудсена}
+Семейство функций Абрамовица~\cite{Cercignani2000} имеют следующий вид:
+\begin{equation}\label{eq:Abramowitz}
+    \mathcal{T}_n(s) = \int_0^\infty t^n \exp\left(-t^2-\frac{s}{t}\right) \dd t,
+    \quad s\ge0, \quad n \in \mathbb{Z}.
+\end{equation}
+Из очевидного соотношения \(\dd \mathcal{T}_n/\dd x = -\mathcal{T}_{n-1}\) следует, что
+\[
+    \lim_{s\to0} \frac{\dd^{n+1} \mathcal{T}_n(s)}{\dd s^{n+1}} = \infty.
+\]
+Таким образом, функции \(\mathcal{T}_n(s)\) неаналитичны ввиду особенности в точке \(x=0\),
+поэтому не могут быть разложены непосредственно в ряд Тейлора.
 
-\section{Решение уравнения БКВ}
+Найдём, тем не менее, приближение \(\mathcal{T}_0(s)\) при малых \(s\):\footnote{
+    В монографии К.~Черчиньяни <<Динамика разреженного газа>>~(2000)~\cite{Cercignani2000}
+    допущена ошибка в форм.~(2.4.19).
+}
+\begin{gather}
+    \mathcal{T}_0(s) = \int_0^1 \left(e^{-t^2}-1\right) e^{-\frac{s}{t}} \dd{t}
+        + \int_1^\infty e^{-t^2} e^{-\frac{s}{t}} \dd{t}
+        + \int_0^1 e^{-\frac{s}{t}} \dd{t} \notag\\
+    = \int_0^1 \left(e^{-t^2}-1\right) \sum_{k=0}^2 \frac{(-s)^k}{k!t^k} \dd{t}
+        + \int_1^\infty e^{-t^2} \sum_{k=0}^2 \frac{(-s)^k}{k!t^k} \dd{t}
+        + s\int_s^\infty \frac{e^{-t}}{t^2} \dd{t} + o(s^2) \notag\\
+    = \left(\frac{\sqrt\pi}2-1\right)
+        + \frac{\gamma}2 s
+        + (1-\sqrt\pi) \frac{s^2}2
+        + e^{-s} - \int_s^\infty\frac{e^{-t}}{t} \dd{t} + o(s^2)  \notag\\
+    = \frac{\sqrt\pi}2
+        + s\ln{s} + \left(\frac{3\gamma}2 - 1\right) s
+        - \sqrt\pi\frac{s^2}2 + o(s^2) \label{eq:Abramowitz0}
+\end{gather}
+Здесь используется интегральная показательная функция
+\begin{equation}\label{eq:exp_integral}
+    \mathrm{Ei}(s) = -\int_{-s}^\infty \frac{e^{-t}}{t} \dd{t}
+        = \gamma + \ln|s| + \sum_{k=1}^{\infty} \frac{s^k}{kk!},
+\end{equation}
+где \(\gamma\) "--- постоянная Эйлера"--~Маскерони:
+\begin{equation}\label{eq:euler-masceroni}
+    \gamma = -\int_0^\infty e^{-t}\ln{t} \dd{t}
+        = \int_0^1 \frac{1-e^{-t}}{t} \dd{t} - \int_1^\infty \frac{e^{-t}}{t} \dd{t}.
+\end{equation}
 
-\section{Функция Абрамовича}
+Дальнейшее разложение в ряд приводит к следующим рекуррентным
+соотношениям~\cite{Abramowitz1953,Abramowitz1972}:\footnote{
+    В справочнике по специальным функциям М.~Абрамовица, И.~Стиган~(1979)~\cite{Abramowitz1972}
+    см. форм.~(27.5.4).
+}
+\begin{gather}\label{eq:Abramowitz1-full}
+    \mathcal{T}_1(s) = \frac12\sum_{k=0}^\infty ( a_k \ln{k} + b_k ) s^k, \\
+    \begin{alignedat}{2}
+        a_k &= \frac{-2a_{k-2}}{k(k-1)(k-2)}, &\quad b_k &= \frac{-2b_{k-2} - (3k^2-6k+2)a_k}{k(k-1)(k-2)}, \quad k>2, \\
+        a_0 &= a_1 = 0, \quad a_2 = -1, &\quad b_0 &= 1, \quad b_1 = -\sqrt\pi, \quad b_2 = \frac32(1-\gamma).
+    \end{alignedat} \notag
+\end{gather}
+В частности, дифференцируя~\eqref{eq:Abramowitz0}, получаем
+\begin{equation}\label{eq:Abramowitz-1}
+    \mathcal{T}_{-1}(s) = - \ln{s} - \frac{3\gamma}2 + \sqrt\pi s + O(s^2\ln{s}).
+\end{equation}
+
+\section{Численное решение задачи Куэтта для модели БКВ}\label{sec:numerical_bkw}
+
+Решение задачи Куэтта в рамках линеаризованного уравнения БКВ
+сводится к решению уравнения~\eqref{eq:bkw_g_equation}.
+Основная сложность решения неоднородного интегрального уравнения Фредгольма второго рода для \(g(y)\)
+"--- это логарифмические особенности ядра и первой производной свободного члена
+[см.~\eqref{eq:Abramowitz0} и~\eqref{eq:Abramowitz-1}].
+Как следствие, первая производная от \(g(y)\)
+будет также иметь логарифмическую особенность на границе:\footnote{
+    В работе Виллиса~(1962)~\cite{Willis1962} в форм. (2.14) допущено две опечатки.
+    Правильный вариант: \( (dG/d\eta) \to G(0)J_{-1}(\eta)/2J_0(0) \to -\pi^{-\frac12}G(0)\ln(\eta)\).
+}
+\begin{equation}
+    \frac{\dd{g}}{\dd{y}} = \frac1{k\sqrt\pi}\left[g\left(\frac12\right)-1\right]\ln\left(\frac12-y\right) + O(1).
+\end{equation}
+
+Метод решения подобных интегральных уравнений описан, например, в~\cite{Atkinson1997}
+(см. главу 4.2) и основан на исключении из конечно-разностной аппроксимации
+соответствующей сингулярности.
+Поскольку свободный член в~\eqref{eq:bkw_g_equation} является приближённым решением для \(k\gg1\),
+то непосредственное численное конечно-разностное решение уравнения~\eqref{eq:bkw_g_equation}
+не вызывает сложностей для \(k\gtrsim1\). Для малых \(k\) решение~\eqref{eq:bkw_g_equation}
+требует больших вычислительных затрат, однако уже для \(k \lesssim 0.05\) будет справедливо
+асимптотическое решение~\eqref{eq:small_macro}, как минимум с точностью до 4 знаков.
