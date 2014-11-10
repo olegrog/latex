@@ -31,8 +31,8 @@ asym_bkw(x) = x<3 ? x/(1-2*k0_bkw*x) : 1/0
 fluid(x)  = x<3 ? gamma1*x : 1/0
 near_free(x) = x>2 ? free * (1-k/x) : 1/0
 
-filter(x) = x > 0.1 ? x : 1/0
-f_asym(x) = x < 0.12 ? x : 1/0
+filter(x) = x > 0.12 ? x : 1/0
+f_asym(x) = x < 0.15 ? x : 1/0
 
 plot \
 	"data.txt" using 1:(-$2) title "Tchremissine solution" w lp lw 2 lt 1 pt 6, \

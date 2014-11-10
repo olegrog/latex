@@ -22,8 +22,8 @@ cont = 0.125
 k = sqrt(pi)/2
 gamma1 = 1.270042
 
-filter(x) = x > 0.2 ? x : 1/0
-f_asym(x) = x < 0.25 ? x : 1/0
+filter(x) = x > 0.12 ? x : 1/0
+f_asym(x) = x < 0.15 ? x : 1/0
 
 plot \
     cont title "Continuum solution" w l lw 2 lc 0 lt 5, \

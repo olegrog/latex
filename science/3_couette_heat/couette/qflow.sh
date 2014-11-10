@@ -22,8 +22,8 @@ free = 1/sqrt(pi)
 k = sqrt(pi)/2
 gamma2 = 1.922284066
 
-filter(x) = x > 0.15 ? x : 1/0
-f_asym(x) = x < 0.2 ? x : 1/0
+filter(x) = x > 0.12 ? x : 1/0
+f_asym(x) = x < 0.15 ? x : 1/0
 
 plot \
 	"data.txt" using 1:($4/2) title "Tchremissine solution" w lp lw 2 lt 1 pt 6, \

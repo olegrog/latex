@@ -35,7 +35,7 @@ def plot_abra():
     py.show()
 
 L = .5
-N = 4000
+N = 2000
 X = np.linspace(0, L, N)
 
 def printt(Y):
@@ -101,7 +101,7 @@ def solve_linalg(k, T, F0, F1, f):
     return k, p_xy, np.trapz(phi, X)/2, Q
 
 Kn = np.logspace(np.log10(1e-2), np.log10(1e+2), num=40)
-Kn = Kn[9:10]
+Kn = Kn[14:16]
 #Kn = np.array([ 1e-1 ])
 K = Kn*np.sqrt(np.pi)/2
 
