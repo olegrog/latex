@@ -1,0 +1,447 @@
+%&pdflatex
+\documentclass[a4paper,12pt]{article}
+\usepackage{amssymb, amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A,T1]{fontenc}
+\usepackage[english,russian]{babel}
+\usepackage{csquotes}
+
+\usepackage{fullpage}
+\usepackage{indentfirst}
+\usepackage[font=small,labelsep=period,tableposition=top]{caption}
+\usepackage{subcaption}
+\captionsetup[subtable]{position=top}
+%\captionsetup{subrefformat=parens}
+
+\usepackage{graphicx}
+
+\usepackage[
+    pdfauthor={Rogozin Oleg},
+    pdftitle={Evaluation of the transport coefficients for hard-sphere molecules},
+    colorlinks, pdftex, unicode
+]{hyperref}
+
+\title{Вычисление транспортных коэффициентов \(\gamma_8\) и \(\gamma_9\) для модели твёрдых сфер}
+\author{Рогозин Олег}
+
+%use russian alphabet for subfigure and subtable counter
+\makeatletter
+  \def\thesubfigure{\textit{\asbuk{subfigure}}}
+  \providecommand\thefigsubsep{,~}
+  \def\p@subfigure{\@nameuse{thefigure}\thefigsubsep}
+  \def\thesubtable{\textit{\asbuk{subtable}}}
+  \providecommand\thefigsubsep{,~}
+  \def\p@subtable{\@nameuse{thetable}\thefigsubsep}
+\makeatother
+
+\newcommand{\Kn}{\mathrm{Kn}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\der}[2][]{\frac{\dd#1}{\dd#2}}
+\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
+\newcommand{\pderder}[3][]{\frac{\partial^2#1}{\partial#2\partial#3}}
+\newcommand{\Pder}[2][]{\partial#1/\partial#2}
+
+\newcommand{\Q}{\ensuremath{\mathcal{Q}^{(0)}}}
+\newcommand{\B}{\ensuremath{\mathcal{B}^{(4)}}}
+\newcommand{\QQ}{\ensuremath{\tilde{\mathcal{Q}}^{(0)}}}
+\newcommand{\ZZD}[3]{\zeta_{#1}\zeta_{#2}\delta_{#3}}
+\newcommand{\ZZZZ}{\zeta_i\zeta_j\zeta_k\zeta_l}
+\newcommand{\DD}[2]{\delta_{#1}\delta_{#2}}
+
+\DeclareMathOperator{\sgn}{sgn}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Основные формулы}
+
+В~\cite{Sone2000, Sone2002} представлены общие формулы для вычисления \(\gamma_8\) и \(\gamma_9\):
+\begin{gather}
+    \gamma_8 = I_6(\Q_2) - I_6(\QQ_{22}) + \frac17 I_8(\Q_3) - \frac17 I_8(\QQ_3), \label{eq:gamma_8}\\
+    \gamma_9 = -I_6(\B), \label{eq:gamma_9}
+\end{gather}
+где
+\begin{equation}\label{eq:I_n}
+    I_n[Z(\zeta)] = \frac{8}{15\sqrt\pi} \int_0^\infty \zeta^n Z(\zeta) \exp(-\zeta^2) \dd\zeta,
+\end{equation}
+а подынтегральные функции выражаются как линейные комбинации решений соответствующих интегральных уравнений:
+\begin{gather}
+    \mathcal{L}\left[\left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\mathcal{B}(\zeta)\right] =
+        -2\left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right), \label{eq:B}\\
+    \mathcal{L}\left[\left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\B(\zeta)\right] =
+        \left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\mathcal{B}(\zeta), \label{eq:B_4}\\[6pt]
+    \begin{aligned}
+    \mathcal{L}&\left[(\DD{ij}{kl}+\DD{ik}{jl}+\DD{il}{jk}) \Q_1(\zeta) \right. \\
+        &\quad + \left.(\ZZD{i}{j}{kl}+\ZZD{i}{k}{jl}+\ZZD{i}{l}{jk}+\ZZD{j}{k}{il}+\ZZD{j}{l}{ik}+\ZZD{k}{l}{ij}) \Q_2(\zeta)\right. \\
+        &\quad + \left.\ZZZZ \Q_3(\zeta)\right] = \frac13\left[\zeta^2\mathcal{B}(\zeta)+2\gamma_1\left(\zeta^2-\frac32\right)\right](\DD{ij}{kl}+\DD{ik}{jl}+\DD{il}{jk}) \\
+        &\quad - \ZZZZ\left(2\mathcal{B}(\zeta) - \frac1\zeta\der[\mathcal{B}(\zeta)]{\zeta}\right),
+    \end{aligned}\label{eq:Q}\\[6pt]
+    \begin{aligned}
+    \mathcal{L}&\left[\DD{ij}{kl}\QQ_{11}(\zeta) + (\DD{ik}{jl}+\DD{il}{jk})\QQ_{12}(\zeta) + (\ZZD{i}{j}{kl}+\ZZD{k}{l}{ij})\QQ_{21}(\zeta) \right. \\
+        &\quad + \left.(\ZZD{i}{k}{jl}+\ZZD{i}{l}{jk}+\ZZD{j}{k}{il}+\ZZD{j}{l}{ik}) \QQ_{22}(\zeta) + \ZZZZ \QQ_3(\zeta)\right] \\
+        &\quad = \mathcal{J}(\zeta_i\zeta_j\mathcal{B}(\zeta), \zeta_k\zeta_l\mathcal{B}(\zeta))
+    \end{aligned}\label{eq:QQ}
+\end{gather}
+с дополнительными условиями для \(\Q_1\), \(\QQ_{11}\) и \(\QQ_{12}\):
+\begin{gather}\label{eq:Q1_constraint}
+    \int_0^\infty (1,\zeta^2)\left( 15\zeta^2\Q_1 + 10\zeta^4\Q_2 + \zeta^6\Q_3 \right) E(\zeta) \dd\zeta = 0, \\
+    \int_0^\infty (1,\zeta^2)\left( 15\zeta^2\QQ_{11} + 10\zeta^4\QQ_{21} + \zeta^6\QQ_3 \right) E(\zeta) \dd\zeta = 0, \\
+    \int_0^\infty (1,\zeta^2)\left( 15\zeta^2\QQ_{12} + 10\zeta^4\QQ_{22} + \zeta^6\QQ_3 \right) E(\zeta) \dd\zeta = 0,
+\end{gather}
+где
+\begin{equation}\label{eq:E}
+    E(\zeta) = \frac1{\pi^{3/2}}\exp\left(\zeta^2\right).
+\end{equation}
+Коэффициент вязкости был вычислен с высокой точностью ещё на первом израильском компьютере WEIZAC~\cite{Pekeris1957}\footnote{
+    Столь высокая точность была получена при решении обыкновенного дифференциального уравнения четвёртого порядка,
+    к которому может быть сведено интегральное уравнение~\eqref{eq:B}.
+}:
+\begin{equation}\label{eq:gamma1}
+    \gamma_1 \equiv I_6(\mathcal{B}) = 1.270042427,
+\end{equation}
+
+Операторы \(\mathcal{L}\) и \(\mathcal{J}\) связаны с интегралом столкновения \(J\) следующим образом:
+\begin{equation}\label{eq:mathcalLJ}
+    E\mathcal{L}(\phi) = 2J(1, E\phi), \quad E\mathcal{J}(\phi, \psi) = J(E\phi, E\psi).
+\end{equation}
+Пятимерный интеграл \(\mathcal{J}\) вычисляется как
+\begin{equation}\label{eq:mathcalJ}
+    \mathcal{J}(\phi,\psi) = \frac12 \int E_*(\phi'\psi'_* + \phi'_*\psi' - \phi\psi_* - \phi_*\psi) B
+    \dd \Omega(\boldsymbol{\alpha}) \boldsymbol{\dd \zeta_*},
+\end{equation}
+где \(\dd \Omega(\boldsymbol{\alpha})\) "--- элемент телесного угла в направлении единичного вектора \(\alpha_i\),
+определяющего направление разлётных скоростей:
+\begin{equation}\label{scatter_velocities}
+    \zeta'_i = \zeta_i + \alpha_i\alpha_j(\zeta_{j*}-\zeta_j), \quad
+    \zeta'_{i*} = \zeta_{i*} - \alpha_i\alpha_j(\zeta_{j*}-\zeta_j).
+\end{equation}
+Для модели твёрдых сфер
+\begin{equation}
+    B = \frac{|\alpha_i(\zeta_{i*}-\zeta_i)|}{4\sqrt{2\pi}}.
+\end{equation}
+Линеаризованный интеграл столкновения может быть сведён к трёхмерному интегралу.
+Для модели твёрдых сфер \(\mathcal{L}\) принимает следующий вид:
+\begin{gather}\label{eq:linear_canonic}
+    \mathcal{L}(\phi) = \mathcal{L}_1(\phi) - \mathcal{L}_2(\phi) - \nu(\zeta)\phi, \\[6pt]
+    \mathcal{L}_1(\phi) = \frac1{\sqrt2\pi} \int \frac1{|\zeta_i-\xi_i|}
+        \exp\left(-\xi_i^2 + \frac{|\zeta_i\times\xi_i|^2}{|\zeta_i-\xi_i|^2}\right) \phi(\xi_i) \boldsymbol{\dd\xi}, \\
+    \mathcal{L}_2(\phi) = \frac1{2\sqrt2\pi} \int |\zeta_i-\xi_i|\exp\left(-\xi_i^2\right) \phi(\xi_i) \boldsymbol{\dd\xi}, \\
+    \nu(\zeta) = \frac1{2\sqrt2}\left[ \exp(-\zeta^2) + \left(2\zeta+\frac1\zeta\right) \int_0^\zeta\exp(-c^2)\dd{c} \right].
+\end{gather}
+
+\section{Численный анализ}
+
+Ниже приводится описание метода вычисления соответствующих многомерных интегралов
+и решения интегральных уравнений.
+Стоит сразу отметить, что точность результатов можно значительно повысить,
+если свести многомерные интегралы к одномерным,
+однако это приведёт к более громоздким выражениям.
+При такой необходимости следует обратиться к работам~\cite{Pekeris1957, Ohwada1992}.
+
+\subsection{Многомерное интегрирование}\label{sec:Korobov}
+
+Для вычисления трёх- и пятимерных интегралов вида
+\begin{gather}
+    \int f(\zeta_i) \boldsymbol{\dd\zeta} = \frac{4\pi}{3}\frac{\zeta_\mathrm{cut}^3}{N}
+        \sum_{k=0}^N f(\zeta_i^{(k)}) + R, \label{eq:dicrete_L}\\
+    \int f(\zeta_i,\alpha_i) \dd\Omega(\boldsymbol{\alpha})\boldsymbol{\dd\zeta} = \frac{16\pi^2}{3}\frac{\zeta_\mathrm{cut}^3}{N}
+        \sum_{k=0}^N f(\zeta_i^{(k)},\alpha_i^{(k)}) + R, \label{eq:dicrete_J}
+\end{gather}
+на дискретном пространстве скоростей, ограниченным сферой \(\zeta = \zeta_\mathrm{cut}\),
+использовались следующие кубатурные сетки Коробова:
+\begin{gather}
+    \zeta_i^{(k)} = \zeta_\mathrm{cut}\left( \Big\{\frac{k}{N}\Big\}, \Big\{\frac{k a_2}{N}\Big\}, \Big\{\frac{k a_3}N\Big\} \right), \\
+    \begin{split}
+    \alpha_i^{(k)} = \left( \sin\theta^{(k)}\cos\phi^{(k)}, \sin\theta^{(k)}\sin\phi^{(k)}, \cos\theta^{(k)} \right), \\
+    \quad \theta^{(k)} =  \pi\Big\{\frac{k a_4}{N}\Big\},
+    \quad \phi^{(k)}   = 2\pi\Big\{\frac{k a_5}{N}\Big\},
+    \end{split}
+\end{gather}
+где фигурные скобки соответствуют остатку от деления.
+Некоторые оптимальные коэффициенты представлены в табл.~\ref{tab:Korobov}.
+
+\begin{table}
+    \caption{Таблица оптимальных коэффициентов для вычисления трёхмерных~(\subref{tab:Korobov-a})
+        и пятимерных~(\subref{tab:Korobov-b}) интегралов.}
+    \label{tab:Korobov}
+    {\footnotesize
+    \begin{subtable}[b]{.4\linewidth}
+        \centering
+    	\subcaption{}\label{tab:Korobov-a}
+        \begin{tabular}{|c|c|c|}\hline
+               \(N\) & \(a_2\) & \(a_3\)  \\\hline
+               10007 &     544 &    5733  \\
+               50021 &   12962 &   42926  \\
+              100003 &   47283 &   15021  \\
+              200003 &    9488 &   20794  \\
+              500009 &   33606 &  342914  \\
+             1000003 &  342972 &  439897  \\
+             2000003 &  235672 & 1208274  \\
+            10000019 & 4341869 &  594760  \\\hline
+    	\end{tabular}
+    \end{subtable}
+    \begin{subtable}[b]{.6\linewidth}
+        \centering
+    	\subcaption{}\label{tab:Korobov-b}
+        \begin{tabular}{|c|c|c|c|c|}\hline
+               \(N\) & \(a_2\) & \(a_3\) & \(a_4\) & \(a_5\)  \\\hline
+               10007 &     198 &    9183 &    6967 &    8507  \\
+               50021 &    7255 &   12933 &   39540 &   42286  \\
+              100003 &   11729 &   65316 &   68384 &   51876  \\
+              200003 &   62638 &   60193 &  112581 &  142904  \\
+              500009 &  191775 &  488648 &  283447 &   69999  \\
+             1000003 &  335440 &  656043 &  403734 &  126676  \\
+             2000003 &  701679 &  680513 &  965077 & 1248525  \\
+            10000019 & 3669402 & 5455092 & 7462912 & 2188321  \\\hline
+    	\end{tabular}
+    \end{subtable}}
+\end{table}
+
+
+\subsection{Решение интегральных уравнений}\label{sec:int_equations}
+
+Интегральные уравнения вида \(\mathcal{L}[\phi(\zeta_i)Z(\zeta)] = \Phi(\zeta_i)\)
+могут быть решены итерационным методом релаксации
+\begin{gather}\label{eq:relax_method}
+    Z_k^{(n+1)} = (1-\tau_k)Z_k^{(n)} + \tau_k\mathcal{F}_k^{(n)}, \\
+    \mathcal{F}_k^{(n)} = \frac{\mathcal{L}_1(\phi_k Z_k^{(n)}) - \mathcal{L}_2(\phi_k Z_k^{(n)}) - \Phi_k}{\nu_k\phi_k},
+\end{gather}
+где индекс \(k\) соответствует дискретному значению функции при \(\zeta_i=\zeta_i^{(k)}\).
+Для выбранного модуля \(\zeta^{(k)}\) имеется свобода выбора вектора \(\zeta_i^{(k)}\).
+В общем случае можно положить \(\zeta_i^{(k)} = (1,1,1)/\sqrt3\).
+Если \(\Phi\) не зависит от \(\zeta_z\), то разумно использовать \(\zeta_i^{(k)} = (1,1,0)/\sqrt2\).
+Аналогично, при \(\Phi=\Phi(\zeta_x)\) пусть \(\zeta_i^{(k)} = (1,0,0)\).
+
+Значение \(\mathcal{F}_k^{(n)}\) вычисляется с помощью численного интегрирования, описанного в~\ref{sec:Korobov}.
+Для достижения большей точности для каждого \(n\) сетка Коробова сдвигается на произвольный вектор.
+Модуль \(\tau_k\) выбирается достаточно малым, чтобы, обеспечить устойчивость метода,
+а также снизить флуктуационные колебания, вызванные сменой кубатурной сетки.
+Знак \(\tau\) определяется как в методе секущей:
+\begin{equation}\label{eq:secant_method}
+    \frac{\tau_k}{|\tau_k|} = \sgn\left(1-\frac{\mathcal{F}_k^{(n)} - \mathcal{F}_k^{(n-1)}}{Z_k^{(n)}-Z_k^{(n-1)}}\right).
+\end{equation}
+
+\subsection{Оценка точности}
+
+\begin{figure}
+    \centering
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/diffB}
+        \caption{Погрешность вычисления функции \(\mathcal{B}(\zeta)\)
+            по сравнению с референсной \(\mathcal{B}^*(\zeta)\)}
+        \label{fig:diffB}
+    \end{minipage}%
+    \begin{minipage}[b]{0.5\textwidth}
+    \end{minipage}
+\end{figure}
+
+Для оценки точности сравним результат вычисления функции \(\mathcal{B}(\zeta)\)
+с референсными данными, взятыми, например, из~\cite{Sone2002}.
+
+Функция \(\mathcal{B}\) вычисляется из интегрального уравнения
+\begin{equation}\label{eq:B_par}
+    \mathcal{L}(\zeta_x\zeta_y\mathcal{B}) = -2\zeta_x\zeta_y.
+\end{equation}
+Значение \(\mathcal{B}(0)\) не может быть вычислено непосредственно из~\eqref{eq:B_par}
+с помощью метода, изложенного в~\ref{sec:int_equations},
+поэтому должно быть получено с помощью экстраполяции.
+
+Погрешность решения для мощности сетки Коробова порядка \(10^7\) изображена на рис.~\ref{fig:diffB},
+а сама функция \(\mathcal{B}\) на рис.~\ref{fig:B}.
+Погрешность вычисления коэффициента вязкости \(\gamma_1\) равна
+\begin{equation}\label{eq:gamma_error}
+    \frac{|\gamma_1-\gamma_1^*|}{\gamma_1^*} < 5\cdot10^{-5}.
+\end{equation}
+Ввиду структурной схожести интегральных уравнений~\eqref{eq:B}--\eqref{eq:QQ},
+можно ожидать аналогичной точности для всех полученных результатов.
+При вычислении \(\Q_3\) и \(\QQ_3\) сложность возникает для малых \(\zeta\),
+что, однако, мало влияет на точность оценки интегралов вида~\eqref{eq:I_n}.
+
+
+\subsection{Вычисление транспортных функций и коэффициентов}
+
+\begin{figure}
+    \centering
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/B}
+        \caption{Транспортная функция \(\mathcal{B}(\zeta)\)}
+        \label{fig:B}
+    \end{minipage}%
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/B_4}
+        \caption{Транспортная функция \(\B(\zeta)\)}
+        \label{fig:B_4}
+    \end{minipage}
+\end{figure}
+
+Функция \(\mathcal{B}\) (рис.~\ref{fig:B}) подробно табулирована, например, в~\cite{Sone2002},
+а функция \(\B(\zeta)\) (рис.~\ref{fig:B_4}) вычисляется непосредственно из уравнения
+\begin{equation}\label{eq:B_4_par}
+    \mathcal{L}(\zeta_x\zeta_y\B) = \zeta_x\zeta_y\mathcal{B}.
+\end{equation}
+Интегрирование по формуле~\eqref{eq:gamma_9} даёт
+\begin{equation}\label{eq:gamma_9_result}
+    \gamma_9 = 1.635(7).
+\end{equation}
+
+\begin{figure}
+    \centering
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/Q_2}
+        \caption{Транспортная функция \(\Q_2(\zeta)\)}
+        \label{fig:Q2}
+    \end{minipage}%
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/Q_3}
+        \caption{Транспортная функция \(\Q_3(\zeta)\)}
+        \label{fig:Q3}
+    \end{minipage}
+\end{figure}
+
+Для вычисления \(\gamma_8\) необходимо провести некоторые преобразования.
+Подставляя в форм.~\eqref{eq:Q} \(i=y, j=k=l=x\), а также \(i=j=z, k=x, l=y\), получаем
+\begin{align}
+    \mathcal{L}\left[ \zeta_x\zeta_y \left( 3\Q_2+\zeta_x^2\Q_3 \right) \right]
+        &= -\zeta_x^3\zeta_y\left(2\mathcal{B} - \frac1\zeta\der[\mathcal{B}]{\zeta}\right), \label{eq:Q2}\\
+    \mathcal{L}\left[ \zeta_x\zeta_y \left( \Q_2+\zeta_z^2\Q_3 \right) \right]
+        &= -\zeta_x\zeta_y\zeta_z^2\left(2\mathcal{B} - \frac1\zeta\der[\mathcal{B}]{\zeta}\right),
+\end{align}
+откуда в силу линейности \(\mathcal{L}\) имеем
+\begin{equation}\label{eq:Q3}
+    \mathcal{L}\left[ \zeta_x\zeta_y \left( 3\zeta_z^2-\zeta_x^2 \right)\Q_3 \right]
+        = -\zeta_x\zeta_y\left( 3\zeta_z^2-\zeta_x^2 \right)\left(2\mathcal{B} - \frac1\zeta\der[\mathcal{B}]{\zeta}\right).
+\end{equation}
+Таким образом, вычислив сначала \(\Q_3\) с помощью~\eqref{eq:Q3}, можно найти \(\Q_2\) из~\eqref{eq:Q2}.
+Полученные функции изображены на рис.~\ref{fig:Q2} и~\ref{fig:Q3}.
+Соответствующие интегралы от них равны
+\begin{equation}\label{eq:gamma8a}
+    I_6(\Q_2) = 0.544(4), \quad \frac17 I_8(\Q_3) = 0.993(3).
+\end{equation}
+
+\begin{figure}
+    \centering
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/QQ_22}
+        \caption{Транспортная функция \(\QQ_{22}(\zeta)\)}
+        \label{fig:QQ22}
+    \end{minipage}%
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/QQ_3}
+        \caption{Транспортная функция \(\QQ_3(\zeta)\)}
+        \label{fig:QQ3}
+    \end{minipage}
+\end{figure}
+
+Аналогичными подстановками в форм.~\eqref{eq:QQ} получаем
+\begin{align}
+    \mathcal{L}\left[ \QQ_{11} + 2\QQ_{12} + 2\zeta_x^2\QQ_{21} + 4\zeta_x^2\QQ_{22} + \zeta_x^4\QQ_3 \right]
+        &= \mathcal{J}\left( \zeta_x^2\mathcal{B}, \zeta_x^2\mathcal{B} \right) \equiv \mathcal{J}_{x}^{(1)}, \label{eq:J1}\\
+    \mathcal{L}\left[ \QQ_{11} + (\zeta_x^2+\zeta_y^2)\QQ_{21} + \zeta_x^2\zeta_y^2\QQ_3 \right]
+        &= \mathcal{J}\left( \zeta_x^2\mathcal{B}, \zeta_y^2\mathcal{B} \right) \equiv \mathcal{J}_{xy}^{(2)}, \label{eq:J2}\\
+    \mathcal{L}\left[ \QQ_{12} + (\zeta_x^2+\zeta_y^2)\QQ_{22} + \zeta_x^2\zeta_y^2\QQ_3 \right]
+        &= \mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_x\zeta_y\mathcal{B} \right) \equiv \mathcal{J}_{xy}^{(3)}, \label{eq:J3}\\
+    \mathcal{L}\left[ \zeta_x\zeta_y \left( \QQ_{21} + 2\QQ_{22} + \zeta_x^2\QQ_3 \right) \right]
+        &= \mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_x^2\mathcal{B} \right) \equiv \mathcal{J}_{xy}^{(4)}, \label{eq:J4}\\
+    \mathcal{L}\left[ \zeta_x\zeta_y \left( \QQ_{21} + \zeta_z^2\QQ_3 \right) \right]
+        &= \mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_z^2\mathcal{B} \right) \equiv \mathcal{J}_{xyz}^{(5)}, \label{eq:J5}\\
+    \mathcal{L}\left[ \zeta_x\zeta_y \left( \QQ_{22} + \zeta_z^2\QQ_3 \right) \right]
+        &= \mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_x\zeta_z\mathcal{B} \right) \equiv \mathcal{J}_{xyz}^{(6)}. \label{eq:J6}
+\end{align}
+Неоднородные члены интегральных уравнений~\eqref{eq:J1}--\eqref{eq:J6} представлены на рис.~\ref{fig:J_all}.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{.5\linewidth}
+        \centering
+        \includegraphics{pics/J_1}
+    	\subcaption{}\label{fig:J_1}
+    \end{subfigure}%
+    \begin{subfigure}[b]{.5\linewidth}
+        \centering
+        \includegraphics{pics/J_2}
+    	\subcaption{}\label{fig:J_2}
+    \end{subfigure}
+    \begin{subfigure}[b]{.5\linewidth}
+        \centering
+        \includegraphics{pics/J_3}
+    	\subcaption{}\label{fig:J_3}
+    \end{subfigure}%
+    \begin{subfigure}[b]{.5\linewidth}
+        \centering
+        \includegraphics{pics/J_4}
+    	\subcaption{}\label{fig:J_4}
+    \end{subfigure}
+    \begin{subfigure}[b]{.5\linewidth}
+        \centering
+        \includegraphics{pics/J_5}
+    	\subcaption{}\label{fig:J_5}
+    \end{subfigure}%
+    \begin{subfigure}[b]{.5\linewidth}
+        \centering
+        \includegraphics{pics/J_6}
+    	\subcaption{}\label{fig:J_6}
+    \end{subfigure}
+    \caption{Определённые интегралы \(\mathcal{J}(\phi,\psi)\),
+        вычисленные для \(\zeta_x=\zeta_y=\zeta/\sqrt2\) (\subref{fig:J_1}, \subref{fig:J_2}, \subref{fig:J_3})
+        и для \(\zeta_x=\zeta_y=\zeta_z=\zeta/\sqrt3\) (\subref{fig:J_4}, \subref{fig:J_5}, \subref{fig:J_6}) }
+    \label{fig:J_all}
+\end{figure}
+
+С помощью линейных преобразований соответственно над~\eqref{eq:J1}--\eqref{eq:J3} и~\eqref{eq:J4}--\eqref{eq:J6}
+получаем уравнения
+\begin{align}
+    \mathcal{L}\left[ \left( 6\zeta_x^2\zeta_y^2 - \zeta_x^4 - \zeta_y^4 \right)\QQ_3 \right]
+        &= 2\mathcal{J}_{xy}^{(2)} + 4\mathcal{J}_{xy}^{(3)} - \mathcal{J}_{x}^{(1)} - \mathcal{J}_{y}^{(1)}, \label{eq:QQ3_a}\\
+    \mathcal{L}\left[ \zeta_x\zeta_y\left( 3\zeta_z^2 - \zeta_x^2 \right)\QQ_3 \right]
+        &= \mathcal{J}_{xyz}^{(5)} + 2\mathcal{J}_{xyz}^{(6)} - \mathcal{J}_{xy}^{(4)}, \label{eq:QQ3_b}
+\end{align}
+позволяющие вычислить \(\QQ_3\).
+На практике уравнение~\eqref{eq:QQ3_b} позволяет получить большую точность.
+\(\QQ_{22}\) находится из~\eqref{eq:J6}.
+Полученные функции изображены на рис.~\ref{fig:QQ22} и~\ref{fig:QQ3}.
+Соответствующие интегралы от них равны
+\begin{equation}\label{eq:gamma8b}
+    I_6(\QQ_{22}) = 0.121(2), \quad \frac17 I_8(\QQ_3) = -0.0787(7).
+\end{equation}
+
+Подставляя~\eqref{eq:gamma8a} и~\eqref{eq:gamma8b} в~\eqref{eq:gamma_8}, получаем
+\begin{equation}\label{eq:gamma_8_result}
+    \gamma_8 = 1.496(3).
+\end{equation}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{Sone2000}
+    Sone, Y., Bardos, C., Golse, F., Sugimoto, H.:
+    Asymptotic theory of the Boltzmann system, for a steady flow of a slightly rarefied gas
+    with a finite Mach number: General theory.
+    \newblock European Journal of Mechanics, B/Fluids, \textbf{19}(3), 325-360 (2000)
+
+\bibitem{Sone2002}
+    Sone, Y.: Kinetic Theory and Fluid Dynamics.
+    \newblock Birkh{\"a}user, Boston (2002)
+
+\bibitem{Pekeris1957}
+    Pekeris, C. L., Alterman, Z.: Solution of the Boltzmann-Hilbert integral equation II.
+    The coefficients of viscosity and heat conduction.
+    \newblock Proceedings of the National Academy of Sciences of the U.S.A. \textbf{43}(11), 998-1007 (1957)
+
+\bibitem{Ohwada1992}
+    Ohwada, T., Y. Sone.: Analysis of thermal stress slip flow and negative thermophoresis
+    using the Boltzmann equation for hard-sphere molecules.
+    \newblock European Journal of Mechanics, B/Fluids. \textbf{11}(4), 389-414 (1992)
+
+\end{thebibliography}
+
+\end{document}
