@@ -9,7 +9,7 @@
 \usepackage{fullpage}
 \usepackage{indentfirst}
 \usepackage[font=small,labelsep=period,tableposition=top]{caption}
-\usepackage{subcaption}
+\usepackage[skip=0pt]{subcaption}
 \captionsetup[subtable]{position=top}
 %\captionsetup{subrefformat=parens}
 
@@ -42,10 +42,14 @@
 \newcommand{\pderder}[3][]{\frac{\partial^2#1}{\partial#2\partial#3}}
 \newcommand{\Pder}[2][]{\partial#1/\partial#2}
 
-\newcommand{\Q}{\ensuremath{\mathcal{Q}^{(0)}}}
 \newcommand{\B}{\ensuremath{\mathcal{B}^{(4)}}}
+\newcommand{\Q}{\ensuremath{\mathcal{Q}^{(0)}}}
+\newcommand{\T}[1]{\ensuremath{\mathcal{T}^{(#1)}}}
+\newcommand{\TT}{\ensuremath{\tilde{\mathcal{T}}^{(0)}}}
 \newcommand{\QQ}{\ensuremath{\tilde{\mathcal{Q}}^{(0)}}}
+\newcommand{\ZD}[2]{\zeta_{#1}\delta_{#2}}
 \newcommand{\ZZD}[3]{\zeta_{#1}\zeta_{#2}\delta_{#3}}
+\newcommand{\ZZZ}{\zeta_i\zeta_j\zeta_k}
 \newcommand{\ZZZZ}{\zeta_i\zeta_j\zeta_k\zeta_l}
 \newcommand{\DD}[2]{\delta_{#1}\delta_{#2}}
 
@@ -60,8 +64,10 @@
 
 В~\cite{Sone2000, Sone2002} представлены общие формулы для вычисления \(\gamma_8\) и \(\gamma_9\):
 \begin{gather}
-    \gamma_8 = I_6(\Q_2) - I_6(\QQ_{22}) + \frac17 I_8(\Q_3) - \frac17 I_8(\QQ_3), \label{eq:gamma_8}\\
-    \gamma_9 = -I_6(\B), \label{eq:gamma_9}
+    \gamma_8 = I_6\left(\Q_2 - \QQ_{22}\right) + \frac17 I_8\left(\Q_3 - \QQ_3\right), \label{eq:gamma_8}\\
+    \gamma_9 = -I_6\left(\B\right), \label{eq:gamma_9}\\
+    \gamma_{10} = \frac58 I_6\left(\T{1}_1 + \T{2}_1 - 2\TT_{12}\right)
+        + \frac18 I_8\left(\T{1}_2 + \T{2}_2 - 2\TT_2\right), \label{eq:gamma_10}
 \end{gather}
 где
 \begin{equation}\label{eq:I_n}
@@ -69,10 +75,23 @@
 \end{equation}
 а подынтегральные функции выражаются как линейные комбинации решений соответствующих интегральных уравнений:
 \begin{gather}
+    \mathcal{L}\left[\zeta_i\mathcal{A}(\zeta)\right] = -\zeta_i\left(\zeta^2-\frac52\right), \label{eq:A}\\[6pt]
     \mathcal{L}\left[\left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\mathcal{B}(\zeta)\right] =
-        -2\left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right), \label{eq:B}\\
+        -2\left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right), \label{eq:B}\\[6pt]
     \mathcal{L}\left[\left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\B(\zeta)\right] =
-        \left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\mathcal{B}(\zeta), \label{eq:B_4}\\[6pt]
+        \left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\mathcal{B}(\zeta), \label{eq:B_4}
+\end{gather}
+\begin{gather}
+    \begin{aligned}
+    \mathcal{L}&\left[(\ZD{i}{jk}+\ZD{j}{ki}+\ZD{k}{ij})\T{m}_1(\zeta) + \ZZZ\T{m}_2(\zeta)\right] = IT^{(m)}_{ijk}, \\
+        &\quad IT^{(1)}_{ijk} = -\ZZZ\left( 2\mathcal{A}(\zeta) - \frac1\zeta \der[\mathcal{A}(\zeta)]{\zeta} \right), \\
+        &\quad IT^{(2)}_{ijk} = -\ZZZ\left( (\zeta^2-3)\mathcal{B}(\zeta) - \frac\zeta2 \der[\mathcal{B}(\zeta)]{\zeta} \right)
+        + \frac{\gamma_1}{2} (\ZD{i}{jk}+\ZD{j}{ki}+\ZD{k}{ij}),
+    \end{aligned}\label{eq:T}\\
+    \mathcal{L}\left[\ZD{i}{jk}\TT_{11}(\zeta)+(\ZD{j}{ki}+\ZD{k}{ij})\TT_{12}(\zeta) + \ZZZ\TT_2(\zeta)\right]
+        = \mathcal{J}(\zeta_i\mathcal{A}(\zeta), \zeta_j\zeta_k\mathcal{B}(\zeta)), \label{eq:TT}
+\end{gather}
+\begin{gather}
     \begin{aligned}
     \mathcal{L}&\left[(\DD{ij}{kl}+\DD{ik}{jl}+\DD{il}{jk}) \Q_1(\zeta) \right. \\
         &\quad + \left.(\ZZD{i}{j}{kl}+\ZZD{i}{k}{jl}+\ZZD{i}{l}{jk}+\ZZD{j}{k}{il}+\ZZD{j}{l}{ik}+\ZZD{k}{l}{ij}) \Q_2(\zeta)\right. \\
@@ -85,15 +104,19 @@
         &\quad = \mathcal{J}(\zeta_i\zeta_j\mathcal{B}(\zeta), \zeta_k\zeta_l\mathcal{B}(\zeta))
     \end{aligned}\label{eq:QQ}
 \end{gather}
-с дополнительными условиями для \(\Q_1\), \(\QQ_{11}\) и \(\QQ_{12}\):
-\begin{gather}\label{eq:Q1_constraint}
+с дополнительными условиями для \(\mathcal{A}\), \(\T{m}_1\), \(\TT_{11}\), \(\TT_{12}\), \(\Q_1\), \(\QQ_{11}\) и \(\QQ_{12}\):
+\begin{gather}
+    \int_0^\infty \zeta^4 \mathcal{A} E(\zeta) \dd\zeta = 0, \label{eq:A_constraint}\\
+    \int_0^\infty \left( 5\zeta^4\T{m}_1 + \zeta^6\T{m}_2 \right) E(\zeta) \dd\zeta = 0, \label{eq:Tm_constraint}\\
+    \int_0^\infty \left( 5\zeta^4\TT_{11} + \zeta^6\TT_2 \right) E(\zeta) \dd\zeta = 0, \label{eq:T11_constraint}\\
+    \int_0^\infty \left( 5\zeta^4\TT_{12} + \zeta^6\TT_2 \right) E(\zeta) \dd\zeta = 0, \label{eq:T12_constraint}\\
     \int_0^\infty (1,\zeta^2)\left( 15\zeta^2\Q_1 + 10\zeta^4\Q_2 + \zeta^6\Q_3 \right) E(\zeta) \dd\zeta = 0, \\
     \int_0^\infty (1,\zeta^2)\left( 15\zeta^2\QQ_{11} + 10\zeta^4\QQ_{21} + \zeta^6\QQ_3 \right) E(\zeta) \dd\zeta = 0, \\
     \int_0^\infty (1,\zeta^2)\left( 15\zeta^2\QQ_{12} + 10\zeta^4\QQ_{22} + \zeta^6\QQ_3 \right) E(\zeta) \dd\zeta = 0,
 \end{gather}
 где
 \begin{equation}\label{eq:E}
-    E(\zeta) = \frac1{\pi^{3/2}}\exp\left(\zeta^2\right).
+    E(\zeta) = \frac1{\pi^{3/2}}\exp\left(-\zeta^2\right).
 \end{equation}
 Коэффициент вязкости был вычислен с высокой точностью ещё на первом израильском компьютере WEIZAC~\cite{Pekeris1957}\footnote{
     Столь высокая точность была получена при решении обыкновенного дифференциального уравнения четвёртого порядка,
@@ -132,7 +155,7 @@
     \nu(\zeta) = \frac1{2\sqrt2}\left[ \exp(-\zeta^2) + \left(2\zeta+\frac1\zeta\right) \int_0^\zeta\exp(-c^2)\dd{c} \right].
 \end{gather}
 
-\section{Численный анализ}
+\section{Численные методы}
 
 Ниже приводится описание метода вычисления соответствующих многомерных интегралов
 и решения интегральных уравнений.
@@ -170,7 +193,7 @@
     {\footnotesize
     \begin{subtable}[b]{.4\linewidth}
         \centering
-    	\subcaption{}\label{tab:Korobov-a}
+    	\caption{}\label{tab:Korobov-a}
         \begin{tabular}{|c|c|c|}\hline
                \(N\) & \(a_2\) & \(a_3\)  \\\hline
                10007 &     544 &    5733  \\
@@ -180,12 +203,13 @@
               500009 &   33606 &  342914  \\
              1000003 &  342972 &  439897  \\
              2000003 &  235672 & 1208274  \\
+             5000011 &  889866 & 4755875  \\
             10000019 & 4341869 &  594760  \\\hline
     	\end{tabular}
     \end{subtable}
     \begin{subtable}[b]{.6\linewidth}
         \centering
-    	\subcaption{}\label{tab:Korobov-b}
+    	\caption{}\label{tab:Korobov-b}
         \begin{tabular}{|c|c|c|c|c|}\hline
                \(N\) & \(a_2\) & \(a_3\) & \(a_4\) & \(a_5\)  \\\hline
                10007 &     198 &    9183 &    6967 &    8507  \\
@@ -195,6 +219,7 @@
               500009 &  191775 &  488648 &  283447 &   69999  \\
              1000003 &  335440 &  656043 &  403734 &  126676  \\
              2000003 &  701679 &  680513 &  965077 & 1248525  \\
+             5000011 & 1516505 & 2355509 & 3317359 &  442579  \\
             10000019 & 3669402 & 5455092 & 7462912 & 2188321  \\\hline
     	\end{tabular}
     \end{subtable}}
@@ -224,6 +249,9 @@
     \frac{\tau_k}{|\tau_k|} = \sgn\left(1-\frac{\mathcal{F}_k^{(n)} - \mathcal{F}_k^{(n-1)}}{Z_k^{(n)}-Z_k^{(n-1)}}\right).
 \end{equation}
 
+Для нахождения решения интегрального уравнения с дополнительным условием типа~\eqref{eq:A_constraint}
+достаточно после каждой итерации корректировать аппроксимацию с помощью соответсвующей константы.
+
 \subsection{Оценка точности}
 
 \begin{figure}
@@ -236,6 +264,10 @@
         \label{fig:diffB}
     \end{minipage}%
     \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/A}
+        \caption{Транспортная функция \(\mathcal{A}(\zeta)\)}
+        \label{fig:A}
     \end{minipage}
 \end{figure}
 
@@ -258,37 +290,16 @@
 \end{equation}
 Ввиду структурной схожести интегральных уравнений~\eqref{eq:B}--\eqref{eq:QQ},
 можно ожидать аналогичной точности для всех полученных результатов.
-При вычислении \(\Q_3\) и \(\QQ_3\) сложность возникает для малых \(\zeta\),
+При вычислении \(\Q_3\) и \(\QQ_3\) погрешность увеличивается для малых \(\zeta\),
 что, однако, мало влияет на точность оценки интегралов вида~\eqref{eq:I_n}.
 
 
-\subsection{Вычисление транспортных функций и коэффициентов}
+\section{Результаты}
 
-\begin{figure}
-    \centering
-    \begin{minipage}[b]{0.5\textwidth}
-        \centering
-        \includegraphics{pics/B}
-        \caption{Транспортная функция \(\mathcal{B}(\zeta)\)}
-        \label{fig:B}
-    \end{minipage}%
-    \begin{minipage}[b]{0.5\textwidth}
-        \centering
-        \includegraphics{pics/B_4}
-        \caption{Транспортная функция \(\B(\zeta)\)}
-        \label{fig:B_4}
-    \end{minipage}
-\end{figure}
+В дальнейшем будем использовать функции \(\mathcal{A}\) (рис.~\ref{fig:A}) и \(\mathcal{B}\) (рис.~\ref{fig:B}),
+которые подробно и с высокой точностью табулированы, например, в~\cite{Sone2002}.
 
-Функция \(\mathcal{B}\) (рис.~\ref{fig:B}) подробно табулирована, например, в~\cite{Sone2002},
-а функция \(\B(\zeta)\) (рис.~\ref{fig:B_4}) вычисляется непосредственно из уравнения
-\begin{equation}\label{eq:B_4_par}
-    \mathcal{L}(\zeta_x\zeta_y\B) = \zeta_x\zeta_y\mathcal{B}.
-\end{equation}
-Интегрирование по формуле~\eqref{eq:gamma_9} даёт
-\begin{equation}\label{eq:gamma_9_result}
-    \gamma_9 = 1.635(7).
-\end{equation}
+\subsection{Вычисление \texorpdfstring{$\gamma_8$}{gamma8}}
 
 \begin{figure}
     \centering
@@ -323,7 +334,7 @@
 Полученные функции изображены на рис.~\ref{fig:Q2} и~\ref{fig:Q3}.
 Соответствующие интегралы от них равны
 \begin{equation}\label{eq:gamma8a}
-    I_6(\Q_2) = 0.544(4), \quad \frac17 I_8(\Q_3) = 0.993(3).
+    I_6\left(\Q_2\right) = 0.544(4), \quad \frac17 I_8\left(\Q_3\right) = 0.993(3).
 \end{equation}
 
 \begin{figure}
@@ -357,44 +368,44 @@
     \mathcal{L}\left[ \zeta_x\zeta_y \left( \QQ_{22} + \zeta_z^2\QQ_3 \right) \right]
         &= \mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_x\zeta_z\mathcal{B} \right) \equiv \mathcal{J}_{xyz}^{(6)}. \label{eq:J6}
 \end{align}
-Неоднородные члены интегральных уравнений~\eqref{eq:J1}--\eqref{eq:J6} представлены на рис.~\ref{fig:J_all}.
+Неоднородные члены интегральных уравнений~\eqref{eq:J1}--\eqref{eq:J6} представлены на рис.~\ref{fig:J_allQ}.
 
 \begin{figure}
     \centering
     \begin{subfigure}[b]{.5\linewidth}
         \centering
         \includegraphics{pics/J_1}
-    	\subcaption{}\label{fig:J_1}
+    	\caption{интеграл \(\mathcal{J}\left( \zeta_x^2\mathcal{B}, \zeta_x^2\mathcal{B} \right)\)}\label{fig:J_1}
     \end{subfigure}%
     \begin{subfigure}[b]{.5\linewidth}
         \centering
         \includegraphics{pics/J_2}
-    	\subcaption{}\label{fig:J_2}
-    \end{subfigure}
+    	\caption{интеграл \(\mathcal{J}\left( \zeta_x^2\mathcal{B}, \zeta_y^2\mathcal{B} \right)\)}\label{fig:J_2}
+    \end{subfigure}\\[6pt]
     \begin{subfigure}[b]{.5\linewidth}
         \centering
         \includegraphics{pics/J_3}
-    	\subcaption{}\label{fig:J_3}
+    	\caption{интеграл \(\mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_x\zeta_y\mathcal{B} \right)\)}\label{fig:J_3}
     \end{subfigure}%
     \begin{subfigure}[b]{.5\linewidth}
         \centering
         \includegraphics{pics/J_4}
-    	\subcaption{}\label{fig:J_4}
-    \end{subfigure}
+    	\caption{интеграл \(\mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_x^2\mathcal{B} \right)\)}\label{fig:J_4}
+    \end{subfigure}\\[6pt]
     \begin{subfigure}[b]{.5\linewidth}
         \centering
         \includegraphics{pics/J_5}
-    	\subcaption{}\label{fig:J_5}
+    	\caption{интеграл \(\mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_z^2\mathcal{B} \right)\)}\label{fig:J_5}
     \end{subfigure}%
     \begin{subfigure}[b]{.5\linewidth}
         \centering
         \includegraphics{pics/J_6}
-    	\subcaption{}\label{fig:J_6}
+    	\caption{интеграл \(\mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_x\zeta_z\mathcal{B} \right)\)}\label{fig:J_6}
     \end{subfigure}
-    \caption{Определённые интегралы \(\mathcal{J}(\phi,\psi)\),
-        вычисленные для \(\zeta_x=\zeta_y=\zeta/\sqrt2\) (\subref{fig:J_1}, \subref{fig:J_2}, \subref{fig:J_3})
+    \caption{Интеграл столкновения \(\mathcal{J}(\phi,\psi)\),
+        вычисленный для \(\zeta_x=\zeta_y=\zeta/\sqrt2\) (\subref{fig:J_1}, \subref{fig:J_2}, \subref{fig:J_3})
         и для \(\zeta_x=\zeta_y=\zeta_z=\zeta/\sqrt3\) (\subref{fig:J_4}, \subref{fig:J_5}, \subref{fig:J_6}) }
-    \label{fig:J_all}
+    \label{fig:J_allQ}
 \end{figure}
 
 С помощью линейных преобразований соответственно над~\eqref{eq:J1}--\eqref{eq:J3} и~\eqref{eq:J4}--\eqref{eq:J6}
@@ -411,7 +422,7 @@
 Полученные функции изображены на рис.~\ref{fig:QQ22} и~\ref{fig:QQ3}.
 Соответствующие интегралы от них равны
 \begin{equation}\label{eq:gamma8b}
-    I_6(\QQ_{22}) = 0.121(2), \quad \frac17 I_8(\QQ_3) = -0.0787(7).
+    I_6\left(\QQ_{22}\right) = 0.121(2), \quad \frac17 I_8\left(\QQ_3\right) = -0.0787(7).
 \end{equation}
 
 Подставляя~\eqref{eq:gamma8a} и~\eqref{eq:gamma8b} в~\eqref{eq:gamma_8}, получаем
@@ -419,6 +430,140 @@
     \gamma_8 = 1.496(3).
 \end{equation}
 
+\subsection{Вычисление \texorpdfstring{$\gamma_9$}{gamma9}}
+
+\begin{figure}
+    \centering
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/B}
+        \caption{Транспортная функция \(\mathcal{B}(\zeta)\)}
+        \label{fig:B}
+    \end{minipage}%
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/B_4}
+        \caption{Транспортная функция \(\B(\zeta)\)}
+        \label{fig:B_4}
+    \end{minipage}
+\end{figure}
+
+Функция \(\B(\zeta)\) (рис.~\ref{fig:B_4}) вычисляется непосредственно из уравнения
+\begin{equation}\label{eq:B_4_par}
+    \mathcal{L}\left(\zeta_x\zeta_y\B\right) = \zeta_x\zeta_y\mathcal{B}.
+\end{equation}
+Интегрирование по формуле~\eqref{eq:gamma_9} даёт
+\begin{equation}\label{eq:gamma_9_result}
+    \gamma_9 = 1.635(7).
+\end{equation}
+
+\subsection{Вычисление \texorpdfstring{$\gamma_{10}$}{gamma10}}
+
+\begin{figure}
+    \centering
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/T1_1}
+        \caption{Транспортная функция \(\T{1}_1(\zeta)\)}
+        \label{fig:T1_1}
+    \end{minipage}%
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/T1_2}
+        \caption{Транспортная функция \(\T{1}_2(\zeta)\)}
+        \label{fig:T1_2}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/T2_1}
+        \caption{Транспортная функция \(\T{2}_1(\zeta)\)}
+        \label{fig:T2_1}
+    \end{minipage}%
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/T2_2}
+        \caption{Транспортная функция \(\T{2}_2(\zeta)\)}
+        \label{fig:T2_2}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/TT_12}
+        \caption{Транспортная функция \(\TT_{12}(\zeta)\)}
+        \label{fig:TT12}
+    \end{minipage}%
+    \begin{minipage}[b]{0.5\textwidth}
+        \centering
+        \includegraphics{pics/TT_2}
+        \caption{Транспортная функция \(\TT_2(\zeta)\)}
+        \label{fig:TT2}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{.5\linewidth}
+        \centering
+        \includegraphics{pics/J_a}
+    	\caption{интеграл \(\mathcal{J}\left( \zeta_x\mathcal{A}, \zeta_x\zeta_y\mathcal{B} \right)\)}\label{fig:J_a}
+    \end{subfigure}%
+    \begin{subfigure}[b]{.5\linewidth}
+        \centering
+        \includegraphics{pics/J_b}
+    	\caption{интеграл \(\mathcal{J}\left( \zeta_x\mathcal{A}, \zeta_y\zeta_z\mathcal{B} \right)\)}\label{fig:J_b}
+    \end{subfigure}
+    \caption{Интеграл столкновения \(\mathcal{J}(\phi,\psi)\),
+        вычисленный для \(\zeta_x=\zeta_y=\zeta/\sqrt2\) (\subref{fig:J_a})
+        и для \(\zeta_x=\zeta_y=\zeta_z=\zeta/\sqrt3\) (\subref{fig:J_b}) }
+    \label{fig:J_allT}
+\end{figure}
+
+
+Из~\eqref{eq:T} следует, что функции \(\T{m}_1\) (рис.~\ref{fig:T1_1},~\ref{fig:T2_1})
+и \(\T{m}_2\) (рис.~\ref{fig:T1_2},~\ref{fig:T2_2}) можно вычислить по формулам
+\begin{align}
+    \mathcal{L}\left( \zeta_x\zeta_y\zeta_z\T{1}_2 \right)
+        &= -\zeta_x\zeta_y\zeta_z\left(2\mathcal{A} - \frac1\zeta\der[\mathcal{A}]{\zeta}\right), \label{eq:T2a}\\
+    \mathcal{L}\left[ \zeta_x\left(3\T{1}_1 + \zeta_x^2\T{1}_2\right) \right]
+        &= -\zeta_x^3\left(2\mathcal{A} - \frac1\zeta\der[\mathcal{A}]{\zeta}\right), \label{eq:T1a}
+\end{align}
+\begin{align}
+    \mathcal{L}\left( \zeta_x\zeta_y\zeta_z\T{2}_2 \right)
+        &= -\zeta_x\zeta_y\zeta_z\left((\zeta^2-3)\mathcal{B} - \frac\zeta2\der[\mathcal{B}]{\zeta}\right), \label{eq:T2b}\\
+    \mathcal{L}\left[ \zeta_x\left(3\T{2}_1 + \zeta_x^2\T{2}_2\right) \right]
+        &= -\zeta_x^3\left((\zeta^2-3)\mathcal{B} - \frac\zeta2\der[\mathcal{B}]{\zeta}\right) + \frac{3\gamma_1}{2}\zeta_x \label{eq:T1b}
+\end{align}
+при дополнительном условии~\eqref{eq:Tm_constraint}.
+Соответствующие интегралы в~\eqref{eq:gamma_10} равны
+\begin{gather}
+    \frac58 I_6\left(\T{1}_1\right) = 0.986(2), \quad \frac18 I_8\left(\T{1}_2\right) = 0.505(3), \label{eq:gamma10a}\\
+    \frac58 I_6\left(\T{2}_1\right) = 0.508(4), \quad \frac18 I_8\left(\T{2}_2\right) = 0.540(7). \label{eq:gamma10b}
+\end{gather}
+
+Функции \(\TT_{12}\) (рис.~\ref{fig:TT12}) и \(\TT_2\) (рис.~\ref{fig:TT2}) находятся из уравнений
+\begin{align}
+    \mathcal{L}\left( \zeta_x\zeta_y\zeta_z\TT_2 \right)
+    	&= \mathcal{J}\left( \zeta_x\mathcal{A}, \zeta_y\zeta_z\mathcal{B} \right) \equiv \mathcal{J}_{xyz}^{(\mathrm{II})}, \label{eq:TT2}\\
+    \mathcal{L}\left[ \zeta_y\left(\TT_{12} + \zeta_x^2\TT_2\right) \right]
+        &= \mathcal{J}\left( \zeta_x\mathcal{A}, \zeta_x\zeta_y\mathcal{B} \right) \equiv \mathcal{J}_{xy}^{(\mathrm{I})}. \label{eq:TT12}
+\end{align}
+Неоднородные члены представлены на рис.~\ref{fig:J_allT}.
+Численное интегрирование приводит к
+\begin{equation}\label{eq:gamma10c}
+    \frac58 I_6\left(\TT_{12}\right) = 0.038(0), \quad \frac18 I_8\left(\TT_2\right) = 0.0068(2).
+\end{equation}
+
+Объединяя~\eqref{eq:gamma10a},~\eqref{eq:gamma10b} и~\eqref{eq:gamma10c}, находим
+\begin{equation}\label{eq:gamma_10_result}
+    \gamma_{10} = 2.463(3).
+\end{equation}
 
 \begin{thebibliography}{9}
 

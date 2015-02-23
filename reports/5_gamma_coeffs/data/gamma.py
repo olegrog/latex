@@ -293,15 +293,15 @@ def calc_gamma8a():
     m = np.arange(1, len(X))
     B = np.poly1d(np.polyfit(eta, B_, 16))
     derB = np.poly1d(np.polyfit(eta, B_, 16)).deriv()
-    derB_ = np.vectorize(lambda x: -1.12 if x==0 else derB(x)/x)
-    IB = lambda x: 2*B(mag(x)) - derB_(mag(x))
+    derB_ = np.vectorize(lambda x: -1.10 if x==0 else derB(x)/x)
+    IB = lambda x: 2*B(x) - derB_(x)
     pre1 = lambda x: x[0]*x[1]
     pre2 = lambda x: (3*x[2]**2 - x[0]**2) * pre1(x)
     j_ = lambda x: 3*Q2_(mag(x)) + x[0]**2*Q3_(mag(x))
     phi1 = lambda x: pre1(x) * j_(x)
     phi2 = lambda x: pre2(x) * Q3_(mag(x))
-    Phi1 = lambda x: -pre1(x) * IB(x) * x[0]**2
-    Phi2 = lambda x: -pre2(x) * IB(x)
+    Phi1 = lambda x: -pre1(x) * IB(mag(x)) * x[0]**2
+    Phi2 = lambda x: -pre2(x) * IB(mag(x))
     
     eta_, Q2_, Q3_ = np.loadtxt("./gamma8a.txt").T
     zero_corrector2(Q3_)
@@ -427,6 +427,125 @@ def calc_gamma8ih():
     show()
     np.savetxt(sys.stderr, np.transpose((X, J1, J2, J3, J4, J5, J6)), fmt='%1.5e')
 
+def corrector_T(T1, T2, beta=1):
+    k = 3./8*np.sqrt(np.pi)
+    C = np.trapz(X**4 * (5*T1 + X**2*T2) * np.exp(-X*X), X)
+    print >> sys.stderr, "  corr:", C
+    T1 -= beta * C / k / 5
+
+def calc_gamma10(letter):
+    m = np.arange(1, len(X))
+    A = np.poly1d(np.polyfit(eta, A_, 16))
+    B = np.poly1d(np.polyfit(eta, B_, 16))
+    derA = np.poly1d(np.polyfit(eta, A_, 16)).deriv()
+    derA_ = np.vectorize(lambda x: 6.87 if x==0 else derA(x)/x)
+    IA = lambda x: 2*A(x) - derA_(x)
+    derB = np.poly1d(np.polyfit(eta, B_, 16)).deriv()
+    IB = lambda x: (x**2-3)*B(x) - .5*x*derB(x)
+
+    pre1 = lambda x: x[0]
+    pre2 = lambda x: x[0]*x[1]*x[2]
+    j_ = lambda x: 3*T1_(mag(x)) + x[0]**2*T2_(mag(x))
+    phi1 = lambda x: pre1(x) * j_(x)
+    phi2 = lambda x: pre2(x) * T2_(mag(x))
+    if letter == 'a':
+        Phi1 = lambda x: -pre1(x) * IA(mag(x)) * x[0]**2
+        Phi2 = lambda x: -pre2(x) * IA(mag(x))
+        eta_, T1_, T2_ = np.loadtxt("./gamma10a.txt").T
+    else:
+        Phi1 = lambda x: -pre1(x) * ( IB(mag(x)) * x[0]**2 - 1.5*gamma_1 )
+        Phi2 = lambda x: -pre2(x) * IB(mag(x))
+        eta_, T1_, T2_ = np.loadtxt("./gamma10b.txt").T
+    
+    #T1_ = 0*eta_ ### COMMENT THIS
+    kind = 'linear'
+    #T1_, T2_ = interp1d(eta_, T1_, kind=kind), interp1d(eta_, T2_, kind=kind)
+    T1_, T2_ = np.poly1d(np.polyfit(eta_, T1_, 16)), np.poly1d(np.polyfit(eta_, T2_, 16))
+    T1, T2 = T1_(X), T2_(X)
+    j = eval_func(j_, zeta1d)
+    j_old, T2_old = 0.99*j, 0.99*T2
+    F_j, F_T2 = 0*X, 0*X
+    j_0, T1_0, T2_0 = np.copy(j), np.copy(T1), np.copy(T2)
+    beta = 0.0
+    for n in xrange(int(sys.argv[2])):
+        T1_, T2_ = interp1d(X, T1, kind=kind), interp1d(X, T2, kind=kind)
+        #T1_, T2_ = np.poly1d(np.polyfit(X, T1, 16)), np.poly1d(np.polyfit(X, T2, 16))
+        j = eval_func(j_, zeta1d)
+        T2, T2_old, F_T2 = solve2(phi2, Phi2, zeta3d, T2, T2_old, F_T2, 0.5, pre2, beta)
+        j, j_old, F_j = solve2(phi1, Phi1, zeta1d, j, j_old, F_j, 0.5, pre1, beta)
+        T1[m] = (j[m] - (X**2*T2)[m]) / 3
+        for f in [ j, T1, T2 ]:
+            zero_corrector2(f)
+        #for f in [ j, Q2 ]:
+        #    sign_corrector(f,1)
+        corrector_T(T1, T2)
+        print >> sys.stderr, n, .625*calc_I(6, T1), .125*calc_I(8, T2)
+        print n
+    
+    py.plot(X, T1_0, 'g--', X, T2_0, 'b--', X, T1, 'g', X, T2, 'b')
+    show()
+    print >> sys.stderr, "--------------------------------------"
+    np.savetxt(sys.stderr, np.transpose((X, T1, T2)), fmt='%1.5e')
+
+def calc_gamma10c():
+    def interp_power(Y, n):
+        temp = interp1d(np.append(0, X[1:]), np.append(0, Y[1:]/X[1:]**n))
+        return lambda x: temp(x)*x**n
+        
+    m = np.arange(1, len(X))
+    pre1 = lambda x: x[1]
+    pre2 = lambda x: x[0]*x[1]*x[2]
+    j_ = lambda x: T12_(mag(x)) + x[0]**2 * T2_(mag(x))
+    phi1 = lambda x: pre1(x) * j_(x)
+    phi2 = lambda x: pre2(x) * T2_(mag(x))
+    eta_, J1_, J2_ = np.loadtxt("./gamma10ih.txt").T
+    J1, J2 = interp_power(J1_, 1), interp_power(J2_, 3)
+    Phi1 = lambda x: J1(mag(x))
+    Phi2 = lambda x: J2(mag(x))
+    kind = 'linear'
+
+    eta_, T12_, T2_ = np.loadtxt("./gamma10c.txt").T
+    #T12_, T2_ = interp1d(eta_, T12_, kind=kind), interp1d(eta_, T2_, kind=kind)
+    T12_, T2_ = np.poly1d(np.polyfit(eta_, T12_, 16)), np.poly1d(np.polyfit(eta_, T2_, 16))
+    T12, T2 = T12_(X), T2_(X)
+    #T12, T2 = 0*X, 0*X      ### COMMENT THIS
+    j = eval_func(j_, zeta2d)
+    j_old, T2_old = 0.99*j, 0.99*T2
+    F_j, F_T2 = 0*X, 0*X
+    j_0, T12_0, T2_0 = np.copy(j), np.copy(T12), np.copy(T2)
+    beta = 0.0
+    for n in xrange(int(sys.argv[2])):
+        T12_, T2_ = interp1d(X, T12, kind=kind), interp1d(X, T2, kind=kind)
+        #T12_, T2_ = np.poly1d(np.polyfit(X, T12, 16)), np.poly1d(np.polyfit(X, T2, 16))
+        j = eval_func(j_, zeta2d)
+        #T2, T2_old, F_T2 = solve2(phi2, Phi2, zeta3d, T2, T2_old, F_T2, 0.5, pre2, beta)
+        j, j_old, F_j = solve2(phi1, Phi1, zeta2d, j, j_old, F_j, 0.5, pre1, beta)
+        T12[m] = (j[m] - (X**2*T2)[m]/2)
+        for f in [ j, T12, T2 ]:
+            zero_corrector2(f)
+        corrector_T(T12, T2, 0.5)
+        print >> sys.stderr, n, .625*calc_I(6, T12), .125*calc_I(8, T2)
+        print n
+    
+    py.plot(X, T12_0, 'r--', X, T2_0, 'g--', X, T12, 'r', X, T2, 'g')
+    show()
+    print >> sys.stderr, "--------------------------------------"
+    np.savetxt(sys.stderr, np.transpose((X, T12, T2)), fmt='%1.5e')
+
+def calc_gamma10ih():
+    A = np.poly1d(np.polyfit(eta, A_, 16))
+    B = np.poly1d(np.polyfit(eta, B_, 16))
+    phi1 = lambda x: x[0] * A(mag(x))
+    phi2 = lambda x: x[0]*x[1] * B(mag(x))
+    phi3 = lambda x: x[1]*x[2] * B(mag(x))
+    eta_, J1_, J2_ = np.loadtxt("./gamma10ih.txt").T
+    
+    J1 = average(lambda: eval_allJ(phi1, phi2, zeta2d))
+    J2 = average(lambda: eval_allJ(phi1, phi3, zeta3d))
+    py.plot(X, J1, 'r', eta_, J1_, 'r--', X, J2, 'g', eta_, J2_, 'g--')
+    show()
+    np.savetxt(sys.stderr, np.transpose((X, J1, J2)), fmt='%1.5e')
+
 def compare_func(phi, Phi, get_zeta, diff=True, pre=lambda x: X**0):
     L3 = eval_allL(phi, get_zeta, eval_L3)
     L5 = eval_allL(phi, get_zeta, eval_L5)
@@ -454,6 +573,7 @@ def compare_L3_L5():
         lambda x: -2 * x[0] * x[1],
         zeta2d, False)
     '''
+    '''
     # gamma9
     eta_, B4_ = np.loadtxt("./gamma9.txt").T
     B4 = interp1d(eta_, B4_)
@@ -462,21 +582,22 @@ def compare_L3_L5():
         lambda x: x[0] * x[1] * B(mag(x)),
         zeta2d)
     '''
+    '''
     # gamma8a
     eta_, Q2_, Q3_ = np.loadtxt("./gamma8a.txt").T
     Q2_, Q3_ = interp1d(eta_, Q2_), interp1d(eta_, Q3_)
     derB = np.poly1d(np.polyfit(eta, B_, 16)).deriv()
-    derB_ = np.vectorize(lambda x: -1.12 if x==0 else derB(x)/x)
-    IB = lambda x: 2*B(mag(x)) - derB_(mag(x))
+    derB_ = np.vectorize(lambda x: -1.10 if x==0 else derB(x)/x)
+    IB = lambda x: 2*B(x) - derB_(x)
     corr = lambda x: 2-np.log(x)
     compare_func(
         lambda x: x[0]*x[1]*(3*Q2_(mag(x)) + x[0]**2*Q3_(mag(x))*corr(mag(x))),
-        lambda x: -x[0]**3*x[1]*IB(x),
+        lambda x: -x[0]**3*x[1]*IB(mag(x)),
         zeta2d, False,
         lambda x: x**3)
     compare_func(
         lambda x: x[1]*x[2]*(Q2_(mag(x)) + x[0]**2*Q3_(mag(x))*corr(mag(x))),
-        lambda x: -x[0]**2*x[1]*x[2]*IB(x),
+        lambda x: -x[0]**2*x[1]*x[2]*IB(mag(x)),
         zeta3d, False,
         lambda x: x**3)
     '''
@@ -497,8 +618,6 @@ def compare_L3_L5():
     compare_func(phi2, lambda x: J5_(mag(x)), zeta3d, False)
     compare_func(phi3, lambda x: J6_(mag(x)), zeta3d, False)
     '''
-    '''
-    '''
 
 ### ----------------------- ###
 
@@ -506,10 +625,14 @@ def compare_L3_L5():
     '1': calc_gamma1,
     '2': calc_gamma2,
     '3': calc_gamma3,
-    '9': calc_gamma9,
     '8a': calc_gamma8a,
     '8b': calc_gamma8b,
     '8ih': calc_gamma8ih,
+    '9': calc_gamma9,
+    '10a': partial(calc_gamma10, 'a'),
+    '10b': partial(calc_gamma10, 'b'),
+    '10c': calc_gamma10c,
+    '10ih': calc_gamma10ih,
     'compare': compare_L3_L5
 }[sys.argv[1]]()
 
