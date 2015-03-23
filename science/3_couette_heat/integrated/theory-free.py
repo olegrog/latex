@@ -23,4 +23,4 @@ def quadvec(T):
 U = quadvec(T0)(K)
 Q = quadvec(T2)(K) - U/2
 
-np.savetxt(sys.stdout, np.transpose((Kn, U, Q)), fmt='%1.4e') 
+np.savetxt(sys.stdout, np.transpose((Kn, U, Q)), fmt='%1.5e') 

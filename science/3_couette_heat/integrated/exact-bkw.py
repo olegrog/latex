@@ -9,7 +9,7 @@ from scipy.interpolate import interp1d
 from scipy.linalg import solve
 from scipy.sparse.linalg import spsolve
 
-X = np.logspace(-2.2, 1.8, 50)                           # precision 1e-6
+X = np.logspace(-3, 1.8, 50)                           # precision 1e-6
 a, b = np.sqrt(np.pi), 1.5*np.euler_gamma
 c = np.exp(b)
 j = lambda n,x,t: np.exp(-t*t - x/t)*t**n               # Abramowitz function \int j dt
@@ -29,7 +29,7 @@ T_1r = interp(lambda x,t: j(-1,x,t) / g_1(x), 1)
 T_1 = lambda x: T_1r(x) * g_1(x)
 
 def plot_abra():
-    X = np.logspace(-3,2,500)
+    X = np.logspace(-3,3,500)
     py.plot(X, T0(X), X, T1(X), X, T2(X))
     py.loglog()
     py.show()
@@ -112,4 +112,4 @@ F0 = lambda k,x: r0(x) - r0(k+c*x)/c
 F1 = lambda k,x: r1(x) - (r1(k+c*x) - k*r0(k+c*x))/c/c
 data = np.array([ solve_linalg(k, T_1r, F0, F1, f) for k in K ])
 
-np.savetxt(sys.stdout, data, fmt='%1.4e') 
+np.savetxt(sys.stdout, data, fmt='%1.5e') 
