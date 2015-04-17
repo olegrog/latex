@@ -51,20 +51,19 @@ plot \
     NaN title "$\\Delta v=1$"    w l lw 2 lt 3 lc 0, \
     NaN title "$\\Delta v=2$"    w l lw 2 lt 4 lc 0, \
     NaN title "$\\Delta v=5$"    w l lw 2 lt 5 lc 0, \
-    "asym-0.1.txt" using (filter($1)):(base2($1*k,$9,0.1,1.0004404781))    notitle w l lw 2 lt 2 lc 3, \
     "asym-1.0.txt" using (filter($1)):(base2($1*k,$9,1,1.04423265))        notitle w l lw 2 lt 3 lc 3, \
     "asym-2.0.txt" using (filter($1)):(base2($1*k,$9,2,1.1788573))         notitle w l lw 2 lt 4 lc 3, \
     "asym-5.0.txt" using (filter($1)):(base2($1*k,$9,5,2.1626155))         notitle w l lw 2 lt 5 lc 3, \
-    "data-0.1.txt" using 1:(base2($1*k,$9,0.1,1.0004404781))    notitle w lp lw 2 lt 2 pt 6 lc 1, \
     "data-1.0.txt" using 1:(base2($1*k,$9,1,1.04423265))        notitle w lp lw 2 lt 3 pt 6 lc 1, \
     "data-2.0.txt" using 1:(base2($1*k,$9,2,1.1788573))         notitle w lp lw 2 lt 4 pt 6 lc 1, \
     "data-5.0.txt" using 1:(base2($1*k,$9,5,2.1626155))         notitle w lp lw 2 lt 5 pt 6 lc 1, \
-    "dsmc-0.1.txt" using 1:(base2($1*k,$9/2,0.1,1.0004404781))  notitle w lp lw 2 lt 2 pt 4 lc 2, \
     "dsmc-1.0.txt" using 1:(base2($1*k,$9/2,1,1.04423265))      notitle w lp lw 2 lt 3 pt 4 lc 2, \
-    "dsmc-2.0.txt.new" using 1:(base2($1*k,$9/2,2,1.1788573))     notitle w lp lw 2 lt 4 pt 6 lc 4, \
     "dsmc-2.0.txt" using 1:(base2($1*k,$9/2,2,1.1788573))       notitle w lp lw 2 lt 4 pt 4 lc 2, \
     "dsmc-5.0.txt" using 1:(base2($1*k,$9/2,5,2.1626155))       notitle w lp lw 2 lt 5 pt 4 lc 2
 
+#    "asym-0.1.txt" using (filter($1)):(base2($1*k,$9,0.1,1.0004404781))    notitle w l lw 2 lt 2 lc 3, \
+#    "data-0.1.txt" using 1:(base2($1*k,$9,0.1,1.0004404781))    notitle w lp lw 2 lt 2 pt 6 lc 1, \
+#    "dsmc-0.1.txt" using 1:(base2($1*k,$9/2,0.1,1.0004404781))  notitle w lp lw 2 lt 2 pt 4 lc 2, \
 #    base(k*x, asym(k*x)), \
 #    (fluid-free)*x/(1+x) title "Navier--Stokes" lt 1 lc 0 lw 2 , \
 #    "asym-hs.txt" using (f_asym($1)):(base($1*k,$4)) title "Asymptotic" w l lw 3 lt 7 lc 3, \

@@ -52,7 +52,6 @@ plot \
     "data-5.0.txt" using 1:(-$4)    notitle w lp lw 2 lt 5 pt 6 lc 1, \
     "dsmc-0.1.txt" using 1:(-$4)    notitle w lp lw 2 lt 2 pt 4 lc 2, \
     "dsmc-1.0.txt" using 1:(-$4)    notitle w lp lw 2 lt 3 pt 4 lc 2, \
-    "dsmc-2.0.txt.new" using 1:(-$4)  notitle w lp lw 2 lt 4 pt 6 lc 4, \
     "dsmc-2.0.txt" using 1:(-$4)    notitle w lp lw 2 lt 4 pt 4 lc 2, \
     "dsmc-5.0.txt" using 1:(-$4)    notitle w lp lw 2 lt 5 pt 4 lc 2
 

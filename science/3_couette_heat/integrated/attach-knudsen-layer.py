@@ -49,14 +49,14 @@ def expansion(row):
     Pxx, Pyy, Pzz = K**2*np.array([Pxx2, Pyy2, Pzz2])
     return U, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, T
 
-def knudsen_layer(Kn, DU0, DT0, M, T, Qx, Pxx, Pzz, T_B=1):
-    K = Kn*np.sqrt(np.pi)/2
-    M += DU0*kn_layer(Y_0, sY, K*T_B)
-    T += DT0*kn_layer2(Theta_1, sTheta, K*T_B)
-    Qx -= DU0*kn_layer(H_A, sH, K*T_B)
+def knudsen_layer(Kn, DU0, DT0, M, T, Qx, Pxx, Pzz, p0, T_B0=1):
+    K = T_B0 / p0 * Kn * np.sqrt(np.pi)/2
+    M += DU0*kn_layer(Y_0, sY, K)
+    T += DT0*kn_layer2(Theta_1, sTheta, K)
+    Qx -= DU0*kn_layer(H_A, sH, K) * p0
     ThetaPlusOmega = lambda x: Theta_1(x) - Omega_1(x)
-    Pxx += 1.5*DT0*kn_layer2(ThetaPlusOmega, sTheta-sOmega, K*T_B)/T_B 
-    Pzz += 1.5*DT0*kn_layer2(ThetaPlusOmega, sTheta-sOmega, K*T_B)/T_B
+    Pxx += 1.5*DT0*kn_layer2(ThetaPlusOmega, sTheta-sOmega, K) * p0 / T_B0
+    Pzz += 1.5*DT0*kn_layer2(ThetaPlusOmega, sTheta-sOmega, K) * p0 / T_B0
 
 def save_data(filename):
     np.savetxt(filename, np.transpose((Kn, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, T)),
@@ -75,8 +75,8 @@ elif sys.argv[1] == 'asym':
         if filename.startswith("ns-"):
             print filename
             U = float(filename.split('-')[1].rsplit('.', 1)[0])
-            Kn, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, T, DU0, DT0, T_B = np.loadtxt(filename).T
-            knudsen_layer(Kn, DU0/U, DT0/U, M, T, Qx, Pxx, Pzz, T_B)
+            Kn, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, T, DU0, DT0, T_B0, p0 = np.loadtxt(filename).T
+            knudsen_layer(Kn, DU0/U, DT0/U, M, T, Qx, Pxx, Pzz, p0, T_B0)
             save_data(filename.replace('ns', 'asym'))
 else:
     raise Exception('Illegal type!')

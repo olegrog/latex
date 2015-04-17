@@ -8,6 +8,6 @@ fi
 
 for f in $files; do
     echo $f
-    rm -f $f.pdf
+    rm -f $f.{pdf,tex}
     make $f.pdf > /dev/null
 done
