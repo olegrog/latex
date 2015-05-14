@@ -27,7 +27,9 @@ def plot(filename, column, label):
     X, Y = data[0], data[column]
     mask = (X >= xmin) * (X <= xmax)
     X, Y = X[mask], corrector(Y[mask])
-    py.ylabel(r'$' + label + r'$', y=y_coord, labelpad=8, rotation=0)
+    aY, bY = np.min(Y), np.max(Y)
+    pad = 7 if aY < 0 and -bY/aY < 10 else 0
+    py.ylabel(r'$' + label + r'$', y=y_coord, labelpad=8-pad, rotation=0)
     py.plot(X, Y, '-', lw=1)
     py.xlabel(r'$\zeta$', labelpad=-5)
     py.xlim(xmin, xmax)
