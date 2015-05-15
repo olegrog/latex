@@ -8,6 +8,7 @@ from scipy.integrate import quad
 from functools import partial
 
 L = .5
+_, inprefix, outprefix = sys.argv
 
 xlogx = np.vectorize(lambda x: 0 if x==0 else x*np.log(x))
 Fxlogx = lambda x: x*x*(2*np.log(x)-1)/4
@@ -40,45 +41,29 @@ Omega_1 = interp(eta, Omega_1)
 kn_layer = np.vectorize(lambda F, s, k: k*k*(2*quad_log(F,s,L/k) - quad_log(F,s,2*L/k)))
 kn_layer2 = np.vectorize(lambda F, s, k: k*k*quad_log(F,s,2*L/k))
 
-def expansion(row):
-    U, Pxy1, Pxy2, M0, M1, Qx2, Qy1, Qy2, Pxx2, Pyy2, Pzz2, T0, T1, DU0, DT0 = row
-    Pxy = K*Pxy1 + K*K*Pxy2
-    #Pxy = K*Pxy1 / (1 - K*Pxy2/Pxy1)
-    M, T = M0 + K*M1, T0 + K*T1
-    Qx, Qy = K**2*Qx2, K*Qy1 + K**2*Qy2
-    Pxx, Pyy, Pzz = K**2*np.array([Pxx2, Pyy2, Pzz2])
-    return U, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, T
-
-def knudsen_layer(Kn, DU0, DT0, M, T, Qx, Pxx, Pzz, p0, T_B0=1):
+def knudsen_layer(Kn, DU0, DT0, M, tau, Qx, Pxx, Pyy, Pzz, P, p0, T_B0=1):
     K = T_B0 / p0 * Kn * np.sqrt(np.pi)/2
     M += DU0*kn_layer(Y_0, sY, K)
-    T += DT0*kn_layer2(Theta_1, sTheta, K)
+    tau += DT0*kn_layer2(Theta_1, sTheta, K)
     Qx -= DU0*kn_layer(H_A, sH, K) * p0
     ThetaPlusOmega = lambda x: Theta_1(x) - Omega_1(x)
-    Pxx += 1.5*DT0*kn_layer2(ThetaPlusOmega, sTheta-sOmega, K) * p0 / T_B0
-    Pzz += 1.5*DT0*kn_layer2(ThetaPlusOmega, sTheta-sOmega, K) * p0 / T_B0
+    dp = DT0*kn_layer2(ThetaPlusOmega, sTheta-sOmega, K) * p0 / T_B0
+    Pxx += .5*dp
+    Pyy += -dp
+    Pzz += .5*dp
+    P += dp
 
 def save_data(filename):
-    np.savetxt(filename, np.transpose((Kn, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, T)),
-        fmt='%1.5e', header='       Kn          Pxy           M           Qx          Qy         Pxx         Pyy         Pzz           T')
+    np.savetxt(filename, np.transpose((Kn, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, tau, P)),
+        fmt='%1.5e', header='       Kn          Pxy           M           Qx          Qy         Pxx         Pyy         Pzz         tau           P')
 
-
-if sys.argv[1] == 'ns':
-    for row in np.loadtxt('./navier-stokes.txt'):
-        U, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, T = expansion(row)
-        print U
-        Kn = np.logspace(np.log10(1e-3), np.log10(1e0), num=31)
-        knudsen_layer(Kn, DU0/U, DT0/U, M, T, Qx, Pxx, Pzz)
-        save_data("asym-" + str(U) + ".txt")
-elif sys.argv[1] == 'asym':
-    for filename in os.listdir('.'):
-        if filename.startswith("ns-"):
-            print filename
-            U = float(filename.split('-')[1].rsplit('.', 1)[0])
-            Kn, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, T, DU0, DT0, T_B0, p0 = np.loadtxt(filename).T
-            knudsen_layer(Kn, DU0/U, DT0/U, M, T, Qx, Pxx, Pzz, p0, T_B0)
-            save_data(filename.replace('ns', 'asym'))
-else:
-    raise Exception('Illegal type!')
+for filename in os.listdir('.'):
+    if filename.startswith(inprefix + '-'):
+        outname = filename.replace(inprefix, outprefix)
+        print filename, outname
+        U = float(filename.split('-')[1].rsplit('.', 1)[0])
+        Kn, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, tau, P, DU0, DT0, p0, T_B0 = np.loadtxt(filename).T
+        knudsen_layer(Kn, DU0/U, DT0/U, M, tau, Qx, Pxx, Pyy, Pzz, P, p0, T_B0)
+        save_data(outname)
 
 
