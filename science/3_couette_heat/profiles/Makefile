@@ -1,17 +1,17 @@
-FIGURES = Pxy.pdf vx.pdf qx.pdf qy.pdf Pxx.pdf Pzz.pdf tau.pdf
+FIGURES = Pxy.pdf vx.pdf qx.pdf qy.pdf Pxx.pdf Pyy.pdf Pzz.pdf tau.pdf P.pdf omega.pdf
 SCRIPTS=$(FIGURES:.pdf=.sh)
 
 all: $(FIGURES)
 
 %.pdf: %.tex
 	pdflatex $< > /dev/null
-	rm $*-inc-eps-converted-to.pdf
+	rm $*{-inc-eps-converted-to.pdf,-inc.eps,.aux,.log}
 
 %.tex: %.sh
 	./$<
 
-$(SCRIPTS):
+$(SCRIPTS): template.sh plot_profiles.py
 	./plot_profiles.py $@
 
 clean:
-	rm -f {Pxy,vx,qx,qy,Pxx,Pzz,tau}{.tex,.pdf,.aux,.log,-inc*,.sh}
+	rm -f *{.tex,.aux,.log,-inc*} $(SCRIPTS) $(FIGURES)

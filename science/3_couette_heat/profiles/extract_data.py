@@ -30,10 +30,10 @@ linecolor = {
     10:     'blue'
 }
 
-show = True
+show = False
 
 result = {}
-macros = ['Pxy', 'vx', 'qx', 'qy', 'Pxx', 'Pyy', 'Pzz', 'tau']
+macros = ['Pxy', 'vx', 'qx', 'qy', 'Pxx', 'Pyy', 'Pzz', 'tau', 'P', 'omega']
 for m in macros:
     result[m] = {}
 
@@ -82,9 +82,11 @@ for kn in Kn:
         result['qy'][u] = asym(qy)/u/s2
         result['Pxy'][u] = symm(Pxy)/u
         result['Pxx'][u] = symm(Pxx-Pyy)/u/u
-        result['Pyy'][u] = symm(Pyy)
+        result['Pyy'][u] = (symm(Pyy)-1)/u/u
         result['Pzz'][u] = symm(Pzz-Pyy)/u/u
-        result['tau'][u] = symm(T) - 1
+        result['tau'][u] = (symm(T) - 1)/u/u
+        result['P'][u] = ((symm(Pxx) + symm(Pyy) + symm(Pzz)) / 3 - 1)/u/u
+        result['omega'][u] = (symm(rho) - 1)/u/u
         qy -= Pxy*vx
         if show and u>=0.1:
             Y = symm(Pxy)/u

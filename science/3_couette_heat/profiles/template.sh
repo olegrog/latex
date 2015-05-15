@@ -1,13 +1,13 @@
 #!/usr/bin/env gnuplot
 
-set term epslatex standalone size 4,3 font 10 color dashed
+set term epslatex standalone size 3, 2.25 font 9 color dashed
 set out "<name>.tex"
 set key <place> maxrows 4 width -1
 
 set xlabel '$y$' offset graph 0.0, 0.03
 set ylabel '$<ylabel>$' offset graph 0.05, 0.0
 
-#set xzeroaxis
+set xzeroaxis
 
 set xrange [0:0.5]
 set yrange [<ymin>:<ymax>]
