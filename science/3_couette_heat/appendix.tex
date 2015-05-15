@@ -56,7 +56,7 @@
 \end{gather}
 В частности, дифференцируя~\eqref{eq:Abramowitz0}, получаем
 \begin{equation}\label{eq:Abramowitz-1}
-    \mathcal{T}_{-1}(s) = - \ln{s} - \frac{3\gamma}2 + \sqrt\pi s + O(s^2\ln{s}).
+    \mathcal{T}_{-1}(s) = - \ln{s} - \frac{3\gamma}2 + \sqrt\pi s + \mathcal{O}(s^2\ln{s}).
 \end{equation}
 
 \section{Численное решение задачи Куэтта для модели БКВ}\label{sec:numerical_bkw}
@@ -72,7 +72,7 @@
     Правильный вариант: \( (dG/d\eta) \to G(0)J_{-1}(\eta)/2J_0(0) \to -\pi^{-\frac12}G(0)\ln(\eta)\).
 }
 \begin{equation}
-    \frac{\dd{g}}{\dd{y}} = \frac1{k\sqrt\pi}\left[g\left(\frac12\right)-1\right]\ln\left(\frac12-y\right) + O(1).
+    \frac{\dd{g}}{\dd{y}} = \frac1{k\sqrt\pi}\left[g\left(\frac12\right)-1\right]\ln\left(\frac12-y\right) + \mathcal{O}(1).
 \end{equation}
 
 Метод решения подобных интегральных уравнений описан, например, в~\cite{Atkinson1997}
@@ -83,3 +83,39 @@
 не вызывает сложностей для \(k\gtrsim1\). Для малых \(k\) решение~\eqref{eq:bkw_g_equation}
 требует больших вычислительных затрат, однако уже для \(k \lesssim 0.05\) будет справедливо
 асимптотическое решение~\eqref{eq:small_macro}, как минимум с точностью до 4 знаков.
+
+\section{Вычисление транспортных коэффициентов}\label{sec:gamma8_9} %\(\gamma_8\) и \(\gamma_9\)
+
+\newcommand{\Q}{\ensuremath{\mathcal{Q}^{(0)}}}
+\newcommand{\B}{\ensuremath{\mathcal{B}^{(4)}}}
+\newcommand{\QQ}{\ensuremath{\tilde{\mathcal{Q}}^{(0)}}}
+
+В~\cite{Sone2002} можно найти общие формулы для вычисления \(\gamma_8\) и \(\gamma_9\):
+\begin{equation}\label{eq:gamma_8_9}
+    \gamma_8 = I_6(\Q_2) - I_6(\QQ_{22}) + \frac17 I_8(\Q_3) - \frac17 I_8(\QQ_3), \quad
+    \gamma_9 = -I_6(\B),
+\end{equation}
+где
+\begin{equation}\label{eq:I_n}
+    I_n[Z(\zeta)] = \frac{8}{15\sqrt\pi} \int_0^\infty \zeta^n Z(\zeta) \exp(-\zeta^2) \dd\zeta,
+\end{equation}
+а функции \(\B(\zeta), \Q_2(\zeta), \Q_3(\zeta), \QQ_{22}(\zeta), \QQ_3(\zeta)\) могут быть вычислены
+с помощью следующих интегральных уравнений:
+\begin{gather}
+    \mathcal{L}(\zeta_x\zeta_y\B) = \zeta_x\zeta_y\mathcal{B}, \label{eq:B4_par}\\
+    \mathcal{L}[\zeta_x\zeta_y(3\zeta_z^2-\zeta_x^2)\Q_3] =
+        -\zeta_x\zeta_y(3\zeta_z^2-\zeta_x^2)\left(2\mathcal{B}-\frac1\zeta\der[\mathcal{B}]{\zeta}\right), \label{eq:Q3_par}\\
+    \mathcal{L}[\zeta_x\zeta_y(3\Q_2-\zeta_x^2\Q_3)] =
+        -\zeta_x\zeta_y\zeta_z^2\left(2\mathcal{B}-\frac1\zeta\der[\mathcal{B}]{\zeta}\right), \label{eq:Q2_par}\\
+    \mathcal{L}\left[ \zeta_x\zeta_y\left( 3\zeta_z^2 - \zeta_x^2 \right)\QQ_3 \right]
+        = \mathcal{J}(\zeta_x\zeta_y\mathcal{B}, \zeta_z^2\mathcal{B})
+        + 2\mathcal{J}(\zeta_x\zeta_y\mathcal{B}, \zeta_x\zeta_z\mathcal{B})
+        - \mathcal{J}(\zeta_x\zeta_y\mathcal{B}, \zeta_x^2\mathcal{B}) \label{eq:QQ3_par}\\
+    \mathcal{L}[\zeta_x\zeta_y(\QQ_{22} + \zeta_z^2\QQ_3)] =
+        \mathcal{J}(\zeta_x\zeta_z\mathcal{B}, \zeta_y\zeta_z\mathcal{B}), \label{eq:QQ22_par}
+\end{gather}
+где
+\begin{equation}\label{eq:mathcalJ}
+    E\mathcal{J}(\phi, \psi) = J(E\phi, E\psi).
+\end{equation}
+
