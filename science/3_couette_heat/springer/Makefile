@@ -21,24 +21,24 @@ pics:
 	cp ../distrib_f/kn1.0-center.pdf        Fig04.pdf
 	cp ../distrib_f/kn10-boundary.pdf       Fig05.pdf
 	cp ../distrib_f/kn10-center.pdf         Fig06.pdf
-#	cp ../distrib_f/kn1.0-center-xz5.pdf    Fig07.pdf
-	cp ../profiles/Pxy.pdf                  Fig08.pdf
-	cp ../profiles/vx.pdf                   Fig09.pdf
-	cp ../profiles/qx.pdf                   Fig10.pdf
-	cp ../profiles/qy.pdf                   Fig11.pdf
-	cp ../profiles/P.pdf                    Fig12.pdf
-	cp ../profiles/Pyy.pdf                  Fig13.pdf
-	cp ../profiles/Pxx.pdf                  Fig14.pdf
-	cp ../profiles/Pzz.pdf                  Fig15.pdf
-	cp ../profiles/tau.pdf                  Fig16.pdf
-	cp ../profiles/omega.pdf                Fig17.pdf
-	cp ../integrated/shear.pdf              Fig18.pdf
-	cp ../integrated/flow.pdf               Fig19.pdf
-	cp ../integrated/qflow.pdf              Fig20.pdf
-	cp ../integrated/qflowy.pdf             Fig21.pdf
-	cp ../integrated/pxx.pdf                Fig22.pdf
-	cp ../integrated/pzz.pdf                Fig23.pdf
-	cp ../integrated/temp.pdf               Fig24.pdf
+	cp ../profiles/Pxy.pdf                  Fig07.pdf
+	cp ../profiles/vx.pdf                   Fig08.pdf
+	cp ../profiles/qx.pdf                   Fig09.pdf
+	cp ../profiles/qy.pdf                   Fig10.pdf
+	cp ../profiles/P.pdf                    Fig11.pdf
+	cp ../profiles/Pyy.pdf                  Fig12.pdf
+	cp ../profiles/Pxx.pdf                  Fig13.pdf
+	cp ../profiles/Pzz.pdf                  Fig14.pdf
+	cp ../profiles/tau.pdf                  Fig15.pdf
+	cp ../profiles/omega.pdf                Fig16.pdf
+	cp ../integrated/shear.pdf              Fig17.pdf
+	cp ../integrated/flow.pdf               Fig18.pdf
+	cp ../integrated/qflow.pdf              Fig19.pdf
+	cp ../integrated/qflowy.pdf             Fig20.pdf
+	cp ../integrated/pxx.pdf                Fig21.pdf
+	cp ../integrated/pzz.pdf                Fig22.pdf
+	cp ../integrated/temp.pdf               Fig23.pdf
+	cp ../integrated/diff.pdf               Fig24.pdf
 	cp ../gamma/B.pdf                       Fig25.pdf
 	cp ../gamma/B_4.pdf                     Fig26.pdf
 	cp ../gamma/T1_1.pdf                    Fig27.pdf
