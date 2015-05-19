@@ -1,4 +1,4 @@
-FILE=springer
+FILE=article
 SHELL=/bin/bash
 FIG=Fig*.pdf
 SOURCES=$(FILE).tex $(FILE).bib $(FIG)
@@ -53,4 +53,4 @@ pics:
 	cp ../gamma/QQ_3.pdf                    Fig36.pdf
 
 clean:
-	rm -f $(FILE).{aux,bbl,blg,fff,lof,log,spl,pdf,zip}
+	rm -f $(FILE).{aux,bbl,blg,fff,lof,log,spl,toc,pdf,zip}
