@@ -1,10 +1,10 @@
 FIGURES := $(shell grep 'pdf:' Makefile | sed 's/:.*//' | grep -v FIGURES)
-LOGS := $(shell grep '^log' Makefile | sed 's/:.*//')
+LOGS := $(shell grep '^log.p' Makefile | sed 's/:.*//')
 DATADIR = ~/kesolver/data/couette
 DIR = $(DATADIR)2.0
 DIR2 = $(DATADIR)5.0
 
-all: $(FIGURES) $(LOGS) table.txt
+all: $(FIGURES) log.velocity_grid
 
 kn0.1-center.pdf: $(DIR)/0.100/couette.kei $(DIR)/0.100/result/f24000.bin
 	./out2f.py $? $@ center 10e-5 > /dev/null

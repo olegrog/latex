@@ -74,7 +74,7 @@ ycoord = {
     'boundary': np.max(ycoords)
 }[position]
 celli = np.argwhere(np.abs(ycoords) == ycoord).flatten()
-spline_type = 'cubic'
+spline_type = 'cubic' if smooth > 0 else 'linear'
 k_spline = {
     'cubic': 3,
     'linear': 1
@@ -114,7 +114,10 @@ grid_x, grid_y = np.meshgrid(
     sparse=False, indexing='ij')
 X, Y = slice1d(xyz[ax2int(our[0])], xyz[ax2int(our[1])], axis, rad)
 fnew = np.nan_to_num(f)
-spline = RectBivariateSpline(X, Y, slice2d(fnew, axis, rad), kx=k_spline, ky=k_spline, s=smooth)
+mX, mY = np.abs(X) < cut, np.abs(Y) < cut
+X, Y = X[mX], Y[mY]
+F = slice2d(fnew, axis, rad)[np.outer(mX,mY)].reshape(len(X), len(Y))
+spline = RectBivariateSpline(X, Y, F, kx=k_spline, ky=k_spline, s=smooth)
 grid_z = np.zeros_like(grid_x)
 grid_z.fill(np.NaN)
 mask = grid_x**2 + grid_y**2 < 10*cut**2
