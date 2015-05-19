@@ -3,7 +3,7 @@
 if test $# -gt 0; then
     files=$@
 else
-    files="flow qflow shear qflowy pxx pzz temp press"
+    files="flow qflow shear qflowy pxx pzz temp press diff"
 fi
 
 for f in $files; do
