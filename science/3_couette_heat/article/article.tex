@@ -612,7 +612,7 @@ The weights \(r_{\lambda,a}\) are selected to provide the conservation of mass, 
 \end{equation}
 The set of projection points \(\mathcal{S}_{\alpha'_\nu} = \Set{\bzeta_{\lambda_\nu+s_a}}{a\in\Lambda, r_{\lambda,a}\neq0}\)
 is called the projection stencil.
-In the present paper, the minimal stencil for a nonuniform velocity grid is used, \(|\mathcal{S}_{\alpha'_\nu}|=5\).
+In the present paper, the minimal (tight) stencil for a nonuniform velocity grid is used, \(|\mathcal{S}_{\alpha'_\nu}|=5\).
 Second, to satisfy \(J_\gamma(\hat{f}_{M\gamma}, \hat{f}_{M\gamma}) = 0\),
 \(\hat{f}_{\alpha'_\nu}\) is interpolated in following way:
 \begin{equation}\label{eq:ci_interpolation}
@@ -620,6 +620,16 @@ Second, to satisfy \(J_\gamma(\hat{f}_{M\gamma}, \hat{f}_{M\gamma}) = 0\),
         \left(\frac{\hat{f}_{\lambda_\nu+s_a}}{w_{\lambda_\nu+s_a}} \right)^{r_{\lambda,a}}.
 \end{equation}
 For \(\bzeta_{\beta'_\nu}\) and \(\hat{f}_{\beta'_\nu}\), all formulas are similar.
+
+There is one more important and necessary property of the numerical algorithm:
+the distribution function must always remain positive.
+If there is a term in the sum~\eqref{eq:discrete_symm_ci} that violates this property,
+it is just excluded from \(\mathcal{N}\).
+On the other hand, a large number of such excluded collisions disturbs the integration lattice
+and, therefore, the approximation error increases significantly.
+To prevent this situation, several methods can be used:
+decreasing the time step, increasing \(|\mathcal{N}|\) and extending \(\mathcal{S}_{\alpha'_\nu}\),
+e.g., using the symmetric stencil~\cite{Dodulad2015} \(|\mathcal{S}_{\alpha'_\nu}|=7\).
 
 \subsubsection{Discretization of the problem}
 
@@ -944,15 +954,19 @@ for the BKW and hard-sphere models coincide, respectively.
 In Fig.~\ref{fig:shear} and Fig.~\ref{fig:qflow}, the difference between asymptotic (the blue line)
 and projection-method (the red line) solutions is \(\OO{\Kn^3}\),
 which is in accordance with Eq.~\eqref{eq:Hilbert_Pxy} and Eq.~\eqref{eq:Hilbert_Qx}.
+For \(\Delta{v}=0.1\), the asymptotic solution is close to the linear one~\eqref{eq:linear_macro},
+which has the larger order of the approximation.
 In Fig.~\ref{fig:flow}, the deviation of the projection-method curves
 from the asymptotic solution for small \(\Kn\) indicates that
-the error of the projection-method solution is of the order \(10^{-4}\)
-and \(10^{-5}\) for \(\Delta{v}=0.1\).
+the error of the projection-method solution is within the interval from \(10^{-5}\) to \(10^{-4}\).
 These facts are more evident in Fig.~\ref{fig:diff},
 where the absolute difference between the solutions
 is depicted for some macroscopic variables.
-The large error for \(\tau\) at \(\Kn=0.01\) seems to be explained by the imperfect discretization.
-The DSMC method (the green line) produce an error up to \(10^{-3}\),
+The increase of the error for \(\tau\) and \(v_x\) for the smallest \(\Kn\)
+is explained by the insufficiently cardinality of the integration lattice \(\mathcal{N}\),
+chosen due to a very small time step.
+
+The DSMC method (the green line) produces an error within the interval from \(10^{-4}\) to \(10^{-3}\),
 mainly due to the fluctuations, especially for \(\Delta{v}=0.1\).
 In Fig.~\ref{fig:shear}, there is a constant-sign difference
 between the DSMC and projection-method solutions.
