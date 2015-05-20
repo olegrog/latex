@@ -1,21 +1,15 @@
 %&pdflatex
-\RequirePackage{fix-cm}
-\documentclass[smallextended]{svjour3} % svjour3: smallextended, referee
-\usepackage[russian, english]{babel} % only english
-\usepackage[T2A,T1]{fontenc} % only T1
+\documentclass[aip,pof,preprint]{revtex4-1}
+%\usepackage[english]{babel}
+%\usepackage[T1]{fontenc} % only T1
 \usepackage{graphicx}
 \usepackage{amssymb, amsmath}
+%\usepackage[mathlines]{lineno}
 \allowdisplaybreaks[3]
-\usepackage{cite}
-\usepackage{fixltx2e}
-\usepackage{fullpage}
+%\usepackage{fixltx2e}
 \usepackage[export]{adjustbox}
 \usepackage[skip=0pt]{subcaption}
 \captionsetup{compatibility=false}
-
-\usepackage{ifdraft}
-\ifdraft{\renewcommand{\includegraphics}{\relax}}{\relax}
-%\renewcommand{\includegraphics}{\relax}
 
 \newcommand{\Kn}{\mathrm{Kn}}
 \newcommand{\NS}{N\!S}
@@ -43,26 +37,21 @@
 \newcommand{\ZZZZ}{\zeta_i\zeta_j\zeta_k\zeta_l}
 \newcommand{\DD}[2]{\delta_{#1}\delta_{#2}}
 
-
-\journalname{To be specified...}
-
 \begin{document}
 
 \title{
     Numerical analysis of the nonlinear plane Couette-flow problem for hard-sphere molecules
 }
 
-\author{O.A.~Rogozin}
-\institute{O.A.~Rogozin \at
+\author{O.A.~Rogozin}%
+    \email{oleg.rogozin@phystech.edu}
+\affiliation{
     Moscow Institute of Physics and Technology,
     9 Institutskiy pereulok, g. Dolgoprudny,
-    Moskovskaya obl., Russian Federation\\
-    \email{oleg.rogozin@phystech.edu}
+    Moskovskaya obl., Russian Federation
 }
 
-\date{Received: date / Accepted: date}
-
-\maketitle
+\date{\today}
 
 \begin{abstract}
     The plane Couette flow of a rarefied gas is investigated on the basis of
@@ -73,22 +62,25 @@
     The DSMC simulation is used to verify the obtained results over the wide range of the Knudsen and Mach numbers.
     The asymptotic solution for a slightly rarefied gas is also included in the comparison.
     Some transport coefficients for hard-sphere molecules are evaluated for this purpose.
-    \keywords{
-    	Couette flow \and
-        rarefied gas dynamics \and
-        Boltzmann equation \and
-        projection method  \and
-        asymptotic analysis \and
-        OpenFOAM \and
-        DSMC
-    }
-    \PACS{
-        47.45.Ab,   % Kinetic theory of gases
-        47.11.Df    % Finite volume methods
-        47.15.-x    % Laminar flows
-        51.10.+y    % Kinetic and transport theory of gases
-    }
 \end{abstract}
+
+\keywords{
+    Couette flow
+    rarefied gas dynamics
+    Boltzmann equation
+    projection method
+    asymptotic analysis
+    OpenFOAM
+    DSMC
+}
+\pacs{
+    47.45.Ab,   % Kinetic theory of gases
+    47.11.Df    % Finite volume methods
+    47.15.-x    % Laminar flows
+    51.10.+y    % Kinetic and transport theory of gases
+}
+
+\maketitle
 
 \section{Introduction}
 
@@ -199,7 +191,7 @@ The Maxwell-type boundary condition with diffuse reflection is used at \(y=1/2\)
         \int_{\zeta_{*y}>0}\zeta_{*y} f_* \dzeta_*, \quad \zeta_y<0.
 \end{equation}
 The symmetry condition is imposed at \(y=0\):
-\begin{equation}\label{eq:diffuse_bc}
+\begin{equation}\label{eq:specular_bc}
     f(\zeta_x,\zeta_y,\zeta_z) = f(\zeta_x,-\zeta_y,\zeta_z), \quad \zeta_y>0.
 \end{equation}
 
@@ -338,12 +330,14 @@ The remaining macroscopic variables are calculated as follows:
             \mathcal{T}_1\left(\frac{1-2s}{2k}\right)-\mathcal{T}_1\left(\frac{1+2s}{2k}\right)
         \right]g(s)\dd{s}
         \right), \label{eq:bkw_macro_Pxy} \\
-    \frac{q_x}{\Delta v} = \frac1{2\sqrt\pi}\left(
-        \mathcal{T}_2\left(\frac{1-2s}{2k}\right) - \mathcal{T}_2\left(\frac{1+2s}{2k}\right)
-        + \frac1k\int_0^{\frac12}\left[
+    \begin{aligned}
+    \frac{q_x}{\Delta v} = \frac1{2\sqrt\pi}&\left(
+        \mathcal{T}_2\left(\frac{1-2s}{2k}\right) - \mathcal{T}_2\left(\frac{1+2s}{2k}\right)\right. \\
+        &+\left. \frac1k\int_0^{\frac12}\left[
             \mathcal{T}_1\left(\frac{|y-s|}k\right)-\mathcal{T}_1\left(\frac{y+s}k\right)
         \right]g(s)\dd{s}
-        \right) - \frac{g(y)}4. \label{eq:bkw_macro_qx}
+        \right) - \frac{g(y)}4.
+    \end{aligned} \label{eq:bkw_macro_qx}
 \end{gather}
 
 \section{Outline of the methods for the nonlinear problem}
@@ -463,8 +457,11 @@ Finally, taking into account the Knudsen-layer correction, the asymptotic soluti
     v_x = v_{x0} - \frac{Y_0^--Y_0^+}{p_0}T_{B0}\left.\pder[v_{x0}]{y}\right|_{y=\frac12}k + \OO{k^2}, \label{eq:Hilbert_U}\\
     T = T_0 - \frac{\Theta_1^-+\Theta_1^+}{p_0}T_{B0}\left.\pder[T_0]{y}\right|_{y=\frac12}k + \OO{k^2}, \label{eq:Hilbert_T}\\
     p_{xy} = -\gamma_1\sqrt{T_0}\pder[v_{x0}]{y}k + \OO{k^3}, \label{eq:Hilbert_Pxy}\\
-    q_x = (H_A^--H_A^+)T_{B0}\left.\pder[v_{x0}]{y}\right|_{y=\frac12}k + \frac{T_0}{p_0}\left(\frac{\gamma_3}2 T_0 \pderdual[v_{x0}]{y}
-        + 4\gamma_{10} \pder[T_0]{y}\pder[v_{x0}]{y}\right)k^2 + q_{xK2}k^2 + \OO{k^3}, \label{eq:Hilbert_Qx}\\
+    \begin{aligned}
+        q_x = (H_A^--H_A^+)T_{B0}\left.\pder[v_{x0}]{y}\right|_{y=\frac12}k &+ q_{xK2}k^2 \\
+        &+ \frac{T_0}{p_0}\left(\frac{\gamma_3}2 T_0 \pderdual[v_{x0}]{y}
+        + 4\gamma_{10} \pder[T_0]{y}\pder[v_{x0}]{y}\right)k^2 + \OO{k^3},
+    \end{aligned}\label{eq:Hilbert_Qx}\\
     q_y = -\frac54\gamma_2\sqrt{T_0}\pder[T_0]{y}k + q_{yK2}k^2 + \OO{k^3}, \label{eq:Hilbert_Qy}\\
     \begin{aligned}
     p_{xx} - p &= -\frac12 (\Omega_1^-+\Omega_1^+ + \Theta_1^-+\Theta_1^+)\left.\pder[T_0]{y}\right|_{y=\frac12}k
@@ -498,7 +495,7 @@ so they were obtained by direct solution of the corresponding integral equations
 \end{equation}
 The Knudsen-layer functions \(K^\pm = Y_0^\pm, \Theta_1^\pm, H_A^\pm, \Omega_1^\pm\)
 are defined as follows:
-\begin{equation}\label{eq:linear_knudsen_functions}
+\begin{equation}\label{eq:nonlinear_knudsen_functions}
      K^\pm = K\left(\frac{p_0}{T_0}\eta_\pm\right), \quad \eta_\pm = \frac{1 \mp 2y}{2k}.
 \end{equation}
 For hard-sphere molecules, \(\Theta_1(\eta)\) and \(\Omega_1(\eta)\)
@@ -561,10 +558,12 @@ where \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) is the set of the in
 \(V_\nu\) is the total volume of the velocity grid.
 Then, the collision integral written in the symmetrized form,
 \begin{equation}\label{eq:symm_ci}
-    J(f_\gamma, f_\gamma) = \frac14\int \left[
+    \begin{aligned}
+    J(f_\gamma, f_\gamma) = \frac14\int &\left[
         \delta(\bzeta'-\bzeta_\gamma) + \delta(\bzeta'_*-\bzeta_\gamma)
-        - \delta(\bzeta-\bzeta_\gamma) - \delta(\bzeta_*-\bzeta_\gamma)
-        \right](f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\alpha}) \dzeta\dzeta_*,
+        - \delta(\bzeta-\bzeta_\gamma) - \delta(\bzeta_*-\bzeta_\gamma)\right] \\
+        &(f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\alpha}) \dzeta\dzeta_*,
+    \end{aligned}
 \end{equation}
 where \(\delta(\bzeta)\) is the Dirac delta function in \(\mathbb{R}^3\),
 has the following discrete analog:
@@ -1045,7 +1044,7 @@ and the integrands can be obtained from the corresponding integral equations:
     \mathcal{L}\left[ \zeta_x\left(3\T{2}_1 + \zeta_x^2\T{2}_2\right) \right]
         &= -\zeta_x^3\left((\zeta^2-3)\mathcal{B} - \frac\zeta2\der[\mathcal{B}]{\zeta}\right) + \frac{3\gamma_1}{2}\zeta_x, \label{eq:T1b}\\
     \mathcal{L}\left( \zeta_x\zeta_y\zeta_z\TT_2 \right)
-    	&= \mathcal{J}\left( \zeta_x\mathcal{A}, \zeta_y\zeta_z\mathcal{B} \right), \label{eq:TT2}\\
+        &= \mathcal{J}\left( \zeta_x\mathcal{A}, \zeta_y\zeta_z\mathcal{B} \right), \label{eq:TT2}\\
     \mathcal{L}\left[ \zeta_y\left(\TT_{12} + \zeta_x^2\TT_2\right) \right]
         &= \mathcal{J}\left( \zeta_x\mathcal{A}, \zeta_x\zeta_y\mathcal{B} \right), \label{eq:TT12}
 \end{align}
@@ -1133,8 +1132,6 @@ The desired functions are shown in Fig.~\ref{fig:transport_functions}.
     \label{fig:transport_functions}
 \end{figure}
 
-
-\bibliographystyle{spmpsci} % spbasic, spmpsci, spphys
 \bibliography{article}
 
 \end{document}
