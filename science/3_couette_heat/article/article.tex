@@ -614,6 +614,8 @@ Second, to satisfy \(J_\gamma(\hat{f}_{M\gamma}, \hat{f}_{M\gamma}) = 0\),
     \frac{\hat{f}_{\alpha'_\nu}}{w_{\alpha'_\nu}} = \prod_{a\in\Lambda}
         \left(\frac{\hat{f}_{\lambda_\nu+s_a}}{w_{\lambda_\nu+s_a}} \right)^{r_{\lambda,a}}.
 \end{equation}
+This type of interpolation is a high-cost approach, but it is important,
+when the distribution function is close to the Maxwellian.
 For \(\bzeta_{\beta'_\nu}\) and \(\hat{f}_{\beta'_\nu}\), all formulas are similar.
 
 There is one more important and necessary property of the numerical algorithm:
@@ -622,9 +624,11 @@ If there is a term in the sum~\eqref{eq:discrete_symm_ci} that violates this pro
 it is just excluded from \(\mathcal{N}\).
 On the other hand, a large number of such excluded collisions disturbs the integration lattice
 and, therefore, the approximation error increases significantly.
-To prevent this situation, several methods can be used:
-decreasing the time step, increasing \(|\mathcal{N}|\) and extending \(\mathcal{S}_{\alpha'_\nu}\),
-e.g., using the symmetric stencil~\cite{Dodulad2015} \(|\mathcal{S}_{\alpha'_\nu}|=7\).
+To prevent this situation, we should either decrease the time step
+or increase \(|\mathcal{N}|\).
+If we suppose that the integration lattice has an error \(\OO{|\mathcal{N}|^{-1}}\),
+then excluding randomly distributed \(M\) points produce an error \(\OO{\sqrt{M}/|\mathcal{N}|}\).
+
 
 \subsubsection{Discretization of the problem}
 
@@ -703,10 +707,13 @@ for both \(T=1\) near the plate and the larger temperature near the symmetry pla
     \label{table:velocity_grid}
 \end{table}
 
-The cardinality of the integration lattice \(|\Nu|\) varies from 5 (for small and large \(\Kn\))
-to 300 (for intermediate \(\Kn\)) thousands to confine the amplitude of statistical fluctuations
-within the order of \(10^{-3}\). On reaching a steady state,
-the values of the macroscopic variables are averaged over the time iterations.
+To confine the number of points excluded from \(\Nu\),
+the cardinality of the integration lattice \(|\Nu|\) are about \(2\cdot10^5\).
+In all cases, \(M/|\mathcal{N}|\) is maintained to be about \(10^{-2}\) or less in the marginal physical cell,
+where the maximum number of the excluded points is observed.
+So this kind of error can be estimated as \(\sqrt{0.01}/\sqrt{2\cdot10^5} \approx 2\cdot10^{-4}\) in the worst case.
+To reduce a fluctuation error, the values of the macroscopic variables
+are averaged over the time iterations after reaching a steady state.
 
 %%% Remark on a time step
 It is worth to make a remark about the time step and the process of reaching a steady state.
@@ -902,7 +909,7 @@ has a lower thermal conductivity.
     \includegraphics{Fig24}
     \caption{The absolute difference between solutions \(|\int_0^{1/2} (h^{(1)}-h^{(2)})\dd{y}|\)
         (\(h = P_{xy}, q_x, \tau\), the superscript denotes the method) versus the Knudsen number:
-        the solid lines correspond to the asymptotic and projection-method solutions,
+        the lines without circles correspond to the asymptotic and projection-method solutions,
         the lines with circles correspond to the DSMC and projection-method solutions}
     \label{fig:diff}
 \end{figure}
