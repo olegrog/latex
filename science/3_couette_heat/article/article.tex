@@ -95,7 +95,7 @@ The nonlinear problem is also studied extensively~\cite{Garzo2003}.
 Despite the remarkable progress in deterministic numerical methods
 in the recent years~\cite{Dimarco2014,Mieussens2014},
 which can provide a high-accuracy solution compared to stochastic techniques,
-it is the DSMC simulation, with its inherent statistical fluctuations,
+it is the direct simulation Monte-Carlo (DSMC), with its inherent statistical fluctuations,
 that remains as the reference solution~\cite{Cercignani1994}.
 The present study is aimed to obtain the robust and accurate solutions
 of the nonlinear problem for various external parameters.
@@ -504,8 +504,8 @@ implemented in OpenFOAM\textregistered{}.
 
 \subsection{Statistical simulation}
 
-The DSMC method is the dominant numerical method in rarefied gas dynamics.
-Its description is omitted in the present paper,
+The DSMC method is the dominant numerical method in rarefied gas dynamics,
+so its description is omitted in the present paper,
 because it can be easily found in the literature~\cite{Bird1994, Sone2007}.
 An open-source parallel solver, \verb+dsmcFoam+~\cite{Reese2010},
 based on the widespread CFD toolbox OpenFOAM\textregistered{}, is used.
@@ -717,7 +717,7 @@ are averaged over the time iterations after reaching a steady state.
 
 %%% Remark on a time step
 It is worth to make a remark about the time step and the process of reaching a steady state.
-Owing to the CFL condition for convergence of an explicit scheme for~\eqref{eq:split_advection},
+Owing to the Courant--Friedrichs--Lewy (CFL) condition for convergence of an explicit scheme for~\eqref{eq:split_advection},
 the time step is of the same order as the size of the marginal cell.
 Therefore, to accelerate progress towards the steady state for small \(\Kn\),
 the initial distribution function is constructed as the local Maxwellian
