@@ -8,7 +8,7 @@ params = {'backend': 'pdf',
           'xtick.labelsize': 8,
           'ytick.labelsize': 8,
           'text.usetex': True,
-          'figure.figsize': [3.3,2.5]}
+          'figure.figsize': [3.0,2.2]}
 py.rcParams.update(params)
 import numpy as np
 import sys, math, array, struct, itertools, json
@@ -140,6 +140,6 @@ dashes = [1,1]
 py.axhline(0, c='k', lw=0.25, dashes=dashes)
 py.axvline(0, c='k', lw=0.25, dashes=dashes)
 
-py.savefig(outfile, bbox_inches='tight', pad_inches=0.05)
+py.savefig(outfile, bbox_inches='tight', pad_inches=0.01, transparent=True)
 #py.show()
 

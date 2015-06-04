@@ -9,7 +9,7 @@ params = {'backend': 'pdf',
           'xtick.labelsize': 8,
           'ytick.labelsize': 8,
           'text.usetex': True,
-          'figure.figsize': [2,1.5]}
+          'figure.figsize': [1.6,1.2]}
 py.rcParams.update(params)
 import numpy as np
 import sys
@@ -31,7 +31,7 @@ def plot(filename, column, label):
     pad = 7 if aY < 0 and -bY/aY < 10 else 0
     py.ylabel(r'$' + label + r'$', y=y_coord, labelpad=8-pad, rotation=0)
     py.plot(X, Y, '-', lw=1)
-    py.xlabel(r'$\zeta$', labelpad=-5)
+    py.xlabel(r'$\zeta$', labelpad=-3)
     py.xlim(xmin, xmax)
     ax = py.axes()
     ax.axhline(lw=.5, c='k', ls=':')
@@ -90,5 +90,5 @@ if len(sys.argv) > 7:
 
 plot(sys.argv[1], sys.argv[2], sys.argv[3])
 
-py.savefig(sys.argv[4], bbox_inches='tight', pad_inches=0.05)
+py.savefig(sys.argv[4], bbox_inches='tight', pad_inches=0.01, Transparent=True)
 

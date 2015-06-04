@@ -1,6 +1,6 @@
 #!/usr/bin/env gnuplot
 
-set term epslatex standalone size 3, 2.25 font 9 color dashed
+set term epslatex standalone size 2.8, 2.1 font 8 color dashed
 set out "<name>.tex"
 set key <place> maxrows 4 width -1
 
