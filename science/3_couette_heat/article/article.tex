@@ -1,5 +1,5 @@
 %&pdflatex
-\documentclass[aip,pof,preprint]{revtex4-1}
+\documentclass[]{jfm}
 %\usepackage[english]{babel}
 %\usepackage[T1]{fontenc}
 \usepackage{graphicx}
@@ -9,7 +9,7 @@
 \usepackage[skip=0pt]{subcaption}
 \captionsetup{compatibility=false}
 
-\newcommand{\Kn}{\mathrm{Kn}}
+\newcommand{\Kn}{\mbox{\textit{Kn}}}
 \newcommand{\NS}{N\!S}
 \newcommand{\dd}{\mathrm{d}}
 \newcommand{\der}[2][]{\frac{\dd#1}{\dd#2}}
@@ -20,7 +20,7 @@
 \newcommand{\dzeta}{\boldsymbol{\dd\zeta}}
 \newcommand{\bzeta}{\boldsymbol{\zeta}}
 \newcommand{\Nu}{\mathcal{N}}
-\newcommand{\OO}[1]{\mathcal{O}(#1)}
+\newcommand{\OO}[1]{O(#1)}
 \newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
 
 %%% for the appendix
@@ -41,15 +41,18 @@
     Numerical analysis of the nonlinear plane Couette-flow problem for hard-sphere molecules
 }
 
-\author{O.A.~Rogozin}%
-    \email{oleg.rogozin@phystech.edu}
+\author{
+    Oleg Rogozin\aff{1}
+    \corresp{\email{oleg.rogozin@phystech.edu}}
+}
 \affiliation{
+    \aff{1}
     Moscow Institute of Physics and Technology,
     9 Institutskiy pereulok, g. Dolgoprudny,
     Moskovskaya obl., Russian Federation
 }
 
-\date{\today}
+\maketitle
 
 \begin{abstract}
     The plane Couette flow of a rarefied gas is investigated on the basis of
@@ -62,23 +65,21 @@
     Some transport coefficients for hard-sphere molecules are evaluated for this purpose.
 \end{abstract}
 
-\keywords{
-    Couette flow,
-    rarefied gas dynamics,
-    Boltzmann equation,
-    projection method,
-    asymptotic analysis,
-    OpenFOAM,
-    DSMC
-}
-\pacs{
-    47.45.Ab,   % Kinetic theory of gases
-    47.11.Df,    % Finite volume methods
-    47.15.-x,    % Laminar flows
-    51.10.+y    % Kinetic and transport theory of gases
-}
-
-\maketitle
+%\keywords{
+%    Couette flow,
+%    rarefied gas dynamics,
+%    Boltzmann equation,
+%    projection method,
+%    asymptotic analysis,
+%    OpenFOAM,
+%    DSMC
+%}
+%\pacs{
+%    47.45.Ab,   % Kinetic theory of gases
+%    47.11.Df,    % Finite volume methods
+%    47.15.-x,    % Laminar flows
+%    51.10.+y    % Kinetic and transport theory of gases
+%}
 
 \section{Introduction}
 
@@ -153,7 +154,7 @@ be equal to \((\pm\Delta{v}/2)(2RT^{(0)})^{1/2}\), respectively.
 
 Molecules are assumed as hard spheres, so the Knudsen number is expressed in the following way:
 \begin{equation}\label{eq:Kn_number}
-    \Kn = \frac{\ell_0}{L} = \frac{k_BT^{(0)}}{\pi\sqrt{2} d_m^2p^{(0)}L},
+    \Kn = \frac{\ell_0}{L} = \frac{k_BT^{(0)}}{\upi\sqrt{2} d_m^2p^{(0)}L},
 \end{equation}
 where \(\ell_0\) is the mean free path for the unit density, \(d_m\) is the diameter of the molecule.
 To describe an ideal gas over the wide range of Knudsen numbers
@@ -177,13 +178,13 @@ determining the velocities after impact:
 \end{equation}
 For the hard-sphere model,
 \begin{equation}\label{eq:ci_kernel}
-    B = \frac{|\alpha_i(\zeta_{i*}-\zeta_i)|}{4\sqrt{2\pi}}.
+    B = \frac{|\alpha_i(\zeta_{i*}-\zeta_i)|}{4\sqrt{2\upi}}.
 \end{equation}
-A modified Knudsen number \(k = \Kn\sqrt\pi/2\) is used in~\eqref{eq:Boltzmann}.
+A modified Knudsen number \(k = \Kn\sqrt{\upi}/2\) is used in~\eqref{eq:Boltzmann}.
 
 The Maxwell-type boundary condition with diffuse reflection is used at \(y=1/2\), i.e.,
 \begin{equation}\label{eq:diffuse_bc}
-    f(\zeta_x,\zeta_y,\zeta_z) = \frac2\pi \exp\left[-\left(\zeta_x-\frac{\Delta{v}}{2}\right)^2-\zeta_y^2-\zeta_z^2\right]
+    f(\zeta_x,\zeta_y,\zeta_z) = \frac2{\upi} \exp\left[-\left(\zeta_x-\frac{\Delta{v}}{2}\right)^2-\zeta_y^2-\zeta_z^2\right]
         \int_{\zeta_{*y}>0}\zeta_{*y} f_* \dzeta_*, \quad \zeta_y<0.
 \end{equation}
 The symmetry condition is imposed at \(y=0\):
@@ -216,7 +217,7 @@ with the linearized collision operator
 \end{equation}
 holds for a gas that deviates only slightly from an equilibrium state, i.e.,
 \begin{equation}\label{eq:linear_condition}
-    \phi = \frac{f}{E} - 1 \ll 1, \quad E(\zeta) = \frac1{\pi^{3/2}}\exp\left(-\zeta^2\right).
+    \phi = \frac{f}{E} - 1 \ll 1, \quad E(\zeta) = \frac1{\upi^{3/2}}\exp\left(-\zeta^2\right).
 \end{equation}
 Perturbed local Maxwell distribution
 \begin{equation}\label{eq:linear_maxwellian}
@@ -256,7 +257,7 @@ For \(k\to\infty\), we obtain the collisionless linearized Boltzmann equation \(
 which has a simple solution as a combination of two different half-Maxwellians, i.e., \(\Phi_\pm = \mp 1\).
 It gives
 \begin{gather}\label{eq:linear_free_macro}
-    \frac{P_{xy}}{\Delta{v}} = -\frac1{\sqrt\pi}, \quad v_x = q_x = 0.
+    \frac{P_{xy}}{\Delta{v}} = -\frac1{\sqrt{\upi}}, \quad v_x = q_x = 0.
 \end{gather}
 
 For small \(k\), we turn to the Grad--Hilbert expansion
@@ -278,7 +279,7 @@ therefore, it is corrected in the Knudsen layer. Finally, we have
 \end{equation}
 where the viscosity coefficient \(\gamma_1 = 1.270042427\) is calculated as
 \begin{equation}\label{eq:gamma_1}
-    \gamma_1 = \frac{8}{15\sqrt\pi}\int_0^\infty \zeta^6 \mathcal{B}(\zeta)E\dd\zeta,
+    \gamma_1 = \frac{8}{15\sqrt{\upi}}\int_0^\infty \zeta^6 \mathcal{B}(\zeta)E\dd\zeta,
 \end{equation}
 and \(k_0 = -1.2540\) is the slip coefficient.
 The Knudsen-layer functions \(K^\pm = Y_0^\pm, H_A^\pm\) are defined as follows:
@@ -309,7 +310,7 @@ Its solution can be written in the following form~\cite{Willis1962}:
 \end{equation}
 where \(g(y) = 2v_x/\Delta v\) is found from the Fredholm integral equation of the second kind
 \begin{equation}\label{eq:bkw_g_equation}
-    \sqrt\pi g(y) = \mathcal{T}_0^+ - \mathcal{T}_0^-
+    \sqrt{\upi} g(y) = \mathcal{T}_0^+ - \mathcal{T}_0^-
         + \frac1k \int_0^{\frac12} \left[ \mathcal{T}_{-1}\left(\frac{|y-s|}{k}\right)
         - \mathcal{T}_{-1}\left(\frac{y+s}{k}\right) \right] g(s) \dd{s}.
 \end{equation}
@@ -320,14 +321,14 @@ Here, \(\mathcal{T}_n(s)\) are special Abramowitz functions~\cite{Abramowitz1972
 \end{equation}
 The remaining macroscopic variables are calculated as follows:
 \begin{gather}
-    \frac{P_{xy}}{\Delta v} = -\frac{2k}{\sqrt\pi} \left(
+    \frac{P_{xy}}{\Delta v} = -\frac{2k}{\sqrt{\upi}} \left(
         \mathcal{T}_2(0)-\mathcal{T}_2\left(\frac1k\right)
         + \frac1k\int_0^{\frac12}\left[
             \mathcal{T}_1\left(\frac{1-2s}{2k}\right)-\mathcal{T}_1\left(\frac{1+2s}{2k}\right)
         \right]g(s)\dd{s}
         \right), \label{eq:bkw_macro_Pxy} \\
     \begin{aligned}
-    \frac{q_x}{\Delta v} = \frac1{2\sqrt\pi}&\left(
+    \frac{q_x}{\Delta v} = \frac1{2\sqrt{\upi}}&\left(
         \mathcal{T}_2\left(\frac{1-2s}{2k}\right) - \mathcal{T}_2\left(\frac{1+2s}{2k}\right)\right. \\
         &+\left. \frac1k\int_0^{\frac12}\left[
             \mathcal{T}_1\left(\frac{|y-s|}k\right)-\mathcal{T}_1\left(\frac{y+s}k\right)
@@ -344,7 +345,7 @@ Collisionless Boltzmann equation, as well as in the linearized case,
 has a solution as a combination of two different half-Maxwellians:
 \begin{equation}\label{eq:free_solution}
     f^\pm = f(\zeta_y \gtrless 0) =
-        \frac1{\pi\sqrt\pi} \exp\left[-\left(\zeta_x\pm\frac{\Delta{v}}2\right)^2 - \zeta_y^2 - \zeta_z^2\right],
+        \frac1{\upi\sqrt{\upi}} \exp\left[-\left(\zeta_x\pm\frac{\Delta{v}}2\right)^2 - \zeta_y^2 - \zeta_z^2\right],
 \end{equation}
 which supplements Eqs.~\eqref{eq:linear_free_macro} with the following values of the macroscopic variables:
 \begin{equation}\label{eq:free_macro}
@@ -512,13 +513,13 @@ based on the widespread CFD toolbox OpenFOAM\textregistered{}, is used.
 
 Numerical simulation of gas between two parallel plates is carried out
 in a two-dimensional geometry \((x,y)\) with a periodicity boundary conditions along the \(y\) axis.
-The size of the statistical ensemble is \(2\cdot10^6\) for \(\Delta{v}=0.1\)
-and \(2\cdot10^5\) for \(\Delta{v}\ge1\).
+The size of the statistical ensemble is \(2\times10^6\) for \(\Delta{v}=0.1\)
+and \(2\times10^5\) for \(\Delta{v}\ge1\).
 The space interval \(0<y<1/2\) is divided into uniform sections:
 from 40 for \(\Kn=10\) to 100 for \(\Kn=0.1\).
 The time step is chosen empirically to provide a satisfactory approximation of the macroscopic variables:
 \begin{equation}\label{eq:dsmc_timestep}
-    \Delta{t} = \frac\pi2 \frac{\sqrt\Kn}{1000}.
+    \Delta{t} = \frac{\upi}2 \frac{\sqrt{\Kn}}{1000}.
 \end{equation}
 In order to reduce the statistical noise, values of all macroscopic variables
 are averaged over time after reaching a steady state.
@@ -557,13 +558,13 @@ Then, the collision integral written in the symmetrized form,
     J(f_\gamma, f_\gamma) = \frac14\int &\left[
         \delta(\bzeta'-\bzeta_\gamma) + \delta(\bzeta'_*-\bzeta_\gamma)
         - \delta(\bzeta-\bzeta_\gamma) - \delta(\bzeta_*-\bzeta_\gamma)\right] \\
-        &(f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\alpha}) \dzeta\dzeta_*,
+        &\times(f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\alpha}) \dzeta\dzeta_*,
     \end{aligned}
 \end{equation}
 where \(\delta(\bzeta)\) is the Dirac delta function in \(\mathbb{R}^3\),
 has the following discrete analog:
 \begin{equation}\label{eq:discrete_symm_ci}
-    w_\gamma J_\gamma = \frac{\pi V_\nu^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
+    w_\gamma J_\gamma = \frac{\upi V_\nu^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
         \sum_{\nu\in\Nu} \left(
             \delta_{\alpha'_\nu\gamma} + \delta_{\beta'_\nu\gamma}
             - \delta_{\alpha_\nu\gamma} - \delta_{\beta_\nu\gamma}
@@ -667,13 +668,13 @@ To assess the accuracy of the discrete approximation in \(\zeta_i\) space,
 two outermost models of the distribution function were considered.
 For small \(\Kn\), this is a Grad's thirteen-moment approximation
 \begin{equation}\label{eq:grad13}
-    f = \frac{\rho}{(\pi T)^{3/2}}\exp\left(-\frac{c_i^2}{ T}\right)
+    f = \frac{\rho}{(\upi T)^{3/2}}\exp\left(-\frac{c_i^2}{ T}\right)
     \left[ 1 + \frac{(p_{ij}-p\delta_{ij})c_ic_j}{pT} + \frac4{5}\frac{q_ic_i}{pT}\left(\frac{c_j^2}{T}-\frac5{2}\right) \right],
     \quad c_i = \zeta_i - v_i.
 \end{equation}
 For large \(\Kn\), this is a combination of two different half-Maxwellians
 \begin{equation}\label{eq:double_Maxwell}
-    f(\zeta_y\gtrless0) = \frac{\rho^\pm}{(\pi T^\pm)^{3/2}}\exp\left(-\frac{(\zeta_x-v_x^\pm)^2+\zeta_y^2+\zeta_z^2}{T^\pm}\right).
+    f(\zeta_y\gtrless0) = \frac{\rho^\pm}{(\upi T^\pm)^{3/2}}\exp\left(-\frac{(\zeta_x-v_x^\pm)^2+\zeta_y^2+\zeta_z^2}{T^\pm}\right).
 \end{equation}
 In the first case, the distribution function is smooth,
 so \(\zeta_i^{(cut)}\) becomes a key factor of the accuracy.
@@ -687,14 +688,13 @@ for both \(T=1\) near the plate and the larger temperature near the symmetry pla
 
 \begin{table}
     \centering
-    \begin{tabular}{|c|c|c|c|c|c|c|c|}
-        \hline
+    \begin{tabular}{cccccccc}
         \(\Delta{v}\) & \(\zeta^{(\mathrm{cut})}_x\) & \(\zeta^{(\mathrm{cut})}_r\)
-            & \(N_{\zeta_i}/2\) & \(|\mathcal{V}|\) & \(r\) & \(\Delta\zeta_x\) & \(\min(\Delta\zeta_y)\) \\ \hline
-        0.1 & 4.35 & 4.3 & (12, 26, 8)  & 15008 & 1.28 & 0.36 & 0.0020 \\ \hline
-        1.0 & 4.80 & 4.5 & (14, 23, 9)  & 16872 & 1.29 & 0.34 & 0.0037 \\ \hline
-        2.0 & 5.30 & 5.0 & (16, 24, 10) & 23096 & 1.28 & 0.33 & 0.0038 \\ \hline
-        5.0 & 8.00 & 8.0 & (20, 26, 13) & 41520 & 1.27 & 0.40 & 0.0043 \\ \hline
+            & \(N_{\zeta_i}/2\) & \(|\mathcal{V}|\) & \(r\) & \(\Delta\zeta_x\) & \(\min(\Delta\zeta_y)\) \\[3pt]
+        0.1 & 4.35 & 4.3 & (12, 26, 8)  & 15008 & 1.28 & 0.36 & 0.0020 \\
+        1.0 & 4.80 & 4.5 & (14, 23, 9)  & 16872 & 1.29 & 0.34 & 0.0037 \\
+        2.0 & 5.30 & 5.0 & (16, 24, 10) & 23096 & 1.28 & 0.33 & 0.0038 \\
+        5.0 & 8.00 & 8.0 & (20, 26, 13) & 41520 & 1.27 & 0.40 & 0.0043 \\
     \end{tabular}
     \caption{The parameters of the velocity grid for various \(\Delta{v}\):
         \(\zeta^{(\mathrm{cut})}_x\) is the semi-major axis of the cutoff spheroid,
@@ -708,10 +708,10 @@ for both \(T=1\) near the plate and the larger temperature near the symmetry pla
 \end{table}
 
 To confine the number of points excluded from \(\Nu\),
-the cardinality of the integration lattice \(|\Nu|\) are about \(2\cdot10^5\).
+the cardinality of the integration lattice \(|\Nu|\) are about \(2\times10^5\).
 In all cases, \(M/|\mathcal{N}|\) is maintained to be about \(10^{-2}\) or less in the marginal physical cell,
 where the maximum number of the excluded points is observed.
-So this kind of error can be estimated as \(\sqrt{0.01}/\sqrt{2\cdot10^5} \approx 2\cdot10^{-4}\) in the worst case.
+So this kind of error can be estimated as \(\sqrt{0.01}/\sqrt{2\times10^5} \approx 2\times10^{-4}\) in the worst case.
 To reduce a fluctuation error, the values of the macroscopic variables
 are averaged over the time iterations after reaching a steady state.
 
@@ -931,13 +931,12 @@ Their numerical values are shown in Tab.~\ref{table:NS_params}.
 
 \begin{table}
     \centering
-    \begin{tabular}{|c|c|c|c|}
-        \hline
-        \(\Delta{v}\) & \(\displaystyle P_{\NS xy}^*/P_{\NS xy}\) & \(\displaystyle v_{\NS x}^*/v_{\NS x}\) & \(\displaystyle \tau_{\NS}^*/\tau_{\NS}\) \\ \hline
-        0.1 & 1.000220 & 0.999945 & 1.000049 \\ \hline
-          1 & 1.021740 & 0.994715 & 1.004237 \\ \hline
-          2 & 1.083898 & 0.981103 & 1.015173 \\ \hline
-          5 & 1.438344 & 0.931106 & 1.055818 \\ \hline
+    \begin{tabular}{cccc}
+        \(\Delta{v}\) & \(\displaystyle P_{\NS xy}^*/P_{\NS xy}\) & \(\displaystyle v_{\NS x}^*/v_{\NS x}\) & \(\displaystyle \tau_{\NS}^*/\tau_{\NS}\) \\[3pt]
+        0.1 & 1.000220 & 0.999945 & 1.000049 \\
+          1 & 1.021740 & 0.994715 & 1.004237 \\
+          2 & 1.083898 & 0.981103 & 1.015173 \\
+          5 & 1.438344 & 0.931106 & 1.055818 \\
     \end{tabular}
     \caption{Quantities obtained from the numerical solution of the Navier--Stokes equations}
     \label{table:NS_params}
@@ -995,7 +994,7 @@ a solution with an error \(\OO{\Kn^2}\).
 Note that the expressions for the deviatoric stress tensor and heat-flow vector
 differ from the Newton's and Fourier's laws and have an error \(\OO{\Kn^3}\).
 However, in the general case, firstly, the expansion parameter in the viscous boundary layer
-is \(\sqrt\Kn\) (in contrast to \(\Kn\)), and, secondly,
+is \(\sqrt{\Kn}\) (in contrast to \(\Kn\)), and, secondly,
 the asymptotic analysis in curvilinear coordinates leads to the cumbersome expressions~\cite{Sone2002}.
 In addition, if the viscous layer is not smooth,
 the method of constructing the asymptotic solutions are not obvious~\cite{Aoki2014}.
@@ -1042,7 +1041,7 @@ for hard-sphere molecules are as follows~\cite{Sone2000, Sone2002, Sone2007}:
 \end{gather}
 Here,
 \begin{equation}\label{eq:I_n}
-    I_n[Z(\zeta)] = \frac{8}{15\sqrt\pi} \int_0^\infty \zeta^n Z(\zeta) \exp(-\zeta^2) \dd\zeta,
+    I_n[Z(\zeta)] = \frac{8}{15\sqrt{\upi}} \int_0^\infty \zeta^n Z(\zeta) \exp(-\zeta^2) \dd\zeta,
 \end{equation}
 and the integrands can be obtained from the corresponding integral equations:
 \begin{align}
@@ -1148,6 +1147,7 @@ The desired functions are shown in Fig.~\ref{fig:transport_functions}.
 \end{figure}
 
 \bibliography{article}
+\bibliographystyle{jfm}
 
 \end{document}
 
