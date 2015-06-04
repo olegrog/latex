@@ -505,7 +505,7 @@ implemented in OpenFOAM\textregistered{}.
 
 \subsection{Statistical simulation}
 
-The DSMC method is the dominant numerical method in rarefied gas dynamics,
+The DSMC method is the conventional numerical method in rarefied gas dynamics,
 so its description is omitted in the present paper,
 because it can be easily found in the literature~\citep[see e.g.][]{Bird1994, Sone2007}.
 An open-source parallel solver, \verb+dsmcFoam+~\citep{Reese2010},
@@ -1006,7 +1006,7 @@ an error of about \(10^{-4}\) has been achieved for a wide range of the external
 There is a typical for discrete-velocity methods problem to obtain a high-accuracy solution:
 the appropriate discretization of velocity space should be constructed
 to provide a satisfactory approximation of the distribution function.
-The high performance of the projection method (as well as any disrete-velocity method)
+The high performance of the projection method (as well as any discrete-velocity method)
 stems from the fact that the velocity grid is the same in the whole volume occupied by the gas.
 Therefore, for problems with a finite curvature of the boundary surface,
 it is necessary to use a uniform velocity grid, which fails to approximate
