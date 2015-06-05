@@ -84,7 +84,7 @@
 \section{Introduction}
 
 %%% Linear problem
-A stationary behavior of a gas between two parallel plates with the same temperature
+A stationary behaviour of a gas between two parallel plates with the same temperature
 and opposite velocities is one of the most fundamental boundary-value problems.
 As for a rarefied gas, described on the basis of the Boltzmann equation,
 the linearized Couette-flow problem has a long history of approximate methods~\citep{Willis1962}
@@ -149,7 +149,7 @@ and \(m\) is the molar mass.
 Let \(L\) be a unit of length and the velocities of the plates (\(y=\pm1/2\))
 be equal to \((\pm\Delta{v}/2)(2RT^{(0)})^{1/2}\), respectively.
 \(T^{(0)}\) is the common temperature of the plates.
-\(p^{(0)}\) is selected in such a way that the average density is equal to one, i.e.,
+\(p^{(0)}\) is selected in such a way that the average density is equal to one, i.e.
 \begin{equation}\label{eq:total_mass}
     \int_{-\frac12}^\frac12\rho\dd{y} = 1.
 \end{equation}
@@ -186,7 +186,7 @@ For the hard-sphere model,
 \end{equation}
 A modified Knudsen number \(k = \Kn\sqrt{\upi}/2\) is used in~\eqref{eq:Boltzmann}.
 
-The Maxwell-type boundary condition with diffuse reflection is used at \(y=1/2\), i.e.,
+The Maxwell-type boundary condition with diffuse reflection is used at \(y=1/2\), i.e.
 \begin{equation}\label{eq:diffuse_bc}
     f(\zeta_x,\zeta_y,\zeta_z) = \frac2{\upi} \exp\left[-\left(\zeta_x-\frac{\Delta{v}}{2}\right)^2-\zeta_y^2-\zeta_z^2\right]
         \int_{\zeta_{*y}>0}\zeta_{*y} f_* \dzeta_*, \quad \zeta_y<0.
@@ -219,7 +219,7 @@ with the linearized collision operator
     \mathcal{L}(\phi) = \int E_*(\phi'+\phi'_*-\phi-\phi_*) B
     \dd \Omega(\boldsymbol{\alpha}) \dzeta_*
 \end{equation}
-holds for a gas that deviates only slightly from an equilibrium state, i.e.,
+holds for a gas that deviates only slightly from an equilibrium state, i.e.
 \begin{equation}\label{eq:linear_condition}
     \phi = \frac{f}{E} - 1 \ll 1, \quad E(\zeta) = \frac1{\upi^{3/2}}\exp\left(-\zeta^2\right).
 \end{equation}
@@ -258,7 +258,7 @@ Other variables from~\eqref{eq:macro} remain constant in the linear case.
 \section{Outline of the methods for the linear problem}
 
 For \(k\to\infty\), we obtain the collisionless linearized Boltzmann equation \(\zeta_y\Pder[\Phi]{y} = 0\),
-which has a simple solution as a combination of two different half-Maxwellians, i.e., \(\Phi_\pm = \mp 1\).
+which has a simple solution as a combination of two different half-Maxwellians, i.e. \(\Phi_\pm = \mp 1\).
 It gives
 \begin{gather}\label{eq:linear_free_macro}
     \frac{P_{xy}}{\Delta{v}} = -\frac1{\sqrt{\upi}}, \quad v_x = q_x = 0.
@@ -391,7 +391,7 @@ To obtain a rigorous asymptotic solution for small \(k\),
 we should refer to the Hilbert expansion in connection with
 viscous boundary and Knudsen layers~\citep{Sone2000, Sone2002}.
 
-Expanding macroscopic variables \(h = \rho, v_i, T, \dots\) into a power series of \(k\), i.e.,
+Expanding macroscopic variables \(h = \rho, v_i, T, \dots\) into a power series of \(k\), i.e.
 \begin{equation}\label{eq:hilbert_expansion}
     h = h_0 + h_1k + h_2k^2 + \cdots,
 \end{equation}
@@ -566,7 +566,7 @@ Then, the collision integral written in the symmetrized form,
     \end{aligned}
 \end{equation}
 where \(\delta(\bzeta)\) is the Dirac delta function in \(\mathbb{R}^3\),
-has the following discrete analog:
+has the following discrete analogue:
 \begin{equation}\label{eq:discrete_symm_ci}
     w_\gamma J_\gamma = \frac{\upi V_\nu^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
         \sum_{\nu\in\Nu} \left(
@@ -604,7 +604,7 @@ in the following way:
 \begin{equation}\label{eq:ci_projection}
     \delta_{\alpha'_\nu\gamma} = \sum_{a\in\Lambda} r_{\lambda,a}\delta_{\lambda_\nu+s_a,\gamma}.
 \end{equation}
-The weights \(r_{\lambda,a}\) are selected to provide the conservation of mass, momentum and energy, i.e.,
+The weights \(r_{\lambda,a}\) are selected to provide the conservation of mass, momentum and energy, i.e.
 \begin{equation}\label{eq:impact_conservation}
     \sum_{a\in\Lambda} r_{\lambda,a} = 1, \quad
     \sum_{a\in\Lambda} r_{\lambda,a} \bzeta_{\lambda_\nu+s_a} = \bzeta_{\alpha'_\nu}, \quad
@@ -639,7 +639,7 @@ then excluding randomly distributed \(M\) points produce an error \(\OO{\sqrt{M}
 
 %%% The grid in the velocity
 The discrete velocity space is bounded by the prolate spheroid
-filled with the centered rectangular grid \(\mathcal{V}\).
+filled with the centred rectangular grid \(\mathcal{V}\).
 The symmetry axis of the spheroid is parallel to \(x\) axis.
 \(\zeta^{(\mathrm{cut})}_x\) is the semi-major axis, \(\zeta^{(\mathrm{cut})}_r\) is the semi-minor axis.
 For the Couette-flow problem, the distribution function is sufficiently smooth along \(\zeta_x\) and \(\zeta_z\).
@@ -701,7 +701,7 @@ for both \(T=1\) near the plate and the larger temperature near the symmetry pla
         5.0 & 8.00 & 8.0 & (20, 26, 13) & 41520 & 1.27 & 0.40 & 0.0043 \\
     \end{tabular}
     \caption{The parameters of the velocity grid for various \(\Delta{v}\):
-        \(\zeta^{(\mathrm{cut})}_x\) is the semi-major axis of the cutoff spheroid,
+        \(\zeta^{(\mathrm{cut})}_x\) is the semi-major axis of the cut-off spheroid,
         \(\zeta^{(\mathrm{cut})}_r\) is the semi-minor axis,
         \(N_{\zeta_i}\) is the maximum number of points along each axis,
         \(|\mathcal{V}|\) is the total number of points,
