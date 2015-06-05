@@ -38,7 +38,7 @@
 \begin{document}
 
 \title{
-    Numerical analysis of the nonlinear plane Couette-flow problem for hard-sphere molecules
+    Numerical analysis of the nonlinear plane Couette-flow problem of a rarefied gas for hard-sphere molecules
 }
 
 \author{
@@ -55,14 +55,14 @@
 \maketitle
 
 \begin{abstract}
-    The plane Couette flow of a rarefied gas is investigated on the basis of
-    the Boltzmann equation for hard-sphere molecules.
+    The plane Couette flow of a rarefied gas is investigated on the basis of the Boltzmann equation.
     The velocity distribution function as well as its first thirteen moments is obtained from
     the accurate numerical solution based on the projection discrete-velocity method
     of evaluation of the collision integral, recently extended for nonuniform velocity grids~\citep{Dodulad2015}.
     The DSMC simulation is used to verify the obtained results over the wide range of the Knudsen and Mach numbers.
-    The asymptotic solution for a slightly rarefied gas is also included in the comparison.
-    Some transport coefficients for hard-sphere molecules are evaluated for this purpose.
+    The Hilbert-type asymptotic solution for a slightly rarefied gas~\citep[according to][]{Sone2000}
+    is constructed and also included in the comparison.
+    Some additional transport coefficients for hard-sphere molecules are evaluated for this purpose.
 \end{abstract}
 
 %\keywords{
@@ -98,7 +98,7 @@ in the recent years~\citep[see e.g.][]{Dimarco2014,Mieussens2014},
 which can provide a high-accuracy solution compared to stochastic techniques,
 it is the direct simulation Monte-Carlo (DSMC), with its inherent statistical fluctuations,
 that remains as the reference solution~\citep{Cercignani1994}.
-The present study is aimed to obtain the robust and accurate solutions
+The present study is aimed to obtain the robust and high-accuracy solutions
 of the nonlinear problem for various external parameters.
 
 %%% The primary numeric method
@@ -120,13 +120,17 @@ It appears to the author that the proposed method can yield the most accurate re
 among the existing numerical methods for the problem in question.
 
 %%% Asymptotic solution
-Fluid-dynamic-type equations are often used as an asymptotic solution for small Knudsen numbers.
-The Navier--Stokes equations with the slip boundary conditions~\citep{Ohwada1989a}
+Fluid-dynamic-type equations together with special boundary conditions
+are often used as an approximate solution for small Knudsen numbers.
+For example, the Navier--Stokes equations with the slip boundary conditions~\citep{Ohwada1989a}
 provide an opportunity to construct the simplest solution~\citep{Sharipov2000}.
-To take into account the next order of gas rarefaction, the Burnett equations can be considered~\citep{Reese2003}.
-The rigorous asymptotic analysis of the Boltzmann equation,
-based on the Hilbert expansion and systematic examination of the viscous boundary layer,
-for arbitrary Mach numbers are used~\citep{Sone2000}.
+To take into account the next order of gas rarefaction,
+the Burnett equations can be considered~\citep{Reese2003}.
+However, to obtain a rigorous asymptotic solution of the Boltzmann equation,
+the Hilbert expansion along with the systematic examination of the viscous boundary and Knudsen layers
+should be carried out. The general recipe for construction of solution
+for arbitrary Mach numbers are represented by~\citet{Sone2000}.
+We use the derived asymptotic solution to verify the numerical results for small Knudsen numbers.
 
 \section{Formulation of the problem}
 
@@ -988,11 +992,14 @@ In the context of the plane Couette-flow problem,
 a comparative analysis of the applied numerical methods can be carried out.
 For small \(\Kn\), the asymptotic analysis of the Boltzmann equation has demonstrated
 its superiority in terms of accuracy and high performance.
-The derived fluid-dynamic-type equations, coinciding with the Navier--Stokes equations,
-with the appropriate slip boundary conditions allow to obtain
-a solution with an error \(\OO{\Kn^2}\).
+The derived fluid-dynamic-type equations,
+coinciding with the Navier--Stokes equations up to first order of \(\Kn\),
+along with the appropriate slip boundary conditions and the Knudsen-layer correction
+allow to obtain a solution with error \(\OO{\Kn^2}\).
 Note that the expressions for the deviatoric stress tensor and heat-flow vector
 differ from the Newton's and Fourier's laws and have an error \(\OO{\Kn^3}\).
+They contain the additional transport coefficients besides the viscosity and thermal conductivity ones,
+which have been computed for the hard-sphere model.
 However, in the general case, firstly, the expansion parameter in the viscous boundary layer
 is \(\sqrt{\Kn}\) (in contrast to \(\Kn\)), and, secondly,
 the asymptotic analysis in curvilinear coordinates leads to the cumbersome expressions~\citep{Sone2002}.
@@ -1011,18 +1018,19 @@ stems from the fact that the velocity grid is the same in the whole volume occup
 Therefore, for problems with a finite curvature of the boundary surface,
 it is necessary to use a uniform velocity grid, which fails to approximate
 the large gradients of the distribution function in the Knudsen layer accurately.
-Stochastic techniques do not have such complications.
-The DSMC method, as expected, demonstrates his versatility
-and also yields a good accuracy, but its statistical fluctuations
+Stochastic techniques do not have such complications,
+but at the same time has a low convergence \(\OO{N^{-1/2}}\)
+(\(N\) is a total number of particles)
+for both smooth and discontinuous distribution functions.
+The DSMC method yields a quite good accuracy, but its statistical fluctuations
 are an order of magnitude greater than within the discrete-velocity solution.
 Incidentally, the low-variance DSMC method~\citep{Hadji2011}
-can be applied to decrease a statistical error for small \(\Delta{v}\).
+can be applied to decrease a statistical error for small \(\Delta{v}\),
+where fluctuations are especially large in comparison with the solution.
 
 %%% Computational load and perspectives
 In the present paper, a direct numerical solution of the Boltzmann equation, on average,
 took an order of magnitude more time than the statistical simulation.
-In comparison between computational loads, the DSMC method has an advantage for large \(\Kn\),
-but is known to require a significant increase in simulation time for small \(\Kn\).
 In view of the above discussion, the projection method on nonuniform grids can be recommended
 as a precision tool for solving the Boltzmann equation with arbitrary Knudsen and Mach numbers,
 but for boundary-value problems with a simple rectangular geometry.
