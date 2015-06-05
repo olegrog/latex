@@ -115,7 +115,7 @@ Therefore, nonuniform velocity grids, condensing in areas of large variation
 of the distribution function, should be used.
 For uniform grids, two projection points are enough to satisfy the conservation laws,
 otherwise it is necessary to resort to the multipoint projection stencils~\citep{Dodulad2012}.
-An extension of the projection method for nonuniform grids has been represented recently by~\citet{Dodulad2015}.
+\citet{Dodulad2015} has represented an extension of the projection method for nonuniform grids.
 It appears to the author that the proposed method can yield the most accurate results
 among the existing numerical methods for the problem in question.
 
@@ -128,8 +128,8 @@ To take into account the next order of gas rarefaction,
 the Burnett equations can be considered~\citep{Reese2003}.
 However, to obtain a rigorous asymptotic solution of the Boltzmann equation,
 the Hilbert expansion along with the systematic examination of the viscous boundary and Knudsen layers
-should be carried out. The general recipe for construction of solution
-for arbitrary Mach numbers are represented by~\citet{Sone2000}.
+should be carried out. \citet{Sone2000} have introduced the general recipe
+for construction of solution for arbitrary Mach numbers.
 We use the derived asymptotic solution to verify the numerical results for small Knudsen numbers.
 
 \section{Formulation of the problem}
@@ -296,7 +296,7 @@ This asymptotic solution assumes that the Knudsen layers of the both plates are 
 In other words, the terms as \(\exp(-1/k)\) are neglected.
 
 In case of arbitrary \(k\), the solution can be obtained by numerical analysis.
-It has been carefully accomplished for the hard-sphere model by~\citet{Ohwada1990}.
+\citet{Ohwada1990} have carefully accomplished it for the hard-sphere model.
 
 For comparison, we also consider a solution of the widely used BKW (Boltzmann--Krook--Welander) equation,
 whose linearized form of collision integral
@@ -663,7 +663,7 @@ due to significant variations of the solution in the thin Knudsen layer in compa
 
 The physical grid is refined in such a way
 that the width of the marginal cell is about \(\Kn/100\).
-This condition provides an accuracy of the order of \(10^{-4}\) for the trapezoidal-rule quadrature
+This condition provides accuracy of the order of \(10^{-4}\) for the trapezoidal-rule quadrature
 of the Knudsen-layer functions like \(Y_0(\eta)\), \(H_A(\eta)\).
 For \(\Kn=100\), when the solution is similar to the constant over the physical space,
 \(N_x = 30\) is sufficient for the same precision.
@@ -684,7 +684,7 @@ In the first case, the distribution function is smooth,
 so \(\zeta_i^{(cut)}\) becomes a key factor of the accuracy.
 In the second case, the distribution function has a discontinuity of the first kind at \(\zeta_y=0\),
 which requires a grid refinement near \(\zeta_y=0\).
-The parameters of the velocity grid sufficient to obtain an accuracy of the order of \(10^{-4}\)
+The parameters of the velocity grid sufficient to obtain accuracy of the order of \(10^{-4}\)
 are presented in Table.~\ref{table:velocity_grid}.
 Note that there is significant heating of the gas due to friction for large Mach numbers,
 so the velocity grid should be appropriate for a velocity distribution
@@ -727,7 +727,7 @@ Therefore, to accelerate progress towards the steady state for small \(\Kn\),
 the initial distribution function is constructed as the local Maxwellian
 with \(\rho\), \(v_i\), and \(T\) obtained from the simulation on the coarse uniform grid.
 Moreover, the solution for the smallest \(\Kn\) does not reach the steady state completely.
-The iteration is stopped when the oscillations of the mass flow reduces to about \(10^{-4}\)
+The iteration is stopped when the oscillations of the mass flow reduce to about \(10^{-4}\)
 and the relaxation process of the temperature is extrapolated by an exponential curve with the same accuracy.
 
 \section{Results and discussions}
@@ -1004,7 +1004,7 @@ However, in the general case, firstly, the expansion parameter in the viscous bo
 is \(\sqrt{\Kn}\) (in contrast to \(\Kn\)), and, secondly,
 the asymptotic analysis in curvilinear coordinates leads to the cumbersome expressions~\citep{Sone2002}.
 In addition, if the viscous layer is not smooth,
-the method of constructing the asymptotic solutions are not obvious~\citep{Aoki2014}.
+the method of constructing the asymptotic solution are not obvious~\citep{Aoki2014}.
 
 %%% Accuracy of the projection method vs DSMC
 By means of the direct numerical solution of the Boltzmann equation using the projection method,
