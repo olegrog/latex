@@ -1,4 +1,4 @@
-FILE=article
+FILE=manuscript
 SHELL=/bin/bash
 FIG=Fig*.pdf
 SOURCES=$(FILE).tex $(FILE).bib $(FIG)

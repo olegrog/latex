@@ -1,4 +1,4 @@
-FILE=springer
+FILE=manuscript
 FIG=Fig*.pdf
 SOURCES=$(FILE).tex $(FILE).bib $(FIG)
 
