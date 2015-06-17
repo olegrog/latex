@@ -45,3 +45,7 @@
 
 # Log files
 log.*
+
+# Raw data files
+*.vtk
+*.vtu
