@@ -4,7 +4,7 @@ ASYM_DIR = ~/my_openfoam/run/sone_bobylev/snit_solution
 
 all: $(FIGURES)
 
-asym-%.vtu: knudsen_layer_correction.py snit-%.vtk
+asym-%.vtk: knudsen_layer_correction.py snit-%.vtk
 	./$^ $@ $(*F)
 
 snit-0-temp.pdf: plot_field.py vtk/snit-0.vtk
@@ -16,29 +16,32 @@ snit-0-vel.pdf: plot_field.py vtk/snit-0.vtk
 snit-0.01-temp.pdf: plot_field.py vtk/snit-0.01.vtk
 	./$^ $@ T0 T_0
 
-asym-0.005-temp.pdf: plot_field.py vtk/asym-0.005.vtu
+asym-0.005-temp.pdf: plot_field.py vtk/asym-0.005.vtk
 	./$^ $@ T T
 
-asym-0.01-temp.pdf: plot_field.py vtk/asym-0.01.vtu
+asym-0.01-temp.pdf: plot_field.py vtk/asym-0.01.vtk
 	./$^ $@ T T
 
-asym-0.02-temp.pdf: plot_field.py vtk/asym-0.02.vtu
+asym-0.02-temp.pdf: plot_field.py vtk/asym-0.02.vtk
 	./$^ $@ T T
 
-asym-0.05-temp.pdf: plot_field.py vtk/asym-0.05.vtu
+asym-0.05-temp.pdf: plot_field.py vtk/asym-0.05.vtk
 	./$^ $@ T T
 
-asym-0.01-rho.pdf: plot_field.py vtk/asym-0.01.vtu
+asym-0.01-rho.pdf: plot_field.py vtk/asym-0.01.vtk
 	./$^ $@ rho \\rho
 
-asym-0.01-vel.pdf: plot_field.py vtk/asym-0.01.vtu
+asym-0.01-vel.pdf: plot_field.py vtk/asym-0.01.vtk
 	./$^ $@ U \\frac{v_i}{k} 0.01 -1
 
-asym-0.05-vel.pdf: plot_field.py vtk/asym-0.05.vtu
+asym-0.05-vel.pdf: plot_field.py vtk/asym-0.05.vtk
 	./$^ $@ U \\frac{v_i}{k} 0.05 -1
 
 data-0.01-temp.pdf: plot_field.py vtk/data-0.01.vtk
 	./$^ $@ T T 0.01
+
+data-0.01-vel.pdf: plot_field.py vtk/data-0.01.vtk
+	./$^ $@ U \\frac{v_i}{k} 0.01 -1
 
 clean:
 	rm -f $(FIGURES)
