@@ -3,7 +3,7 @@
 %\usepackage[english]{babel}
 %\usepackage[T1]{fontenc}
 \usepackage{graphicx}
-\usepackage{amssymb, amsmath}
+\usepackage{amssymb, amsmath} % , amsthm
 \allowdisplaybreaks[3]
 \usepackage[export]{adjustbox}
 \usepackage[skip=0pt]{subcaption}
@@ -20,7 +20,8 @@
 \newcommand{\dzeta}{\boldsymbol{\dd\zeta}}
 \newcommand{\bzeta}{\boldsymbol{\zeta}}
 \newcommand{\Nu}{\mathcal{N}}
-\newcommand{\OO}[1]{O(#1)}
+\newcommand{\Mu}{\mathcal{M}}
+\newcommand{\OO}[1]{O\left(#1\right)}
 \newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
 
 %%% for the appendix
@@ -36,6 +37,7 @@
 \newcommand{\DD}[2]{\delta_{#1}\delta_{#2}}
 
 \begin{document}
+\newtheorem{lemma}{Lemma}
 
 \title{
     Numerical analysis of the nonlinear plane Couette-flow problem of a rarefied gas for hard-sphere molecules
@@ -627,14 +629,46 @@ For \(\bzeta_{\beta'_\nu}\) and \(\hat{f}_{\beta'_\nu}\), all formulas are simil
 There is one more important and necessary property of the numerical algorithm:
 the distribution function must always remain positive.
 If there is a term in the sum~\eqref{eq:discrete_symm_ci} that violates this property,
-it is just excluded from \(\mathcal{N}\).
-On the other hand, a large number of such excluded collisions disturbs the integration lattice
-and, therefore, the approximation error increases significantly.
-To prevent this situation, we should either decrease the time step
-or increase \(|\mathcal{N}|\).
-If we suppose that the integration lattice has an error \(\OO{|\mathcal{N}|^{-1}}\),
-then excluding randomly distributed \(M\) points produce an error \(\OO{\sqrt{M}/|\mathcal{N}|}\).
+it should be excluded from \(\Nu\).
+\begin{lemma}
+    If a randomly distributed set of points \(\Mu\subset\Nu\) is excluded from \(\Nu\), then
+    \begin{equation*}
+        \int F(\bzeta) \dzeta = \frac{\sum_{\nu\in\Nu} w_\nu}{\sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu}
+            \sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu F_\nu + \OO{\frac{\sqrt{|\Mu|}}{|\Nu|-|\Mu|}}.
+    \end{equation*}
+\end{lemma}
 
+\begin{proof}
+
+Korobov's integration lattices provide an approximation
+\begin{equation*}
+    \int F(\bzeta) \dzeta = \sum_{\nu\in\Nu} w_\nu F_\nu + \OO{|\Nu|^{-p}}, \quad p\geq1.
+\end{equation*}
+The worst case \(p=1\) corresponds to discontinuous functions.
+\begin{align*}
+    \int F(\bzeta) \dzeta &= \sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu F_\nu
+        + \sum_{\nu\in\Mu} w_\nu F_\nu + \OO{|\Nu|^{-p}} \\
+    &= \sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu F_\nu
+        + \frac{\sum_{\nu\in\Mu} w_\nu}{\sum_{\nu\in\Nu} w_\nu}
+             \left[ \int F(\bzeta) \dzeta + \OO{\frac1{\sqrt{|\Mu|}}} \right]
+        + \OO{|\Nu|^{-p}} \\
+    &= \sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu F_\nu
+        + \frac{\sum_{\nu\in\Mu} w_\nu}{\sum_{\nu\in\Nu} w_\nu} \int F(\bzeta) \dzeta
+        + \OO{\frac{\sqrt{|\Mu|}}{|\Nu|}},
+\end{align*}
+where we use that the convergence rate of the Monte Carlo integration is \(\OO{|\Mu|^{-1/2}}\).
+Hence,
+\begin{equation*}
+    \int F(\bzeta) \dzeta = \frac{\sum_{\nu\in\Nu} w_\nu}{\sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu}
+        \sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu F_\nu + \OO{\frac{\sqrt{|\Mu|}}{|\Nu|-|\Mu|}}.
+\end{equation*}
+
+\end{proof}
+
+It is easily seen that a large number of excluded collisions disturbs the integration lattice
+and, therefore, the integration error can increase significantly.
+To prevent this situation, we should either decrease the time step
+or increase \(|\Nu|\).
 
 \subsubsection{Discretization of the problem}
 
@@ -714,7 +748,7 @@ for both \(T=1\) near the plate and the larger temperature near the symmetry pla
 
 To confine the number of points excluded from \(\Nu\),
 the cardinality of the integration lattice \(|\Nu|\) are about \(2\times10^5\).
-In all cases, \(M/|\mathcal{N}|\) is maintained to be about \(10^{-2}\) or less in the marginal physical cell,
+In all cases, \(|\Mu|/|\Nu|\) is maintained to be about \(10^{-2}\) or less in the marginal physical cell,
 where the maximum number of the excluded points is observed.
 So this kind of error can be estimated as \(\sqrt{0.01}/\sqrt{2\times10^5} \approx 2\times10^{-4}\) in the worst case.
 To reduce a fluctuation error, the values of the macroscopic variables
@@ -969,7 +1003,7 @@ These facts are more evident in Fig.~\ref{fig:diff},
 where the absolute difference between the solutions
 is depicted for some macroscopic variables.
 The increase of the error for \(\tau\) and \(v_x\) for the smallest \(\Kn\)
-is explained by the insufficiently cardinality of the integration lattice \(\mathcal{N}\),
+is explained by the insufficiently cardinality of the integration lattice \(\Nu\),
 chosen due to a very small time step.
 
 The DSMC method (the green line) produces an error within the interval from \(10^{-4}\) to \(10^{-3}\),
