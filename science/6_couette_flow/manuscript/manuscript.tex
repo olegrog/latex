@@ -427,6 +427,7 @@ Boundary conditions at \(y=1/2\),
     v_{x0} = v_{Bx0}, \quad v_{x1} = v_{Bx1} + k_0 \frac{T_0}{p_0} \pder[v_{x0}]{y}, \label{eq:hilbert_bc_U}\\
     T_0 = T_{B0}, \quad T_1 = T_{B1} - d_1 \frac{T_0}{p_0} \pder[T_0]{y}, \label{eq:hilbert_bc_T}
 \end{gather}
+where \(d_1 = 2.4001\) is another slip coefficient,
 have some freedom of the expansion in \(k\):
 \begin{equation}\label{eq:hilbert_boundary_expansion}
     \frac{\Delta{v}}2 = v_{Bx} = v_{Bx0} + v_{Bx1}k, \quad 1 = T_B = T_{B0} + T_{B1}k.
@@ -538,7 +539,7 @@ into the advection equation
 \begin{equation}\label{eq:split_advection}
     \pder[f]{t} + \zeta_i\pder[f]{x_i} = 0,
 \end{equation}
-for which a finite-volume method with an explicit second-order TVD scheme is used,
+for which a finite-volume method with an explicit second-order TVD (total variation diminishing) scheme is used,
 and the relaxation equation
 \begin{equation}\label{eq:split_integral}
     \pder[f]{t} = \frac1k J(f,f),
@@ -559,7 +560,7 @@ the cubature in \(\bzeta\) space is expressed in the weighted sum
 where \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) is the set of the integration points,
 \(F\) is an arbitrary function of \(\bzeta\),
 \(V_\nu\) is the total volume of the velocity grid.
-Then, the collision integral written in the symmetrized form,
+Then, the collision integral written in the symmetrized form
 \begin{equation}\label{eq:symm_ci}
     \begin{aligned}
     J(f_\gamma, f_\gamma) = \frac14\int &\left[
@@ -1070,6 +1071,11 @@ In view of the above discussion, the projection method on nonuniform grids can b
 as a precision tool for solving the Boltzmann equation with arbitrary Knudsen and Mach numbers,
 but for boundary-value problems with a simple rectangular geometry.
 
+\begin{acknowledgments}
+    The author is grateful to Dr. Oleg Dodulad, who developed and implemented the projection method
+    on the nonuniform velocity grids, and Dr. Felix Tcheremissine for his valuable comments.
+\end{acknowledgments}
+
 \appendix
 \section{The transport coefficients \(\gamma_8\), \(\gamma_9\) and \(\gamma_{10}\)}
 \label{sec:gamma_coeffs}
@@ -1132,7 +1138,7 @@ The collision operators \(\mathcal{L}\) and \(\mathcal{J}\) are related to the c
 The integral equations~\eqref{eq:A}--\eqref{eq:B} can be solved accurately
 by reducing them to ordinary differential equations~\citep[see e.g.][]{Pekeris1957, Ohwada1992}.
 For the present paper, the integral equations in question are solved
-by the simple iterative method and direct quasi-Monte Carlo integration.
+by the fixed-point iteration and direct quasi-Monte Carlo integration.
 The desired functions are shown in Fig.~\ref{fig:transport_functions}.
 
 \begin{figure}
