@@ -49,8 +49,13 @@ def add_correction(x, y, T0, p0, U1):
     U[:,0] += -k*np.sqrt(wallT0(x))/p0*wallDTt(x)*Y_1(eta)
     return rho, T, U
 
+def integrate_patch(x, y, patch):
+    m = np.argsort(x[patch])
+    return np.trapz(y[patch][m], x[patch][m])
+
 ### Read the Knudsen-layer functions
-eta, Y_0, Y_1, Omega_1, Theta_1, H_A, H_B, Y_a4 = np.loadtxt('../tables/kn-layer-hs.txt').T
+pwd = os.path.dirname(os.path.realpath(__file__))
+eta, Y_0, Y_1, Omega_1, Theta_1, H_A, H_B, Y_a4 = np.loadtxt(os.path.join(pwd, '../tables/kn-layer-hs.txt')).T
 Y_1 = interp(eta, Y_1)
 Theta_1 = interp(eta, Theta_1)
 Omega_1 = interp(eta, Omega_1)
@@ -90,8 +95,19 @@ data = grid.GetPointData()
 add_array(data, T, 'T')
 add_array(data, U, 'U')
 add_array(data, rho, 'rho')
+U_k = U/k
+add_array(data, U_k, 'U/k')
 
-### Read point data
+### Integrate patches and print
+bottom = np.where((y==0) & (z==0))
+top = np.where((y==0.5) & (z==0))
+print '%.6e %.5e %.5e %.5e %.5e' % (float(kn),
+    integrate_patch(x, T, top),
+    integrate_patch(x, U[:,0], top),
+    integrate_patch(x, T, bottom),
+    integrate_patch(x, U[:,0], bottom))
+
+### Read cell data
 x, y, z = get_cell_centers(out)
 T0 = get_cell_data(out, 'T0')
 U1 = get_cell_data(out, 'U1')
@@ -100,6 +116,7 @@ U1 = get_cell_data(out, 'U1')
 rho, T, U = add_correction(x, y, T0, p0, U1)
 data = grid.GetCellData()
 add_array(data, T, 'T')
+#add_array(data, U/k, 'U1')
 add_array(data, U, 'U')
 add_array(data, rho, 'rho')
 
