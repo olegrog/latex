@@ -1,0 +1,5 @@
+# Kn topT        topU   bottomT
+   0 5.15537e-01 NaN    0.5
+1e-5 5.15537e-01 NaN    0.5
+1e-2 5.15537e-01 NaN    0.5
+ 100 5.15537e-01 NaN    0.5
