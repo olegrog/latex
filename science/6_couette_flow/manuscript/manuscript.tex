@@ -7,7 +7,8 @@
 \allowdisplaybreaks[3]
 \usepackage[export]{adjustbox}
 \usepackage[skip=0pt]{subcaption}
-\captionsetup{compatibility=false}
+\captionsetup{compatibility=false,subrefformat=parens}
+\usepackage{url}
 
 \newcommand{\Kn}{\mbox{\textit{Kn}}}
 \newcommand{\NS}{N\!S}
@@ -288,13 +289,13 @@ where the viscosity coefficient \(\gamma_1 = 1.270042427\) is calculated as
 \begin{equation}\label{eq:gamma_1}
     \gamma_1 = \frac{8}{15\sqrt{\upi}}\int_0^\infty \zeta^6 \mathcal{B}(\zeta)E\dd\zeta,
 \end{equation}
-and \(k_0 = -1.2540\) is the slip coefficient.
+and \(k_0 = -1.25395\) is the slip coefficient~\citep{Takata2015}.
 The Knudsen-layer functions \(K^\pm = Y_0^\pm, H_A^\pm\) are defined as follows:
 \begin{equation}\label{eq:linear_knudsen_functions}
      K^\pm = K(\eta_\pm), \quad \eta_\pm = \frac{1 \mp 2y}{2k}.
 \end{equation}
 For hard-sphere molecules, \(Y_0(\eta)\), \(H_A(\eta)\)
-are tabulated in~\citet{Ohwada1989a, Sone2002, Sone2007}.
+are tabulated in~\citet{Ohwada1989a, Sone2002, Sone2007, Takata2015}.
 This asymptotic solution assumes that the Knudsen layers of the both plates are not intersected.
 In other words, the terms as \(\exp(-1/k)\) are neglected.
 
@@ -427,7 +428,7 @@ Boundary conditions at \(y=1/2\),
     v_{x0} = v_{Bx0}, \quad v_{x1} = v_{Bx1} + k_0 \frac{T_0}{p_0} \pder[v_{x0}]{y}, \label{eq:hilbert_bc_U}\\
     T_0 = T_{B0}, \quad T_1 = T_{B1} - d_1 \frac{T_0}{p_0} \pder[T_0]{y}, \label{eq:hilbert_bc_T}
 \end{gather}
-where \(d_1 = 2.4001\) is another slip coefficient,
+where \(d_1 = 2.40014\) is another slip coefficient~\citep{Takata2015},
 have some freedom of the expansion in \(k\):
 \begin{equation}\label{eq:hilbert_boundary_expansion}
     \frac{\Delta{v}}2 = v_{Bx} = v_{Bx0} + v_{Bx1}k, \quad 1 = T_B = T_{B0} + T_{B1}k.
@@ -503,7 +504,7 @@ are defined as follows:
      K^\pm = K\left(\frac{p_0}{T_0}\eta_\pm\right), \quad \eta_\pm = \frac{1 \mp 2y}{2k}.
 \end{equation}
 For hard-sphere molecules, \(\Theta_1(\eta)\) and \(\Omega_1(\eta)\)
-are tabulated in~\citet{Ohwada1992, Sone2002, Sone2007}.
+are tabulated in~\citet{Ohwada1992, Sone2002, Sone2007, Takata2015}.
 The Knudsen-layer correction of the second order is not studied in the present paper.
 
 The presented set of equations~\eqref{eq:Hilbert_U0}--\eqref{eq:Hilbert_T0}
@@ -602,7 +603,7 @@ If they are just replaced with the nearest grid velocities,
 the discrete collision integral~\eqref{eq:discrete_symm_ci} is no longer strictly conservative.
 Moreover, the discrete Maxwell distribution is no longer the equilibrium state.
 Therefore, the following two procedures are applied in the projection-interpolation method.
-First, \(\bzeta_{\alpha'_\nu}\) is projected to \(\bzeta_{\lambda_\nu}\) and
+First, \(\bzeta_{\alpha'_\nu}\) is \emph{projected} to \(\bzeta_{\lambda_\nu}\) and
 some adjacent grid points, \(\Set{\bzeta_{\lambda_\nu+s_a}}{a\in\Lambda}\subset\mathcal{V}\),
 in the following way:
 \begin{equation}\label{eq:ci_projection}
@@ -617,8 +618,11 @@ The weights \(r_{\lambda,a}\) are selected to provide the conservation of mass, 
 The set of projection points \(\mathcal{S}_{\alpha'_\nu} = \Set{\bzeta_{\lambda_\nu+s_a}}{a\in\Lambda, r_{\lambda,a}\neq0}\)
 is called the projection stencil.
 In the present paper, the minimal (tight) stencil for a nonuniform velocity grid is used, \(|\mathcal{S}_{\alpha'_\nu}|=5\).
-Second, to satisfy \(J_\gamma(\hat{f}_{M\gamma}, \hat{f}_{M\gamma}) = 0\),
-\(\hat{f}_{\alpha'_\nu}\) is interpolated in following way:
+Second, to satisfy
+\begin{equation}\label{eq:strict_interpolation}
+    J_\gamma(\hat{f}_{M\gamma}, \hat{f}_{M\gamma}) = 0,
+\end{equation}
+\(\hat{f}_{\alpha'_\nu}\) is \emph{interpolated} in following way:
 \begin{equation}\label{eq:ci_interpolation}
     \frac{\hat{f}_{\alpha'_\nu}}{w_{\alpha'_\nu}} = \prod_{a\in\Lambda}
         \left(\frac{\hat{f}_{\lambda_\nu+s_a}}{w_{\lambda_\nu+s_a}} \right)^{r_{\lambda,a}}.
@@ -668,8 +672,15 @@ Hence,
 
 It is easily seen that a large number of excluded collisions disturbs the integration lattice
 and, therefore, the integration error can increase significantly.
-To prevent this situation, we should either decrease the time step
-or increase \(|\Nu|\).
+To prevent this situation, we should either decrease the time step or increase \(|\Nu|\).
+Another way is a modification of the interpolation technique.
+The interpolation~\eqref{eq:ci_interpolation},
+which strictly complies with the requirement~\eqref{eq:strict_interpolation},
+leads to a large number of excluded collisions.
+Symmetric projection method, proposed in~\citet{Tcheremissine2015},
+approximate~\eqref{eq:strict_interpolation} only with the second order,
+but it can significantly reduce \(|\Mu|\).
+In the present study, the only type of interpolation~\eqref{eq:ci_interpolation} is used.
 
 \subsubsection{Discretization of the problem}
 
@@ -704,6 +715,27 @@ of the Knudsen-layer functions like \(Y_0(\eta)\), \(H_A(\eta)\).
 For \(\Kn=100\), when the solution is similar to the constant over the physical space,
 \(N_x = 30\) is sufficient for the same precision.
 
+\begin{table}
+    \centering
+    \begin{tabular}{cccccccc}
+        \(\Delta{v}\) & \(\zeta^{(\mathrm{cut})}_x\) & \(\zeta^{(\mathrm{cut})}_r\)
+            & \(N_{\zeta_i}/2\) & \(|\mathcal{V}|\) & \(r\) & \(\Delta\zeta_x\) & \(\min(\Delta\zeta_y)\) \\[3pt]
+        0.1 & 4.35 & 4.3 & (12, 26, 8)  & 15008 & 1.28 & 0.36 & 0.0020 \\
+        1.0 & 4.80 & 4.5 & (14, 23, 9)  & 16872 & 1.29 & 0.34 & 0.0037 \\
+        2.0 & 5.30 & 5.0 & (16, 24, 10) & 23096 & 1.28 & 0.33 & 0.0038 \\
+        5.0 & 8.00 & 8.0 & (20, 26, 13) & 41520 & 1.27 & 0.40 & 0.0043 \\
+    \end{tabular}
+    \caption{The parameters of the velocity grid for various \(\Delta{v}\):
+        \(\zeta^{(\mathrm{cut})}_x\) is the semi-major axis of the cut-off spheroid,
+        \(\zeta^{(\mathrm{cut})}_r\) is the semi-minor axis,
+        \(N_{\zeta_i}\) is the maximum number of points along each axis,
+        \(|\mathcal{V}|\) is the total number of points,
+        \(r\) is the ratio of a geometric sequence,
+        \(\Delta\zeta_x\) is the distance between points along \(\zeta_x\) axis,
+        \(\min(\Delta\zeta_y)\) is the minimum distance between points along \(\zeta_y\) axis.}
+    \label{table:velocity_grid}
+\end{table}
+
 To assess the accuracy of the discrete approximation in \(\zeta_i\) space,
 two outermost models of the distribution function were considered.
 For small \(\Kn\), this is a Grad's thirteen-moment approximation
@@ -726,34 +758,37 @@ Note that there is significant heating of the gas due to friction for large Mach
 so the velocity grid should be appropriate for a velocity distribution
 for both \(T=1\) near the plate and the larger temperature near the symmetry plane.
 
-\begin{table}
+\begin{figure}
     \centering
-    \begin{tabular}{cccccccc}
-        \(\Delta{v}\) & \(\zeta^{(\mathrm{cut})}_x\) & \(\zeta^{(\mathrm{cut})}_r\)
-            & \(N_{\zeta_i}/2\) & \(|\mathcal{V}|\) & \(r\) & \(\Delta\zeta_x\) & \(\min(\Delta\zeta_y)\) \\[3pt]
-        0.1 & 4.35 & 4.3 & (12, 26, 8)  & 15008 & 1.28 & 0.36 & 0.0020 \\
-        1.0 & 4.80 & 4.5 & (14, 23, 9)  & 16872 & 1.29 & 0.34 & 0.0037 \\
-        2.0 & 5.30 & 5.0 & (16, 24, 10) & 23096 & 1.28 & 0.33 & 0.0038 \\
-        5.0 & 8.00 & 8.0 & (20, 26, 13) & 41520 & 1.27 & 0.40 & 0.0043 \\
-    \end{tabular}
-    \caption{The parameters of the velocity grid for various \(\Delta{v}\):
-        \(\zeta^{(\mathrm{cut})}_x\) is the semi-major axis of the cut-off spheroid,
-        \(\zeta^{(\mathrm{cut})}_r\) is the semi-minor axis,
-        \(N_{\zeta_i}\) is the maximum number of points along each axis,
-        \(|\mathcal{V}|\) is the total number of points,
-        \(r\) is the ratio of a geometric sequence,
-        \(\Delta\zeta_x\) is the distance between points along \(\zeta_x\) axis,
-        \(\min(\Delta\zeta_y)\) is the minimum distance between points along \(\zeta_y\) axis.}
-    \label{table:velocity_grid}
-\end{table}
+    \begin{subfigure}[b]{.5\linewidth}
+        \includegraphics{Fig01}
+        \caption{}
+        \label{fig:exclusions-max}
+    \end{subfigure}%
+    \begin{subfigure}[b]{.5\linewidth}
+        \includegraphics{Fig02}
+        \caption{}
+        \label{fig:exclusions-mean}
+    \end{subfigure}
+    \caption{The quantity \(\sqrt{|\Mu|}/|\Nu|\) versus the Knudsen number for \(\Delta{v}=5\).
+        The maximum value~\subref{fig:exclusions-max} and arithmetic mean~\subref{fig:exclusions-mean}
+        are taken among all physical cells and 250 successive time steps.
+        The lines correspond to the various cardinality of \(\Nu\):
+        from \(|\Nu| = 20011\) till \(|\Nu| = 500009\).}
+    \label{fig:exclusions}
+\end{figure}
 
-To confine the number of points excluded from \(\Nu\),
-the cardinality of the integration lattice \(|\Nu|\) are about \(2\times10^5\).
-In all cases, \(|\Mu|/|\Nu|\) is maintained to be about \(10^{-2}\) or less in the marginal physical cell,
-where the maximum number of the excluded points is observed.
-So this kind of error can be estimated as \(\sqrt{0.01}/\sqrt{2\times10^5} \approx 2\times10^{-4}\) in the worst case.
-To reduce a fluctuation error, the values of the macroscopic variables
-are averaged over the time iterations after reaching a steady state.
+The cardinality of the integration lattice \(|\Nu|\) is up to \(5\times10^5\).
+While the steady state is not reached, coarser lattices are used.
+The introduced error can be estimated from Fig.~\ref{fig:exclusions}.
+It is seen that \(|\Mu|\) practically does not depend on the Knudsen number for the plane Couette-flow problem.
+In fact, \(|\Mu|\) depends mostly on the nonuniformity of the velocity grid.
+However, the form of the distribution function is also important.
+The maximum number of the excluded points \(|\Mu|\) is observed in the marginal physical cell,
+where the distribution function is close to discontinuous.
+To reduce a fluctuation error due to the random shifting of the integration lattice,
+the values of the macroscopic variables are averaged over the time iterations
+after reaching a steady state.
 
 %%% Remark on a time step
 It is worth to make a remark about the time step and the process of reaching a steady state.
@@ -765,6 +800,8 @@ with \(\rho\), \(v_i\), and \(T\) obtained from the simulation on the coarse uni
 Moreover, the solution for the smallest \(\Kn\) does not reach the steady state completely.
 The iteration is stopped when the oscillations of the mass flow reduce to about \(10^{-4}\)
 and the relaxation process of the temperature is extrapolated by an exponential curve with the same accuracy.
+Incidentally, to reach the steady state for the largest \(\Kn\), many time steps are also required,
+because the diffuse reflection becomes the main source of the wave damping.
 
 \section{Results and discussions}
 
@@ -772,37 +809,37 @@ and the relaxation process of the temperature is extrapolated by an exponential 
     \vspace{-24pt}
     \centering
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig01}
+        \includegraphics{Fig03}
         \caption{\(\Kn=0.1\) and \(y=0.4990\)}
         \label{fig:distrib-kn0.1:boundary}
     \end{subfigure}%
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig02}
+        \includegraphics{Fig04}
         \caption{\(\Kn=0.1\) and \(y=0.0082\)}
         \label{fig:distrib-kn0.1:center}
     \end{subfigure}\\
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig03}
+        \includegraphics{Fig05}
         \caption{\(\Kn=1\) and \(y=0.4929\)}
         \label{fig:distrib-kn1.0:boundary}
     \end{subfigure}%
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig04}
+        \includegraphics{Fig06}
         \caption{\(\Kn=1\) and \(y=0.0083\)}
         \label{fig:distrib-kn1.0:center}
     \end{subfigure}\\
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig05}
+        \includegraphics{Fig07}
         \caption{\(\Kn=10\) and \(y=0.4917\)}
         \label{fig:distrib-kn10:boundary}
     \end{subfigure}%
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig06}
+        \includegraphics{Fig08}
         \caption{\(\Kn=10\) and \(y=0.0083\)}
         \label{fig:distrib-kn10:center}
     \end{subfigure}\\
     \caption{The contour plots of the velocity distribution function for \(\Delta{v}=2\).
-        The cross-section \(\zeta_z=0.1665\) is shown}
+        The cross-section \(\zeta_z=0.1665\) is shown.}
     \label{fig:distrib}
 \end{figure}
 
@@ -832,35 +869,35 @@ at the boundary \(y=1/2\) (Fig.~\ref{fig:distrib-kn10:center}).
     \vspace{-24pt}
     \centering
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig07}
+        \includegraphics{Fig09}
         \label{fig:profile:Pxy}
     \end{subfigure}%
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig08}
+        \includegraphics{Fig10}
         \label{fig:profile:vx}
     \end{subfigure}\\[-6pt]
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig09}
+        \includegraphics{Fig11}
         \label{fig:profile:qx}
     \end{subfigure}%
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig10}
+        \includegraphics{Fig12}
         \label{fig:profile:qy}
     \end{subfigure}\\[-6pt]
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig11}
+        \includegraphics{Fig13}
         \label{fig:profile:P}
     \end{subfigure}%
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig12}
+        \includegraphics{Fig14}
         \label{fig:profile:Pyy}
     \end{subfigure}\\[-6pt]
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig13}
+        \includegraphics{Fig15}
         \label{fig:profile:Pxx}
     \end{subfigure}%
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig14}
+        \includegraphics{Fig16}
         \label{fig:profile:Pzz}
     \end{subfigure}\\[-6pt]
     \phantomcaption
@@ -868,14 +905,14 @@ at the boundary \(y=1/2\) (Fig.~\ref{fig:distrib-kn10:center}).
 \begin{figure}
     \ContinuedFloat
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig15}
+        \includegraphics{Fig17}
         \label{fig:profile:tau}
     \end{subfigure}%
     \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig16}
+        \includegraphics{Fig18}
         \label{fig:profile:omega}
     \end{subfigure}\\[-12pt]
-    \caption{The profiles of the macroscopic variables}
+    \caption{The profiles of the macroscopic variables.}
     \label{fig:profiles}
 \end{figure}
 
@@ -897,60 +934,60 @@ has a lower thermal conductivity.
 
 \begin{figure}
     \centering
-    \includegraphics{Fig17}
-    \caption{The dependence of the shear stress on the Knudsen number}
+    \includegraphics{Fig19}
+    \caption{The dependence of the shear stress on the Knudsen number.}
     \label{fig:shear}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics{Fig18}
-    \caption{The dependence of the longitudinal mass flow on the Knudsen number}
+    \includegraphics{Fig20}
+    \caption{The dependence of the longitudinal mass flow on the Knudsen number.}
     \label{fig:flow}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics{Fig19}
-    \caption{The dependence of the longitudinal heat flow on the Knudsen number}
+    \includegraphics{Fig21}
+    \caption{The dependence of the longitudinal heat flow on the Knudsen number.}
     \label{fig:qflow}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics{Fig20}
-    \caption{The dependence of the transverse heat flow on the Knudsen number}
+    \includegraphics{Fig22}
+    \caption{The dependence of the transverse heat flow on the Knudsen number.}
     \label{fig:qflowy}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics{Fig21}
-    \caption{The dependence of the difference \(P_{xx}-P_{yy}\) on the Knudsen number}
+    \includegraphics{Fig23}
+    \caption{The dependence of the difference \(P_{xx}-P_{yy}\) on the Knudsen number.}
     \label{fig:pxx}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics{Fig22}
-    \caption{The dependence of the difference \(P_{zz}-P_{yy}\) on the Knudsen number}
+    \includegraphics{Fig24}
+    \caption{The dependence of the difference \(P_{zz}-P_{yy}\) on the Knudsen number.}
     \label{fig:pzz}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics{Fig23}
-    \caption{The dependence of the temperature distribution on the Knudsen number}
+    \includegraphics{Fig25}
+    \caption{The dependence of the temperature distribution on the Knudsen number.}
     \label{fig:temp}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics{Fig24}
+    \includegraphics{Fig26}
     \caption{The absolute difference between solutions \(|\int_0^{1/2} (h^{(1)}-h^{(2)})\dd{y}|\)
         (\(h = P_{xy}, q_x, \tau\), the superscript denotes the method) versus the Knudsen number:
         the lines without circles correspond to the asymptotic and projection-method solutions,
-        the lines with circles correspond to the DSMC and projection-method solutions}
+        the lines with circles correspond to the DSMC and projection-method solutions.}
     \label{fig:diff}
 \end{figure}
 
@@ -978,7 +1015,7 @@ Their numerical values are shown in Tab.~\ref{table:NS_params}.
           2 & 1.083898 & 0.981103 & 1.015173 \\
           5 & 1.438344 & 0.931106 & 1.055818 \\
     \end{tabular}
-    \caption{Quantities obtained from the numerical solution of the Navier--Stokes equations}
+    \caption{Quantities obtained from the numerical solution of the Navier--Stokes equations.}
     \label{table:NS_params}
 \end{table}
 
@@ -1011,7 +1048,9 @@ The DSMC method (the green line) produces an error within the interval from \(10
 mainly due to the fluctuations, especially for \(\Delta{v}=0.1\).
 In Fig.~\ref{fig:shear}, there is a constant-sign difference
 between the DSMC and projection-method solutions.
-It vanishes with the time step~\eqref{eq:dsmc_timestep} tending to zero.
+It can be reduced with the time step~\eqref{eq:dsmc_timestep} tending to zero.
+Other quantities, calculated with the DSMC method, are not shifted with
+further reducing the time step.
 
 Figs.~\ref{fig:qflowy}---\ref{fig:temp} show the macroscopic variables
 arising as a square of the \(\Delta{v}\).
@@ -1144,54 +1183,54 @@ The desired functions are shown in Fig.~\ref{fig:transport_functions}.
 \begin{figure}
     \centering
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig25}
+        \includegraphics[right]{Fig27}
         \label{fig:B}
     \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig26}
+        \includegraphics[right]{Fig28}
         \label{fig:B_4}
     \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig27}
+        \includegraphics[right]{Fig29}
         \label{fig:T1_1}
     \end{subfigure}\\[-6pt]
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig28}
+        \includegraphics[right]{Fig30}
         \label{fig:T1_2}
     \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig29}
+        \includegraphics[right]{Fig31}
         \label{fig:T2_1}
     \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig30}
+        \includegraphics[right]{Fig32}
         \label{fig:T2_2}
     \end{subfigure}\\[-6pt]
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig31}
+        \includegraphics[right]{Fig33}
         \label{fig:TT12}
     \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig32}
+        \includegraphics[right]{Fig34}
         \label{fig:TT2}
     \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig33}
+        \includegraphics[right]{Fig35}
         \label{fig:Q2}
     \end{subfigure}\\[-6pt]
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig34}
+        \includegraphics[right]{Fig36}
         \label{fig:Q3}
     \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig35}
+        \includegraphics[right]{Fig37}
         \label{fig:QQ22}
     \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig36}
+        \includegraphics[right]{Fig38}
         \label{fig:QQ3}
     \end{subfigure}\\[-6pt]
-    \caption{The transport functions for hard-sphere molecules}
+    \caption{The transport functions for hard-sphere molecules.}
     \label{fig:transport_functions}
 \end{figure}
 
