@@ -6,9 +6,19 @@
 \usepackage{amssymb, amsmath} % , amsthm
 \allowdisplaybreaks[3]
 \usepackage[export]{adjustbox}
+\usepackage{url}
+
 \usepackage[skip=0pt]{subcaption}
 \captionsetup{compatibility=false,subrefformat=parens}
-\usepackage{url}
+
+\usepackage{floatrow}
+\DeclareFloatSeparators{mywidth}{\hspace{-15pt}}
+\floatsetup[subfigure]{
+    style=plain,
+    capbesideposition={left,top},
+    capbesidewidth=.5cm,
+    capbesidesep=mywidth
+}
 
 \newcommand{\Kn}{\mbox{\textit{Kn}}}
 \newcommand{\NS}{N\!S}
@@ -806,7 +816,6 @@ because the diffuse reflection becomes the main source of the wave damping.
 \section{Results and discussions}
 
 \begin{figure}
-    \vspace{-24pt}
     \centering
     \begin{subfigure}[b]{.5\linewidth}
         \includegraphics{Fig03}
@@ -866,54 +875,42 @@ For large \(\Kn\), the velocity distribution differs slightly from the one
 at the boundary \(y=1/2\) (Fig.~\ref{fig:distrib-kn10:center}).
 
 \begin{figure}
-    \vspace{-24pt}
-    \centering
-    \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig09}
-        \label{fig:profile:Pxy}
-    \end{subfigure}%
-    \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig10}
-        \label{fig:profile:vx}
-    \end{subfigure}\\[-6pt]
-    \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig11}
-        \label{fig:profile:qx}
-    \end{subfigure}%
-    \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig12}
-        \label{fig:profile:qy}
-    \end{subfigure}\\[-6pt]
-    \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig13}
-        \label{fig:profile:P}
-    \end{subfigure}%
-    \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig14}
-        \label{fig:profile:Pyy}
-    \end{subfigure}\\[-6pt]
-    \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig15}
-        \label{fig:profile:Pxx}
-    \end{subfigure}%
-    \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig16}
-        \label{fig:profile:Pzz}
-    \end{subfigure}\\[-6pt]
-    \phantomcaption
+    \ffigbox{
+        \begin{subfloatrow}
+            \fcapside[\FBwidth]{\vspace{-10pt}\caption{}\label{fig:profile:Pxy}}{\includegraphics{Fig09}}
+            \hspace{-20pt}
+            \fcapside[\FBwidth]{\vspace{-10pt}\caption{}\label{fig:profile:vx}}{\includegraphics{Fig10}}
+        \end{subfloatrow}\\[6pt]
+        \begin{subfloatrow}
+            \fcapside[\FBwidth]{\vspace{-10pt}\caption{}\label{fig:profile:qx}}{\includegraphics{Fig11}}
+            \hspace{-20pt}
+            \fcapside[\FBwidth]{\vspace{-10pt}\caption{}\label{fig:profile:qy}}{\includegraphics{Fig12}}
+        \end{subfloatrow}\\[6pt]
+        \begin{subfloatrow}
+            \fcapside[\FBwidth]{\vspace{-10pt}\caption{}\label{fig:profile:P}}{\includegraphics{Fig13}}
+            \hspace{-20pt}
+            \fcapside[\FBwidth]{\vspace{-10pt}\caption{}\label{fig:profile:Pyy}}{\includegraphics{Fig14}}
+        \end{subfloatrow}\\[6pt]
+        \begin{subfloatrow}
+            \fcapside[\FBwidth]{\vspace{-10pt}\caption{}\label{fig:profile:Pxx}}{\includegraphics{Fig15}}
+            \hspace{-20pt}
+            \fcapside[\FBwidth]{\vspace{-10pt}\caption{}\label{fig:profile:Pzz}}{\includegraphics{Fig16}}
+        \end{subfloatrow}
+    }{\phantomcaption}
 \end{figure}
 \begin{figure}
     \ContinuedFloat
-    \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig17}
-        \label{fig:profile:tau}
-    \end{subfigure}%
-    \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig18}
-        \label{fig:profile:omega}
-    \end{subfigure}\\[-12pt]
-    \caption{The profiles of the macroscopic variables.}
-    \label{fig:profiles}
+    \ffigbox{
+        \begin{subfloatrow}
+            \fcapside[\FBwidth]{\vspace{-10pt}\caption{}\label{fig:profile:tau}}{\includegraphics{Fig17}}
+            \hspace{-20pt}
+            \fcapside[\FBwidth]{\vspace{-10pt}\caption{}\label{fig:profile:omega}}{\includegraphics{Fig18}}
+        \end{subfloatrow}
+    }{
+        \vspace{-10pt}
+        \caption{The profiles of the macroscopic variables.}
+        \label{fig:profiles}
+    }
 \end{figure}
 
 Fig.~\ref{fig:profiles} shows the profiles of the macroscopic variables.
