@@ -138,8 +138,9 @@ Fluid-dynamic-type equations together with special boundary conditions
 are often used as an approximate solution for small Knudsen numbers.
 For example, the Navier--Stokes equations with the slip boundary conditions~\citep{Ohwada1989a}
 provide an opportunity to construct the simplest solution~\citep{Sharipov2000}.
-To take into account the next order of gas rarefaction,
-the Burnett equations can be considered~\citep{Reese2003}.
+To take into account the next order of gas rarefaction in the Chapman"--~Enskog expansion,
+the Burnett~\citep{Reese2003} and super-Burnett~\citep{Agrawal2014} equations can be considered.
+The Grad's moment method and its modifications are also applied~\citep{Struchtrup2009}.
 However, to obtain a rigorous asymptotic solution of the Boltzmann equation,
 the Hilbert expansion along with the systematic examination of the viscous boundary and Knudsen layers
 should be carried out. \citet{Sone2000} have introduced the general recipe
@@ -242,7 +243,7 @@ Perturbed local Maxwell distribution
     \phi_e = \omega + 2\zeta_i v_i + \left(\zeta_i^2-\frac32\right)\tau
 \end{equation}
 is expressed in terms of the corresponding perturbed macroscopic variables:
-\begin{equation}
+\begin{equation}\label{eq:perturbed_variables}
     \omega = \rho-1, \quad \tau = T-1, \quad P = p-1, \quad P_{ij} = p_{ij}-\delta_{ij},
 \end{equation}
 where \(\delta_{ij}\) is the Kronecker delta function
@@ -530,8 +531,8 @@ because it can be easily found in the literature~\citep[see e.g.][]{Bird1994, So
 An open-source parallel solver, \verb+dsmcFoam+~\citep{Reese2010},
 based on the widespread CFD toolbox OpenFOAM\textregistered{}, is used.
 
-Numerical simulation of gas between two parallel plates is carried out
-in a two-dimensional geometry \((x,y)\) with a periodicity boundary conditions along the \(y\) axis.
+Numerical simulation of the hard-sphere gas between two parallel plates is carried out
+in two-dimensional space \((x,y)\) under periodic boundary conditions along the \(y\) axis.
 The size of the statistical ensemble is \(2\times10^6\) for \(\Delta{v}=0.1\)
 and \(2\times10^5\) for \(\Delta{v}\ge1\).
 The space interval \(0<y<1/2\) is divided into uniform sections:
@@ -852,6 +853,11 @@ because the diffuse reflection becomes the main source of the wave damping.
     \label{fig:distrib}
 \end{figure}
 
+The present section consists of two parts.
+First one demonstrates the discrete-velocity solution of the Boltzmann equation
+obtained with the projection-interpolation method on the nonuniform velocity grid.
+In the second part, these results are carefully compared with the DSMC and nonlinear asymptotic solutions.
+
 The two-dimensional cross-sections of distribution functions are shown
 in Fig.~\ref{fig:distrib} for the Couette-flow problem at \(\Delta{v}=2\).
 They are obtained without additional averaging over time,
@@ -916,16 +922,21 @@ at the boundary \(y=1/2\) (Fig.~\ref{fig:distrib-kn10:center}).
 Fig.~\ref{fig:profiles} shows the profiles of the macroscopic variables.
 Note some of their features.
 Due to a growth in the gas pressure, the slip of the gas along the plate decreases
-with increasing its speed (see also~\eqref{eq:hilbert_boundary_expansion}).
+with increasing its speed (see also the asymptotic solution~\eqref{eq:eq:Hilbert_U}).
 The temperature jump decreases in the same way.
 In the linear case, the longitudinal heat-flow vector \(q_x\) is presented only in the Knudsen layer,
 but due to the strong anisotropy of the distribution function at large \(\Delta{v}\),
 its bulk component increases faster than \((\Delta{v})^2\).
+Therefore, the curvature of the profile \(q_x\) changes its sign with increasing \(\Delta{v}\).
+The asymptotic solution describes the same behaviour for \(q_x\) (see Eq.~\eqref{eq:eq:Hilbert_qx}).
 Owing to a significant heating of the gas at large \(\Delta{v}\),
-the transverse heat-flow vector \(q_y\) grows faster than \((\Delta{v})^2\) too.
+the transverse heat-flow vector \(q_y\) grows faster than \((\Delta{v})^2\) too,
+but the curvature of the profile preserves its sign.
 Furthermore, depending on the \(\Delta{v}\) and \(\Kn\), \(q_x\) prevails over \(q_y\) at most.
 The longitudinal stress \(P_{xx}\) is always greater than \(P_{yy}\) and \(P_{zz}\).
 In the Knudsen layer, for small \(\Kn\), the constant stress \(P_{yy}\) becomes more than \(P_{zz}\).
+Note that \(P_{ij}\) is not a shear stress tensor, but a perturbed stress tensor
+(see Eqs.~\eqref{eq:perturbed_variables}).
 The temperature of the gas increases with \(\Kn\), because more rarefied gas
 has a lower thermal conductivity.
 
@@ -1018,8 +1029,16 @@ Their numerical values are shown in Tab.~\ref{table:NS_params}.
 
 Figs.~\ref{fig:shear}---\ref{fig:qflow} show the macroscopic variables
 that are not equal to zero in the linearized problem.
-For small \(\Delta{v}\), verification of the results is based on the comparison with the accurate numerical solution
-of the linearized Boltzmann equation~\citep{Ohwada1990} (the black line).
+For small \(\Delta{v}\), verification of the results can be based
+on the comparison with the accurate numerical solution of
+the linearized Boltzmann equation~\citep{Ohwada1990} (the black line).
+In contrast to the DSMC method, the numerical fluctuations in the projection-interpolation method
+decrease when the flow approaches to the linear case (due to interpolation~\eqref{eq:ci_interpolation}).
+Moreover, linear flows require less computational cost due to smaller discrete-velocity grid
+and number of excluded lattice points.
+Therefore, it is easy to compute a case of smaller \(\Delta{v}\) by the projection method,
+but it is missed to save space in figures.
+
 For comparison with the solution of the BKW equation (the cyan line),
 \(k\) is replaced in~\eqref{eq:bkw_solution} by the following quantities:
 \(\gamma_1k\) in Fig.~\ref{fig:shear},~\ref{fig:flow} and \(\gamma_2k\) in Fig.~\ref{fig:qflow}.
@@ -1038,16 +1057,19 @@ These facts are more evident in Fig.~\ref{fig:diff},
 where the absolute difference between the solutions
 is depicted for some macroscopic variables.
 The increase of the error for \(\tau\) and \(v_x\) for the smallest \(\Kn\)
-is explained by the insufficiently cardinality of the integration lattice \(\Nu\),
-chosen due to a very small time step.
+is due to the insufficient number of time steps performed during the simulation.
+In other words, the steady state is not reached completely.
 
 The DSMC method (the green line) produces an error within the interval from \(10^{-4}\) to \(10^{-3}\),
 mainly due to the fluctuations, especially for \(\Delta{v}=0.1\).
 In Fig.~\ref{fig:shear}, there is a constant-sign difference
 between the DSMC and projection-method solutions.
-It can be reduced with the time step~\eqref{eq:dsmc_timestep} tending to zero.
-Other quantities, calculated with the DSMC method, are not shifted with
-further reducing the time step.
+It can be reduced with the time step tending to zero.
+A smaller time step is intentionally not employed in the present DSMC computation
+to illustrate that even so small time step as~\eqref{eq:dsmc_timestep} can be insufficient
+to achieve a high-accuracy solution.
+Incidentally, other quantities, calculated by DSMC, are not shifted with
+a further reduction in the time step.
 
 Figs.~\ref{fig:qflowy}---\ref{fig:temp} show the macroscopic variables
 arising as a square of the \(\Delta{v}\).
@@ -1058,6 +1080,20 @@ Taking into account the accuracy of individual approaches,
 all presented results are in good agreement.
 
 \section{Concluding remarks}
+
+%%% A little bit about results
+By means of the direct numerical solution of the Boltzmann equation using the projection method,
+an error of about \(10^{-4}\) has been achieved for a wide range of the external parameters:
+\(0.01 \le \Kn \le 100\) and \(0.1 \le \Delta{v} \le 5\).
+The presented set of the profiles for the first thirteen moments demonstrates
+the main features of the Couette flow in dependence of \(\Kn\) and \(\Delta{v}\).
+The latter dependence is of particular interest due to poor coverage in the literature.
+For instance, the curvature of the profile of the longitudinal heat-flow vector
+changes its sign with increasing \(\Delta{v}\).
+This fact is usually not mentioned in other papers.
+In the present study, the complete diffuse reflection is used as the kinetic boundary condition
+for the sake of simplicity. The real experiments show that the accommodation coefficient
+is close to unity but slightly differs from it~\citep{Agrawal2008}.
 
 %%% Asymptotic analysis, its connection to NS equations
 In the context of the plane Couette-flow problem,
@@ -1071,7 +1107,7 @@ allow to obtain a solution with error \(\OO{\Kn^2}\).
 Note that the expressions for the deviatoric stress tensor and heat-flow vector
 differ from the Newton's and Fourier's laws and have an error \(\OO{\Kn^3}\).
 They contain the additional transport coefficients besides the viscosity and thermal conductivity ones,
-which have been computed for the hard-sphere model.
+which have been computed in the present paper for the hard-sphere model.
 However, in the general case, firstly, the expansion parameter in the viscous boundary layer
 is \(\sqrt{\Kn}\) (in contrast to \(\Kn\)), and, secondly,
 the asymptotic analysis in curvilinear coordinates leads to the cumbersome expressions~\citep{Sone2002}.
@@ -1079,9 +1115,6 @@ In addition, if the viscous layer is not smooth,
 the method of constructing the asymptotic solution is not obvious~\citep{Aoki2014}.
 
 %%% Accuracy of the projection method vs DSMC
-By means of the direct numerical solution of the Boltzmann equation using the projection method,
-an error of about \(10^{-4}\) has been achieved for a wide range of the external parameters:
-\(0.01 \le \Kn \le 100\) and \(0.1 \le \Delta{v} \le 5\).
 There is a typical for discrete-velocity methods problem to obtain a high-accuracy solution:
 the appropriate discretization of velocity space should be constructed
 to provide a satisfactory approximation of the distribution function.
@@ -1094,11 +1127,16 @@ Stochastic techniques do not have such complications,
 but at the same time has a low convergence \(\OO{N^{-1/2}}\)
 (\(N\) is a total number of particles)
 for both smooth and discontinuous distribution functions.
-The DSMC method yields a quite good accuracy, but its statistical fluctuations
-are an order of magnitude greater than within the discrete-velocity solution.
+In contrast, the projection method has a satisfactory convergence \(\OO{N^{-1}}\)
+(\(N\) is a total number of integration lattice points)
+for a discontinuous distribution function and up to \(\OO{N^{-2}}\) for the smooth one.
+For the rather simple plane Couette-flow problem,
+the DSMC method yields a quite good accuracy, but its statistical fluctuations
+are an order of magnitude greater than within the discrete-velocity solution even for finite \(\Delta{v}\).
 Incidentally, the low-variance DSMC method~\citep{Hadji2011}
-can be applied to decrease a statistical error for small \(\Delta{v}\),
+can be applied to decrease an enormous statistical error for small \(\Delta{v}\),
 where fluctuations are especially large in comparison with the solution.
+
 
 %%% Computational load and perspectives
 In the present paper, a direct numerical solution of the Boltzmann equation, on average,
