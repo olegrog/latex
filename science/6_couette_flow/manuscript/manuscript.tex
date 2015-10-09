@@ -1,5 +1,5 @@
 %&pdflatex
-\documentclass[]{jfm}
+\documentclass[final]{jfm} %referee
 %\usepackage[english]{babel}
 %\usepackage[T1]{fontenc}
 \usepackage{graphicx}
@@ -7,6 +7,8 @@
 \allowdisplaybreaks[3]
 \usepackage[export]{adjustbox}
 \usepackage{url}
+
+%\renewcommand{\includegraphics}{\relax}
 
 \usepackage[skip=0pt]{subcaption}
 \captionsetup{compatibility=false,subrefformat=parens}
@@ -72,9 +74,9 @@
     over the wide range of Knudsen and Mach numbers.
     The velocity distribution function as well as its first thirteen moments is obtained from
     the accurate numerical solution based on the projection discrete-velocity method
-    of evaluation of the collision integral, recently extended for nonuniform velocity grids~\citep{Dodulad2015}.
-    The DSMC simulation is used to verify the obtained results.
-    The nonlinear Hilbert-type asymptotic solution for a slightly rarefied gas~\citep[according to][]{Sone2000}
+    of evaluation of the collision integral, extended for nonuniform velocity grids.
+    The DSMC simulation is used to reinforce the obtained results.
+    The nonlinear Hilbert-type asymptotic solution for a slightly rarefied gas
     is constructed and also included in the comparison.
     For this purpose, some additional transport coefficients for hard-sphere molecules are evaluated.
 \end{abstract}
@@ -83,15 +85,15 @@
 %    Couette flow,
 %    rarefied gas dynamics,
 %    Boltzmann equation,
-%    projection method,
 %    asymptotic analysis,
+%    projection method,
 %    OpenFOAM,
 %    DSMC
 %}
 %\pacs{
 %    47.45.Ab,   % Kinetic theory of gases
-%    47.11.Df,    % Finite volume methods
-%    47.15.-x,    % Laminar flows
+%    47.11.Df,   % Finite volume methods
+%    47.15.-x,   % Laminar flows
 %    51.10.+y    % Kinetic and transport theory of gases
 %}
 
@@ -102,14 +104,14 @@ The steady state of a gas between two parallel plates with the same temperature
 and opposite velocities is one of the most fundamental boundary-value problems of kinetic theory.
 The linear Couette-flow problem, described by the linearized Boltzmann equation,
 has a long history of applied approximate methods~\citep{Willis1962}.
-\citet{Ohwada1990} have solved it with good accuracy for hard-sphere molecules.
+\citet{Ohwada1990} have solved it with high accuracy for hard-sphere molecules.
 The latter solution is often used for validation of numerical methods~\citep[see e.g.][]{Fan2001,Aidun2010}.
 
 %%% Nonlinear problem
 The nonlinear problem is also studied extensively~\citep{Garzo2003}.
-Despite the remarkable progress in deterministic numerical methods
+Despite the remarkable progress in the development of deterministic numerical methods
 in the recent years~\citep[see e.g.][]{Dimarco2014,Mieussens2014},
-which can provide more accurate solution compared to stochastic techniques,
+which can provide more accurate solutions compared to stochastic techniques,
 it is the direct simulation Monte-Carlo (DSMC), with its inherent statistical noise,
 that serves as the reference solution~\citep[see e.g.][]{Cercignani1994,Struchtrup2009,Agrawal2014}.
 The present study is aimed to obtain a high-accuracy deterministic solution
@@ -130,33 +132,36 @@ Therefore, nonuniform velocity grids, condensing in areas of large variation
 of the distribution function, should be used to obtain a high-accuracy solution.
 For uniform grids, two projection points are enough to satisfy the conservation laws,
 otherwise it is necessary to resort to the multipoint projection stencils~\citep{Dodulad2012}.
-\citet{Dodulad2015} has represented an extension of the projection method for nonuniform grids.
+In the present paper, an extension of the projection method for nonuniform grids is employed.
 The author hopes that the proposed method can yield the most accurate results
 among the existing numerical methods for the considered problem.
 
 %%% Asymptotic solution
 Fluid-dynamic-type equations together with special boundary conditions
-are often used as an approximate solution for small Knudsen numbers.
+are often used to find an approximate solution for small Knudsen numbers.
 For example, the Navier--Stokes equations with the slip boundary conditions~\citep{Ohwada1989a}
 give an opportunity to construct the simplest solution~\citep{Sharipov2000}.
-To take into account the next order of gas rarefaction in the Chapman"--~Enskog expansion,
+To take into account the next order of gas rarefaction in the Chapman--Enskog expansion,
 the Burnett~\citep{Reese2003} and super-Burnett~\citep{Agrawal2014} equations can be considered.
 The Grad's moment method and its modifications are also applied~\citep{Struchtrup2009}.
 However, to obtain a rigorous asymptotic solution of the Boltzmann equation,
 the Hilbert expansion along with the systematic examination of the viscous boundary and Knudsen layers
 should be carried out. \citet{Sone2000} have introduced the general approach
-for construction of solution for arbitrary Mach numbers.
-We use the obtained asymptotic solution to verify the numerical results for small Knudsen numbers.
+for construction of the asymptotic solution for finite Mach numbers.
+In the present study, this approach is applied to the plane Couette-flow problem.
+The obtained results is also used to verify the direct numerical solution
+of the Boltzmann equation for small Knudsen numbers.
 
 \section{Formulation of the problem}
 
-Consider a monatomic ideal gas confined between two infinite parallel plates with complete diffuse reflection.
+Consider a monatomic ideal gas confined between two infinite parallel plates
+with complete diffuse reflection.
 A plane Couette flow is formed by motion of the plates relative to each other
-with the longitudinal velocity (along the \(x\) axis).
-The temperature of plates remains constant.
+with the longitudinal velocity along the \(x\) axis,
+while their temperatures remain equal and constant.
 The \(y\) axis is normal to the plates separated by distance \(L\).
 
-In the present paper, we deal with dimensionless quantities, hence the macroscopic variables
+In the present paper, we deal with dimensionless quantities. The macroscopic variables
 have the following form: \(p_{ij}p^{(0)}\) is the stress tensor, \(TT^{(0)}\) is the temperature,
 \(\rho p^{(0)}/RT^{(0)}\) is the density, \(v_i(2RT^{(0)})^{1/2}\) is the velocity
 and \(q_ip^{(0)}(2RT^{(0)})^{1/2}\) is the heat-flow vector.
@@ -176,21 +181,22 @@ Molecules are assumed as hard spheres, the Knudsen number is
 \begin{equation}\label{eq:Kn_number}
     \Kn = \frac{\ell_0}{L} = \frac{k_BT^{(0)}}{\upi\sqrt{2} d_m^2p^{(0)}L},
 \end{equation}
-where \(\ell_0\) is the mean free path for the reference density,
-\(d_m\) is the diameter of the molecule.
+where \(\ell_0\) is the mean free path for the reference density \(\rho^{(0)} = p^{(0)}/R T^{(0)}\),
+\(d_m\) is the diameter of molecules.
 To describe an ideal gas over the wide range of Knudsen numbers
 one should apply the Boltzmann equation.
 Its dimensionless and time-independent form is
 \begin{equation}\label{eq:Boltzmann}
     \zeta_i\pder[f]{x_i} = \frac1k J(f,f),
 \end{equation}
-where the collision integral
+where \(k = \Kn\sqrt{\upi}/2\) is a modified Knudsen number and
 \begin{equation}\label{eq:ci}
     J(f,g) = \frac12 \int (f'g'_* + f'_*g' - fg_* - f_*g) B
     \dd \Omega(\boldsymbol{\alpha}) \dzeta_*,
 \end{equation}
-is taken from the distribution function \(f(x_i,\zeta_i)(2p^{(0)})/(2RT^{(0)})^{5/2}\)
-in space \((x_iL, \zeta_i(2RT^{(0)})^{1/2})\).
+is the Boltzmann collision integral.
+The distribution function \(f(x_i,\zeta_i)(2p^{(0)})/(2RT^{(0)})^{5/2}\) is defined
+in the space \([x_iL, \zeta_i(2RT^{(0)})^{1/2}]\).
 \(\dd \Omega(\boldsymbol{\alpha})\) is an element of solid angle in the direction of the unit vector \(\alpha_i\),
 determining the velocities after impact:
 \begin{equation}\label{eq:after_impact}
@@ -201,14 +207,13 @@ For the hard-sphere model,
 \begin{equation}\label{eq:ci_kernel}
     B = \frac{|\alpha_i(\zeta_{i*}-\zeta_i)|}{4\sqrt{2\upi}}.
 \end{equation}
-A modified Knudsen number \(k = \Kn\sqrt{\upi}/2\) is used in~\eqref{eq:Boltzmann}.
 
 The Maxwell-type boundary condition with diffuse reflection is used at \(y=1/2\), i.e.
 \begin{equation}\label{eq:diffuse_bc}
     f(\zeta_x,\zeta_y,\zeta_z) = \frac2{\upi} \exp\left[-\left(\zeta_x-\frac{\Delta{v}}{2}\right)^2-\zeta_y^2-\zeta_z^2\right]
         \int_{\zeta_{*y}>0}\zeta_{*y} f_* \dzeta_*, \quad \zeta_y<0.
 \end{equation}
-The symmetry condition is imposed at \(y=0\):
+The following symmetry condition is imposed at \(y=0\):
 \begin{equation}\label{eq:specular_bc}
     f(\zeta_x,\zeta_y,\zeta_z) = f(-\zeta_x,-\zeta_y,\zeta_z), \quad \zeta_y>0.
 \end{equation}
@@ -248,10 +253,10 @@ is expressed in terms of the corresponding perturbed macroscopic variables:
 \begin{equation}\label{eq:perturbed_variables}
     \omega = \rho-1, \quad \tau = T-1, \quad P = p-1, \quad P_{ij} = p_{ij}-\delta_{ij},
 \end{equation}
-where \(\delta_{ij}\) is the Kronecker delta function
+where \(\delta_{ij}\) is the Kronecker delta function.
 
-In particular, the Couette-flow problem is linearized when \(\Delta{v}\ll 1\).
-Then the distribution function can be expressed in the following form:
+The Couette-flow problem is linearized when \(\Delta{v}\ll 1\).
+The desired distribution function can be expressed in the following form:
 \begin{equation}\label{eq:linear_solution}
     \phi = \Delta{v} \zeta_x \Phi(y,\zeta_y,\zeta), \quad \zeta = \sqrt{\zeta_i^2},
 \end{equation}
@@ -264,7 +269,7 @@ with the following boundary conditions:
     \Phi_-(1/2,\zeta_y,\zeta) = 1, \quad \Phi_+(0,\zeta_y,\zeta) = -\Phi_-(0,-\zeta_y,\zeta),
 \end{equation}
 where \(\Phi_\pm = \Phi(\zeta_y \gtrless 0)\).
-Thus, the perturbed macroscopic variables take the following form:
+The perturbed macroscopic variables are expressed as
 \begin{equation}\label{eq:linear_macro}
     \frac{P_{xy}}{\Delta{v}} = 2\int \zeta_x^2 \zeta_y \Phi E\dzeta, \quad
     \frac{v_x}{\Delta{v}} = \int \zeta_x^2 \Phi E\dzeta, \quad
@@ -281,8 +286,7 @@ It gives
     \frac{P_{xy}}{\Delta{v}} = -\frac1{\sqrt{\upi}}, \quad v_x = q_x = 0.
 \end{gather}
 
-For small \(k\), we turn to the Grad--Hilbert expansion
-that gives the following asymptotic solution~\citep{Ohwada1990, Sone2007}:
+For small \(k\), there is a Grad--Hilbert solution~\citep[see e.g.][]{Ohwada1990, Sone2007}:
 \begin{equation}\label{eq:small_solution}
     \Phi = \frac{2y - \zeta_y \mathcal{B}(\zeta) k}{1-2k_0k},
 \end{equation}
@@ -292,17 +296,17 @@ where special function \(\mathcal{B}(\zeta)\) is defined from the integral equat
         = -2\left(\zeta_i\zeta_j-\frac{\zeta^2}3\delta_{ij}\right).
 \end{equation}
 The solution~\eqref{eq:small_solution} does not satisfy the boundary conditions~\eqref{eq:linear_bc},
-therefore, it is corrected in the Knudsen layer. Finally, we have
+therefore, it is corrected in the Knudsen layer. Finally, we have the following asymptotic solution:
 \begin{equation}\label{eq:small_macro}
     \frac{P_{xy}}{\Delta{v}} = - \frac{\gamma_1 k}{1-2k_0k}, \quad
     \frac{v_x}{\Delta{v}} = \frac{y - (Y_0^--Y_0^+)k}{1-2k_0k}, \quad
     \frac{q_x}{\Delta{v}} = \frac{(H_A^--H_A^+)k}{1-2k_0k},
 \end{equation}
-where the viscosity coefficient \(\gamma_1 = 1.270042427\) is calculated as
+where for hard-sphere molecules,
 \begin{equation}\label{eq:gamma_1}
-    \gamma_1 = \frac{8}{15\sqrt{\upi}}\int_0^\infty \zeta^6 \mathcal{B}(\zeta)E\dd\zeta,
+    \gamma_1 = \frac{8}{15\sqrt{\upi}}\int_0^\infty \zeta^6 \mathcal{B}(\zeta)E\dd\zeta = 1.270042427,
 \end{equation}
-and \(k_0 = -1.25395\) is the slip coefficient~\citep{Takata2015}.
+is the viscosity coefficient and \(k_0 = -1.25395\)~\citep{Takata2015} is the slip coefficient.
 The Knudsen-layer functions \(K^\pm = Y_0^\pm, H_A^\pm\) are defined as follows:
 \begin{equation}\label{eq:linear_knudsen_functions}
      K^\pm = K(\eta_\pm), \quad \eta_\pm = \frac{1 \mp 2y}{2k}.
@@ -315,7 +319,7 @@ In other words, the terms as \(\exp(-1/k)\) are neglected.
 In case of arbitrary \(k\), the solution can be obtained by numerical analysis.
 \citet{Ohwada1990} have carefully accomplished it for the hard-sphere model.
 
-For comparison, we also consider a solution of the widely used BKW (Boltzmann--Krook--Welander) equation,
+For comparison, consider also a solution of the widely used BKW (Boltzmann--Krook--Welander) equation,
 whose linearized form of collision integral
 \begin{equation}\label{eq:linear_bkw}
     \mathcal{L}(\phi) = -\phi + \omega + 2\zeta_i v_i + \left(\zeta_i^2-\frac32\right)\tau
@@ -376,8 +380,7 @@ which supplements Eqs.~\eqref{eq:linear_free_macro} with the following values of
 
 \subsection{Navier--Stokes equations}\label{sec:Navier-Stokes}
 
-The equations of conservation of momentum and energy for the Couette-flow problem
-degenerate into the following dimensionless form:
+For the Couette-flow problem, the conservation equations degenerate into
 \begin{equation}\label{eq:conservation_laws}
     \pder[p]{y} = 0, \quad \pder[p_{xy}]{y} = 0, \quad \pder{y}(v_x p_{xy} + q_y) = 0.
 \end{equation}
@@ -390,7 +393,7 @@ into Eqs.~\eqref{eq:conservation_laws}, we obtain a system of differential equat
     \pder{y}\left(\sqrt{T}\pder[v_x]{y}\right) = 0, \quad
     \sqrt{T}\left(\pder[v_x]{y}\right)^2 + \frac54\frac{\gamma_2}{\gamma_1}\pder{y}\left(\sqrt{T}\pder[T]{y}\right) = 0,
 \end{equation}
-which can be solved with the nonslip boundary conditions at \(y=1/2\):
+which are usually solved with the nonslip boundary conditions at \(y=1/2\):
 \begin{equation}\label{eq:nonslip_bc}
     v_x = \frac{\Delta{v}}2, \quad T = 1.
 \end{equation}
@@ -403,9 +406,9 @@ The constant pressure \(p\) is calculated from the total mass of the gas (see~\e
 \subsection{Asymptotic analysis for small Knudsen numbers}
 
 The Navier--Stokes equations can be obtained from the Chapman--Enskog expansion
-and, in essence, is a kind of disturbance of the equilibrium Maxwellian state.
+and, in essence, describe some kind of disturbance of the equilibrium Maxwellian state.
 To obtain a rigorous asymptotic solution for small \(k\),
-we should refer to the Hilbert expansion in connection with
+one should refer to the Hilbert expansion in connection with the
 viscous boundary and Knudsen layers~\citep{Sone2000, Sone2002}.
 
 Expanding macroscopic variables \(h = \rho, v_i, T, \dots\) into a power series of \(k\), i.e.
@@ -451,24 +454,24 @@ for~\eqref{eq:Hilbert_U1}--\eqref{eq:Hilbert_T1}:
 \begin{equation}\label{eq:hilbert_solution1}
     T_1 = 0, \quad v_{x1} = 0.
 \end{equation}
-Thus, we come to the Navier--Stokes equations with the slip boundary conditions at \(y=1/2\):
+Thus, we come to the Navier--Stokes equations with the following slip boundary conditions at \(y=1/2\):
 \begin{equation}\label{eq:hilbert_slip_bc}
     v_{x0} = v_{Bx} + k_0 \frac{T_0}{p_0} \pder[v_{x0}]{y} k, \quad
     T_0 = T_B - d_1 \frac{T_0}{p_0} \pder[T_0]{y} k.
 \end{equation}
-Note that the slip boundary conditions for the linear problem used in~\citet{Sharipov2000}
-are not correct in case of finite Mach numbers.
+Note that the slip boundary conditions for the linear problem, which is, for instance,
+used in~\citet{Sharipov2000}, are not correct in case of finite Mach numbers.
 
 Substituting the density \(\rho = \rho_0 + (\rho_1+\rho_{K1})k + \OO{k^2}\),
-where the subscript \(K\) denotes the Knudsen-layer correction,
+where the subscript \(K\) denotes the Knudsen-layer part of solution,
 and Eqs.~\eqref{eq:hilbert_expansion_p} into Eq.~\eqref{eq:total_mass}, we obtain
 \begin{equation}\label{eq:hilbert_total_mass}
     \frac12 = (p_0 + p_1k)\int_{0}^\frac12\frac{\dd y}{T_0} + \OO{k^2}.
 \end{equation}
-We also use the solution~\eqref{eq:hilbert_solution1} for \(T_1\) and \(\int_{0}^{1/2}\rho_{K1}\dd{y} = \OO{k}\).
-Having the same degree of freedom in the choice of \(p_0\) and \(p_1\), we assume \(p_1 = 0\).
-
-Finally, taking into account the Knudsen-layer correction, the asymptotic solution takes the following form:
+Due to~\eqref{eq:hilbert_solution1} and \(\int_{0}^{1/2}\rho_{K1}\dd{y} = \OO{k}\),
+\(T_1\) and \(\rho_{K1}\) are not included in~\eqref{eq:hilbert_total_mass}.
+Having the same degree of freedom in the choice of \(p_0\) and \(p_1\), put also \(p_1 = 0\).
+Finally, taking into account the Knudsen-layer correction, the asymptotic solution is expressed as
 \begin{gather}
     p = \left( 2\int_{0}^\frac12\frac{\dd{y}}{T_0} \right)^{-1}
         - (\Omega_1^-+\Omega_1^+ + \Theta_1^-+\Theta_1^+)\left.\pder[T_0]{y}\right|_{y=\frac12}k + \OO{k^2}, \label{eq:Hilbert_p}\\
@@ -497,7 +500,7 @@ Finally, taking into account the Knudsen-layer correction, the asymptotic soluti
     p_{zz} - p &= -\frac12 (\Omega_1^-+\Omega_1^+ + \Theta_1^-+\Theta_1^+)\left.\pder[T_0]{y}\right|_{y=\frac12}k
         + (p_{zzK2}-p_{K2})k^2 \\
         &+ \frac1{3p_0}\left[-\left(\gamma_3 T_0 \pderdual[T_0]{y} + \gamma_7\left(\pder[T_0]{y}\right)^2\right)
-        + 2(\gamma_9-2\gamma_8)T_0\left(\pder[v_{x0}]{y}\right)^2\right]k^2 + \OO{k^3},
+        + 2(\gamma_9-2\gamma_8)T_0\left(\pder[v_{x0}]{y}\right)^2\right]k^2 + \OO{k^3}.
     \end{aligned}\label{eq:Hilbert_Pzz}
 \end{gather}
 In the above formulas, the following thermal-stress transport coefficients are used:
@@ -505,8 +508,8 @@ In the above formulas, the following thermal-stress transport coefficients are u
     \gamma_3 = 1.947906335, \quad \gamma_7 = 0.189201.
 \end{equation}
 Evaluation of the transport coefficients \(\gamma_8\), \(\gamma_9\), \(\gamma_{10}\)
-for the hard-sphere model are not presented in the literature (as far as the author is aware),
-therefore they were obtained by direct solution of the corresponding integral equations
+for the hard-sphere model are not presented in the literature,
+therefore they have been obtained by direct solution of the corresponding integral equations
 (see Appendix~\ref{sec:gamma_coeffs}):
 \begin{equation}\label{eq:gamma_numerical}
     \gamma_8 = 1.496(3), \quad \gamma_9 = 1.635(7), \quad \gamma_{10} = 2.463(3).
@@ -527,14 +530,14 @@ implemented in OpenFOAM\textregistered{}.
 
 \subsection{Statistical simulation}
 
-The DSMC method is the conventional numerical method in rarefied gas dynamics,
-therefore its description is omitted in the present paper,
+The DSMC method is the conventional numerical method in rarefied gas dynamics.
+Its description is omitted in the present paper,
 because it can be easily found in the literature~\citep[see e.g.][]{Bird1994, Sone2007}.
 An open-source parallel solver, \verb+dsmcFoam+~\citep{Reese2010},
 based on the widespread CFD toolbox OpenFOAM\textregistered{}, is used.
 
 Numerical simulation of the hard-sphere gas between two parallel plates is carried out
-in two-dimensional space \((x,y)\) under periodic boundary conditions along the \(y\) axis.
+in the two-dimensional space \((x,y)\) under periodic boundary conditions along the \(y\) axis.
 The size of the statistical ensemble is \(2\times10^6\) for \(\Delta{v}=0.1\)
 and \(2\times10^5\) for \(\Delta{v}\ge1\).
 The space interval \(0<y<1/2\) is divided into uniform sections:
@@ -548,7 +551,7 @@ are averaged over time after reaching a steady state.
 
 \subsection{Discrete-velocity solution}
 
-The Boltzmann equation can be solved directly by symmetric splitting
+The Boltzmann equation is solved directly by symmetric splitting
 into the advection equation
 \begin{equation}\label{eq:split_advection}
     \pder[f]{t} + \zeta_i\pder[f]{x_i} = 0,
@@ -558,21 +561,22 @@ and the relaxation equation
 \begin{equation}\label{eq:split_integral}
     \pder[f]{t} = \frac1k J(f,f),
 \end{equation}
-for which the projection-interpolation method of discrete velocities
-on nonuniform grids is used~\citep{Dodulad2015}.
-Below we outline only the conservative technique for evaluation
-of the Boltzmann collision integral, which is the crucial point of the overall method.
+for which the second-order projection-interpolation method of discrete velocities is used.
+The main algorithm is presented in the literature~\cite{Tcheremissine1998, Tcheremissine2006, Dodulad2015}.
+We describe only the conservative technique for evaluation of the Boltzmann collision integral
+on nonuniform velocity grids.
 
 %%% Numerical approximation
 Let a regular velocity grid be constructed so that
 the cubature in \(\bzeta\) space is expressed in the weighted sum
 \begin{equation}\label{eq:zeta_cubature}
-    \int F(\bzeta) \dzeta \approx \sum_{\gamma\in\Gamma} F_\gamma w_\gamma,
+    \int F(\bzeta) \dzeta \approx \sum_{\gamma\in\Gamma} F_\gamma w_\gamma
+        = \sum_{\gamma\in\Gamma} \hat{F_\gamma},
         \quad \sum_{\gamma\in\Gamma} w_\gamma = V_\nu,
         \quad F_\gamma = F(\bzeta_\gamma),
 \end{equation}
-where \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) is the set of the integration points,
-\(F\) is an arbitrary function of \(\bzeta\),
+where \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) is a set of the integration points,
+\(F\) is an arbitrary function of \(\bzeta\), \(\hat{F_\gamma}\) is used for convenient,
 \(V_\nu\) is the total volume of the velocity grid.
 Then, the collision integral written in the symmetrized form
 \begin{equation}\label{eq:symm_ci}
@@ -586,20 +590,22 @@ Then, the collision integral written in the symmetrized form
 where \(\delta(\bzeta)\) is the Dirac delta function in \(\mathbb{R}^3\),
 has the following discrete analogue:
 \begin{equation}\label{eq:discrete_symm_ci}
-    w_\gamma J_\gamma = \frac{\upi V_\nu^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
+    \hat{J_\gamma} = \frac{\upi V_\nu^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
         \sum_{\nu\in\Nu} \left(
             \delta_{\alpha'_\nu\gamma} + \delta_{\beta'_\nu\gamma}
             - \delta_{\alpha_\nu\gamma} - \delta_{\beta_\nu\gamma}
         \right)\left(
             \frac{w_{\alpha_\nu}w_{\beta_\nu}}{w_{\alpha'_\nu}w_{\beta'_\nu}}
             \hat{f}_{\alpha'_\nu}\hat{f}_{\beta'_\nu} - \hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu}
-        \right)B_\nu,
+        \right)B_\nu.
 \end{equation}
 Here, \(\alpha_\nu\in\Gamma\) and \(\beta_\nu\in\Gamma\), along with \(\boldsymbol{\alpha}_\nu\),
 are taken from the Korobov's lattice rule~\citep{Korobov1959, Sloan1994}
 for the eight-dimensional cubature.
-In addition, the integration lattice is randomly shifted every time step.
-The modified distribution function \(\hat{f}_\gamma = f_\gamma w_\gamma\) is used for convenient.
+The discretization of \(\alpha_\gamma\) is assumed uniform.
+To ensure equal contribution of all valid values of
+\(\bzeta_{\alpha_\nu}\), \(\bzeta_{\beta_\nu}\), and \(\alpha_\nu\),
+the integration lattice is randomly shifted every time step.
 To satisfy~\eqref{eq:total_mass} exactly, the following approximation of the Maxwell distribution is used:
 \begin{equation}\label{eq:discrete_Maxwell}
     \hat{f}_{M\gamma} = \rho\left[\sum_{\alpha\in\Gamma}w_\alpha\exp
@@ -611,40 +617,43 @@ To satisfy~\eqref{eq:total_mass} exactly, the following approximation of the Max
 %%% Projection and interpolation
 In the general case, the velocities after impact,
 \(\bzeta_{\alpha'_\nu}\) and \(\bzeta_{\beta'_\nu}\), are not in \(\mathcal{V}\).
-If they are just replaced with the nearest grid velocities,
+If they are replaced with the nearest grid velocities,
 \(\bzeta_{\lambda_\nu}\in\mathcal{V}\) and \(\bzeta_{\mu_\nu}\in\mathcal{V}\),
-the discrete collision integral~\eqref{eq:discrete_symm_ci} is no longer strictly conservative.
-Moreover, the discrete Maxwell distribution is no longer the equilibrium state.
-Therefore, the following two procedures are applied in the projection-interpolation method.
-First, \(\bzeta_{\alpha'_\nu}\) is \emph{projected} to \(\bzeta_{\lambda_\nu}\) and
-some adjacent grid points, \(\Set{\bzeta_{\lambda_\nu+s_a}}{a\in\Lambda}\subset\mathcal{V}\),
-in the following way:
+the discrete collision integral~\eqref{eq:discrete_symm_ci} will not be strictly conservative,
+and the discrete Maxwell distribution will not be the equilibrium state.
+To resolve this issues, the following two procedures are applied in the projection-interpolation method.
+First, \(\bzeta_{\alpha'_\nu}\) is projected to a set of grid nodes
+\(\Set{\bzeta_{\lambda_\nu+s_a}}{a\in\Lambda}\subset\mathcal{V}\) in the following way:
 \begin{equation}\label{eq:ci_projection}
     \delta_{\alpha'_\nu\gamma} = \sum_{a\in\Lambda} r_{\lambda,a}\delta_{\lambda_\nu+s_a,\gamma}.
 \end{equation}
+Let \(\Lambda = \Set{a}{r_{\lambda,a}\neq0}\).
 The weights \(r_{\lambda,a}\) are selected to provide the conservation of mass, momentum and energy, i.e.
 \begin{equation}\label{eq:impact_conservation}
     \sum_{a\in\Lambda} r_{\lambda,a} = 1, \quad
     \sum_{a\in\Lambda} r_{\lambda,a} \bzeta_{\lambda_\nu+s_a} = \bzeta_{\alpha'_\nu}, \quad
     \sum_{a\in\Lambda} r_{\lambda,a} \bzeta_{\lambda_\nu+s_a}^2 = \bzeta_{\alpha'_\nu}^2.
 \end{equation}
-The set of projection points \(\mathcal{S}_{\alpha'_\nu} = \Set{\bzeta_{\lambda_\nu+s_a}}{a\in\Lambda, r_{\lambda,a}\neq0}\)
-is called the projection stencil.
-In the present paper, the minimal (tight) stencil for a nonuniform velocity grid is used, \(|\mathcal{S}_{\alpha'_\nu}|=5\).
 Second, to satisfy
 \begin{equation}\label{eq:strict_interpolation}
     J_\gamma(\hat{f}_{M\gamma}, \hat{f}_{M\gamma}) = 0,
 \end{equation}
-\(\hat{f}_{\alpha'_\nu}\) is \emph{interpolated} in following way:
+\(\hat{f}_{\alpha'_\nu}\) is interpolated in following way:
 \begin{equation}\label{eq:ci_interpolation}
     \frac{\hat{f}_{\alpha'_\nu}}{w_{\alpha'_\nu}} = \prod_{a\in\Lambda}
         \left(\frac{\hat{f}_{\lambda_\nu+s_a}}{w_{\lambda_\nu+s_a}} \right)^{r_{\lambda,a}}.
 \end{equation}
 This type of interpolation is a high-cost approach, but it is important,
 when the distribution function is close to the Maxwellian.
+Moreover, \eqref{eq:strict_interpolation} ensures that the H-theorem holds in the discrete form~\cite{Dodulad2013}.
 For \(\bzeta_{\beta'_\nu}\) and \(\hat{f}_{\beta'_\nu}\), all formulas are similar.
 
-There is one more important and necessary property of the numerical algorithm:
+The set of projection points \(\mathcal{S} = \Set{s_a}{a\in\Lambda}\)
+is called the projection stencil.
+In the present paper, the minimal (compact) stencil for a nonuniform velocity grid is used, \(|\mathcal{S}|=5\).
+
+
+There is one more necessary property of the numerical algorithm:
 the distribution function must always remain positive.
 If there is a term in the sum~\eqref{eq:discrete_symm_ci} that violates this property,
 it should be excluded from \(\Nu\).
@@ -688,13 +697,18 @@ To prevent this situation, one should either decrease the time step or increase 
 Another way is a modification of the interpolation technique.
 The interpolation~\eqref{eq:ci_interpolation},
 which strictly complies with the requirement~\eqref{eq:strict_interpolation},
-leads to a large number of excluded collisions.
+can lead to a large number of excluded collisions.
 Symmetric projection method, proposed in~\citet{Tcheremissine2015},
 approximate~\eqref{eq:strict_interpolation} only with the second order,
 but it can significantly reduce \(|\Mu|\).
 In the present study, the only type of interpolation~\eqref{eq:ci_interpolation} is used.
 
 \subsubsection{Discretization of the problem}
+
+%%% The grid in the physical space
+The physical volume of the problem (\(0<y<1/2\)) consists of \(N_x\) cells arranged in a single row.
+For small \(\Kn\), the physical grid should be refined near \(y=1/2\)
+due to significant variations of the solution in the thin Knudsen layer in comparison to the overall volume.
 
 %%% The grid in the velocity
 The discrete velocity space is bounded by the prolate spheroid
@@ -704,19 +718,15 @@ The symmetry axis of the spheroid is parallel to \(x\) axis.
 For the Couette-flow problem, the distribution function is sufficiently smooth along \(\zeta_x\) and \(\zeta_z\).
 In addition, in the entire domain occupied by the gas, \(\zeta_z\) component of the distribution
 differs slightly from the Maxwellian with \(v_z=0\).
-Therefore, \(\zeta_z\) coordinates of \(\bzeta_\gamma\) are selected as the roots of the Hermite polynomials,
+For this reason, \(\zeta_z\) coordinates of \(\bzeta_\gamma\) are selected as the roots of the Hermite polynomials,
 since the Gauss--Hermite quadrature is known to provide the maximum order of approximation
-to evaluate integrals of the form \(\int h(s)\exp(-s^2)\dd{s}\).
+when integrals of the form \(\int h(s)\exp(-s^2)\dd{s}\) are evaluated.
 Along \(\zeta_x\) axis, the distance between points is constant.
 \(\zeta_y\) coordinates of \(\bzeta_\gamma\) are drift apart from \(\zeta_y=0\)
 as a geometric sequence with the ratio \(r\).
-It allows significant variations of the distribution function near \(\zeta_y=0\) to be approximated more accurately.
+This grid refinement allows significant variations of the distribution function
+near \(\zeta_y=0\) to be approximated more accurately.
 The weights \(w_\gamma\) are selected to provide a midpoint approximation in~\eqref{eq:zeta_cubature}.
-
-%%% The grid in the physical space
-The physical volume of the problem (\(0<y<1/2\)) consists of \(N_x\) cells arranged in a single row.
-For small \(\Kn\), the physical grid should be refined near \(y=1/2\)
-due to significant variations of the solution in the thin Knudsen layer in comparison to the overall volume.
 
 \subsubsection{Control of accuracy}
 
@@ -748,27 +758,25 @@ For \(\Kn=100\), when the solution is similar to the constant over the physical 
     \label{table:velocity_grid}
 \end{table}
 
-To assess the accuracy of the discrete approximation in \(\zeta_i\) space,
-two outermost models of the distribution function were considered.
-For small \(\Kn\), this is a Grad's thirteen-moment approximation
+To assess the accuracy of the discrete approximation in the velocity space,
+two opposite forms of the distribution function were considered.
+First, the Grad's thirteen-moment approximation
 \begin{equation}\label{eq:grad13}
     f = \frac{\rho}{(\upi T)^{3/2}}\exp\left(-\frac{c_i^2}{ T}\right)
     \left[ 1 + \frac{(p_{ij}-p\delta_{ij})c_ic_j}{pT} + \frac4{5}\frac{q_ic_i}{pT}\left(\frac{c_j^2}{T}-\frac5{2}\right) \right],
     \quad c_i = \zeta_i - v_i.
 \end{equation}
-For large \(\Kn\), this is a combination of two different half-Maxwellians
+is used to estimate an error for smooth functions.
+Second, the combination of two different half-Maxwellians
 \begin{equation}\label{eq:double_Maxwell}
     f(\zeta_y\gtrless0) = \frac{\rho^\pm}{(\upi T^\pm)^{3/2}}\exp\left(-\frac{(\zeta_x-v_x^\pm)^2+\zeta_y^2+\zeta_z^2}{T^\pm}\right).
 \end{equation}
-In the first case, the distribution function is smooth,
-therefore \(\zeta_i^{(cut)}\) becomes a key factor of the accuracy.
-In the second case, the distribution function has a discontinuity of the first kind at \(\zeta_y=0\),
-which requires a grid refinement near \(\zeta_y=0\).
-The parameters of the velocity grid sufficient to obtain accuracy of the order of \(10^{-4}\)
-are presented in Table.~\ref{table:velocity_grid}.
-There is a significant heating of the gas due to friction for large Mach numbers,
+is used to simulate a discontinuity at \(\zeta_y=0\).
+For small \(\Kn\) and large \(\Delta{u}\), there is a significant heating of the gas due to friction,
 therefore the velocity grid should be appropriate for a velocity distribution
 for both \(T=1\) near the plate and the larger temperature near the symmetry plane.
+The parameters of the velocity grid sufficient to obtain accuracy of the order of \(10^{-4}\)
+are presented in Table.~\ref{table:velocity_grid}.
 
 \begin{figure}
     \centering
@@ -792,28 +800,29 @@ for both \(T=1\) near the plate and the larger temperature near the symmetry pla
 
 The cardinality of the integration lattice \(|\Nu|\) is up to \(5\times10^5\).
 While the steady state is not reached, coarser lattices are used.
-The introduced error can be estimated from Fig.~\ref{fig:exclusions}.
-It is seen that \(|\Mu|\) practically does not depend on the Knudsen number for the plane Couette-flow problem.
+From Fig.~\ref{fig:exclusions}, one can estimate an error introduced
+due to the exclusion of the points from the lattice.
+It is seen that \(|\Mu|\) practically does not depend on the Knudsen number.
 In fact, \(|\Mu|\) depends mostly on the nonuniformity of the velocity grid.
-However, the form of the distribution function is also important.
-The maximum number of the excluded points \(|\Mu|\) is observed in the marginal physical cell,
-where the distribution function is close to discontinuous.
-To reduce a fluctuation error due to the random shifting of the integration lattice,
+The form of the distribution function is also important.
+Indeed, the maximum number of the excluded points \(|\Mu|\) is observed in the marginal physical cell,
+where the distribution function varies stronger near \(\zeta_y=0\).
+To reduce a statistical error due to the random shifting of the integration lattice,
 the values of the macroscopic variables are averaged over the time iterations
 after reaching a steady state.
 
 %%% Remark on a time step
 It is worth to make a remark about the time step and the process of reaching a steady state.
-Owing to the Courant--Friedrichs--Lewy (CFL) condition for convergence of an explicit scheme for~\eqref{eq:split_advection},
+Owing to the Courant--Friedrichs--Lewy (CFL) condition
+for convergence of the explicit scheme for~\eqref{eq:split_advection},
 the time step is of the same order as the size of the marginal cell.
 Therefore, to accelerate progress towards the steady state for small \(\Kn\),
 the initial distribution function is constructed as the local Maxwellian
 with \(\rho\), \(v_i\), and \(T\) obtained from the simulation on the coarse uniform grid.
-Moreover, the solution for the smallest \(\Kn\) does not reach the steady state completely.
-The iteration is stopped when the oscillations of the mass flow reduce to about \(10^{-4}\)
-and the relaxation process of the temperature is extrapolated by an exponential curve with the same accuracy.
-Incidentally, to reach the steady state for the largest \(\Kn\), many time steps are also required,
-because the diffuse reflection becomes the main source of the wave damping.
+Moreover, for the smallest \(\Kn\), the solution does not reach the steady state completely.
+The iteration is stopped when the amplitude of the wave oscillations reduces to about \(10^{-4}\).
+The relaxation process is extrapolated to evaluate the steady-state profiles of the macroscopic variables.
+Incidentally, to reach the steady state for the largest \(\Kn\), many time steps are also required.
 
 \section{Results and discussions}
 
@@ -855,7 +864,7 @@ because the diffuse reflection becomes the main source of the wave damping.
 \end{figure}
 
 The present section consists of two parts.
-First one demonstrates the discrete-velocity solution of the Boltzmann equation
+The first one demonstrates the discrete-velocity solution of the Boltzmann equation
 obtained with the projection-interpolation method on the nonuniform velocity grid.
 In the second part, these results are carefully compared with the DSMC and nonlinear asymptotic solutions.
 
@@ -864,7 +873,6 @@ in Fig.~\ref{fig:distrib} for the Couette-flow problem at \(\Delta{v}=2\).
 They are obtained without additional averaging over time,
 therefore there are some visible oscillations near \(\zeta_y=0\)
 (for example, in Fig.~\ref{fig:distrib-kn1.0:boundary}).
-
 %%% the distribution function at the boundary
 Near the boundary with the diffuse reflection, the distribution function resembles
 a combination of two half-Maxwellians for both small \(\Kn\) (Fig.~\ref{fig:distrib-kn0.1:boundary})
@@ -874,7 +882,7 @@ have a higher temperature than the distribution of the molecules moving from it 
 In the intermediate case, the velocity distribution is the most different from the Maxwellian,
 and the heat flow to the plate is maximal (Fig.~\ref{fig:distrib-kn1.0:boundary}).
 %%% the distribution function at the symmetry plane
-Near the boundary with the specular reflection, the form of the distribution function
+Near the symmetry plane, the form of the distribution function
 varies considerably with \(\Kn\).
 For small \(\Kn\), it is close to the equilibrium state (Fig.~\ref{fig:distrib-kn0.1:center}).
 With increasing \(\Kn\), the saddle point \(\zeta_i=0\) appears (Fig.~\ref{fig:distrib-kn1.0:center}).
@@ -922,21 +930,21 @@ at the boundary \(y=1/2\) (Fig.~\ref{fig:distrib-kn10:center}).
 
 Fig.~\ref{fig:profiles} shows the profiles of the macroscopic variables.
 Note some of their features.
-Due to a growth in the gas pressure, the slip of the gas along the plate decreases
-with increasing its speed (see also the asymptotic solution~\eqref{eq:eq:Hilbert_U}).
+Due to a growth in the gas pressure, the relative slip of the gas along the plate decreases
+with increasing its speed (see also the asymptotic solution~\eqref{eq:Hilbert_U}).
 The temperature jump decreases in the same way.
 In the linear case, the longitudinal heat-flow vector \(q_x\) is presented only in the Knudsen layer,
 but due to the strong anisotropy of the distribution function at large \(\Delta{v}\),
 its bulk component increases faster than \((\Delta{v})^2\).
 Therefore, the curvature of the profile \(q_x\) changes its sign with increasing \(\Delta{v}\).
-The asymptotic solution describes the same behaviour for \(q_x\) (see Eq.~\eqref{eq:eq:Hilbert_qx}).
-Owing to a significant heating of the gas at large \(\Delta{v}\),
+The asymptotic solution describes the same behaviour for \(q_x\) (see Eq.~\eqref{eq:Hilbert_Qx}).
+Owing to the significant heating of the gas at large \(\Delta{v}\),
 the transverse heat-flow vector \(q_y\) grows faster than \((\Delta{v})^2\) too,
 but the curvature of the profile preserves its sign.
 Furthermore, depending on the \(\Delta{v}\) and \(\Kn\), \(q_x\) prevails over \(q_y\) at most.
 The longitudinal stress \(P_{xx}\) is always greater than \(P_{yy}\) and \(P_{zz}\).
 In the Knudsen layer, for small \(\Kn\), the constant stress \(P_{yy}\) becomes more than \(P_{zz}\).
-Note that \(P_{ij}\) is not a shear stress tensor, but a perturbed stress tensor
+Note that \(P_{ij}\) is not a shear stress tensor but a perturbed stress tensor
 (see Eqs.~\eqref{eq:perturbed_variables}).
 The temperature of the gas increases with \(\Kn\), because more rarefied gas
 has a lower thermal conductivity.
@@ -993,8 +1001,8 @@ has a lower thermal conductivity.
 \begin{figure}
     \centering
     \includegraphics{Fig26}
-    \caption{The absolute difference between solutions \(|\int_0^{1/2} (h^{(1)}-h^{(2)})\dd{y}|\)
-        (\(h = P_{xy}, q_x, \tau\), the superscript denotes the method) versus the Knudsen number:
+    \caption{The absolute difference between solutions \(|\int_0^{1/2} (h^{(1)}-h^{(2)})\dd{y}|\),
+        where \(h = P_{xy}, q_x, \tau\) and the superscript denotes the method, versus the Knudsen number:
         the lines without circles correspond to the asymptotic and projection-method solutions,
         the lines with circles correspond to the DSMC and projection-method solutions.}
     \label{fig:diff}
@@ -1005,7 +1013,7 @@ integrated over half of the volume between the plates \(0<y<1/2\), in dependence
 To depict the difference between results clearer,
 we subtract the asymptotic solutions in two limits: \(\Kn\to0\) and \(\Kn\to\infty\),
 and use the logarithmic scale.
-Quantities with an asterisk are computed from the Navier--Stokes equations~\eqref{eq:Navier-Stokes}
+The quantities with an asterisk are computed from the Navier--Stokes equations~\eqref{eq:Navier-Stokes}
 with the nonslip boundary conditions~\eqref{eq:nonslip_bc}:
 \begin{gather*}
     P_{\NS xy}^* = \frac1k \int_0^\frac12 P_{xy} \dd{y}, \quad P_{\NS xy} = P_{\NS xy}^*(\Delta{v}\to0) = -\gamma_1\frac{\Delta{v}}2, \\
@@ -1034,19 +1042,18 @@ For small \(\Delta{v}\), verification of the results can be based
 on the comparison with the accurate numerical solution of
 the linearized Boltzmann equation~\citep{Ohwada1990} (the black line).
 In contrast to the DSMC method, the numerical fluctuations in the projection-interpolation method
-decrease when the flow approaches to the linear case (due to interpolation~\eqref{eq:ci_interpolation}).
-Moreover, linear flows require less computational cost due to smaller discrete-velocity grid
-and number of excluded lattice points.
-Therefore, it is easy to compute a case of smaller \(\Delta{v}\) by the projection method,
+decrease when the flow approaches to the linear case (due to the power interpolation~\eqref{eq:ci_interpolation}).
+Linear flows require less computational cost for the projection-interpolation method,
+therefore, it is easy to compute a case of smaller \(\Delta{v}\) by the projection method,
 but it is missed to save space in figures.
 
 For comparison with the solution of the BKW equation (the cyan line),
 \(k\) is replaced in~\eqref{eq:bkw_solution} by the following quantities:
 \(\gamma_1k\) in Fig.~\ref{fig:shear},~\ref{fig:flow} and \(\gamma_2k\) in Fig.~\ref{fig:qflow}.
-With this treatment, the transport coefficients of viscosity and thermal conductivity
-for the BKW and hard-sphere models coincide, respectively.
+With this modification, the transport coefficients of viscosity and thermal conductivity
+of the BKW solution coincide with the hard-sphere ones, because \(\gamma_1=\gamma_2=1\) for the BKW model.
 
-In Fig.~\ref{fig:shear} and Fig.~\ref{fig:qflow}, the difference between asymptotic (the blue line)
+In Fig.~\ref{fig:shear} and Fig.~\ref{fig:qflow}, the difference between the asymptotic (the blue line)
 and projection-method (the red line) solutions is \(\OO{\Kn^3}\),
 which is in accordance with Eq.~\eqref{eq:Hilbert_Pxy} and Eq.~\eqref{eq:Hilbert_Qx}.
 For \(\Delta{v}=0.1\), the asymptotic solution is close to the linear one~\eqref{eq:linear_macro},
@@ -1062,7 +1069,7 @@ is due to the insufficient number of time steps performed during the simulation.
 In other words, the steady state is not reached completely.
 
 The DSMC method (the green line) produces an error within the interval from \(10^{-4}\) to \(10^{-3}\),
-mainly due to the fluctuations, especially for \(\Delta{v}=0.1\).
+mainly due to large fluctuations, especially for \(\Delta{v}=0.1\).
 In Fig.~\ref{fig:shear}, there is a constant-sign difference
 between the DSMC and projection-method solutions.
 It can be reduced with the time step tending to zero.
@@ -1075,7 +1082,7 @@ a further reduction in the time step.
 Figs.~\ref{fig:qflowy}---\ref{fig:temp} show the macroscopic variables
 arising as a square of the \(\Delta{v}\).
 Results for \(\Delta{v}=0.1\) are omitted due to low precision.
-The difference between asymptotic and main solutions
+The difference between the asymptotic and projection-method solutions
 is \(\OO{\Kn^3}\) in Fig.~\ref{fig:qflowy}--\ref{fig:pzz} and \(\OO{\Kn^2}\) in Fig.~\ref{fig:temp}.
 Taking into account the accuracy of individual approaches,
 all presented results are in good agreement.
@@ -1083,11 +1090,11 @@ all presented results are in good agreement.
 \section{Concluding remarks}
 
 %%% A little bit about results
-By means of the direct numerical solution of the Boltzmann equation using the projection method,
+By means of the direct numerical solution of the Boltzmann equation using the projection-interpolation method,
 an error of about \(10^{-4}\) has been achieved for a wide range of the external parameters:
 \(0.01 \le \Kn \le 100\) and \(0.1 \le \Delta{v} \le 5\).
 The presented set of the profiles for the first thirteen moments demonstrates
-the main features of the Couette flow in dependence of \(\Kn\) and \(\Delta{v}\).
+the main features of the plane Couette flow in dependence of \(\Kn\) and \(\Delta{v}\).
 The latter dependence is of particular interest due to poor coverage in the literature.
 For instance, the curvature of the profile of the longitudinal heat-flow vector
 changes its sign with increasing \(\Delta{v}\).
@@ -1101,8 +1108,7 @@ In the context of the plane Couette-flow problem,
 a comparative analysis of the applied numerical methods can be carried out.
 For small \(\Kn\), the asymptotic analysis of the Boltzmann equation has demonstrated
 its superiority in terms of accuracy and high performance.
-The derived fluid-dynamic-type equations,
-coinciding with the Navier--Stokes equations up to first order of \(\Kn\),
+The derived fluid-dynamic-type equations, coinciding with the Navier--Stokes equations,
 along with the appropriate slip boundary conditions and the Knudsen-layer correction
 allow to obtain a solution with error \(\OO{\Kn^2}\).
 Note that the expressions for the deviatoric stress tensor and heat-flow vector
@@ -1112,43 +1118,47 @@ which have been computed in the present paper for the hard-sphere model.
 However, in the general case, firstly, the expansion parameter in the viscous boundary layer
 is \(\sqrt{\Kn}\) (in contrast to \(\Kn\)), and, secondly,
 the asymptotic analysis in curvilinear coordinates leads to the cumbersome expressions~\citep{Sone2002}.
-In addition, if the viscous layer is not smooth,
+In addition, if the viscous boundary layer is not smooth,
 the method of constructing the asymptotic solution is not obvious~\citep{Aoki2014}.
 
-%%% Accuracy of the projection method vs DSMC
-There is a typical for discrete-velocity methods problem to obtain a high-accuracy solution:
+%%% Comparison between the projection method and DSMC
+For discrete-velocity methods, there is a typical problem to obtain a high-accuracy solution:
 the appropriate discretization of velocity space should be constructed
 to provide a satisfactory approximation of the distribution function.
 The high performance of the projection method (as well as any discrete-velocity method)
 stems from the fact that the velocity grid is the same in the whole volume occupied by the gas.
 Therefore, for problems with a finite curvature of the boundary surface,
-it is necessary to use a uniform velocity grid, which fails to approximate
-the large gradients of the distribution function in the Knudsen layer accurately.
+it is necessary to use a uniform velocity grid, which should be sufficiently fine to approximate
+large variations of the distribution function in the Knudsen layer accurately.
+This requirement can be very costly.
 Stochastic techniques do not have such complications,
-but at the same time has a low convergence \(\OO{N^{-1/2}}\)
+but at the same time has a slow convergence rate of \(\OO{N^{-1/2}}\)
 (\(N\) is a total number of particles)
 for both smooth and discontinuous distribution functions.
-In contrast, the projection method has a satisfactory convergence \(\OO{N^{-1}}\)
+In contrast, the projection method has a satisfactory convergence of \(\OO{N^{-1}}\)
 (\(N\) is a total number of integration lattice points)
 for a discontinuous distribution function and up to \(\OO{N^{-2}}\) for the smooth one.
 For the rather simple plane Couette-flow problem,
-the DSMC method yields a quite good accuracy, but its statistical fluctuations
-are an order of magnitude greater than within the discrete-velocity solution even for finite \(\Delta{v}\).
+the DSMC method yields a quite good accuracy, but its statistical noise
+is an order of magnitude greater than within the discrete-velocity solution, even for finite \(\Delta{v}\).
 Incidentally, the low-variance DSMC method~\citep{Hadji2011}
 can be applied to decrease an enormous statistical error for small \(\Delta{v}\),
 where fluctuations are especially large in comparison with the solution.
-
-
-%%% Computational load and perspectives
-In the present paper, a direct numerical solution of the Boltzmann equation, on average,
+Finally, it is necessary to mention performance of the methods.
+In the present study, a direct numerical solution of the Boltzmann equation, on average,
 took an order of magnitude more time than the statistical simulation.
-In view of the above discussion, the projection method on nonuniform grids can be recommended
-as a precision tool for solving the Boltzmann equation with arbitrary Knudsen and Mach numbers,
-but for boundary-value problems with a simple rectangular geometry.
+However, on coarser grids, the projection method can have comparable to the DSMC
+performance and accuracy or sometimes better, especially for not very large \(\Kn\).
+
+%%% Perspectives
+In view of the above discussion, the proposed projection method on nonuniform grids can be recommended
+for solving nonlinear boundary-value problems with high accuracy,
+when significant variations of the distribution function can be localized along the axes of the velocity grid.
 
 \begin{acknowledgments}
-    The author is grateful to Dr. Oleg Dodulad, who developed and implemented the projection method
-    on the nonuniform velocity grids, and Dr. Felix Tcheremissine for his valuable comments.
+    The author is grateful to Dr. Oleg Dodulad, who extended the projection method
+    to the nonuniform velocity grids and implemented it as well,
+    and Dr. Felix Tcheremissine for his valuable comments.
 \end{acknowledgments}
 
 \appendix
@@ -1161,13 +1171,13 @@ for hard-sphere molecules are~\citep{Sone2000, Sone2002, Sone2007}
     \gamma_8 = I_6\left(\Q_2 - \QQ_{22}\right) + \frac17 I_8\left(\Q_3 - \QQ_3\right), \label{eq:gamma_8}\\
     \gamma_9 = -I_6\left(\B\right), \label{eq:gamma_9}\\
     \gamma_{10} = \frac58 I_6\left(\T{1}_1 + \T{2}_1 - 2\TT_{12}\right)
-        + \frac18 I_8\left(\T{1}_2 + \T{2}_2 - 2\TT_2\right). \label{eq:gamma_10}
+        + \frac18 I_8\left(\T{1}_2 + \T{2}_2 - 2\TT_2\right), \label{eq:gamma_10}
 \end{gather}
-Here,
+where,
 \begin{equation}\label{eq:I_n}
-    I_n[Z(\zeta)] = \frac{8}{15\sqrt{\upi}} \int_0^\infty \zeta^n Z(\zeta) \exp(-\zeta^2) \dd\zeta,
+    I_n[Z(\zeta)] = \frac{8}{15\sqrt{\upi}} \int_0^\infty \zeta^n Z(\zeta) \exp(-\zeta^2) \dd\zeta.
 \end{equation}
-and the integrands can be obtained from the corresponding integral equations:
+The integrands can be obtained from the corresponding integral equations:
 \begin{align}
     \mathcal{L}\left(\zeta_x\mathcal{A}\right) &= -\zeta_x\left(\zeta^2-\frac52\right), \label{eq:A}\\
     \mathcal{L}\left(\zeta_x\zeta_y\mathcal{B}\right) &= -2\zeta_x\zeta_y, \label{eq:B}\\
@@ -1203,7 +1213,7 @@ with subsidiary conditions for \(\mathcal{A}\), \(\T{m}_1\), \(\TT_{12}\):
 \begin{gather}
     \int_0^\infty \zeta^4 \mathcal{A} E \dd\zeta = 0, \label{eq:A_constraint}\\
     \int_0^\infty \left( 5\zeta^4\T{m}_1 + \zeta^6\T{m}_2 \right) E \dd\zeta = 0, \label{eq:Tm_constraint}\\
-    \int_0^\infty \left( 5\zeta^4\TT_{12} + \zeta^6\TT_2 \right) E \dd\zeta = 0, \label{eq:T12_constraint}
+    \int_0^\infty \left( 5\zeta^4\TT_{12} + \zeta^6\TT_2 \right) E \dd\zeta = 0. \label{eq:T12_constraint}
 \end{gather}
 The collision operators \(\mathcal{L}\) and \(\mathcal{J}\) are related to the collision integral \(J\) as follows:
 \begin{equation}\label{eq:mathcalLJ}
@@ -1212,7 +1222,7 @@ The collision operators \(\mathcal{L}\) and \(\mathcal{J}\) are related to the c
 
 The integral equations~\eqref{eq:A}--\eqref{eq:B} can be solved accurately
 by reducing them to ordinary differential equations~\citep[see e.g.][]{Pekeris1957, Ohwada1992}.
-For the present paper, the integral equations in question are solved
+For the present paper, the considered integral equations are solved
 by the fixed-point iteration and direct quasi-Monte Carlo integration.
 The desired functions are shown in Fig.~\ref{fig:transport_functions}.
 
