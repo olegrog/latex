@@ -1107,7 +1107,7 @@ is close to unity but slightly differs from it~\citep{Agrawal2008}.
 In the context of the plane Couette-flow problem,
 a comparative analysis of the applied numerical methods can be carried out.
 For small \(\Kn\), the asymptotic analysis of the Boltzmann equation has demonstrated
-its superiority in terms of accuracy and high performance.
+its superiority in terms of accuracy and performance.
 The derived fluid-dynamic-type equations, coinciding with the Navier--Stokes equations,
 along with the appropriate slip boundary conditions and the Knudsen-layer correction
 allow to obtain a solution with error \(\OO{\Kn^2}\).
@@ -1115,45 +1115,46 @@ Note that the expressions for the deviatoric stress tensor and heat-flow vector
 differ from the Newton's and Fourier's laws and have an error \(\OO{\Kn^3}\).
 They contain the additional transport coefficients besides the viscosity and thermal conductivity ones,
 which have been computed in the present paper for the hard-sphere model.
-However, in the general case, firstly, the expansion parameter in the viscous boundary layer
-is \(\sqrt{\Kn}\) (in contrast to \(\Kn\)), and, secondly,
-the asymptotic analysis in curvilinear coordinates leads to the cumbersome expressions~\citep{Sone2002}.
-In addition, if the viscous boundary layer is not smooth,
+However, in the general asymptotic theory, the situation is not so promising.
+First, the expansion parameter in the viscous boundary layer is \(\sqrt{\Kn}\) (in contrast to \(\Kn\)).
+Second, the asymptotic analysis in curvilinear coordinates leads to the cumbersome expressions~\citep{Sone2002}.
+Finally, if the viscous boundary layer is not smooth,
 the method of constructing the asymptotic solution is not obvious~\citep{Aoki2014}.
 
-%%% Comparison between the projection method and DSMC
+%%% Comparison of accuracy between the projection method and DSMC
 For discrete-velocity methods, there is a typical problem to obtain a high-accuracy solution:
 the appropriate discretization of velocity space should be constructed
 to provide a satisfactory approximation of the distribution function.
-The high performance of the projection method (as well as any discrete-velocity method)
-stems from the fact that the velocity grid is the same in the whole volume occupied by the gas.
-Therefore, for problems with a finite curvature of the boundary surface,
-it is necessary to use a uniform velocity grid, which should be sufficiently fine to approximate
-large variations of the distribution function in the Knudsen layer accurately.
-This requirement can be very costly.
 Stochastic techniques do not have such complications,
-but at the same time has a slow convergence rate of \(\OO{N^{-1/2}}\)
+but at the same time have slow convergence rate of \(\OO{N^{-1/2}}\)
 (\(N\) is a total number of particles)
 for both smooth and discontinuous distribution functions.
-In contrast, the projection method has a satisfactory convergence of \(\OO{N^{-1}}\)
+In contrast, the projection method, under an appropriate discretization,
+has a satisfactory convergence of \(\OO{N^{-1}}\)
 (\(N\) is a total number of integration lattice points)
-for a discontinuous distribution function and up to \(\OO{N^{-2}}\) for the smooth one.
+for a discontinuous distribution function and \(\OO{N^{-2}}\) for the smooth one.
 For the rather simple plane Couette-flow problem,
 the DSMC method yields a quite good accuracy, but its statistical noise
 is an order of magnitude greater than within the discrete-velocity solution, even for finite \(\Delta{v}\).
 Incidentally, the low-variance DSMC method~\citep{Hadji2011}
 can be applied to decrease an enormous statistical error for small \(\Delta{v}\),
 where fluctuations are especially large in comparison with the solution.
+
+%%% Comparison of performance between the projection method and DSMC
 Finally, it is necessary to mention performance of the methods.
 In the present study, a direct numerical solution of the Boltzmann equation, on average,
 took an order of magnitude more time than the statistical simulation.
-However, on coarser grids, the projection method can have comparable to the DSMC
-performance and accuracy or sometimes better, especially for not very large \(\Kn\).
+However, for coarser grids and integration lattice, the projection method can
+have better performance with the same accuracy as that of the DSMC method.
+In fact, discrete-velocity methods have high performance on static velocity grids,
+which are identical in each physical cell.
+In a general case, the static velocity grid should be uniform or close to it and, therefore,
+should be sufficiently fine to approximate large variations of the distribution function accurately.
+This requirement can be very costly. An alternative approach is to use adaptive velocity grids~\cite{Kolobov2013}.
 
 %%% Perspectives
 In view of the above discussion, the proposed projection method on nonuniform grids can be recommended
-for solving nonlinear boundary-value problems with high accuracy,
-when significant variations of the distribution function can be localized along the axes of the velocity grid.
+for solving nonlinear boundary-value problems with high accuracy.
 
 \begin{acknowledgments}
     The author is grateful to Dr. Oleg Dodulad, who extended the projection method
