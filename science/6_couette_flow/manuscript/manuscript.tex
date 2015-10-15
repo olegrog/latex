@@ -32,6 +32,7 @@
 \newcommand{\Pder}[2][]{\partial#1/\partial#2}
 \newcommand{\dzeta}{\boldsymbol{\dd\zeta}}
 \newcommand{\bzeta}{\boldsymbol{\zeta}}
+\newcommand{\bh}{\boldsymbol{h}}
 \newcommand{\Nu}{\mathcal{N}}
 \newcommand{\Mu}{\mathcal{M}}
 \newcommand{\OO}[1]{O\left(#1\right)}
@@ -557,17 +558,17 @@ into the advection equation
     \pder[f]{t} + \zeta_i\pder[f]{x_i} = 0,
 \end{equation}
 for which a finite-volume method with an explicit second-order TVD (total variation diminishing) scheme is used,
-and the relaxation equation
-\begin{equation}\label{eq:split_integral}
+and the space-homogeneous Boltzmann equation
+\begin{equation}\label{eq:split_collisions}
     \pder[f]{t} = \frac1k J(f,f),
 \end{equation}
 for which the second-order projection-interpolation method of discrete velocities is used.
-The main algorithm is presented in the literature~\cite{Tcheremissine1998, Tcheremissine2006, Dodulad2015}.
-We describe only the conservative technique for evaluation of the Boltzmann collision integral
-on nonuniform velocity grids.
+The main algorithm is presented in the literature~\citep[see e.g.][]{Tcheremissine1998, Tcheremissine2006, Dodulad2015}.
+In the present paper, we outline the conservative method for evaluation of the Boltzmann collision integral
+on nonuniform velocity grids based on the multipoint technique~\citep{Dodulad2012}.
 
 %%% Numerical approximation
-Let a regular velocity grid be constructed so that
+Let a regular velocity grid \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) be constructed so that
 the cubature in \(\bzeta\) space is expressed in the weighted sum
 \begin{equation}\label{eq:zeta_cubature}
     \int F(\bzeta) \dzeta \approx \sum_{\gamma\in\Gamma} F_\gamma w_\gamma
@@ -575,8 +576,7 @@ the cubature in \(\bzeta\) space is expressed in the weighted sum
         \quad \sum_{\gamma\in\Gamma} w_\gamma = V_\nu,
         \quad F_\gamma = F(\bzeta_\gamma),
 \end{equation}
-where \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) is a set of the integration points,
-\(F\) is an arbitrary function of \(\bzeta\), \(\hat{F_\gamma}\) is used for convenient,
+where \(F\) is an arbitrary function of \(\bzeta\) (\(\hat{F_\gamma}\) is used for convenient),
 \(V_\nu\) is the total volume of the velocity grid.
 Then, the collision integral written in the symmetrized form
 \begin{equation}\label{eq:symm_ci}
@@ -602,7 +602,6 @@ has the following discrete analogue:
 Here, \(\alpha_\nu\in\Gamma\) and \(\beta_\nu\in\Gamma\), along with \(\boldsymbol{\alpha}_\nu\),
 are taken from the Korobov's lattice rule~\citep{Korobov1959, Sloan1994}
 for the eight-dimensional cubature.
-The discretization of \(\alpha_\gamma\) is assumed uniform.
 To ensure equal contribution of all valid values of
 \(\bzeta_{\alpha_\nu}\), \(\bzeta_{\beta_\nu}\), and \(\alpha_\nu\),
 the integration lattice is randomly shifted every time step.
@@ -629,7 +628,7 @@ First, \(\bzeta_{\alpha'_\nu}\) is projected to a set of grid nodes
 \end{equation}
 Let \(\Lambda = \Set{a}{r_{\lambda,a}\neq0}\).
 The weights \(r_{\lambda,a}\) are selected to provide the conservation of mass, momentum and energy, i.e.
-\begin{equation}\label{eq:impact_conservation}
+\begin{equation}\label{eq:stencil_conservation}
     \sum_{a\in\Lambda} r_{\lambda,a} = 1, \quad
     \sum_{a\in\Lambda} r_{\lambda,a} \bzeta_{\lambda_\nu+s_a} = \bzeta_{\alpha'_\nu}, \quad
     \sum_{a\in\Lambda} r_{\lambda,a} \bzeta_{\lambda_\nu+s_a}^2 = \bzeta_{\alpha'_\nu}^2.
@@ -645,14 +644,38 @@ Second, to satisfy
 \end{equation}
 This type of interpolation is a high-cost approach, but it is important,
 when the distribution function is close to the Maxwellian.
-Moreover, \eqref{eq:strict_interpolation} ensures that the H-theorem holds in the discrete form~\cite{Dodulad2013}.
+Moreover, \eqref{eq:strict_interpolation} ensures that the H-theorem holds in the discrete form~\citep{Dodulad2013}.
 For \(\bzeta_{\beta'_\nu}\) and \(\hat{f}_{\beta'_\nu}\), all formulas are similar.
 
-The set of projection points \(\mathcal{S} = \Set{s_a}{a\in\Lambda}\)
+%%% Description of the stencil
+The set of displacement rules \(\mathcal{S} = \Set{s_a}{a\in\Lambda}\)
 is called the projection stencil.
-In the present paper, the minimal (compact) stencil for a nonuniform velocity grid is used, \(|\mathcal{S}|=5\).
+In the present paper, the most compact stencil \(|\mathcal{S}|=5\) on a rectangular velocity grid is used.
+Let \(\boldsymbol{\eta} = \bzeta_{\alpha'_\nu} - \bzeta_{\lambda_\nu}\),
+\(\bh_+\) and \(\bh_-\) be such minimal diagonal displacements on the grid
+as \(\bh_+\) is directed in the same octant as \(\boldsymbol{\eta}\)
+and \(\bh_-\) lies in the opposite one.
+Then the compact 5-points scheme is constructed on the following nodes:
+\begin{equation}\label{eq:stencil_nodes}
+    \bzeta_{\lambda_\nu+s_0} = \bzeta_{\lambda_\nu}, \quad
+    \bzeta_{\lambda_\nu+s_i} = \bzeta_{\lambda_\nu} + (\bh_+\cdot \boldsymbol{e}_i)\boldsymbol{e}_+, \quad
+    \bzeta_{\lambda_\nu+s_5} = \bzeta_{\lambda_\nu} + \bh_-,
+\end{equation}
+where \(\boldsymbol{e}_i\) is the basis of the rectangular velocity grid.
+The appropriate weights that ensure~\eqref{eq:stencil_conservation} are
+\begin{equation}\label{eq:stencil_weights}
+    r_{\lambda,0} = 1 - \sum_{i=1}^3 \check{\eta}_i - r_{\lambda,4}\left(1+\sum_{i=1}^3 \check{h}_i\right), \quad
+    r_{\lambda,i} = \check{\eta}_i + r_{\lambda,4}\check{h}_i, \quad
+    r_{\lambda,4} = \frac{\displaystyle\sum_{i=1}^3(\check{\eta}_i^2 - \check{\eta}_i)}
+        {\displaystyle\sum_{i=1}^3(\check{h}_i^2 + \check{h}_i)},
+\end{equation}
+where
+\begin{equation}\label{eq:stencil_variables}
+    \check{\eta}_i = \left(\left|\frac{\eta}{h_+}\right|\right)_i, \quad
+    \check{h}_i = \left(\left|\frac{h_-}{h_+}\right|\right)_i.
+\end{equation}
 
-
+%%% Positive property of collision integral
 There is one more necessary property of the numerical algorithm:
 the distribution function must always remain positive.
 If there is a term in the sum~\eqref{eq:discrete_symm_ci} that violates this property,
@@ -1150,7 +1173,7 @@ In fact, discrete-velocity methods have high performance on static velocity grid
 which are identical in each physical cell.
 In a general case, the static velocity grid should be uniform or close to it and, therefore,
 should be sufficiently fine to approximate large variations of the distribution function accurately.
-This requirement can be very costly. An alternative approach is to use adaptive velocity grids~\cite{Kolobov2013}.
+This requirement can be very costly. An alternative approach is to use adaptive velocity grids~\citep{Kolobov2013}.
 
 %%% Perspectives
 In view of the above discussion, the proposed projection method on nonuniform grids can be recommended
