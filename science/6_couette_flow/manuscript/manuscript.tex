@@ -675,6 +675,26 @@ where
     \check{h}_i = \left(\left|\frac{h_-}{h_+}\right|\right)_i.
 \end{equation}
 
+%%% Time-evolution scheme
+To summarize, one can say that integral~\eqref{eq:symm_ci} is computed using the quasi-Monte Carlo method
+with the special correction procedures that ensure strict compliance of the properties of~\eqref{eq:symm_ci}.
+Now turn to the solution of the space-homogeneous Boltzmann equation~\eqref{eq:split_collisions}.
+Integrating it over the time step \(\Delta\tau\), we have
+\begin{equation}\label{eq:time_scheme}
+    f_\gamma(t+\Delta\tau) = f_\gamma(t) + \frac1k \int_\tau^{\tau+\Delta\tau} J_\gamma \dd\tau.
+\end{equation}
+Rewriting~\eqref{eq:discrete_symm_ci} as
+\begin{equation}\label{eq:discrete_short_ci}
+    J_\gamma = \sum_{\nu\in\Nu} \Delta_{\gamma\nu},
+\end{equation}
+and substituting it into~\eqref{eq:time_scheme},
+we can obtain the following continuous-calculation scheme:
+\begin{equation}\label{eq:continuous_scheme}
+    f_\gamma^{\nu+1} = f_\gamma^\nu + \frac{\Delta\tau}{k}\Delta_{\gamma\nu}.
+\end{equation}
+Iteration over all \(\nu\in\Nu\) approximates~\eqref{eq:time_scheme}
+with the second order.
+
 %%% Positive property of collision integral
 There is one more necessary property of the numerical algorithm:
 the distribution function must always remain positive.
