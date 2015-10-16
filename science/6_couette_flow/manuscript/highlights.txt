@@ -1,0 +1,5 @@
+-- The plane Couette-flow problem is solved accurately for the wide range of the Knudsen and Mach numbers
+-- An extension of the projection discrete-velocity method for nonuniform velocity grid is presented
+-- A nonlinear Hilbert-type asymptotic solution of the plane Couette-flow problem is constructed
+-- Some unobvious effects in the profiles of the heat-flow vector and stress tensor are demonstrated
+-- A comparison between the DSMC and projection-interpolation methods is performed

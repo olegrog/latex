@@ -1,7 +1,7 @@
 FILE=manuscript
 SHELL=/bin/bash
 FIG=Fig*.pdf
-SOURCES=$(FILE).tex $(FILE).bib $(FIG)
+SOURCES=$(FILE).tex $(FILE).bib highlights.txt $(FIG)
 
 all: $(FILE).zip $(FILE).pdf
 
