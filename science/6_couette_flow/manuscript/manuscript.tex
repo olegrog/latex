@@ -303,9 +303,9 @@ therefore, it is corrected in the Knudsen layer. Finally, we have the following 
     \frac{v_x}{\Delta{v}} = \frac{y - (Y_0^--Y_0^+)k}{1-2k_0k}, \quad
     \frac{q_x}{\Delta{v}} = \frac{(H_A^--H_A^+)k}{1-2k_0k},
 \end{equation}
-where for hard-sphere molecules,
+where, for hard-sphere molecules,
 \begin{equation}\label{eq:gamma_1}
-    \gamma_1 = \frac{8}{15\sqrt{\upi}}\int_0^\infty \zeta^6 \mathcal{B}(\zeta)E\dd\zeta = 1.270042427,
+    \gamma_1 = \frac{8}{15\sqrt{\upi}}\int_0^\infty \zeta^6 \mathcal{B}(\zeta)E\dd\zeta = 1.270042427
 \end{equation}
 is the viscosity coefficient and \(k_0 = -1.25395\)~\citep{Takata2015} is the slip coefficient.
 The Knudsen-layer functions \(K^\pm = Y_0^\pm, H_A^\pm\) are defined as follows:
@@ -398,7 +398,7 @@ which are usually solved with the nonslip boundary conditions at \(y=1/2\):
 \begin{equation}\label{eq:nonslip_bc}
     v_x = \frac{\Delta{v}}2, \quad T = 1.
 \end{equation}
-Incidentally, \(\gamma_2 = 1.922284066\) is the thermal conductivity coefficient.
+Incidentally, \(\gamma_2 = 1.922284066\) is the thermal conductivity coefficient of a hard-sphere gas.
 The constant pressure \(p\) is calculated from the total mass of the gas (see~\eqref{eq:total_mass}):
 \begin{equation}\label{eq:constant_pressure}
     p = \left( 2\int_{0}^\frac12\frac{\dd{y}}{T} \right)^{-1}.
@@ -1187,9 +1187,9 @@ In the present study, a direct numerical solution of the Boltzmann equation, on 
 took an order of magnitude more time than the statistical simulation.
 However, for coarser grids and integration lattice, the projection method can
 have better performance with the same accuracy as that of the DSMC method.
-In fact, discrete-velocity methods have high performance on static velocity grids,
+In fact, discrete-velocity methods have high performance on fixed velocity grids,
 which are identical in each physical cell.
-In a general case, the static velocity grid should be uniform or close to it and, therefore,
+In a general case, the fixed velocity grid should be uniform or close to it and, therefore,
 should be sufficiently fine to approximate large variations of the distribution function accurately.
 This requirement can be very costly. An alternative approach is to use adaptive velocity grids~\citep{Kolobov2013}.
 
