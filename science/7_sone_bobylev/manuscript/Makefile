@@ -18,9 +18,9 @@ $(FILE).pdf: $(FILE).tex $(FILE).bib $(FIG)
 pics:
 	cp ../tikz/geometry.pdf             Fig01.pdf~
 	cp ../contours/heat-temp.pdf        Fig02.pdf
-	cp ../contours/snit-0-temp.pdf      Fig03.pdf
+	cp ../contours/snif-0-temp.pdf      Fig03.pdf
 	cp ../contours/nonslip-0-flow.pdf   Fig04.pdf
-	cp ../contours/snit-0-flow.pdf      Fig05.pdf
+	cp ../contours/snif-0-flow.pdf      Fig05.pdf
 	cp ../contours/asym-0.01-temp.pdf   Fig06.pdf
 	cp ../contours/data-0.01-temp.pdf   Fig07.pdf
 	cp ../contours/asym-0.01-flow.pdf   Fig08.pdf

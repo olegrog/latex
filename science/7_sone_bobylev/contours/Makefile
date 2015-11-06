@@ -1,10 +1,10 @@
 FIGURES := $(shell grep 'pdf:' Makefile | sed 's/:.*//' | grep -v FIGURES)
 DATA_DIR = ~/kesolver/data/sone_bobylev
-ASYM_DIR = ~/my_openfoam/run/sone_bobylev/snit_solution
+ASYM_DIR = ~/my_openfoam/run/sone_bobylev/snif_solution
 
 all: $(FIGURES)
 
-asym-%.vtk: knudsen_layer_correction.py snit-%.vtk
+asym-%.vtk: knudsen_layer_correction.py snif-%.vtk
 	./$^ $@ $(*F)
 
 
@@ -17,10 +17,10 @@ nonslip-0-temp.pdf: plot_field.py vtk/nonslip-0.vtk
 slip-0-temp.pdf: plot_field.py vtk/slip-0.vtk
 	./$^ $@ T0 T_0
 
-snit-0-temp.pdf: plot_field.py vtk/snit-0.vtk
+snif-0-temp.pdf: plot_field.py vtk/snif-0.vtk
 	./$^ $@ T0 T_0
 
-snit-0.01-temp.pdf: plot_field.py vtk/snit-0.01.vtk
+snif-0.01-temp.pdf: plot_field.py vtk/snif-0.01.vtk
 	./$^ $@ T0 T_0
 
 asym-0.005-temp.pdf: plot_field.py vtk/asym-0.005.vtk
@@ -46,7 +46,7 @@ asym-0.01-rho.pdf: plot_field.py vtk/asym-0.01.vtk
 	./$^ $@ rho \\rho
 
 
-snit-0-flow.pdf: plot_field.py vtk/snit-0.vtk
+snif-0-flow.pdf: plot_field.py vtk/snif-0.vtk
 	./$^ $@ U1 v_{i1} --factor='1.01814**-1' --lpow=1.7
 
 slip-0-flow.pdf: plot_field.py vtk/slip-0.vtk

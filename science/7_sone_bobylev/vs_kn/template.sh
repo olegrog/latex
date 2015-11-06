@@ -28,8 +28,8 @@ dummy = "NaN title ' ' lt -3"
 
 plot \
     "heat.txt" using 1:(base($<column>)) title ( <is_heat> ? "Heat-conduction equation" : "" ) w l lw 3 lt 4 lc 5, \
-    "asym.txt" using 1:(base($<column>)) title "SNIT equations with $T_{B1}\\ne0$" w l lw 2 lt 1 lc 3, \
-    "nonslip.txt" using 1:(base($<column>)) title "SNIT equations with $T_{B1}=0$" w l lw 3 lt 2 lc 2, \
+    "asym.txt" using 1:(base($<column>)) title "SNIF equations with $T_{B1}\\ne0$" w l lw 2 lt 1 lc 3, \
+    "nonslip.txt" using 1:(base($<column>)) title "SNIF equations with $T_{B1}=0$" w l lw 3 lt 2 lc 2, \
     "data.txt" using 1:(base($<column>)) title "Uniform velocity grid" w lp lw 3 lt 2 lc 1 pt 6, \
     "high.txt" using 1:(base($<column>)) title "Nonuniform velocity grid" w lp lw 3 lt 3 lc 4 pt 4
 
