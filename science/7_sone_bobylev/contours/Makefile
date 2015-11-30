@@ -65,7 +65,7 @@ data-0.01-flow.pdf: plot_field.py vtk/data-0.01.vtk
 	./$^ $@ UMean \\frac{v_i}{k} --factor='(np.sqrt(np.pi/2)*0.01)**-1' --kn=0.01 --lpow=1.2
 
 data-0.1-flow.pdf: plot_field.py vtk/data-0.1.vtk
-	./$^ $@ UMean \\frac{v_i}{k} --factor='(np.sqrt(np.pi/2)*0.01)**-1' --kn=0.1 --lpow=0.9
+	./$^ $@ UMean \\frac{v_i}{k} --factor='(np.sqrt(np.pi/2)*0.1)**-1' --kn=0.1 --lpow=0.9
 
 clean:
 	rm -f $(FIGURES)

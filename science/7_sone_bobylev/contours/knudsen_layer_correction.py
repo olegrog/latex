@@ -42,12 +42,16 @@ def add_array(data, F, name):
     data.AddArray(vtk_array)
 
 def add_correction(x, y, T0, p0, U1):
-    eta = p0/wallT0(x)*y/k
+    if k > 0:
+        eta = p0/wallT0(x)*y/k
+    else:
+        eta = np.where(y==0, 0, 100)
     T = T0 - k*wallT0(x)/p0*wallDTn(x)*Theta_1(eta)
     rho = p0/T0 + k/wallT0(x)*wallDTn(x)*Omega_1(eta)
-    U = k*U1/p0
-    U[:,0] += -k*np.sqrt(wallT0(x))/p0*wallDTt(x)*Y_1(eta)
-    return rho, T, U
+    V1 = U1/p0
+    V1[:,0] += -np.sqrt(wallT0(x))/p0*wallDTt(x)*Y_1(eta)
+    V = k*V1
+    return rho, T, V, V1
 
 def integrate_patch(x, y, patch):
     m = np.argsort(x[patch])
@@ -90,22 +94,21 @@ wallDTn = vectorize(X, gradT0[wall][:,1])
 #print X, wallT0(X), wallDTt(X), wallDTn(X)
 
 ### Add point data
-rho, T, U = add_correction(x, y, T0, p0, U1)
+rho, T, V, V1 = add_correction(x, y, T0, p0, U1)
 data = grid.GetPointData()
 add_array(data, T, 'T')
-add_array(data, U, 'U')
+add_array(data, V, 'U')
 add_array(data, rho, 'rho')
-U_k = U/k
-add_array(data, U_k, 'U/k')
+add_array(data, U1, 'U/k')
 
 ### Integrate patches and print
 bottom = np.where((y==0) & (z==0))
 top = np.where((y==0.5) & (z==0))
 print '%.6e %.5e %.5e %.5e %.5e' % (float(kn),
     integrate_patch(x, T, top),
-    integrate_patch(x, U[:,0], top),
+    integrate_patch(x, V1[:,0], top),
     integrate_patch(x, T, bottom),
-    integrate_patch(x, U[:,0], bottom))
+    integrate_patch(x, V1[:,0], bottom))
 
 ### Read cell data
 x, y, z = get_cell_centers(out)
@@ -113,11 +116,10 @@ T0 = get_cell_data(out, 'T0')
 U1 = get_cell_data(out, 'U1')
 
 ### Add cell data
-rho, T, U = add_correction(x, y, T0, p0, U1)
+rho, T, V, V1 = add_correction(x, y, T0, p0, U1)
 data = grid.GetCellData()
 add_array(data, T, 'T')
-#add_array(data, U/k, 'U1')
-add_array(data, U, 'U')
+add_array(data, V, 'U')
 add_array(data, rho, 'rho')
 
 ### Write a VTK-file

@@ -5,12 +5,12 @@ import sys
 import numpy as np
 
 params = {
-    'top_temp':     [ '\left.T\\right|_{y=\\frac12}', 0.495, 0.533, 0.39, 2, '10*y', int(True) ],
-    'top_flow':     [ '\left.v_x\\right|_{y=\\frac12}', -4.5e-3, 6e-4, 0.40, 3, '10*y/p0*kn*sqrt(pi)/2', int(False) ],
-    'bottom_temp':  [ '\left.T\\right|_{y=0}', 0.485, 0.508, 0.38, 4, '10*y', int(True) ],
-    'bottom_flow':  [ '\left.v_x\\right|_{y=0}', 0, 7e-3, 0.39, 5, '10*y/p0*kn*sqrt(pi)/2', int(False) ],
+    'top_temp':     [ '\\left.T\\right|_{y=\\frac12}',              0.495, 0.535, 0.39, 2, '10*y',                  1, 1               ],
+    'top_flow':     [ '\\left.\\frac{v_x}{k}\\right|_{y=\\frac12}', -0.14, 0,     0.38, 3, '10*y/p0*kn*sqrt(pi)/2', 0, '2/sqrt(pi)/$1' ],
+    'bottom_temp':  [ '\\left.T\\right|_{y=0}',                     0.485, 0.51,  0.38, 4, '10*y',                  1, 1               ],
+    'bottom_flow':  [ '\\left.\\frac{v_x}{k}\\right|_{y=0}',        0,     0.25,  0.37, 5, '10*y/p0*kn*sqrt(pi)/2', 0, '2/sqrt(pi)/$1' ],
 }
-dummies = [ 'name', 'expr', 'ymin', 'ymax', 'xcoord', 'column', 'asym', 'is_heat' ]
+dummies = [ 'name', 'expr', 'ymin', 'ymax', 'xcoord', 'column', 'asym', 'is_heat', 'corr' ]
 
 name = sys.argv[1].split('.')[0]
 data = [ name ] + params[name]
