@@ -1,7 +1,7 @@
 SHELL = /bin/bash
 PROJECT = sone_bobylev
 FIGURES = tikz/geometry.pdf
-SUBDIRS = contours
+SUBDIRS = contours vs_kn vs_kn2 tikz
 SOURCES = $(PROJECT).tex $(PROJECT).bib $(FIGURES)
 
 all: $(PROJECT).pdf
@@ -10,9 +10,6 @@ $(PROJECT).pdf: $(SOURCES) $(SUBDIRS)
 	latex $(PROJECT)
 	biber $(PROJECT)
 	latex $(PROJECT)
-
-tikz/geometry.pdf: tikz/geometry.tex
-	cd tikz && latex geometry > log.latex
 
 $(SUBDIRS)::
 	$(MAKE) -C $@ $(MAKECMDGOALS)
