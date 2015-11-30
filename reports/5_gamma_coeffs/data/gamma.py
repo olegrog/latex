@@ -11,9 +11,10 @@ from functools import partial
 from scipy.optimize import curve_fit
 
 a1, a2, a3 = 1./(np.sqrt(2)*np.pi), np.sqrt(np.pi)/2, 8**(-.5)
-N_R, N_V, cut = 27*2+1, 5e4, 5.4
-if (len(sys.argv) > 3):
-    N_V = int(float(sys.argv[3]))
+N_R, cut = 27*2+1, 5.4
+problem = sys.argv[1]
+N_aver = sys.argv[2] if len(sys.argv) > 2 else 1
+N_V = int(float(sys.argv[3])) if len(sys.argv) > 3 else 5e4
 V_I = 4./3 * np.pi * cut**3
 X = np.linspace(0, cut, N_R)
 
@@ -167,7 +168,7 @@ def solve2(phi, Phi, get_zeta, f, f_old, F_old, alpha=1., pre_phi=lambda x: x[0]
 def solve(pre_phi, Phi, get_zeta, f0, result, corrector = lambda f: None, alpha=1., beta=0.):
     f, F = f0(X), 0*X
     f_old = 0.99*f
-    for n in xrange(int(sys.argv[2])):
+    for n in xrange(N_aver):
         print n, f
         print >> sys.stderr, n, result(f)
         phi = lambda x: pre_phi(x)*interp1d(X, f)(mag(x))
@@ -224,13 +225,12 @@ def eval_func(phi, get_zeta, begin=0):
 
 def average(func):
     total = 0*X
-    N = int(sys.argv[2])
-    for n in xrange(N):
+    for n in xrange(N_aver):
         f = func()
         print n, f
         print >> sys.stderr, n, np.sum(f)
         total += f
-    return total/N
+    return total/N_aver
 
 def calc_I(power, f, beg=0):
     return 8./15/np.sqrt(np.pi) * np.trapz((X**power * np.exp(-X*X))[beg:]*f[beg:], X[beg:])
@@ -314,7 +314,7 @@ def calc_gamma8a():
     F_j, F_Q3 = 0*X, 0*X
     j_0, Q2_0, Q3_0 = np.copy(j), np.copy(Q2), np.copy(Q3)
     beta = 0.2
-    for n in xrange(int(sys.argv[2])):
+    for n in xrange(N_aver):
         Q2_, Q3_ = interp1d(X, Q2, kind=kind), interp1d(X, Q3, kind=kind)
         #Q3, Q3_old, F_Q3 = solve2(phi2, Phi2, zeta3d, Q3, Q3_old, F_Q3, 0.5, pre2, beta)
         j, j_old, F_j = solve2(phi1, Phi1, zeta2d, j, j_old, F_j, 0.2, pre1, beta)
@@ -380,7 +380,7 @@ def calc_gamma8b():
     F_j1, F_j2, F_Q30 = 0*X, 0*X, 0 *X
     j1_0, j2_0, Q21_0, Q22_0, Q30_0 = np.copy(j1), np.copy(j2), np.copy(Q21), np.copy(Q22), np.copy(Q30)
     beta = 0.0
-    for n in xrange(int(sys.argv[2])):
+    for n in xrange(N_aver):
         Q21_, Q22_, Q30_ = interp1d(X, Q21, kind=kind), interp1d(X, Q22, kind=kind), interp1d(X, Q30, kind=kind)
         #Q30, Q30_old, F_Q30 = solve2(phi3, Phi3, zeta2d, Q30, Q30_old, F_Q30, 0.5, pre2, beta)
         Q30, Q30_old, F_Q30 = solve2(phi4, Phi4, zeta3d, Q30, Q30_old, F_Q30, 0.5, pre3, beta)
@@ -467,7 +467,7 @@ def calc_gamma10(letter):
     F_j, F_T2 = 0*X, 0*X
     j_0, T1_0, T2_0 = np.copy(j), np.copy(T1), np.copy(T2)
     beta = 0.0
-    for n in xrange(int(sys.argv[2])):
+    for n in xrange(N_aver):
         T1_, T2_ = interp1d(X, T1, kind=kind), interp1d(X, T2, kind=kind)
         #T1_, T2_ = np.poly1d(np.polyfit(X, T1, 16)), np.poly1d(np.polyfit(X, T2, 16))
         j = eval_func(j_, zeta1d)
@@ -514,7 +514,7 @@ def calc_gamma10c():
     F_j, F_T2 = 0*X, 0*X
     j_0, T12_0, T2_0 = np.copy(j), np.copy(T12), np.copy(T2)
     beta = 0.0
-    for n in xrange(int(sys.argv[2])):
+    for n in xrange(N_aver):
         T12_, T2_ = interp1d(X, T12, kind=kind), interp1d(X, T2, kind=kind)
         #T12_, T2_ = np.poly1d(np.polyfit(X, T12, 16)), np.poly1d(np.polyfit(X, T2, 16))
         j = eval_func(j_, zeta2d)
