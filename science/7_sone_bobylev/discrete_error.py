@@ -9,15 +9,17 @@ import sys
 
 Rho, Temp, Speed = 1., 1., np.array([0,0,0],dtype=float)
 Qflow, Tau = np.array([0.1, 0.2, 0]), np.array([0.05, 0., 0.2])
-temp_ratio = float(sys.argv[1])
-Speed[0] = 0.01
-N_r = int(sys.argv[2])
-N_y = int(sys.argv[3])
+_, temp_ratio, N_r, N_y, cut_r, q = sys.argv
+temp_ratio = float(temp_ratio)
+N_r = int(N_r)
+N_y = int(N_y)
+cut_r = float(cut_r)
+q = float(q)
+Speed[0] = 1e-2
 heat = temp_ratio*Speed[0]
-cut_r = float(sys.argv[4])
-q = float(sys.argv[5])
 cut_x = cut_r
-N_x = N_z = N_r - 2 - int(2*Speed[0])
+N_x = N_z = N_r
+gr = q # type of the grid
 
 Tauij = [[0,Tau[2],Tau[1]],[Tau[2],0,Tau[0]],[Tau[1],Tau[0],0]]
 zeros, ones = np.full(3, 0), np.full(3, 1)
@@ -56,26 +58,25 @@ def i2xi(i, q):
         -1: uniform                 # uniform grid
     }.get(q, nonuniform)(i)         # exp refinement
 
-dxi = lambda i,j,k: i2h(i,0)*i2h(j,q)*i2h(k,0)
-xi = lambda i,j,k,v=zeros: (i2xi(i,0)-v[0], i2xi(j,q)-v[1], i2xi(k,0)-v[2])
-xi_x = lambda i,j,k,v=zeros: i2xi(i,0)-v[0]
+dxi = lambda i,j,k: i2h(i,gr)*i2h(j,q)*i2h(k,gr)
+xi = lambda i,j,k,v=zeros: (i2xi(i,gr)-v[0], i2xi(j,q)-v[1], i2xi(k,gr)-v[2])
+xi_x = lambda i,j,k,v=zeros: i2xi(i,gr)-v[0]
 xi_y = lambda i,j,k,v=zeros: i2xi(j,q)-v[1]
-sqr_xi = lambda i,j,k,v=zeros,s=ones: (s[0]*(i2xi(i,0)-v[0]))**2 + (s[1]*(i2xi(j,q)-v[1]))**2 + (s[2]*(i2xi(k,0)-v[2]))**2
+sqr_xi = lambda i,j,k,v=zeros,s=ones: (s[0]*(i2xi(i,gr)-v[0]))**2 + (s[1]*(i2xi(j,q)-v[1]))**2 + (s[2]*(i2xi(k,gr)-v[2]))**2
 Maxwell = lambda v,t,i,j,k: Rho/(np.pi*t)**1.5 * np.exp(-sqr_xi(i,j,k,v)/t)*dxi(i,j,k)
 
-# Cutting prolate spheroid 
 radii = np.array([cut_x, cut_r, cut_r])
 
 ind = np.fromfunction(lambda i,j,k: sqr_xi(i,j,k,zeros,radii**-1) <= 1, dimension)
 u = np.fromfunction(lambda i,j,k: xi(i,j,k), dimension)
 Dxi = np.fromfunction(lambda i,j,k: dxi(i,j,k), dimension)
 
-X_x = np.fromfunction(lambda i: i2xi(i,0), (2*N_x,))
+X_x = np.fromfunction(lambda i: i2xi(i,gr), (2*N_x,))
 X_y = np.fromfunction(lambda i: i2xi(i,q), (2*N_y,))
-X_z = np.fromfunction(lambda i: i2xi(i,0), (2*N_z,))
-H_x = np.fromfunction(lambda i: i2h(i,0), (2*N_x,))
+X_z = np.fromfunction(lambda i: i2xi(i,gr), (2*N_z,))
+H_x = np.fromfunction(lambda i: i2h(i,gr), (2*N_x,))
 H_y = np.fromfunction(lambda i: i2h(i,q), (2*N_y,))
-H_z = np.fromfunction(lambda i: i2h(i,0), (2*N_z,))
+H_z = np.fromfunction(lambda i: i2h(i,gr), (2*N_z,))
 
 print_grid = False
 if print_grid:
@@ -87,9 +88,9 @@ def calc_sizes(N,q):
     h_min, h_max = i2h(N,q), i2h(0,q)
     return (h_min, h_max, h_max/h_min)
 print "Cut_x = %g, cut_r = %g, ratio = %g, N_z = %d" % (cut_x, cut_r, q, N_z)
-print "Cell size (x): min = %.4g, max = %.4g, ratio = %.3g" % calc_sizes(N_x, 0)
+print "Cell size (x): min = %.4g, max = %.4g, ratio = %.3g" % calc_sizes(N_x, gr)
 print "Cell size (y): min = %.4g, max = %.4g, ratio = %.3g" % calc_sizes(N_y, q)
-print "Cell size (z): min = %.4g, max = %.4g, ratio = %.3g" % calc_sizes(N_z, 0)
+print "Cell size (z): min = %.4g, max = %.4g, ratio = %.3g" % calc_sizes(N_z, gr)
 total = lambda X, cut: np.sum(np.abs(X) <= cut)/2
 print "Total cells: %d (%d, %d, %d):" % (np.sum(ind), total(X_x, cut_x), total(X_y, cut_r), total(X_z, cut_r))
 
@@ -98,7 +99,7 @@ def splot(f):
     import mpl_toolkits.mplot3d.axes3d as p3
     fig = py.figure()
     ax = p3.Axes3D(fig)
-    Xi = np.fromfunction(lambda i: i2xi(i,0), (2*N_x,))
+    Xi = np.fromfunction(lambda i: i2xi(i,gr), (2*N_x,))
     Yi = np.fromfunction(lambda i: i2xi(i,q), (2*N_y,))
     xv, yv = np.meshgrid(Xi, Yi, sparse=False, indexing='ij')
     f[np.invert(ind[:,:,N_z])] = np.NaN
@@ -109,7 +110,8 @@ def splot(f):
     py.show()
 
 def err(theor, real):
-    return np.vectorize(lambda x,y: np.NaN if x==0 else abs(x-y)/x)(theor, real)
+    return np.vectorize(lambda x,y: np.NaN if x==0 else abs((x-y)/x))(theor, real)
+    #return np.vectorize(lambda x,y: y if x==0 else abs((x-y)/x))(theor, real)
 
 def calc_macro(f):
     rho = np.sum(f[ind])
@@ -138,11 +140,11 @@ def test_1(Temp, Speed):
     print "qflow =", err(Qflow, qflow/rho)
     print "tau =", err(Tau, tau/rho)
 
-def test_2():
-    Temp1, Temp2 = Temp, Temp/temp_ratio
+def test_2(Temp):
+    Temp1, Temp2 = Temp, Temp*temp_ratio
     double_temp = np.sqrt(Temp1*Temp2)
     ss_temp = np.sqrt(Temp1) + np.sqrt(Temp2)
-    delta_temp = np.abs(Temp2 - Temp1)
+    delta_temp = Temp2 - Temp1
 
     Rho1, Rho2 = 2*Rho*np.sqrt(Temp2)/ss_temp, 2*Rho*np.sqrt(Temp1)/ss_temp
     f = Rho1/(np.pi*Temp1)**1.5 * np.fromfunction(lambda i,j,k: np.exp(-sqr_xi(i,j,k,Speed)/(Temp1))*dxi(i,j,k), dimension)
@@ -153,8 +155,11 @@ def test_2():
 
     Rho_ = Rho
     Temp_ = double_temp * (1 + 8./3*np.dot(Speed,Speed)/ss_temp**2)
-    Speed_ = -Speed * delta_temp / ss_temp**2
-    Qflow_ = [ 0, 2*Rho*double_temp*delta_temp/ss_temp/np.sqrt(np.pi) * (1 + 2*np.dot(Speed,Speed)/ss_temp**2), 0 ]
+    Speed_ = Speed * delta_temp / ss_temp**2
+    for i in [1,2]:
+        Speed_[i] = 1.
+        speed[i] += 1.
+    Qflow_ = [ 0, -2*Rho*double_temp*delta_temp/ss_temp/np.sqrt(np.pi) * (1 + 2*np.dot(Speed,Speed)/ss_temp**2), 0 ]
     Tau_ = [ 0, 0, 4*Rho*Speed[0]*double_temp/ss_temp/np.sqrt(np.pi) ]
 
     #splot(f)
@@ -181,7 +186,11 @@ def test_3():
     print "speed =", err(Speed, speed)
     print "tau =", err((0, 0, -2*gamma_1*Speed[0]*kn), tau/rho)
 
-test_1(Temp/temp_ratio, Speed)
+#test_1(Temp/temp_ratio, Speed)
 test_1(Temp, Speed)
 test_1(Temp*temp_ratio, Speed)
-test_2()
+test_1(Temp*np.sqrt(temp_ratio), Speed)
+Speed[1] = 1e-3
+test_2(Temp)
+test_2(Temp*temp_ratio)
+test_2(Temp*np.sqrt(temp_ratio))
