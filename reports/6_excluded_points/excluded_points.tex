@@ -30,6 +30,8 @@
 \newcommand{\Pder}[2][]{\partial#1/\partial#2}
 \newcommand{\dzeta}{\boldsymbol{\dd\zeta}}
 \newcommand{\bzeta}{\boldsymbol{\zeta}}
+\newcommand{\bh}{\boldsymbol{h}}
+\newcommand{\be}{\boldsymbol{e}}
 \newcommand{\Nu}{\mathcal{N}}
 \newcommand{\OO}[1]{O(#1)}
 \newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
@@ -66,8 +68,8 @@
 \begin{equation}\label{eq:symm_ci}
     \begin{aligned}
     J(f_\gamma, f_\gamma) = \frac14\int &\left[
-        \delta(\bzeta'-\bzeta_\gamma) + \delta(\bzeta'_*-\bzeta_\gamma)
-        - \delta(\bzeta-\bzeta_\gamma) - \delta(\bzeta_*-\bzeta_\gamma)\right] \\
+        \delta(\bzeta-\bzeta_\gamma) + \delta(\bzeta_*-\bzeta_\gamma)
+        - \delta(\bzeta'-\bzeta_\gamma) - \delta(\bzeta'_*-\bzeta_\gamma)\right] \\
         &\times(f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\alpha}) \dzeta\dzeta_*,
     \end{aligned}
 \end{equation}
@@ -76,8 +78,8 @@
 \begin{equation}\label{eq:discrete_symm_ci}
     \hat{J}_\gamma = \frac{\pi V_\Gamma^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
         \sum_{\nu\in\Nu} \left(
-            \delta_{\alpha'_\nu\gamma} + \delta_{\beta'_\nu\gamma}
-            - \delta_{\alpha_\nu\gamma} - \delta_{\beta_\nu\gamma}
+            \delta_{\alpha_\nu\gamma} + \delta_{\beta_\nu\gamma}
+            - \delta_{\alpha'_\nu\gamma} - \delta_{\beta'_\nu\gamma}
         \right)\left(
             \frac{w_{\alpha_\nu}w_{\beta_\nu}}{w_{\alpha'_\nu}w_{\beta'_\nu}}
             \hat{f}_{\alpha'_\nu}\hat{f}_{\beta'_\nu} - \hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu}
@@ -88,9 +90,9 @@
 Дискретный аналог распределения Максвелла может быть записан в следующем виде:
 \begin{equation}\label{eq:discrete_Maxwell}
     \hat{f}_{M\gamma} = \rho\left[\sum_{\alpha\in\Gamma}w_\alpha\exp
-            \left(-\frac{\bzeta_\alpha - \boldsymbol{v}}{T}\right)
+            \left(-\frac{(\bzeta_\alpha - \boldsymbol{v})^2}{T}\right)
         \right]^{-1}
-        w_\gamma\exp\left(-\frac{\bzeta_\gamma - \boldsymbol{v}}{T}\right).
+        w_\gamma\exp\left(-\frac{(\bzeta_\gamma - \boldsymbol{v})^2}{T}\right).
 \end{equation}
 
 %%% Projection and interpolation
@@ -103,10 +105,17 @@
 Для решения первой проблемы применяется проецирование \(\bzeta_{\alpha'_\nu}\)
 на множество узлов \(\Set{\bzeta_{\lambda_\nu+s_a}}{a\in\Lambda}\subset\mathcal{V}\):
 \begin{equation}\label{eq:ci_projection}
-    \delta_{\alpha'_\nu\gamma} = \sum_{a\in\Lambda} r_{\lambda a}\delta_{\lambda_\nu+s_a,\gamma}.
+    \delta_{\alpha'_\nu\gamma} = \sum_{a\in\Lambda} r_{\lambda,a}\delta_{\lambda_\nu+s_a,\gamma}.
 \end{equation}
-Для определённости будем считать, что \(\Lambda = \Set{a}{r_{\lambda a}\neq0}\).
-Веса \(r_{\lambda a}\) подбираются таким образом, чтобы обеспечить выполнение законов сохранения.
+Для определённости будем считать, что \(\Lambda = \Set{a}{r_{\lambda,a}\neq0}\).
+\emph{Проекционные веса} \(r_{\lambda,a}\) подбираются таким образом, чтобы обеспечить сохранение массы, импульса и энергии, т.е.
+\begin{equation}\label{eq:stencil_conservation}
+    \sum_{a\in\Lambda} r_{\lambda,a} = 1, \quad
+    \sum_{a\in\Lambda} r_{\lambda,a} \bzeta_{\lambda_\nu+s_a} = \bzeta_{\alpha'_\nu}, \quad
+    \sum_{a\in\Lambda} r_{\lambda,a} \bzeta_{\lambda_\nu+s_a}^2 = \bzeta_{\alpha'_\nu}^2.
+\end{equation}
+Набор правил смещения \(\mathcal{S} = \Set{s_a}{a\in\Lambda}\)
+называется \emph{проекционным шаблоном}.
 Для решения второй проблемы, а именно выполнения
 \begin{equation}\label{eq:strict_interpolation}
     \hat{J}_\gamma(\hat{f}_{M\gamma}, \hat{f}_{M\gamma}) = 0,
@@ -123,15 +132,16 @@
 \begin{equation}\label{eq:discrete_short_ci}
     \hat{J}_\gamma = \frac1{|\Nu|}\sum_{\nu\in\Nu} \hat{\mathscr{J}}_{\gamma\nu}
 \end{equation}
-и подставить в~\eqref{eq:time_scheme}, то получается следующая схема непрерывного счёта:
+и подставить в~\eqref{eq:time_scheme}, то получается схема непрерывного счёта
 \begin{equation}\label{eq:continuous_scheme}
    \hat{f}_\gamma^{\nu+1} = \hat{f}_\gamma^\nu + \frac{\Delta\tau}{|\Nu|}\hat{\mathscr{J}}_{\gamma\nu},
 \end{equation}
 обеспечивающая второй порядок аппроксимации по времени.
 
+%%% Positive distribution function
 Схема~\eqref{eq:continuous_scheme} допускает отрицательные значения функции распределения,
 что противоречит её физической природе. Чтобы обеспечить её положительность,
-достаточно потребовать выполнение неравенства
+достаточно потребовать выполнения неравенства
 \begin{equation}\label{eq:positive_f}
    \hat{f}_\gamma^\nu + \frac{\Delta\tau}{|\Nu|}\hat{\mathscr{J}}_{\gamma\nu} > 0
 \end{equation}
@@ -160,8 +170,8 @@
 \begin{equation}\label{eq:discrete_symm_ci_uniform}
     J_\gamma = \frac{\pi V_\Gamma|\mathcal{V}|}{|\Nu|}
         \sum_{\nu\in\Nu} \left(
-            \delta_{\alpha'_\nu\gamma} + \delta_{\beta'_\nu\gamma}
-            - \delta_{\alpha_\nu\gamma} - \delta_{\beta_\nu\gamma}
+            \delta_{\alpha_\nu\gamma} + \delta_{\beta_\nu\gamma}
+            - \delta_{\alpha'_\nu\gamma} - \delta_{\beta'_\nu\gamma}
         \right)\left( f_{\alpha'_\nu} f_{\beta'_\nu} - f_{\alpha_\nu} f_{\beta_\nu} \right)B_\nu.
 \end{equation}
 Ввиду симметричности сетки, для достижения консервативности при проецировании на неё,
@@ -184,9 +194,9 @@
 максимальное отношение между соседними дискретными скоростями:
 \begin{equation}\label{eq:max_f_ratio_uniform}
     \left(\frac{f_{\gamma+s}}{f_\gamma}\right)_{\max} =
-       \max_{(\bzeta_{\gamma+s}-\bzeta_{\gamma})\boldsymbol{e}_i = \{0,\pm{h}\}} \frac{f_{\gamma+s}}{f_\gamma},
+       \max_{(\bzeta_{\gamma+s}-\bzeta_{\gamma})\be_i = \{0,\pm{h}\}} \frac{f_{\gamma+s}}{f_\gamma},
 \end{equation}
-где \(\boldsymbol{e}_i\) "--- базис прямоугольной сетки.
+где \(\be_i\) "--- базис прямоугольной сетки.
 Очевидно, что для гладких функций это значение невелико,
 в то время как для разрывных функций оно может достигать нескольких порядков.
 
@@ -245,5 +255,29 @@
 резкие изменения на сетке.
 
 \section{Неравномерная сетка}
+
+Рассмотрим наиболее компактный, пятиточечный (\(|\mathcal{S}|=5\)), шаблон на прямоугольной сетке.
+Пусть \(\boldsymbol{\eta} = \bzeta_{\alpha'_\nu} - \bzeta_{\lambda_\nu}\),
+\(\bh_+\) и \(\bh_-\) "--- минимальные диагональные смещения на сетке,
+такие что \(\bh_+\) направлен в тот же октант, что и \(\boldsymbol{\eta}\),
+а \(\bh_-\) лежит в противоположном.
+Тогда \emph{компактная 5-точечная схема} строится на узлах
+\begin{equation}\label{eq:stencil_nodes}
+    \bzeta_{\lambda_\nu+s_0} = \bzeta_{\lambda_\nu}, \quad
+    \bzeta_{\lambda_\nu+s_i} = \bzeta_{\lambda_\nu} + (\bh_+\cdot \be_i)\be_i, \quad
+    \bzeta_{\lambda_\nu+s_4} = \bzeta_{\lambda_\nu} + \bh_-,
+\end{equation}
+где \(\be_i\) "--- базис прямоугольной сетки.
+Для выполнения~\eqref{eq:stencil_conservation}, выбираются проекционные веса
+\begin{equation}\label{eq:stencil_weights}
+    r_{\lambda,0} = 1 - \sum_{l=1}^4 r_{\lambda,l}, \quad
+    r_{\lambda,i} = \frac{(\boldsymbol{\eta} - r_{\lambda,4}\bh_-)\cdot\be_i}
+        {\bh_+\cdot\be_i}, \quad
+    r_{\lambda,4} = \frac{\boldsymbol{\eta}^2 - \boldsymbol{\eta}\cdot\bh_+}
+        {\bh_-^2 - \bh_-\cdot\bh_+}.
+\end{equation}
+При этом справедливо неравенство \(0\leq r < 1\).
+
+
 
 \end{document}
