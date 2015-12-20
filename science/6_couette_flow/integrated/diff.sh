@@ -31,14 +31,14 @@ plot \
     NaN title "$\\Delta v=0.1$" w l lw 3 lt 2 lc 0, \
     NaN title "$\\Delta v=2$"   w l lw 3 lt 4 lc 0, \
     x**2 notitle lw 2 lc 0, x**3 notitle lw 2 lc 0, \
-    "diff1-0.1.txt" using 1:2 notitle w l lw 3 lt 2 lc 1, \
-    "diff1-2.0.txt" using 1:2 notitle w l lw 3 lt 4 lc 1, \
-    "diff2-0.1.txt" using 1:2 notitle w lp lw 3 lt 2 lc 1 pt 6, \
-    "diff2-2.0.txt" using 1:2 notitle w lp lw 3 lt 4 lc 1 pt 6, \
-    "diff1-0.1.txt" using 1:3 notitle w l lw 3 lt 2 lc 2, \
-    "diff1-2.0.txt" using 1:3 notitle w l lw 3 lt 4 lc 2, \
-    "diff2-0.1.txt" using 1:3 notitle w lp lw 3 lt 2 lc 2 pt 6, \
-    "diff2-2.0.txt" using 1:3 notitle w lp lw 3 lt 4 lc 2 pt 6, \
-    "diff1-2.0.txt" using 1:9 notitle w l lw 3 lt 4 lc 3, \
-    "diff2-2.0.txt" using 1:9 notitle w lp lw 3 lt 4 lc 3 pt 6
+    "_diff1-0.1.txt" using 1:2 notitle w l lw 3 lt 2 lc 1, \
+    "_diff1-2.0.txt" using 1:2 notitle w l lw 3 lt 4 lc 1, \
+    "_diff2-0.1.txt" using 1:2 notitle w lp lw 3 lt 2 lc 1 pt 6, \
+    "_diff2-2.0.txt" using 1:2 notitle w lp lw 3 lt 4 lc 1 pt 6, \
+    "_diff1-0.1.txt" using 1:3 notitle w l lw 3 lt 2 lc 2, \
+    "_diff1-2.0.txt" using 1:3 notitle w l lw 3 lt 4 lc 2, \
+    "_diff2-0.1.txt" using 1:3 notitle w lp lw 3 lt 2 lc 2 pt 6, \
+    "_diff2-2.0.txt" using 1:3 notitle w lp lw 3 lt 4 lc 2 pt 6, \
+    "_diff1-2.0.txt" using 1:9 notitle w l lw 3 lt 4 lc 3, \
+    "_diff2-2.0.txt" using 1:9 notitle w lp lw 3 lt 4 lc 3 pt 6
 

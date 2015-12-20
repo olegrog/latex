@@ -2,6 +2,7 @@ PROJECT=poiseuille
 FIGURES=pics/graph.pdf
 SOURCES=$(PROJECT).tex $(PROJECT).bib $(FIGURES)
 SHELL=/bin/bash
+SUBDIRS=pics
 
 all: $(PROJECT).pdf
 
@@ -12,6 +13,9 @@ $(PROJECT).pdf: $(SOURCES)
 	latex $(PROJECT)
 	biber $(PROJECT)
 	latex $(PROJECT)
+
+$(SUBDIRS)::
+	$(MAKE) -C $@ $(MAKECMDGOALS)
 
 clean:
 	rm -f $(PROJECT).{aux,toc,log,out,run.xml,bbl,bcf,blg,pdf}

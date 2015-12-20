@@ -12,7 +12,7 @@ params = {
 }
 dummies = [ 'name', 'expr', 'ymin', 'ymax', 'xcoord', 'column', 'asym', 'is_heat', 'corr' ]
 
-name = sys.argv[1].split('.')[0]
+name = sys.argv[1]
 data = [ name ] + params[name]
     
 print 'Creating %s.sh...' % name
@@ -23,7 +23,7 @@ with open('template.sh', 'r') as file:
 for i, dummy in enumerate(dummies):
     filedata = filedata.replace('<%s>' % dummy, str(data[i]))
 
-output = '%s.sh' % name
+output = '_%s.sh' % name
 with open(output, 'w') as file:
     file.write(filedata)
 os.chmod(output, 0755)

@@ -49,3 +49,6 @@ log.*
 # Raw data files
 *.vtk
 *.vtu
+
+# Temporary files and directories
+_*

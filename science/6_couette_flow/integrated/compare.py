@@ -5,7 +5,7 @@ import sys
 import StringIO
 from scipy.interpolate import interp1d
 
-_, U, sdata, sbase, sdiff = sys.argv
+_, U, sdata, sbase = sys.argv
 
 ncols = 9
 columns = range(1, ncols)
@@ -40,5 +40,5 @@ np.savetxt(sstream, [names], fmt='%10s')
 header = sstream.getvalue().splitlines()[0]
 sstream.close()
 
-np.savetxt(sdiff + ext, np.vstack(([Kn], result)).T, fmt='%.4e', header=header[2:])
+np.savetxt(sys.stdout, np.vstack(([Kn], result)).T, fmt='%.4e', header=header[2:])
 
