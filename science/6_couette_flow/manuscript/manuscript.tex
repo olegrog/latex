@@ -142,7 +142,7 @@ of the nonlinear problem for various external parameters.
 The projection-interpolation method of discrete velocities is chosen for
 evaluation of the Boltzmann integral~\citep{Tcheremissine1998, Tcheremissine2006}.
 With this technique, velocities after impact that do not hit the grid
-are projected to the adjacent grid nodes in such a way that mass, momentum and energy are conserved.
+are projected to the adjacent grid nodes in such a way that mass, momentum, and energy are conserved.
 The gain term of the Boltzmann integral is interpolated in such a way that
 the discrete collision operator from the Maxwell distribution is strictly equal to zero.
 The projection-interpolation method of evaluation of the collision integral
@@ -151,7 +151,7 @@ However, there are discontinuities and large variations for real boundary-value 
 which significantly increase the error of computation on a uniform velocity grid.
 Therefore, nonuniform velocity grids, condensing in areas of large variation
 of the distribution function, should be used to obtain a high-accuracy solution.
-For uniform grids, two projection points are enough to satisfy the conservation laws,
+For uniform grids, two projection nodes are enough to satisfy the conservation laws,
 otherwise it is necessary to resort to the multipoint projection stencils~\citep{Dodulad2012}.
 In the present paper, an extension of the projection method for nonuniform grids is employed.
 The author hopes that the proposed method can yield the most accurate results
@@ -591,29 +591,29 @@ on nonuniform velocity grids based on the multipoint technique~\citep{Dodulad201
 Let a regular velocity grid \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) be constructed so that
 the cubature in \(\bzeta\) space is expressed in the weighted sum
 \begin{equation}\label{eq:zeta_cubature}
-    \int F(\bzeta) \dzeta \approx \sum_{\gamma\in\Gamma} F_\gamma w_\gamma
-        = \sum_{\gamma\in\Gamma} \hat{F_\gamma},
-        \quad \sum_{\gamma\in\Gamma} w_\gamma = V_\nu,
+    \int F(\bzeta) \dzeta \approx \sum_{\gamma\in\Gamma} F_\gamma w_\gamma =
+        \sum_{\gamma\in\Gamma} \hat{F_\gamma},
+        \quad \sum_{\gamma\in\Gamma} w_\gamma = V_\Gamma,
         \quad F_\gamma = F(\bzeta_\gamma),
 \end{equation}
 where \(F\) is an arbitrary function of \(\bzeta\) (\(\hat{F_\gamma}\) is used for convenient),
-\(V_\nu\) is the total volume of the velocity grid.
+\(V_\Gamma\) is the total volume of the velocity grid.
 Then, the collision integral written in the symmetrized form
 \begin{equation}\label{eq:symm_ci}
     \begin{aligned}
     J(f_\gamma, f_\gamma) = \frac14\int &\left[
-        \delta(\bzeta'-\bzeta_\gamma) + \delta(\bzeta'_*-\bzeta_\gamma)
-        - \delta(\bzeta-\bzeta_\gamma) - \delta(\bzeta_*-\bzeta_\gamma)\right] \\
+        \delta(\bzeta-\bzeta_\gamma) + \delta(\bzeta_*-\bzeta_\gamma)
+        - \delta(\bzeta'-\bzeta_\gamma) - \delta(\bzeta'_*-\bzeta_\gamma)\right] \\
         &\times(f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\alpha}) \dzeta\dzeta_*,
     \end{aligned}
 \end{equation}
 where \(\delta(\bzeta)\) is the Dirac delta function in \(\mathbb{R}^3\),
 has the following discrete analogue:
 \begin{equation}\label{eq:discrete_symm_ci}
-    \hat{J_\gamma} = \frac{\pi V_\nu^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
+    \hat{J_\gamma} = \frac{\pi V_\Gamma^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
         \sum_{\nu\in\Nu} \left(
-            \delta_{\alpha'_\nu\gamma} + \delta_{\beta'_\nu\gamma}
-            - \delta_{\alpha_\nu\gamma} - \delta_{\beta_\nu\gamma}
+            \delta_{\alpha_\nu\gamma} + \delta_{\beta_\nu\gamma}
+            - \delta_{\alpha'_\nu\gamma} - \delta_{\beta'_\nu\gamma}
         \right)\left(
             \frac{w_{\alpha_\nu}w_{\beta_\nu}}{w_{\alpha'_\nu}w_{\beta'_\nu}}
             \hat{f}_{\alpha'_\nu}\hat{f}_{\beta'_\nu} - \hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu}
@@ -628,9 +628,9 @@ the integration lattice is randomly shifted every time step.
 To satisfy~\eqref{eq:total_mass} exactly, the following approximation of the Maxwell distribution is used:
 \begin{equation}\label{eq:discrete_Maxwell}
     \hat{f}_{M\gamma} = \rho\left[\sum_{\alpha\in\Gamma}w_\alpha\exp
-            \left(-\frac{\bzeta_\alpha - \boldsymbol{v}}{T}\right)
+            \left(-\frac{(\bzeta_\alpha - \boldsymbol{v})^2}{T}\right)
         \right]^{-1}
-        w_\gamma\exp\left(-\frac{\bzeta_\gamma - \boldsymbol{v}}{T}\right).
+        w_\gamma\exp\left(-\frac{(\bzeta_\gamma - \boldsymbol{v})^2}{T}\right).
 \end{equation}
 
 %%% Projection and interpolation
@@ -647,7 +647,7 @@ First, \(\bzeta_{\alpha'_\nu}\) is projected to a set of grid nodes
     \delta_{\alpha'_\nu\gamma} = \sum_{a\in\Lambda} r_{\lambda,a}\delta_{\lambda_\nu+s_a,\gamma}.
 \end{equation}
 Let \(\Lambda = \Set{a}{r_{\lambda,a}\neq0}\).
-The weights \(r_{\lambda,a}\) are selected to provide the conservation of mass, momentum and energy, i.e.
+The weights \(r_{\lambda,a}\) are selected to provide the conservation of mass, momentum, and energy, i.e.
 \begin{equation}\label{eq:stencil_conservation}
     \sum_{a\in\Lambda} r_{\lambda,a} = 1, \quad
     \sum_{a\in\Lambda} r_{\lambda,a} \bzeta_{\lambda_\nu+s_a} = \bzeta_{\alpha'_\nu}, \quad
@@ -664,7 +664,9 @@ Second, to satisfy
 \end{equation}
 This type of interpolation is a high-cost approach, but it is important,
 when the distribution function is close to the Maxwellian.
-Moreover, \eqref{eq:strict_interpolation} ensures that the H-theorem holds in the discrete form~\citep{Dodulad2013}.
+In practice, the exponentiation can be performed with an accuracy \(10^{-5}\),
+which allows several times to speed up the calculations.
+Incidentally, \eqref{eq:strict_interpolation} ensures that the H-theorem holds in the discrete form~\citep{Dodulad2013}.
 For \(\bzeta_{\beta'_\nu}\) and \(\hat{f}_{\beta'_\nu}\), all formulas are similar.
 
 %%% Description of the stencil
@@ -678,28 +680,24 @@ and \(\bh_-\) lies in the opposite one.
 Then the compact 5-points scheme is constructed on the following nodes:
 \begin{equation}\label{eq:stencil_nodes}
     \bzeta_{\lambda_\nu+s_0} = \bzeta_{\lambda_\nu}, \quad
-    \bzeta_{\lambda_\nu+s_i} = \bzeta_{\lambda_\nu} + (\bh_+\cdot \boldsymbol{e}_i)\boldsymbol{e}_+, \quad
-    \bzeta_{\lambda_\nu+s_5} = \bzeta_{\lambda_\nu} + \bh_-,
+    \bzeta_{\lambda_\nu+s_i} = \bzeta_{\lambda_\nu} + (\bh_+\cdot \boldsymbol{e}_i)\boldsymbol{e}_i, \quad
+    \bzeta_{\lambda_\nu+s_4} = \bzeta_{\lambda_\nu} + \bh_-,
 \end{equation}
 where \(\boldsymbol{e}_i\) is the basis of the rectangular velocity grid.
 The appropriate weights that ensure~\eqref{eq:stencil_conservation} are
 \begin{equation}\label{eq:stencil_weights}
-    r_{\lambda,0} = 1 - \sum_{i=1}^3 \check{\eta}_i - r_{\lambda,4}\left(1+\sum_{i=1}^3 \check{h}_i\right), \quad
-    r_{\lambda,i} = \check{\eta}_i + r_{\lambda,4}\check{h}_i, \quad
-    r_{\lambda,4} = \frac{\displaystyle\sum_{i=1}^3(\check{\eta}_i^2 - \check{\eta}_i)}
-        {\displaystyle\sum_{i=1}^3(\check{h}_i^2 + \check{h}_i)},
-\end{equation}
-where
-\begin{equation}\label{eq:stencil_variables}
-    \check{\eta}_i = \left(\left|\frac{\eta}{h_+}\right|\right)_i, \quad
-    \check{h}_i = \left(\left|\frac{h_-}{h_+}\right|\right)_i.
+    r_{\lambda,0} = 1 - \sum_{i=1}^4 r_{\lambda,i}, \quad
+    r_{\lambda,i} = \frac{(\boldsymbol{\eta} - r_{\lambda,4}\bh_-)\cdot\boldsymbol{e}_i}
+        {\bh_+\cdot\boldsymbol{e}_i}, \quad
+    r_{\lambda,4} = \frac{\boldsymbol{\eta}^2 - \boldsymbol{\eta}\cdot\bh_+}
+        {\bh_-^2 - \bh_-\cdot\bh_+}.
 \end{equation}
 
 %%% Time-evolution scheme
 Now turn to the solution of the space-homogeneous Boltzmann equation~\eqref{eq:split_collisions}.
 Integrating it over the time step \(\Delta\tau\), we have
 \begin{equation}\label{eq:time_scheme}
-    f_\gamma(t+\Delta\tau) = f_\gamma(t) + \frac1k \int_\tau^{\tau+\Delta\tau} J_\gamma \dd\tau.
+    f_\gamma(t+\Delta\tau) = f_\gamma(t) + \frac1k \int_t^{t+\Delta\tau} J_\gamma \dd\tau.
 \end{equation}
 Rewriting~\eqref{eq:discrete_symm_ci} as
 \begin{equation}\label{eq:discrete_short_ci}
@@ -782,7 +780,7 @@ differs slightly from the Maxwellian with \(v_z=0\).
 For this reason, \(\zeta_z\) coordinates of \(\bzeta_\gamma\) are selected as the roots of the Hermite polynomials,
 since the Gauss--Hermite quadrature is known to provide the maximum order of approximation
 when integrals of the form \(\int h(s)\exp(-s^2)\dd{s}\) are evaluated.
-Along \(\zeta_x\) axis, the distance between points is constant.
+Along \(\zeta_x\) axis, the distance between nodes is constant.
 \(\zeta_y\) coordinates of \(\bzeta_\gamma\) are drift apart from \(\zeta_y=0\)
 as a geometric sequence with the ratio \(r\).
 This grid refinement allows significant variations of the distribution function
@@ -811,11 +809,11 @@ For \(\Kn=100\), when the solution is similar to the constant over the physical 
     \caption{The parameters of the velocity grid for various \(\Delta{v}\):
         \(\zeta^{(\mathrm{cut})}_x\) is the semi-major axis of the cut-off spheroid,
         \(\zeta^{(\mathrm{cut})}_r\) is the semi-minor axis,
-        \(N_{\zeta_i}\) is the maximum number of points along each axis,
-        \(|\mathcal{V}|\) is the total number of points,
+        \(N_{\zeta_i}\) is the maximum number of nodes along each axis,
+        \(|\mathcal{V}|\) is the total number of nodes,
         \(r\) is the ratio of a geometric sequence,
-        \(\Delta\zeta_x\) is the distance between points along \(\zeta_x\) axis,
-        \(\min(\Delta\zeta_y)\) is the minimum distance between points along \(\zeta_y\) axis.}
+        \(\Delta\zeta_x\) is the distance between nodes along \(\zeta_x\) axis,
+        \(\min(\Delta\zeta_y)\) is the minimum distance between nodes along \(\zeta_y\) axis.}
     \label{table:velocity_grid}
 \end{table}
 

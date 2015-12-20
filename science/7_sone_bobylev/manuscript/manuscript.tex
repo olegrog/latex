@@ -106,6 +106,12 @@ centertags]%
 В работах~\cite{Kogan1970,Kogan1971,Kogan1976} уравнения SNIF были получены наиболее простым способом,
 на основе разложения Чепмена"--~Энскога, а необходимые транспортные коэффициенты были
 вычислены в первом приближении с помощью полиномов Сонина~\cite{Chapman1960}.
+
+Вывод уравнений КГФ различными способами:
+
+Галкин В.С., Коган М.Н. К выводу уравнений медленных неизотермических течений газа. МЖГ. 1979, №6, 77-84.
+Галкин В.С. Вывод уравнений медленных неизотермических течений смесей газов из уравнения Больцмана. Уч. зап. ЦАГИ. 1974, т.5б, №4, 40-47.
+
 Строгий асимптотический анализ уравнения Больцмана для медленных неизотермических течений
 на основе разложения Гильберта был впервые выполнен в~\cite{Sone1996},
 а транспортные коэффициенты были пересчитаны прямыми численными методами с высокой точностью.
@@ -357,8 +363,8 @@ centertags]%
 \begin{equation}\label{eq:split_advection}
     \pder[f]{t} + \zeta_i\pder[f]{x_i} = 0,
 \end{equation}
-для которого используется метод конечных объёмов с явной TVD схемой второго порядка,
-и уравнение релаксации
+для которого используется метод конечных объёмов с явной TVD-схемой второго порядка,
+и однородное уравнение Больцмана
 \begin{equation}\label{eq:split_integral}
     \pder[f]{t} = \frac1k J(f,f),
 \end{equation}
@@ -375,44 +381,43 @@ centertags]%
 что кубатура в пространстве \(\bzeta\) выражается в виде взвешенной суммы
 \begin{equation}\label{eq:zeta_cubature}
     \int F(\bzeta) \dzeta \approx \sum_{\gamma\in\Gamma} F_\gamma w_\gamma,
-        \quad \sum_{\gamma\in\Gamma} w_\gamma = V_\nu,
+        \quad \sum_{\gamma\in\Gamma} w_\gamma = V_\Gamma,
         \quad F_\gamma = F(\bzeta_\gamma),
 \end{equation}
-где \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) "--- множество точек интегрирования,
+где \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) "--- множество дискретных скоростей,
 \(F\) "--- произвольная функция от \(\bzeta\),
-а \(V_\nu\) "--- общий объём скоростной сетки.
+а \(V_\Gamma\) "--- общий объём скоростной сетки.
 Тогда интеграл столкновений, записанный в симметризованной форме
 \begin{equation}\label{eq:symm_ci}
     \begin{aligned}
     J(f_\gamma, f_\gamma) = \frac14\int &\left[
-        \delta(\bzeta'-\bzeta_\gamma) + \delta(\bzeta'_*-\bzeta_\gamma)
-        - \delta(\bzeta-\bzeta_\gamma) - \delta(\bzeta_*-\bzeta_\gamma)\right] \\
+        \delta(\bzeta-\bzeta_\gamma) + \delta(\bzeta_*-\bzeta_\gamma)
+        - \delta(\bzeta'-\bzeta_\gamma) - \delta(\bzeta'_*-\bzeta_\gamma)\right] \\
         &\times(f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\alpha}) \dzeta\dzeta_*,
     \end{aligned}
 \end{equation}
-где \(\delta(\bzeta)\) "--- функция Дирака в \(\mathbb{R}^3\),
+где \(\delta(\bzeta)\) "--- дельта-функция Дирака в \(\mathbb{R}^3\),
 имеет следующий дискретный аналог:
 \begin{equation}\label{eq:discrete_symm_ci}
-    w_\gamma J_\gamma = \frac{\pi V_\nu^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
+    \hat{J}_\gamma = \frac{\pi V_\Gamma^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
         \sum_{\nu\in\Nu} \left(
-            \delta_{\alpha'_\nu\gamma} + \delta_{\beta'_\nu\gamma}
-            - \delta_{\alpha_\nu\gamma} - \delta_{\beta_\nu\gamma}
+            \delta_{\alpha_\nu\gamma} + \delta_{\beta_\nu\gamma}
+            - \delta_{\alpha'_\nu\gamma} - \delta_{\beta'_\nu\gamma}
         \right)\left(
             \frac{w_{\alpha_\nu}w_{\beta_\nu}}{w_{\alpha'_\nu}w_{\beta'_\nu}}
             \hat{f}_{\alpha'_\nu}\hat{f}_{\beta'_\nu} - \hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu}
-        \right)B_\nu,
+        \right)B_\nu.
 \end{equation}
 Здесь \(\alpha_\nu\in\Gamma\) и \(\beta_\nu\in\Gamma\), наряду с \(\boldsymbol{\alpha}_\nu\),
-берутся из решётчатого правила Коробова~\cite{Korobov1959, Sloan1994}
-для восьмимерной кубатуры.
+берутся по правилу Коробова~\cite{Korobov1959, Sloan1994} для восьмимерной кубатуры.
 Кроме того, кубатурная решетка случайным образом сдвигается на каждом шаге по времени.
 Модифицированная функция распределения \(\hat{f}_\gamma = f_\gamma w_\gamma\) используется для удобства.
 Дискретный аналог распределения Максвелла может быть записан в следующем виде:
 \begin{equation}\label{eq:discrete_Maxwell}
     \hat{f}_{M\gamma} = \rho\left[\sum_{\alpha\in\Gamma}w_\alpha\exp
-            \left(-\frac{\bzeta_\alpha - \boldsymbol{v}}{T}\right)
+            \left(-\frac{(\bzeta_\alpha - \boldsymbol{v})^2}{T}\right)
         \right]^{-1}
-        w_\gamma\exp\left(-\frac{\bzeta_\gamma - \boldsymbol{v}}{T}\right).
+        w_\gamma\exp\left(-\frac{(\bzeta_\gamma - \boldsymbol{v})^2}{T}\right).
 \end{equation}
 
 %%% Projection and interpolation
