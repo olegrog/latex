@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import pylab as py
 import numpy as np
@@ -15,7 +15,6 @@ N_R, cut, deg = 27*2+1, 5.4, 16
 problem = sys.argv[1]
 N_aver = int(sys.argv[2]) if len(sys.argv) > 2 else 1
 N_V = int(float(sys.argv[3])) if len(sys.argv) > 3 else 5e4
-V_I = 4./3 * np.pi * cut**3
 X = np.linspace(0, cut, N_R)
 
 gamma_1 = 1.270042427
@@ -63,26 +62,39 @@ korobov5 = [
     [ 10000019, [ 1, 3669402, 5455092, 7462912, 2188321 ]],
 ]
 
-def get_grid2(N, dim=3):
+def get_grid2(N, dim):
     korobov = {
         3: korobov3,
         5: korobov5
     }[dim]
-    N, coeffs = [line for line in korobov if line[0] > N][0]
+    N, coeffs = [line for line in korobov if line[0] >= N][0]
     return np.modf(np.outer(1.+np.arange(N), coeffs) / N + np.random.rand(dim))[0]
 
-def get_xi(N):
-    xi = 2*get_grid2(N) - 1
-    return (cut*xi[np.sum(np.square(xi), axis=1) < 1]).T
+def get_xi():
+    xi = 2*get_grid2(N_V, 3) - 1
+    return (cut*xi[np.sum(np.square(xi), axis=1) < 1]).T, 4./3 * np.pi * cut**3
 
-def get_xi_alpha():
+### Use spherical coordinates: two orders more accurate
+def get_xi_alpha(i=0):
+    grid = get_grid2(N_V, 5).T
+    xi_r = cut*grid[0]
+    theta, phi = np.pi*grid[1], 2*np.pi*grid[2]
+    s0_, c0_ = np.sin(theta), np.cos(theta)
+    s1_, c1_ = np.sin(phi), np.cos(phi)
+    theta, phi = np.pi*grid[3], 2*np.pi*grid[4]
+    s0, c0 = np.sin(theta), np.cos(theta)
+    s1, c1 = np.sin(phi), np.cos(phi)
+    return xi_r*np.array([s0_*c1_,s0_*s1_,c0_]), np.array([s0*c1,s0*s1,c0]), xi_r**2*s0*s0_, 2*np.pi**2*cut
+
+### Use Cartesian coordinates
+def get_xi_alpha_(i=0):
     grid = get_grid2(N_V, 5)
     xi = 2*grid[:,0:3] - 1
     mask = np.sum(np.square(xi), axis=1) < 1
     theta, phi = np.pi*grid[:,3][mask], 2*np.pi*grid[:,4][mask]
     s0, c0 = np.sin(theta), np.cos(theta)
     s1, c1 = np.sin(phi), np.cos(phi)
-    return (cut*xi[mask]).T, np.array([s0*c1,s0*s1,c0]), s0
+    return (cut*xi[mask]).T, np.array([s0*c1,s0*s1,c0]), s0, 4./3 * np.pi * cut**3
 
 def splot(X, Y, K):
     import mpl_toolkits.mplot3d.axes3d as p3
@@ -95,29 +107,20 @@ def splot(X, Y, K):
     show()
 
 def eval_L3(phi, zeta):
-    N = N_V
-#    if mag(zeta) < .8:
-#        N = 10*N_V
-    xi = get_xi(N)
+    xi, volume = get_xi()
     N_I = xi.shape[1]
-    #print N_I
     tile_zeta = np.tile(zeta, (N_I, 1)).T
-    return (L1(phi, tile_zeta, xi) - L2(phi, tile_zeta, xi)).sum()*V_I/N_I - nu(mag(zeta))*phi(zeta)
+    return (L1(phi, tile_zeta, xi) - L2(phi, tile_zeta, xi)).sum()*volume/N_I - nu(mag(zeta))*phi(zeta)
     
 def eval_L_plus_nu(phi, zeta):
-    N = N_V
-#    if mag(zeta) < .8:
-#        N = 10*N_V
-    xi = get_xi(N)
+    xi, volume = get_xi()
     N_I = xi.shape[1]
-    #print N_I
     tile_zeta = np.tile(zeta, (N_I, 1)).T
-    return (L1(phi, tile_zeta, xi) - L2(phi, tile_zeta, xi)).sum()*V_I/N_I
+    return (L1(phi, tile_zeta, xi) - L2(phi, tile_zeta, xi)).sum()*volume/N_I
     
 def eval_L5(phi, zeta):
-    xi, alpha, sin_theta = get_xi_alpha()
+    xi, alpha, jacobian, volume = get_xi_alpha()
     N_I = xi.shape[1]
-    #print N_I
     tile_zeta = np.tile(zeta, (N_I, 1)).T
     B = np.sum(alpha*(xi - tile_zeta), axis=0)
     zeta1, xi1 = tile_zeta + alpha*B, xi - alpha*B
@@ -125,18 +128,18 @@ def eval_L5(phi, zeta):
     #N_I = xi[:,mask].shape[1]
     #print N_I
     ci = phi(zeta1[:,mask]) + phi(xi1[:,mask]) - phi(zeta) - phi(xi[:,mask])
-    return a3*(ci*np.exp(-sqr(xi[:,mask]))*np.abs(B[mask])*sin_theta[mask]).sum()*V_I/N_I
-    #return a3*(ci*np.exp(-sqr(xi))*np.abs(B)*sin_theta).sum()*V_I/N_I
+    return a3*(ci*np.exp(-sqr(xi[:,mask]))*np.abs(B[mask])*jacobian[mask]).sum()*volume/N_I
+    #return a3*(ci*np.exp(-sqr(xi))*np.abs(B)*jacobian).sum()*volume/N_I
 
-def eval_J(phi, psi, zeta):
-    xi, alpha, sin_theta = get_xi_alpha()
+def eval_J(phi, psi, zeta, i=0):
+    xi, alpha, jacobian, volume = get_xi_alpha(i)
     N_I = xi.shape[1]
+    print 'N_I =', N_I, alpha.shape
     tile_zeta = np.tile(zeta, (N_I, 1)).T
-    V = xi - tile_zeta
-    B = np.sum(alpha*V, axis=0)
+    B = np.sum(alpha*(xi - tile_zeta), axis=0)
     zeta1, xi1 = tile_zeta + alpha*B, xi - alpha*B
     ci = phi(zeta1)*psi(xi1) + phi(xi1)*psi(zeta1) - phi(zeta)*psi(xi) - phi(xi)*psi(zeta)
-    return .5*a3*(ci*np.exp(-sqr(xi))*np.abs(B)*sin_theta).sum()*V_I/N_I
+    return .5*a3*( ci*np.exp(-sqr(xi))*np.abs(B)*jacobian ).sum()*volume/N_I
 
 def solve2(phi, Phi, get_zeta, f, f_old, F_old, alpha=1., pre_phi=lambda x: x[0]**0, beta=1):
     f_new = np.copy(f)
@@ -184,7 +187,7 @@ def symmetrize(x, y):
 
 def zero_corrector(f):
     XX, ff = symmetrize(X[1:-1], f[1:-1])
-    f[0] = np.poly1d(np.polyfit(XX, ff, 32))(0)
+    f[0] = np.poly1d(np.polyfit(XX, ff, 2*deg))(0)
 
 def zero_corrector2(f, quiet=False, kind='quadratic'):
     func = {
@@ -214,11 +217,11 @@ def eval_allL(phi, get_zeta, eval_L):
         f[i] = eval_L(phi, zeta)
     return f
 
-def eval_allJ(phi, psi, get_zeta):
+def eval_allJ(phi, psi, get_zeta, i=0):
     f = 0*X
-    for i in xrange(len(X)):
-        zeta = np.transpose(get_zeta(X[i]))
-        f[i] = eval_J(phi, psi, zeta)
+    for j in xrange(len(X)):
+        zeta = np.transpose(get_zeta(X[j]))
+        f[j] = eval_J(phi, psi, zeta, i)
     return f
 
 def eval_func(phi, get_zeta, begin=0):
@@ -232,10 +235,10 @@ def eval_func(phi, get_zeta, begin=0):
 
 def average(func):
     total = 0*X
-    for n in xrange(N_aver):
-        f = func()
-        print n, f
-        print >> sys.stderr, n, np.sum(f)
+    for i in xrange(N_aver):
+        f = func(i)
+        print i, f
+        print >> sys.stderr, i, np.sum(f)
         total += f
     return total/N_aver
 
@@ -315,10 +318,12 @@ def calc_gamma7ih():
     phi1 = lambda x: x[0] * A(mag(x))
     phi2 = lambda x: x[1] * A(mag(x))
     eta_, J_ = np.loadtxt("./gamma7ih.txt").T
-    J = average(lambda: eval_allJ(phi1, phi2, zeta2d))
-    py.plot(X, J, 'r', eta_, J_, 'r--')
+    J = average(partial(eval_allJ, phi1, phi2, zeta2d))
+    J1 = average(partial(eval_allJ, phi1, phi1, zeta1d))
+    J2 = average(partial(eval_allJ, phi2, phi2, zeta1d))
+    py.plot(X, J, 'r', eta_, J_, 'r--', X, 0.5*(J1-J2), 'b')
     show()
-    np.savetxt(sys.stderr, np.transpose((X, J)), fmt='%1.5e')
+    np.savetxt(sys.stderr, np.transpose((X, J)), fmt='%1.8e')
 
 def calc_gamma9():
     K_0 = lambda x: x[0]*x[1]
@@ -453,19 +458,41 @@ def calc_gamma8ih():
     phi5 = lambda x: x[1]*x[2] * B(mag(x))
     eta_, J1_, J2_, J3_, J4_, J5_, J6_ = np.loadtxt("./gamma8ih.txt").T
     
-    J1 = average(lambda: eval_allJ(phi1, phi1, zeta2d))
-    J2 = average(lambda: eval_allJ(phi1, phi2, zeta2d))
-    J3 = average(lambda: eval_allJ(phi3, phi3, zeta2d))
-    J4 = average(lambda: eval_allJ(phi1, phi3, zeta3d))
-    J5 = average(lambda: eval_allJ(phi1, phi5, zeta3d))
-    J6 = average(lambda: eval_allJ(phi3, phi4, zeta3d))
+    J1 = average(partial(eval_allJ, phi1, phi1, zeta2d))
+    J2 = average(partial(eval_allJ, phi1, phi2, zeta2d))
+    J3 = average(partial(eval_allJ, phi3, phi3, zeta2d))
+    J4 = average(partial(eval_allJ, phi1, phi3, zeta3d))
+    J5 = average(partial(eval_allJ, phi1, phi5, zeta3d))
+    J6 = average(partial(eval_allJ, phi3, phi4, zeta3d))
     #J4, J5, J6 = J4_, J5_, J6_     ### COMMENT THIS
     J4[0] = J5[0] = J6[0] = 0
     py.plot(X, J1, 'r', eta_, J1_, 'r--', X, J2, 'g', eta_, J2_, 'g--', X, J3, 'b', eta_, J3_, 'b--')
     show()
     py.plot(X, J4, 'r', eta_, J4_, 'r--', X, J5, 'g', eta_, J5_, 'g--', X, J6, 'b', eta_, J6_, 'b--')
     show()
-    np.savetxt(sys.stderr, np.transpose((X, J1, J2, J3, J4, J5, J6)), fmt='%1.5e')
+    np.savetxt(sys.stderr, np.transpose((X, J1, J2, J3, J4, J5, J6)), fmt='%1.8e')
+
+def calc_gamma8ih2():
+    B = np.poly1d(np.polyfit(eta, B_, deg))
+    phi1 = lambda x: x[0]**2 * B(mag(x))
+    phi2 = lambda x: x[1]**2 * B(mag(x))
+    phi3 = lambda x: x[2]**2 * B(mag(x))
+    phi4 = lambda x: x[0]*x[1] * B(mag(x))
+    phi5 = lambda x: x[1]*x[2] * B(mag(x))
+    eta_, J1_, J2_, J3_, J4_, J5_, J6_ = np.loadtxt("./gamma8ih2.txt").T
+
+    J1 = average(partial(eval_allJ, phi1, phi1, zeta1d))
+    J2 = average(partial(eval_allJ, phi2, phi2, zeta1d))
+    J3 = average(partial(eval_allJ, phi4, phi4, zeta1d))
+    J4 = average(partial(eval_allJ, phi1, phi2, zeta1d))
+    J5 = average(partial(eval_allJ, phi5, phi5, zeta1d))
+    J6 = average(partial(eval_allJ, phi2, phi3, zeta1d))
+   
+    py.plot(X, J1, 'r', eta_, J1_, 'r--', X, J2, 'g', eta_, J2_, 'g--', X, J3, 'b', eta_, J3_, 'b--')
+    show()
+    py.plot(X, J4, 'r', eta_, J4_, 'r--', X, J5, 'g', eta_, J5_, 'g--', X, J6, 'b', eta_, J6_, 'b--')
+    show()
+    np.savetxt(sys.stderr, np.transpose((X, J1, J2, J3, J4, J5, J6)), fmt='%1.8e')
 
 def corrector_T(T1, T2, beta=1):
     k = 3./8*np.sqrt(np.pi)
@@ -533,7 +560,7 @@ def calc_gamma10c():
     j_ = lambda x: T12_(mag(x)) + x[0]**2 * T2_(mag(x))
     phi1 = lambda x: pre1(x) * j_(x)
     phi2 = lambda x: pre2(x) * T2_(mag(x))
-    eta_, J1_, J2_ = np.loadtxt("./gamma10ih.txt").T
+    eta_, J1_, J2_, _, _ = np.loadtxt("./gamma10ih.txt").T
     J1, J2 = interp_power(J1_, 1), interp_power(J2_, 3)
     Phi1 = lambda x: J1(mag(x))
     Phi2 = lambda x: J2(mag(x))
@@ -570,16 +597,20 @@ def calc_gamma10c():
 def calc_gamma10ih():
     A = np.poly1d(np.polyfit(eta, A_, deg))
     B = np.poly1d(np.polyfit(eta, B_, deg))
+    phi0 = lambda x: x[1] * A(mag(x))
     phi1 = lambda x: x[0] * A(mag(x))
     phi2 = lambda x: x[0]*x[1] * B(mag(x))
     phi3 = lambda x: x[1]*x[2] * B(mag(x))
-    eta_, J1_, J2_ = np.loadtxt("./gamma10ih.txt").T
+    phi4 = lambda x: (x[0]*x[0]-x[1]*x[1]) * B(mag(x))
+    eta_, J1_, J2_, J3_, J4_ = np.loadtxt("./gamma10ih.txt").T
     
-    J1 = average(lambda: eval_allJ(phi1, phi2, zeta2d))
-    J2 = average(lambda: eval_allJ(phi1, phi3, zeta3d))
-    py.plot(X, J1, 'r', eta_, J1_, 'r--', X, J2, 'g', eta_, J2_, 'g--')
+    J1 = average(partial(eval_allJ, phi1, phi2, zeta2d))
+    J2 = average(partial(eval_allJ, phi1, phi3, zeta3d))
+    J3 = average(partial(eval_allJ, phi1, phi4, zeta1d))
+    J4 = average(partial(eval_allJ, phi0, phi2, zeta1d))
+    py.plot(X, J1, 'r', eta_, J1_, 'r--', X, J2, 'g', eta_, J2_, 'g--', X, J3, 'b', eta_, J3_, 'b--', X, J4, 'k', eta_, J4_, 'k--')
     show()
-    np.savetxt(sys.stderr, np.transpose((X, J1, J2)), fmt='%1.5e')
+    np.savetxt(sys.stderr, np.transpose((X, J1, J2, J3, J4)), fmt='%1.8e')
 
 def compare_func(phi, Phi, get_zeta, diff=True, pre=lambda x: X**0):
     L3 = eval_allL(phi, get_zeta, eval_L3)
@@ -666,6 +697,7 @@ def compare_L3_L5():
     '8a': calc_gamma8a,
     '8b': calc_gamma8b,
     '8ih': calc_gamma8ih,
+    '8ih2': calc_gamma8ih2,
     '9': calc_gamma9,
     '10a': partial(calc_gamma10, 'a'),
     '10b': partial(calc_gamma10, 'b'),
