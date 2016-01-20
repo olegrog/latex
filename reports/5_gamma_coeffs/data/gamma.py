@@ -70,9 +70,19 @@ def get_grid2(N, dim):
     N, coeffs = [line for line in korobov if line[0] >= N][0]
     return np.modf(np.outer(1.+np.arange(N), coeffs) / N + np.random.rand(dim))[0]
 
+### Use spherical coordinates: two orders more accurate
 def get_xi():
+    grid = get_grid2(N_V, 3).T
+    xi_r = cut*grid[0]
+    theta, phi = np.pi*grid[1], 2*np.pi*grid[2]
+    s0, c0 = np.sin(theta), np.cos(theta)
+    s1, c1 = np.sin(phi), np.cos(phi)
+    return xi_r*np.array([s0*c1,s0*s1,c0]), xi_r**2*s0, 2*np.pi**2*cut
+
+### Use Cartesian coordinates
+def get_xi_():
     xi = 2*get_grid2(N_V, 3) - 1
-    return (cut*xi[np.sum(np.square(xi), axis=1) < 1]).T, 4./3 * np.pi * cut**3
+    return (cut*xi[np.sum(np.square(xi), axis=1) < 1]).T, 1, 4./3 * np.pi * cut**3
 
 ### Use spherical coordinates: two orders more accurate
 def get_xi_alpha(i=0):
@@ -107,16 +117,16 @@ def splot(X, Y, K):
     show()
 
 def eval_L3(phi, zeta):
-    xi, volume = get_xi()
+    xi, jacobian, volume = get_xi()
     N_I = xi.shape[1]
     tile_zeta = np.tile(zeta, (N_I, 1)).T
-    return (L1(phi, tile_zeta, xi) - L2(phi, tile_zeta, xi)).sum()*volume/N_I - nu(mag(zeta))*phi(zeta)
+    return ( (L1(phi, tile_zeta, xi) - L2(phi, tile_zeta, xi))*jacobian ).sum()*volume/N_I - nu(mag(zeta))*phi(zeta)
     
 def eval_L_plus_nu(phi, zeta):
-    xi, volume = get_xi()
+    xi, jacobian, volume = get_xi()
     N_I = xi.shape[1]
     tile_zeta = np.tile(zeta, (N_I, 1)).T
-    return (L1(phi, tile_zeta, xi) - L2(phi, tile_zeta, xi)).sum()*volume/N_I
+    return ( (L1(phi, tile_zeta, xi) - L2(phi, tile_zeta, xi))*jacobian ).sum()*volume/N_I
     
 def eval_L5(phi, zeta):
     xi, alpha, jacobian, volume = get_xi_alpha()
@@ -128,13 +138,13 @@ def eval_L5(phi, zeta):
     #N_I = xi[:,mask].shape[1]
     #print N_I
     ci = phi(zeta1[:,mask]) + phi(xi1[:,mask]) - phi(zeta) - phi(xi[:,mask])
-    return a3*(ci*np.exp(-sqr(xi[:,mask]))*np.abs(B[mask])*jacobian[mask]).sum()*volume/N_I
+    return a3*( ci*np.exp(-sqr(xi[:,mask]))*np.abs(B[mask])*jacobian[mask] ).sum()*volume/N_I
     #return a3*(ci*np.exp(-sqr(xi))*np.abs(B)*jacobian).sum()*volume/N_I
 
 def eval_J(phi, psi, zeta, i=0):
     xi, alpha, jacobian, volume = get_xi_alpha(i)
     N_I = xi.shape[1]
-    print 'N_I =', N_I, alpha.shape
+    #print 'N_I =', N_I
     tile_zeta = np.tile(zeta, (N_I, 1)).T
     B = np.sum(alpha*(xi - tile_zeta), axis=0)
     zeta1, xi1 = tile_zeta + alpha*B, xi - alpha*B
