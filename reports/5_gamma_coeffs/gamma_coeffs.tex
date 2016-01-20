@@ -5,6 +5,7 @@
 \usepackage[T2A,T1]{fontenc}
 \usepackage[english,russian]{babel}
 \usepackage{csquotes}
+\usepackage{color}
 
 \usepackage{fullpage}
 \usepackage{indentfirst}
@@ -12,6 +13,9 @@
 \usepackage[skip=0pt]{subcaption}
 \captionsetup[subtable]{position=top}
 %\captionsetup{subrefformat=parens}
+
+%%% breaking long formulas
+\allowdisplaybreaks[3]
 
 \usepackage{graphicx}
 
@@ -41,12 +45,18 @@
 \newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
 \newcommand{\pderder}[3][]{\frac{\partial^2#1}{\partial#2\partial#3}}
 \newcommand{\Pder}[2][]{\partial#1/\partial#2}
+\newcommand{\dzeta}{\boldsymbol{\dd\zeta}}
+\newcommand{\dxi}{\boldsymbol{\dd\xi}}
+\newcommand{\bzeta}{\boldsymbol{\zeta}}
+\newcommand{\bxi}{\boldsymbol{\xi}}
 
 \newcommand{\B}{\ensuremath{\mathcal{B}^{(4)}}}
 \newcommand{\Q}{\ensuremath{\mathcal{Q}^{(0)}}}
-\newcommand{\T}[1]{\ensuremath{\mathcal{T}^{(#1)}}}
+\newcommand{\T}[1][0]{\ensuremath{\mathcal{T}^{(#1)}}}
 \newcommand{\TT}{\ensuremath{\tilde{\mathcal{T}}^{(0)}}}
 \newcommand{\QQ}{\ensuremath{\tilde{\mathcal{Q}}^{(0)}}}
+\newcommand{\IF}[2][0]{\ensuremath{I{#2}^{(#1)}}}
+\newcommand{\IFF}[1]{\ensuremath{I\tilde{#1}^{(0)}}}
 \newcommand{\ZD}[2]{\zeta_{#1}\delta_{#2}}
 \newcommand{\ZZD}[3]{\zeta_{#1}\zeta_{#2}\delta_{#3}}
 \newcommand{\ZZZ}{\zeta_i\zeta_j\zeta_k}
@@ -54,6 +64,7 @@
 \newcommand{\DD}[2]{\delta_{#1}\delta_{#2}}
 
 \DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\erf}{erf}
 
 \begin{document}
 
@@ -78,30 +89,34 @@
     \mathcal{L}\left[\zeta_i\mathcal{A}(\zeta)\right] = -\zeta_i\left(\zeta^2-\frac52\right), \label{eq:A}\\[6pt]
     \mathcal{L}\left[\left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\mathcal{B}(\zeta)\right] =
         -2\left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right), \label{eq:B}\\[6pt]
-    \mathcal{L}\left[\left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\B(\zeta)\right] =
-        \left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\mathcal{B}(\zeta), \label{eq:B_4}
+    \mathcal{L}\left[\left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\B(\zeta)\right] = IB^{(4)}_{ij}, \quad
+        IB^{(4)}_{ij} = \left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\mathcal{B}(\zeta), \label{eq:B_4}
 \end{gather}
 \begin{gather}
     \begin{aligned}
-    \mathcal{L}&\left[(\ZD{i}{jk}+\ZD{j}{ki}+\ZD{k}{ij})\T{m}_1(\zeta) + \ZZZ\T{m}_2(\zeta)\right] = IT^{(m)}_{ijk}, \\
-        &\quad IT^{(1)}_{ijk} = -\ZZZ\left( 2\mathcal{A}(\zeta) - \frac1\zeta \der[\mathcal{A}(\zeta)]{\zeta} \right), \\
-        &\quad IT^{(2)}_{ijk} = -\ZZZ\left( (\zeta^2-3)\mathcal{B}(\zeta) - \frac\zeta2 \der[\mathcal{B}(\zeta)]{\zeta} \right)
+    \mathcal{L}&\left[(\ZD{i}{jk}+\ZD{j}{ki}+\ZD{k}{ij})\T{m}_1(\zeta) + \ZZZ\T{m}_2(\zeta)\right] = \IF[m]{T}_{ijk}, \\
+        & \IF[1]{T}_{ijk} = -\ZZZ\left( 2\mathcal{A}(\zeta) - \frac1\zeta \der[\mathcal{A}(\zeta)]{\zeta} \right), \\
+        & \IF[2]{T}_{ijk} = -\ZZZ\left( (\zeta^2-3)\mathcal{B}(\zeta) - \frac\zeta2 \der[\mathcal{B}(\zeta)]{\zeta} \right)
         + \frac{\gamma_1}{2} (\ZD{i}{jk}+\ZD{j}{ki}+\ZD{k}{ij}),
     \end{aligned}\label{eq:T}\\
-    \mathcal{L}\left[\ZD{i}{jk}\TT_{11}(\zeta)+(\ZD{j}{ki}+\ZD{k}{ij})\TT_{12}(\zeta) + \ZZZ\TT_2(\zeta)\right]
-        = \mathcal{J}(\zeta_i\mathcal{A}(\zeta), \zeta_j\zeta_k\mathcal{B}(\zeta)), \label{eq:TT}
+    \begin{aligned}
+    \mathcal{L}&\left[\ZD{i}{jk}\TT_{11}(\zeta)+(\ZD{j}{ki}+\ZD{k}{ij})\TT_{12}(\zeta) + \ZZZ\TT_2(\zeta)\right]
+        = \IFF{T}_{i,jk}, \\
+        &\quad \IFF{T}_{i,jk} = \mathcal{J}(\zeta_i\mathcal{A}(\zeta), \zeta_j\zeta_k\mathcal{B}(\zeta)),
+    \end{aligned}\label{eq:TT}
 \end{gather}
 \begin{gather}
     \begin{aligned}
     \mathcal{L}&\left[(\DD{ij}{kl}+\DD{ik}{jl}+\DD{il}{jk}) \Q_1(\zeta) \right. \\
         &\quad + \left.(\ZZD{i}{j}{kl}+\ZZD{i}{k}{jl}+\ZZD{i}{l}{jk}+\ZZD{j}{k}{il}+\ZZD{j}{l}{ik}+\ZZD{k}{l}{ij}) \Q_2(\zeta)\right. \\
-        &\quad + \left.\ZZZZ \Q_3(\zeta)\right] = \frac13\left[\zeta^2\mathcal{B}(\zeta)+2\gamma_1\left(\zeta^2-\frac32\right)\right](\DD{ij}{kl}+\DD{ik}{jl}+\DD{il}{jk}) \\
+        &\quad + \left.\ZZZZ \Q_3(\zeta)\right] = \IF{Q}_{ijkl}, \\
+        & \IF{Q}_{ijkl} = \frac13\left[\zeta^2\mathcal{B}(\zeta)+2\gamma_1\left(\zeta^2-\frac32\right)\right](\DD{ij}{kl}+\DD{ik}{jl}+\DD{il}{jk}) \\
         &\quad - \ZZZZ\left(2\mathcal{B}(\zeta) - \frac1\zeta\der[\mathcal{B}(\zeta)]{\zeta}\right),
     \end{aligned}\label{eq:Q}\\[6pt]
     \begin{aligned}
     \mathcal{L}&\left[\DD{ij}{kl}\QQ_{11}(\zeta) + (\DD{ik}{jl}+\DD{il}{jk})\QQ_{12}(\zeta) + (\ZZD{i}{j}{kl}+\ZZD{k}{l}{ij})\QQ_{21}(\zeta) \right. \\
-        &\quad + \left.(\ZZD{i}{k}{jl}+\ZZD{i}{l}{jk}+\ZZD{j}{k}{il}+\ZZD{j}{l}{ik}) \QQ_{22}(\zeta) + \ZZZZ \QQ_3(\zeta)\right] \\
-        &\quad = \mathcal{J}(\zeta_i\zeta_j\mathcal{B}(\zeta), \zeta_k\zeta_l\mathcal{B}(\zeta))
+        &\quad + \left.(\ZZD{i}{k}{jl}+\ZZD{i}{l}{jk}+\ZZD{j}{k}{il}+\ZZD{j}{l}{ik}) \QQ_{22}(\zeta) + \ZZZZ \QQ_3(\zeta)\right] = \IFF{Q}_{ij,kl}, \\
+        &\quad \IFF{Q}_{ij,kl} = \mathcal{J}(\zeta_i\zeta_j\mathcal{B}(\zeta), \zeta_k\zeta_l\mathcal{B}(\zeta))
     \end{aligned}\label{eq:QQ}
 \end{gather}
 с дополнительными условиями для \(\mathcal{A}\), \(\T{m}_1\), \(\TT_{11}\), \(\TT_{12}\), \(\Q_1\), \(\QQ_{11}\) и \(\QQ_{12}\):
@@ -133,7 +148,7 @@
 Пятимерный интеграл \(\mathcal{J}\) вычисляется как
 \begin{equation}\label{eq:mathcalJ}
     \mathcal{J}(\phi,\psi) = \frac12 \int E_*(\phi'\psi'_* + \phi'_*\psi' - \phi\psi_* - \phi_*\psi) B
-    \dd \Omega(\boldsymbol{\alpha}) \boldsymbol{\dd \zeta_*},
+    \dd \Omega(\boldsymbol{\alpha}) \dzeta_*,
 \end{equation}
 где \(\dd \Omega(\boldsymbol{\alpha})\) "--- элемент телесного угла в направлении единичного вектора \(\alpha_i\),
 определяющего направление разлётных скоростей:
@@ -147,30 +162,27 @@
 \end{equation}
 Линеаризованный интеграл столкновения может быть сведён к трёхмерному интегралу.
 Для модели твёрдых сфер \(\mathcal{L}\) принимает следующий вид:
-\begin{gather}\label{eq:linear_canonic}
-    \mathcal{L}(\phi) = \mathcal{L}_1(\phi) - \mathcal{L}_2(\phi) - \nu(\zeta)\phi, \\[6pt]
-    \mathcal{L}_1(\phi) = \frac1{\sqrt2\pi} \int \frac1{|\zeta_i-\xi_i|}
-        \exp\left(-\xi_i^2 + \frac{|\zeta_i\times\xi_i|^2}{|\zeta_i-\xi_i|^2}\right) \phi(\xi_i) \boldsymbol{\dd\xi}, \\
-    \mathcal{L}_2(\phi) = \frac1{2\sqrt2\pi} \int |\zeta_i-\xi_i|\exp\left(-\xi_i^2\right) \phi(\xi_i) \boldsymbol{\dd\xi}, \\
-    \nu(\zeta) = \frac1{2\sqrt2}\left[ \exp(-\zeta^2) + \left(2\zeta+\frac1\zeta\right) \int_0^\zeta\exp(-c^2)\dd{c} \right].
+\begin{gather}
+    \mathcal{L}(\phi) = \mathcal{L}_1(\phi) - \mathcal{L}_2(\phi) - \nu(\zeta)\phi, \label{eq:linear_canonic}\\[6pt]
+    \mathcal{L}_1(\phi) = \frac1{\sqrt2\pi} \int \frac1{|\bzeta-\bxi|}
+        \exp\left(-\bxi^2 + \frac{|\bzeta_i\times\bxi|^2}{|\bzeta-\bxi|^2}\right) \phi(\bxi) \dxi, \label{eq:linear1}\\
+    \mathcal{L}_2(\phi) = \frac1{2\sqrt2\pi} \int |\bzeta-\bxi|\exp\left(-\bxi^2\right) \phi(\bxi) \dxi, \label{eq:linear2}\\
+    \nu(\zeta) = \frac1{2\sqrt2}\left[ \exp\left(-\zeta^2\right) + \left(2\zeta+\frac1\zeta\right)
+        \int_0^\zeta\exp\left(-\xi^2\right)\dd\xi \right]. \label{eq:linear_nu}
 \end{gather}
 
 \section{Численные методы}
 
 Ниже приводится описание метода вычисления соответствующих многомерных интегралов
-и решения интегральных уравнений.
-Стоит сразу отметить, что точность результатов можно значительно повысить,
-если свести многомерные интегралы к одномерным,
-однако это приведёт к более громоздким выражениям.
-При такой необходимости следует обратиться к работам~\cite{Pekeris1957, Ohwada1992}.
+и решения трёхмерных интегральных уравнений.
 
 \subsection{Многомерное интегрирование}\label{sec:Korobov}
 
 Для вычисления трёх- и пятимерных интегралов вида
 \begin{gather}
-    \int f(\zeta_i) \boldsymbol{\dd\zeta} = \frac{4\pi}{3}\frac{\zeta_\mathrm{cut}^3}{N}
+    \int f(\zeta_i) \dzeta = \frac{4\pi}{3}\frac{\zeta_\mathrm{cut}^3}{N}
         \sum_{k=0}^N f(\zeta_i^{(k)}) + R, \label{eq:dicrete_L}\\
-    \int f(\zeta_i,\alpha_i) \dd\Omega(\boldsymbol{\alpha})\boldsymbol{\dd\zeta} = \frac{16\pi^2}{3}\frac{\zeta_\mathrm{cut}^3}{N}
+    \int f(\zeta_i,\alpha_i) \dd\Omega(\boldsymbol{\alpha})\dzeta = \frac{16\pi^2}{3}\frac{\zeta_\mathrm{cut}^3}{N}
         \sum_{k=0}^N f(\zeta_i^{(k)},\alpha_i^{(k)}) + R, \label{eq:dicrete_J}
 \end{gather}
 на дискретном пространстве скоростей, ограниченным сферой \(\zeta = \zeta_\mathrm{cut}\),
@@ -564,6 +576,184 @@
 \begin{equation}\label{eq:gamma_10_result}
     \gamma_{10} = 2.463(3).
 \end{equation}
+
+\section{Сведение интегральных уравнений к одномерным}
+
+Для модели твёрдых сфер трёхмерные интегралы~\eqref{eq:linear1} и~\eqref{eq:linear2}
+могут быть упрощены, если положить \(\zeta=(0,0,\zeta)\) и \(\phi(\bzeta) = \zeta^n f(\zeta_z/\zeta)\):
+\begin{gather}
+    \mathcal{L}_1 = \sqrt2 \int_0^\infty \int_0^\pi
+        \frac{\xi^{n+2}f(\cos\theta)\sin\theta}{\sqrt{\zeta^2-2\zeta\xi\cos\theta+\xi^2}}
+        \exp\left( \frac{\zeta^2\xi^2\sin^2\theta}{\zeta^2-2\zeta\xi\cos\theta+\xi^2} -\xi^2 \right)
+        \dd\xi\dd\theta, \label{eq:linear1_sph}\\
+    \mathcal{L}_2 = \frac1{\sqrt2} \int_0^\infty \int_0^\pi
+        \xi^{n+2}f(\cos\theta)\sin\theta\sqrt{\zeta^2-2\zeta\xi\cos\theta+\xi^2}
+        \exp\left(-\xi^2\right) \dd\xi\dd\theta. \label{eq:linear2_sph}
+\end{gather}
+
+Интегральные уравнения~\eqref{eq:B_4}--\eqref{eq:QQ} преобразуются к следующим:
+\begin{gather}
+    \mathcal{L}\left[\left(3\zeta_z^2 - \zeta^2\right)\B\right]
+        = 3\IF[4]{B}_{zz}, \\[6pt]
+    \mathcal{L}\left[\zeta_z\left(5\zeta_z^2 - 3\zeta^2\right)\T{m}_2\right]
+        = 2\IF[m]{T}_{zzz} - 6\IF[m]{T}_{zxx}, \\
+    \mathcal{L}\left[\zeta_z\left(5\T{m}_1 + \zeta^2\T{m}_2\right)\right]
+        = \IF[m]{T}_{zzz} + 2\IF[m]{T}_{zxx}, \\[6pt]
+    \mathcal{L}\left[\zeta_z\left(5\zeta_z^2 - 3\zeta^2\right)\TT_2\right]
+        = 2\left(\IFF{T}_{z,zz} - \IFF{T}_{z,xx} - 2\IFF{T}_{x,xz}\right), \\
+    \mathcal{L}\left[\zeta_z\left(5\TT_{12} + \zeta^2\TT_2\right)\right]
+        = \IFF{T}_{z,zz} - \IFF{T}_{z,xx} + 3\IFF{T}_{x,xz}, \\[6pt]
+    \mathcal{L}\left[\left(35\zeta_z^4 - 30\zeta_z^2\zeta^2 + 3\zeta^4\right)\Q_3\right]
+        = 2\left( 4\IF{Q}_{zzzz} + 3\IF{Q}_{xxxx} - 24\IF{Q}_{zzxx} + 3\IF{Q}_{xxyy} \right), \\
+    \mathcal{L}\left[\left(3\zeta_z^2 - \zeta^2\right)\left(7\Q_2 + \zeta^2\Q_3\right)\right]
+        = 2\left( \IF{Q}_{zzzz} - \IF{Q}_{xxxx} + 2\IF{Q}_{zzxx} - 2\IF{Q}_{xxyy} \right), \\[6pt]
+    \begin{aligned}
+    \mathcal{L}&\left[\left(35\zeta_z^4 - 30\zeta_z^2\zeta^2 + 3\zeta^4\right)\QQ_3\right] \\
+        &= 2\left( 4\IFF{Q}_{zz,zz} + 3\IFF{Q}_{xx,xx} - 16\IFF{Q}_{zx,zx} + 2\IFF{Q}_{xy,xy} - 8\IFF{Q}_{zz,xx} + \IFF{Q}_{xx,yy} \right),
+    \end{aligned}\\
+    \begin{aligned}
+    \mathcal{L}&\left[\left(3\zeta_z^2 - \zeta^2\right)\left(7\QQ_{22} + \zeta^2\QQ_3\right)\right] \\
+        &= 2\left( \IFF{Q}_{zz,zz} - \IFF{Q}_{xx,xx} + 3\IFF{Q}_{zx,zx} - 3\IFF{Q}_{xy,xy} - 2\IFF{Q}_{zz,xx} + 2\IFF{Q}_{xx,yy} \right).
+    \end{aligned}
+\end{gather}
+С помощью~\eqref{eq:linear1_sph} и~\eqref{eq:linear2_sph} получаются одномерные интегральные уравнения:
+\begin{gather}
+    \int_0^\infty K_2(\zeta,\xi)\B(\xi)\dd\xi - \nu\B = \mathcal{B}, \\
+    %%%
+    \int_0^\infty K_3(\zeta,\xi)\T{1}_2(\xi)\dd\xi - \nu\T{1}_2
+        = \frac1\zeta\pder[\mathcal{A}]{\zeta} - 2\mathcal{A}, \\
+    \left\{\begin{aligned}
+    &\int_0^\infty K_1(\zeta,\xi)\T{1}_1(\xi)\dd\xi - \nu\T{1}_1 \\
+        &\quad = \frac15\left( \zeta\pder[\mathcal{A}]{\zeta} - 2\zeta^2\mathcal{A}
+        - \int_0^\infty K_1(\zeta,\xi)\xi^2\T{1}_2(\xi)\dd\xi
+        + \nu\zeta^2\T{1}_2 \right), \\
+    &\int_0^\infty \left( 5\T{1}_1 + \zeta^2\T{1}_2 \right) \zeta^4 \exp(-\zeta^2)\dd\zeta = 0,
+    \end{aligned}\right.\\
+    %%%
+    \int_0^\infty K_3(\zeta,\xi)\T{2}_2(\xi)\dd\xi - \nu\T{2}_2
+        = \frac\zeta2\pder[\mathcal{B}]{\zeta} - \left(\zeta^2-3\right)\mathcal{B}, \\
+    \left\{\begin{aligned}
+    &\int_0^\infty K_1(\zeta,\xi)\T{2}_1(\xi)\dd\xi - \nu\T{2}_1 \\
+        &\quad = \frac{\gamma_1}2 + \frac15\left( \frac{\zeta^3}2\pder[\mathcal{B}]{\zeta}
+        - \zeta^2\left(\zeta^2-3\right)\mathcal{B}
+        - \int_0^\infty K_1(\zeta,\xi)\xi^2\T{2}_2(\xi)\dd\xi
+        + \nu\zeta^2\T{2}_2 \right), \\
+    &\int_0^\infty \left( 5\T{2}_1 + \zeta^2\T{2}_2 \right) \zeta^4 \exp(-\zeta^2)\dd\zeta = 0,
+    \end{aligned}\right.\\
+    %%%
+    \int_0^\infty K_3(\zeta,\xi)\TT_2(\xi)\dd\xi - \nu\TT_2
+        = \frac1{\zeta^3}\left(\IFF{T}_{z,zz} - \IFF{T}_{z,xx} - 2\IFF{T}_{x,xz}\right), \\
+    \left\{\begin{aligned}
+    &\int_0^\infty K_1(\zeta,\xi)\TT_{12}(\xi)\dd\xi - \nu\TT_{12} \\
+        &\quad = \frac1{5\zeta}\left(\IFF{T}_{z,zz} - \IFF{T}_{z,xx} + 3\IFF{T}_{x,xz}\right)
+        - \frac15\left(\int_0^\infty K_1(\zeta,\xi)\xi^2\TT_2(\xi)\dd\xi
+        - \nu\zeta^2\TT_2 \right), \\
+    &\int_0^\infty \left( 5\TT_{12} + \zeta^2\TT_2 \right) \zeta^4 \exp(-\zeta^2)\dd\zeta = 0,
+    \end{aligned}\right.\\
+    %%%
+    \int_0^\infty K_4(\zeta,\xi)\Q_3(\xi)\dd\xi - \nu\Q_3
+        = \frac1\zeta\pder[\mathcal{B}]{\zeta} - 2\mathcal{B}, \\
+    \begin{aligned}
+    &\int_0^\infty K_2(\zeta,\xi)\Q_2(\xi)\dd\xi - \nu\Q_2 \\
+        &\qquad = \frac17\left( \zeta\pder[\mathcal{B}]{\zeta} - 2\zeta^2\mathcal{B}
+        - \int_0^\infty K_2(\zeta,\xi)\xi^2\Q_3(\xi)\dd\xi
+        + \nu\zeta^2\Q_3 \right),
+    \end{aligned}\\
+    %%%
+    \begin{aligned}
+    &\int_0^\infty K_4(\zeta,\xi)\QQ_3(\xi)\dd\xi - \nu\QQ_3 \\
+        &\qquad = \frac1{4\zeta^4}\left( 4\IFF{Q}_{zz,zz} + 3\IFF{Q}_{xx,xx} - 16\IFF{Q}_{zx,zx} + 2\IFF{Q}_{xy,xy} - 8\IFF{Q}_{zz,xx} + \IFF{Q}_{xx,yy} \right), \\
+    \end{aligned}\\
+    \begin{aligned}
+    &\int_0^\infty K_2(\zeta,\xi)\QQ_{22}(\xi)\dd\xi - \nu\QQ_{22} \\
+        &\qquad = \frac1{7\zeta^2}\left(
+        \IFF{Q}_{zz,zz} - \IFF{Q}_{xx,xx} + 3\IFF{Q}_{zx,zx} - 3\IFF{Q}_{xy,xy} - 2\IFF{Q}_{zz,xx} + 2\IFF{Q}_{xx,yy} \right)\\
+        &\qquad - \frac17\left(\int_0^\infty K_2(\zeta,\xi)\xi^2\QQ_3(\xi)\dd\xi
+        - \nu\zeta^2\QQ_3 \right).
+    \end{aligned}\\
+\end{gather}
+Ядра \(K_i(\zeta,\xi)\) в интегральных уравнениях определены как
+\begin{gather}
+    K_1(\zeta,\xi) = \frac1{2\sqrt2}\frac{\xi^3}{\zeta}\left(4G_1-2J_1\right)\exp\left(-\xi^2\right), \\
+    K_2(\zeta,\xi) = \frac1{2\sqrt2}\frac{\xi^4}{\zeta^2}\left(6G_2-2G_0-3J_2+J_0\right)\exp\left(-\xi^2\right), \\
+    K_3(\zeta,\xi) = \frac1{2\sqrt2}\frac{\xi^5}{\zeta^3}\left(10G_3-6G_1-5J_3+3J_1\right)\exp\left(-\xi^2\right), \\
+    K_4(\zeta,\xi) = \frac1{8\sqrt2}\frac{\xi^6}{\zeta^4}\left(70G_4-60G_2+G_0-35J_4+30J_2-3J_0\right)\exp\left(-\xi^2\right),
+\end{gather}
+где
+\begin{gather}
+    \begin{aligned}
+    G_n &= \int_0^\pi \frac{\cos^n\theta \sin\theta}{\sqrt{R_s-2\xi\zeta\cos\theta}}
+        \exp\left(\frac{\xi^2\zeta^2\sin^2\theta}{R_s-2\xi\zeta\cos\theta}\right) \dd\theta \\
+        &\qquad = \frac1{2^n\xi^{n+1}\zeta^{n+1}} \sum_{k=0}^n {n \choose k} R_s^{n-k} (-1)^k C_k,
+    \end{aligned}\\
+    \left\{\begin{aligned}
+        C_0 &= \sqrt\pi\exp\left(\frac{R_s-R_d}2\right) \erf\left(\frac{r_s-r_d}2\right), \\
+        C_1 &= (2+R_d)C_0 - 2(r_s-r_d), \\
+        C_n &= 2(2n-1)C_{n-1} + R_d^2C_{n-2} - 2\left(r_s^{2n-1}-r_d^{2n-1}\right), \\
+    \end{aligned}\right.\\
+    \begin{aligned}
+    J_n &= \int_0^\pi \cos^n\theta \sin\theta \sqrt{R_s-2\xi\zeta\cos\theta} \dd\theta \\
+        &\qquad = \frac1{2^n\xi^{n+1}\zeta^{n+1}} \sum_{k=0}^n {n \choose k} R_s^{n-k} (-1)^k
+        \frac{r_s^{2k+3} - r_d^{2k+3}}{2k+3},
+    \end{aligned}\\
+    \left\{\begin{gathered}
+        R_s = \xi^2 + \zeta^2, \quad R_d = \left|\xi^2 - \zeta^2\right|, \\
+        r_s = \xi + \zeta, \quad r_d = \left|\xi - \zeta\right|. \\
+    \end{gathered}\right.
+\end{gather}
+
+По аналогичным формулам ранее были вычислены другие транспортные коэффициенты для модели твёрдых сфер~\cite{Ohwada1992}.
+
+\subsection{Особенности исчисления}
+
+Для вычисления \(K_i(\zeta,\xi)\) при малых \(\zeta\) используется разложение \(K_i\) в ряд по \(\zeta\).
+Функции \((\Pder[A]{\zeta})/\zeta\) и \((\Pder[B]{\zeta})/\zeta\) также требуют асимптотического анализа для малых \(\zeta\).
+
+Интегральные уравнения Фредгольма второго рода решаются методом квадратур.
+Поскольку \(K_i(\zeta,\xi)\) быстро убывает вместе с \(\xi\),
+то область численного интегрирования ограничивалась до \([0,\zeta^{(\mathrm{cut})}]\) вместо \([0,\infty]\).
+Во всех случаях использовалось \(\zeta^{(\mathrm{cut})} = 6.4\).
+На этом отрезке были равномерно распределены \(N_\zeta\) точек.
+
+Применялось два способа повышения точности метода квадратур.
+Во-первых, применялись достаточно подробные сетки.
+Во-вторых, уравнения решались на трёх различных сетках, после чего результаты экстраполировались
+в предположении, что искомая функция \(F(\zeta)\) содержит невязку вида
+\begin{equation}
+    F_h(N_\zeta) = F(\zeta) + \frac{C_1}{N_\zeta^2} + \frac{C_2}{N_\zeta^4},
+\end{equation}
+где \(F_h(N_\zeta)\) "--- разностное решение, \(C_i\) "--- произвольные коэффициенты.
+
+\subsection{Сравнение результатов}
+
+В табл.~\ref{table:gamma_comparison} приводится сравнение транспортных коэффициентов,
+вычисленных различными методами, а также приведённых в литературе.
+Вычисление коэффициента \(\gamma_3\) возможно несколькими способами
+\begin{equation}
+    \gamma_3 = 2I_6(\mathcal{B}_1) = 5I_6\left(\T_1\right) + I_8\left(\T_2\right).
+\end{equation}
+По второй формуле получается значение \(\gamma_3 = 1.94790635\).  
+
+
+\begin{table}\footnotesize
+    \newcommand{\red}[1]{\textcolor{red}{#1}}
+    \centering
+    \caption{Сравнение транспортных коэффициентов. Красным цветом показаны недостоверные знаки.
+        В скобках указаны используемые сетки \(N_\zeta/100\)}
+    \label{table:gamma_comparison}
+    \begin{tabular}{cccccc}
+        Коэффициент    & \(\mathcal{L}\) в \(\mathbb{R}^3\) & \(\mathcal{L}\) в \(\mathbb{R}\) (60)
+            & \(\mathcal{L}\) в \(\mathbb{R}\) (12-14-16) & \(\mathcal{L}\) в \(\mathbb{R}\) (30-32-34) & Литература~\cite{Sone2002} \\[3pt]
+        \hline\noalign{\smallskip}
+        \(\gamma_1\)    & 1.270\red{1} & 1.270043\red{4} & 1.270042427\red{1} & 1.270042427\red{1} & 1.270042427 \\
+        \(\gamma_2\)    &     ---      & 1.92228\red{56} & 1.922284065\red{6} & 1.922284065\red{6} & 1.922284066 \\
+        \(\gamma_3\)    &     ---      & 1.94790\red{97} & 1.9479063\red{35}  & 1.9479063\red{35}  & 1.9479063\red{35} \\
+        \(\gamma_7\)    & 0.\red{2201} & 0.18920\red{40} & 0.18920\red{11}    & 0.189200\red{1}    & 0.18920\red{1} \\
+        \(\gamma_8\)    & 1.496\red{3} & 1.49594\red{57} & 1.4959419\red{68}  & 1.4959419\red{68}  & --- \\
+        \(\gamma_9\)    & 1.635\red{7} & 1.63607\red{55} & 1.636073458\red{5} & 1.636073458\red{5} & --- \\
+        \(\gamma_{10}\) & 2.4\red{633} & 2.4497\red{955} & 2.449779\red{60}   & 2.449779\red{53}   & --- \\
+    \end{tabular}
+\end{table}
 
 \begin{thebibliography}{9}
 
