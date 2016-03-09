@@ -8,10 +8,11 @@ $(PROJECT).pdf: $(SOURCES)
 	latex $(PROJECT)
 
 pics:
-	mkdir -p couette sone_bobylev noncoaxial elliptic
+	mkdir -p couette couette2 sone_bobylev noncoaxial elliptic
 	cp ../../science/6_couette_flow/tikz/geometry.pdf couette/
 	cp ../../science/6_couette_flow/distrib_f/kn*pdf couette/
 	cp ../../science/6_couette_flow/profiles/*.pdf couette/
+	cp ../../science/6_couette_flow/integrated/*.pdf couette2/
 	cp ../../science/7_sone_bobylev/tikz/sone_bobylev.pdf sone_bobylev/geometry.pdf
 	cp ../../science/7_sone_bobylev/contours/*.pdf sone_bobylev/
 	cp ../../science/7_sone_bobylev/vs_kn/*.pdf sone_bobylev/
