@@ -57,5 +57,5 @@ ax.legend(handles, labels, loc=0)
 from matplotlib.ticker import LogLocator
 ax.yaxis.set_major_locator(LogLocator(1e2))
 
-py.savefig('F-tau-' + sys.argv[1] + '-' + sys.argv[2] + '.pdf', bbox_inches='tight')
+py.savefig('F-tau-' + sys.argv[1] + '-' + sys.argv[2] + '.pdf', bbox_inches='tight', transparent=True)
 

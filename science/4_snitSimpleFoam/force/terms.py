@@ -62,5 +62,5 @@ ax.legend(handles, labels, loc=0)
 ax.axhline(lw=.5, c='k', ls=':')
 ax.axvline(lw=.5, c='k', ls=':')
 
-py.savefig('terms-' + sys.argv[1] + '.pdf', bbox_inches='tight')
+py.savefig('terms-' + sys.argv[1] + '.pdf', bbox_inches='tight', transparent=True)
 

@@ -42,7 +42,7 @@ def draw(filename, ax, beta, lw):
     yi = np.linspace(Y.min(), Y.max(), (Y.max()-Y.min())*N)
     U = griddata(X,Y,U,xi,yi,interp=interp)
     V = griddata(X,Y,V,xi,yi,interp=interp)
-    ax.streamplot(xi, yi, U, V, color='k', density=np.sqrt(Y.max()-Y.min()), minlength=.2, linewidth=lw, arrowstyle='->', arrowsize=lw)
+    ax.streamplot(xi, yi, U, V, color='k', density=2*np.sqrt(Y.max()-Y.min()), minlength=.2, linewidth=lw, arrowstyle='->', arrowsize=lw)
 
     ax.set_aspect('equal')
     ax.spines['top'].set_visible(False)
@@ -100,4 +100,4 @@ ax2.text(-0.17, .75, r'$y$')
 ax2.set_xlabel(r'$\mathrm{(b)}$', labelpad=10)
 
 py.tick_params(axis='both', direction='out',)
-py.savefig('U.pdf', bbox_inches='tight')
+py.savefig('U.pdf', bbox_inches='tight', transparent=True)

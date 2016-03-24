@@ -70,4 +70,4 @@ cax = divider.append_axes("right", "5%", pad="5%")
 py.colorbar(CF, cax=cax)
 
 py.tick_params(axis='both', direction='out',)
-py.savefig(sys.argv[1] + '.pdf', bbox_inches='tight')
+py.savefig(sys.argv[1] + '.pdf', bbox_inches='tight', transparent=True)

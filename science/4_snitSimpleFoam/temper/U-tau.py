@@ -41,5 +41,5 @@ ax = py.axes()
 from matplotlib.ticker import LogLocator
 ax.yaxis.set_major_locator(LogLocator(1e4))
 
-py.savefig('U-tau-' + sys.argv[1] + '.pdf', bbox_inches='tight')
+py.savefig('U-tau-' + sys.argv[1] + '.pdf', bbox_inches='tight', transparent=True)
 

@@ -33,4 +33,4 @@ ml = MultipleLocator(1e-3)
 ax.yaxis.set_minor_locator(ml)
 
 
-py.savefig('delta-x.pdf', bbox_inches='tight')
+py.savefig('delta-x.pdf', bbox_inches='tight', transparent=True)

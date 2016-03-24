@@ -34,5 +34,5 @@ from matplotlib.ticker import MultipleLocator
 ax.xaxis.set_minor_locator(MultipleLocator(0.25))
 #ax.yaxis.set_minor_locator(MultipleLocator(10))
 
-py.savefig('moment-beta.pdf', bbox_inches='tight')
+py.savefig('moment-beta.pdf', bbox_inches='tight', transparent=True)
 

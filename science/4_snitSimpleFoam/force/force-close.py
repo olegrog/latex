@@ -40,5 +40,5 @@ ax.set_xticklabels([r'$10^{-2}$', '', r'$10^0$'])
 handles, labels = ax.get_legend_handles_labels()
 ax.legend(handles, labels, loc=0)
 
-py.savefig('forces-close.pdf', bbox_inches='tight')
+py.savefig('forces-close.pdf', bbox_inches='tight', transparent=True)
 

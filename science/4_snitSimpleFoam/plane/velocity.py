@@ -47,7 +47,7 @@ CF = py.contourf(x, y, magU, cmap=cmap, levels=lev)
 
 # streamplot version (need matplotlib 1.2.1, use only evenly grid)
 from matplotlib.mlab import griddata
-interp = 'nn'
+interp = 'linear' # 'nn'
 N = 50
 xi = np.linspace(0, 1, 2*N)
 yi = np.linspace(0, .5, 4*N)
@@ -71,4 +71,4 @@ cax = divider.append_axes("right", "5%", pad="5%")
 py.colorbar(CF, cax=cax)
 
 py.tick_params(axis='both', direction='out')
-py.savefig('U' + '{0:g}'.format(Kn)[2:] + '.pdf', bbox_inches='tight')
+py.savefig('U' + '{0:g}'.format(Kn)[2:] + '.pdf', bbox_inches='tight', transparent=True)

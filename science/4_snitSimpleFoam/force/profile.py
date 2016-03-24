@@ -43,5 +43,5 @@ from matplotlib.ticker import MultipleLocator
 ax.xaxis.set_minor_locator(MultipleLocator(np.pi/2))
 ax.yaxis.set_minor_locator(MultipleLocator(100))
 
-py.savefig('profiles.pdf', bbox_inches='tight')
+py.savefig('profiles.pdf', bbox_inches='tight', transparent=True)
 
