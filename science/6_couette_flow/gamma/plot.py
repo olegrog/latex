@@ -9,7 +9,7 @@ params = {'backend': 'pdf',
           'xtick.labelsize': 8,
           'ytick.labelsize': 8,
           'text.usetex': True,
-          'figure.figsize': [1.6,1.2]}
+          'figure.figsize': [2.0,1.5]}
 py.rcParams.update(params)
 import numpy as np
 import sys
