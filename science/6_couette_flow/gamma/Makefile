@@ -2,10 +2,11 @@ SECOND=B.pdf B_4.pdf
 THIRD=T1_1.pdf T1_2.pdf T2_1.pdf T2_2.pdf TT_12.pdf TT_2.pdf
 FOURTH=Q_2.pdf Q_3.pdf QQ_22.pdf QQ_3.pdf
 TRANSPORT=$(SECOND) $(THIRD) $(FOURTH)
+CSV=gamma1.csv gamma2.csv
 DIR=../../../reports/5_gamma_coeffs/infty
 SHELL=/bin/bash
 
-all: $(TRANSPORT) #$(NONLINEAR) $(OTHER)
+all: $(TRANSPORT) $(CSV)
 
 B.pdf: $(DIR)/B.txt plot.py
 	./plot.py $< 1 '\mathcal{B}' $@
@@ -42,6 +43,12 @@ QQ_22.pdf: $(DIR)/QQ22.txt plot.py
 
 QQ_3.pdf: $(DIR)/QQ3.txt plot.py
 	./plot.py $< 1 '\tilde{\mathcal{Q}}^{(0)}_3' $@
+
+gamma1.csv: create_csv.py
+	./$< $(DIR) 0 > $@
+
+gamma2.csv: create_csv.py
+	./$< $(DIR) 1 > $@
 
 clean:
 	rm -f $(TRANSPORT) $(NONLINEAR) $(OTHER)
