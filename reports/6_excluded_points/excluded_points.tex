@@ -227,8 +227,7 @@
 \end{equation}
 Если же \(r_{\lambda,a} < 0\), то
 \begin{equation}\label{eq:positive_f_lambda-}
-    \hat{f}_{\lambda+s_a} + \frac{A}{N}r_{\lambda,a}\hat{f}_{\mu+s_a}
-        \frac{\hat{f}_{\alpha}\hat{f}_{\beta}}{\hat{f}_{\lambda+s_a}\hat{f}_{\mu+s_a}} > 0
+    \hat{f}_{\lambda+s_a} + \frac{A}{N}r_{\lambda,a} \hat{f}_{\alpha}\hat{f}_{\beta} > 0
 \end{equation}
 или
 \begin{equation}\label{eq:positive_f_lambda2-}
@@ -243,7 +242,7 @@
 тем больше следует брать кубатурных точек.
 
 На практике строгое выполнение условия~\eqref{eq:positive_f} требует больших вычислительных затрат,
-поэтому для достижения приемлимой точности достаточно исключать из \(\Nu\) точки,
+поэтому для достижения приемлемой точности достаточно исключать из \(\Nu\) точки,
 нарушающие~\eqref{eq:positive_f}. Другими словами, интеграл столкновений можно вычислять как
 \begin{equation}\label{eq:discrete_short_ci_discarded}
     \hat{J}_\gamma = \sum_{\nu\in\Nu\setminus\mathcal{M}} \hat{\mathscr{J}}_{\gamma\nu},
@@ -285,7 +284,7 @@
 \end{equation}
 При этом справедливы оценки
 \begin{equation}\label{eq:weights_ranges2}
-    0 \leq r < 1, \quad R_{\mathcal{S}\gamma} = h\sqrt{3},
+    0 \leq r < 1, \quad R_{\mathcal{S}\gamma} = \sqrt3h,
 \end{equation}
 где \(h^3 = w_\gamma = V_\Gamma/|\Gamma|\).
 
@@ -329,7 +328,7 @@
     0 < r_{\lambda,0} \leq 1, \quad
     -\frac1{12} \leq r_{\lambda,i} < \frac{11}{24}, \quad
     -\frac18 \leq r_{\lambda,4} \leq 0, \quad
-    R_{\mathcal{S}\gamma} = \sqrt{6}.
+    R_{\mathcal{S}\gamma} = \sqrt6h.
 \end{equation}
 
 \subsection{Симметричная семиточечная схема}
@@ -350,7 +349,7 @@
     \frac14 \leq r_{\lambda,0} \leq 1, \quad
     0 \leq r_{\lambda,\pm i} \leq \frac38, \quad
     -\frac18 \leq r_{\lambda,\mp i} \leq 0, \quad
-    R_{\mathcal{S}\gamma} = 2.
+    R_{\mathcal{S}\gamma} = 2h.
 \end{equation}
 
 \end{document}
