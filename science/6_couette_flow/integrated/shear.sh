@@ -57,7 +57,7 @@ dummy = "NaN title ' ' lt -3"
 plot \
     "bkw.txt" using (filter($1/k)/gamma1):(base(filter($1)/gamma1,$2)) title "BKW" w l lw 3 lt 1 lc 5, \
     base(k*x, asym_bkw(k*f_asym(x)*gamma1)) notitle w l lw 3 lt 1 lc 5, \
-    "sone.txt" using ($1/k):(base($1,-$2/2)) title "Ohwada et al." w lp lw 3 lt 1 lc 0 pt 3 ps 1.5, \
+    "sone.txt" using ($1/k):(base($1,-$2/2)) title "Sone et al." w lp lw 3 lt 1 lc 0 pt 3 ps 1.5, \
     base(k*x,asym_hs(k*f_asym(x))) notitle lw 3 lt 1 lc 0, \
     NaN title "Projection method"    w lp lw 2 lt 1 lc 1 pt 6, \
     NaN title "DSMC"             w lp lw 2 lt 1 lc 2 pt 4, \

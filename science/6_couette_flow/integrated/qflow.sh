@@ -33,7 +33,7 @@ plot \
     @dummy, @dummy, @dummy, @dummy, @dummy, \
     "bkw.txt" using (filter($1/k)/gamma2):(-$4+$3/2) title "BKW" w l lw 3 lt 1 lc 5, \
     "asym-bkw.txt" using (f_asym($1)/gamma2):(-$3) notitle w l lw 3 lt 1 lc 5, \
-    "sone.txt" using ($1/k):($4/2) title "Ohwada et al." w lp lw 3 lt 1 lc 0 pt 3 ps 1.5, \
+    "sone.txt" using ($1/k):($4/2) title "Sone et al." w lp lw 3 lt 1 lc 0 pt 3 ps 1.5, \
     "asym-hs.txt" using (f_asym($1)):(-$3) notitle w l lw 3 lt 1 lc 0, \
     NaN title "Projection method"    w lp lw 2 lt 1 lc 1 pt 6, \
     NaN title "DSMC"             w lp lw 2 lt 1 lc 2 pt 4, \
