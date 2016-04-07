@@ -8,7 +8,7 @@ from scipy.integrate import quad
 from functools import partial
 
 L = .5
-_, inprefix, outprefix = sys.argv
+_, infile, outfile = sys.argv
 
 xlogx = np.vectorize(lambda x: 0 if x==0 else x*np.log(x))
 Fxlogx = lambda x: x*x*(2*np.log(x)-1)/4
@@ -57,13 +57,9 @@ def save_data(filename):
     np.savetxt(filename, np.transpose((Kn, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, tau, P)),
         fmt='%1.5e', header='       Kn          Pxy           M           Qx          Qy         Pxx         Pyy         Pzz         tau           P')
 
-for filename in os.listdir('.'):
-    if filename.startswith(inprefix + '-'):
-        outname = filename.replace(inprefix, outprefix)
-        print filename, outname
-        U = float(filename.split('-')[1].rsplit('.', 1)[0])
-        Kn, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, tau, P, DU0, DT0, p0, T_B0 = np.loadtxt(filename).T
-        knudsen_layer(Kn, DU0/U, DT0/U, M, tau, Qx, Pxx, Pyy, Pzz, P, p0, T_B0)
-        save_data(outname)
+U = float(infile.split('-')[1].rsplit('.', 1)[0])
+Kn, Pxy, M, Qx, Qy, Pxx, Pyy, Pzz, tau, P, DU0, DT0, p0, T_B0 = np.loadtxt(infile).T
+knudsen_layer(Kn, DU0/U, DT0/U, M, tau, Qx, Pxx, Pyy, Pzz, P, p0, T_B0)
+save_data(outfile)
 
 
