@@ -15,8 +15,8 @@ $(FILE).pdf: $(FILE).tex $(FILE).bib $(FIG)
 	latex $(FILE)
 
 pics:
-	cp ../exclusions/max.pdf                Fig01.pdf
-	cp ../exclusions/mean.pdf               Fig02.pdf
+	#cp ../exclusions/max.pdf                Fig01.pdf
+	#cp ../exclusions/mean.pdf               Fig02.pdf
 	cp ../distrib_f/kn0.1-boundary.pdf      Fig03.pdf
 	cp ../distrib_f/kn0.1-center.pdf        Fig04.pdf
 	cp ../distrib_f/kn1.0-boundary.pdf      Fig05.pdf
@@ -41,7 +41,7 @@ pics:
 	cp ../integrated/pzz.pdf                Fig24.pdf
 	cp ../integrated/temp.pdf               Fig25.pdf
 	cp ../integrated/diff.pdf               Fig26.pdf
-	cp ../gamma/B.pdf                       Fig27.pdf
+	#cp ../gamma/B.pdf                       Fig27.pdf
 	cp ../gamma/B_4.pdf                     Fig28.pdf
 	cp ../gamma/T1_1.pdf                    Fig29.pdf
 	cp ../gamma/T1_2.pdf                    Fig30.pdf

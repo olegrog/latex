@@ -3,7 +3,7 @@
 \journal{European Journal of Mechanics - B/Fluids}
 
 \usepackage{graphicx}
-\usepackage{amssymb, amsmath}
+\usepackage{amssymb, amsmath, mathrsfs}
 \usepackage{fullpage}
 \usepackage{hyperref}
 \usepackage{natbib}
@@ -41,7 +41,7 @@
 }
 
 %%% abbreviations for the manuscript
-\newcommand{\Kn}{\mbox{\textit{Kn}}}
+\newcommand{\Kn}{\mathrm{Kn}}
 \newcommand{\NS}{N\!S}
 \newcommand{\dd}{\mathrm{d}}
 \newcommand{\der}[2][]{\frac{\dd#1}{\dd#2}}
@@ -50,11 +50,14 @@
 \newcommand{\pderder}[3][]{\frac{\partial^2#1}{\partial#2\partial#3}}
 \newcommand{\Pder}[2][]{\partial#1/\partial#2}
 \newcommand{\dzeta}{\boldsymbol{\dd\zeta}}
+\newcommand{\dxi}{\boldsymbol{\dd\xi}}
 \newcommand{\bzeta}{\boldsymbol{\zeta}}
+\newcommand{\bxi}{\boldsymbol{\xi}}
 \newcommand{\bh}{\boldsymbol{h}}
+\newcommand{\be}{\boldsymbol{e}}
 \newcommand{\Nu}{\mathcal{N}}
 \newcommand{\Mu}{\mathcal{M}}
-\newcommand{\OO}[1]{O\left(#1\right)}
+\newcommand{\OO}[1]{O(#1)}
 \newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
 
 %%% abbreviations for the appendix
@@ -63,11 +66,16 @@
 \newcommand{\T}[1]{\ensuremath{\mathcal{T}^{(#1)}}}
 \newcommand{\TT}{\ensuremath{\tilde{\mathcal{T}}^{(0)}}}
 \newcommand{\QQ}{\ensuremath{\tilde{\mathcal{Q}}^{(0)}}}
+\newcommand{\IF}[2][0]{\ensuremath{I{#2}^{(#1)}}}
+\newcommand{\IFF}[1]{\ensuremath{I\tilde{#1}^{(0)}}}
 \newcommand{\ZD}[2]{\zeta_{#1}\delta_{#2}}
 \newcommand{\ZZD}[3]{\zeta_{#1}\zeta_{#2}\delta_{#3}}
 \newcommand{\ZZZ}{\zeta_i\zeta_j\zeta_k}
 \newcommand{\ZZZZ}{\zeta_i\zeta_j\zeta_k\zeta_l}
 \newcommand{\DD}[2]{\delta_{#1}\delta_{#2}}
+
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\erf}{erf}
 
 \begin{document}
 
@@ -105,7 +113,7 @@
 \begin{abstract}
     The plane Couette flow of a rarefied gas is investigated on the basis of the Boltzmann equation
     over the wide range of Knudsen and Mach numbers.
-    The velocity distribution function as well as its first thirteen moments is obtained from
+    The velocity distribution function and its first thirteen moments are obtained from
     the accurate numerical solution based on the projection discrete-velocity method
     extended for nonuniform rectangular velocity grids.
     The DSMC simulation is used to reinforce the obtained results.
@@ -115,6 +123,9 @@
 \end{abstract}
 
 \end{frontmatter}
+
+\renewcommand*{\appendixname}{}
+\tableofcontents
 
 \linenumbers
 
@@ -141,9 +152,9 @@ of the nonlinear problem for various external parameters.
 %%% The primary numeric method
 The projection-interpolation method of discrete velocities is chosen for
 evaluation of the Boltzmann integral~\citep{Tcheremissine1998, Tcheremissine2006}.
-With this technique, velocities after impact that do not hit the grid
+With this technique, velocities after collision that do not hit the grid
 are projected to the adjacent grid nodes in such a way that mass, momentum, and energy are conserved.
-The gain term of the Boltzmann integral is interpolated in such a way that
+Contributions from the inverse collisions are interpolated in such a way that
 the discrete collision operator from the Maxwell distribution is strictly equal to zero.
 The projection-interpolation method of evaluation of the collision integral
 provides the second order approximation along each axis for a smooth distribution function~\citep{Anikin2012}.
@@ -151,27 +162,26 @@ However, there are discontinuities and large variations for real boundary-value 
 which significantly increase the error of computation on a uniform velocity grid.
 Therefore, nonuniform velocity grids, condensing in areas of large variation
 of the distribution function, should be used to obtain a high-accuracy solution.
-For uniform grids, two projection nodes are enough to satisfy the conservation laws,
-otherwise it is necessary to resort to the multipoint projection stencils~\citep{Dodulad2012}.
-In the present paper, an extension of the projection method for nonuniform grids is employed.
-The author hopes that the proposed method can yield the most accurate results
-among the existing numerical methods for the considered problem.
+For uniform grids, two projection nodes are enough to ensure the conservation laws,
+otherwise, it is necessary to resort to the multipoint projection stencils~\citep{Dodulad2012}.
+In the present paper, an extension of the projection method for nonuniform grids is presented and employed.
 
 %%% Asymptotic solution
 Fluid-dynamic-type equations together with special boundary conditions
 are often used to find an approximate solution for small Knudsen numbers.
-For example, the Navier--Stokes equations with the slip boundary conditions~\citep{Ohwada1989a}
-give an opportunity to construct the simplest solution~\citep{Sharipov2000}.
+For example, the Navier--Stokes equations with the slip boundary conditions
+serve as a basis for the simplest solution~\citep{Sharipov2000}.
 To take into account the next order of gas rarefaction in the Chapman--Enskog expansion,
 the Burnett~\citep{Reese2003} and super-Burnett~\citep{Agrawal2014} equations can be considered.
 The Grad's moment method and its modifications are also applied~\citep{Struchtrup2009}.
 However, to obtain a rigorous asymptotic solution of the Boltzmann equation,
 the Hilbert expansion along with the systematic examination of the viscous boundary and Knudsen layers
 should be carried out. \citet{Sone2000} have introduced the general approach
-for construction of the asymptotic solution for finite Mach numbers.
-In the present study, this approach is applied to the plane Couette-flow problem.
-The obtained results is also used to verify the direct numerical solution
-of the Boltzmann equation for small Knudsen numbers.
+for construction of the nonlinear asymptotic solution for finite Mach numbers.
+In the present study, this approach is applied to the plane Couette-flow problem for hard-sphere molecules
+to verify the deterministic solution for small Knudsen numbers.
+For the BKW (Boltzmann--Krook--Welander) equation~\citep{Krook1954,Welander1954},
+\citet{Sone1970} have obtained the asymptotic solution up to the second order in Knudsen number.
 
 \section{Formulation of the problem}
 
@@ -191,7 +201,7 @@ and \(m\) is the molar mass.
 Let \(L\) be a reference length and the velocities of the plates (\(y=\pm1/2\))
 be equal to \((\pm\Delta{v}/2)(2RT^{(0)})^{1/2}\), respectively.
 \(T^{(0)}\) is the common temperature of the plates.
-\(p^{(0)}\) is selected in such a way that the average density is equal to one, i.e.
+\(p^{(0)}\) is selected in such a way that the average density is equal to one, i.e.,
 \begin{equation}\label{eq:total_mass}
     \int_{-\frac12}^\frac12\rho\dd{y} = 1.
 \end{equation}
@@ -213,28 +223,28 @@ Its dimensionless and time-independent form is
 where \(k = \Kn\sqrt{\pi}/2\) is a modified Knudsen number and
 \begin{equation}\label{eq:ci}
     J(f,g) = \frac12 \int (f'g'_* + f'_*g' - fg_* - f_*g) B
-    \dd \Omega(\boldsymbol{\alpha}) \dzeta_*,
+    \dd \Omega(\boldsymbol{\omega}) \dzeta_*,
 \end{equation}
 is the Boltzmann collision integral.
 The distribution function \(f(x_i,\zeta_i)(2p^{(0)})/(2RT^{(0)})^{5/2}\) is defined
 in the space \([x_iL, \zeta_i(2RT^{(0)})^{1/2}]\).
-\(\dd \Omega(\boldsymbol{\alpha})\) is an element of solid angle in the direction of the unit vector \(\alpha_i\),
-determining the velocities after impact:
-\begin{equation}\label{eq:after_impact}
-    \zeta'_i = \zeta_i + \alpha_i\alpha_j(\zeta_{j*}-\zeta_j), \quad
-    \zeta'_{i*} = \zeta_{i*} - \alpha_i\alpha_j(\zeta_{j*}-\zeta_j).
+\(\dd \Omega(\boldsymbol{\omega})\) is an element of solid angle in the direction of the unit vector \(\boldsymbol{\omega}\),
+determining the velocities after collision:
+\begin{equation}\label{eq:after_collision}
+    \zeta'_i = \zeta_i + \omega_i\omega_j(\zeta_{j*}-\zeta_j), \quad
+    \zeta'_{i*} = \zeta_{i*} - \omega_i\omega_j(\zeta_{j*}-\zeta_j).
 \end{equation}
 For the hard-sphere model,
 \begin{equation}\label{eq:ci_kernel}
-    B = \frac{|\alpha_i(\zeta_{i*}-\zeta_i)|}{4\sqrt{2\pi}}.
+    B = \frac{|\omega_i(\zeta_{i*}-\zeta_i)|}{4\sqrt{2\pi}}.
 \end{equation}
 
-The Maxwell-type boundary condition with diffuse reflection is used at \(y=1/2\), i.e.
+The Maxwell-type boundary condition with diffuse reflection is used at \(y=1/2\), i.e.,
 \begin{equation}\label{eq:diffuse_bc}
     f(\zeta_x,\zeta_y,\zeta_z) = \frac2{\pi} \exp\left[-\left(\zeta_x-\frac{\Delta{v}}{2}\right)^2-\zeta_y^2-\zeta_z^2\right]
         \int_{\zeta_{*y}>0}\zeta_{*y} f_* \dzeta_*, \quad \zeta_y<0.
 \end{equation}
-The following symmetry condition is imposed at \(y=0\):
+The following antisymmetry condition is imposed at \(y=0\):
 \begin{equation}\label{eq:specular_bc}
     f(\zeta_x,\zeta_y,\zeta_z) = f(-\zeta_x,-\zeta_y,\zeta_z), \quad \zeta_y>0.
 \end{equation}
@@ -260,13 +270,13 @@ Linearized Boltzmann equation
 with the linearized collision operator
 \begin{equation}\label{eq:linear_ci}
     \mathcal{L}(\phi) = \int E_*(\phi'+\phi'_*-\phi-\phi_*) B
-    \dd \Omega(\boldsymbol{\alpha}) \dzeta_*
+    \dd \Omega(\boldsymbol{\omega}) \dzeta_*
 \end{equation}
-holds for a gas that deviates only slightly from an equilibrium state, i.e.
+holds for a gas that deviates only slightly from an equilibrium state, i.e.,
 \begin{equation}\label{eq:linear_condition}
     \phi = \frac{f}{E} - 1 \ll 1, \quad E(\zeta) = \frac1{\pi^{3/2}}\exp\left(-\zeta^2\right).
 \end{equation}
-Perturbed local Maxwell distribution
+Perturbed local Maxwellian
 \begin{equation}\label{eq:linear_maxwellian}
     \phi_e = \omega + 2\zeta_i v_i + \left(\zeta_i^2-\frac32\right)\tau
 \end{equation}
@@ -301,13 +311,13 @@ Other variables from~\eqref{eq:macro} remain constant in the linear case.
 \section{Outline of the methods for the linear problem}
 
 For \(k\to\infty\), we obtain the collisionless linearized Boltzmann equation \(\zeta_y\Pder[\Phi]{y} = 0\),
-which has a simple solution as a combination of two different half-Maxwellians, i.e. \(\Phi_\pm = \mp 1\).
+which has a simple solution as a combination of two different half-Maxwellians, i.e., \(\Phi_\pm = \mp 1\).
 It gives
 \begin{gather}\label{eq:linear_free_macro}
     \frac{P_{xy}}{\Delta{v}} = -\frac1{\sqrt{\pi}}, \quad v_x = q_x = 0.
 \end{gather}
 
-For small \(k\), there is a Grad--Hilbert solution~\citep[see e.g.][]{Ohwada1990, Sone2007}:
+For small \(k\), there is a Grad--Hilbert solution~\citep[see e.g.][]{Ohwada1990, Sone2007}
 \begin{equation}\label{eq:small_solution}
     \Phi = \frac{2y - \zeta_y \mathcal{B}(\zeta) k}{1-2k_0k},
 \end{equation}
@@ -316,28 +326,29 @@ where special function \(\mathcal{B}(\zeta)\) is defined from the integral equat
     \mathcal{L}\left[\left(\zeta_i\zeta_j-\frac{\zeta^2}3\delta_{ij}\right) \mathcal{B}(\zeta)\right]
         = -2\left(\zeta_i\zeta_j-\frac{\zeta^2}3\delta_{ij}\right).
 \end{equation}
-The solution~\eqref{eq:small_solution} does not satisfy the boundary conditions~\eqref{eq:linear_bc},
+The solution~\eqref{eq:small_solution} does not satisfy the boundary conditions~\eqref{eq:linear_bc};
 therefore, it is corrected in the Knudsen layer. Finally, we have the following asymptotic solution:
 \begin{equation}\label{eq:small_macro}
     \frac{P_{xy}}{\Delta{v}} = - \frac{\gamma_1 k}{1-2k_0k}, \quad
     \frac{v_x}{\Delta{v}} = \frac{y - (Y_0^--Y_0^+)k}{1-2k_0k}, \quad
     \frac{q_x}{\Delta{v}} = \frac{(H_A^--H_A^+)k}{1-2k_0k},
 \end{equation}
-where, for hard-sphere molecules,
+where
 \begin{equation}\label{eq:gamma_1}
-    \gamma_1 = \frac{8}{15\sqrt{\pi}}\int_0^\infty \zeta^6 \mathcal{B}(\zeta)E\dd\zeta = 1.270042427
+    \gamma_1 = \frac{8}{15\sqrt{\pi}}\int_0^\infty \zeta^6 \mathcal{B}(\zeta)E\dd\zeta
 \end{equation}
-is the viscosity coefficient and \(k_0 = -1.25395\)~\citep{Takata2015} is the slip coefficient.
-The Knudsen-layer functions \(K^\pm = Y_0^\pm, H_A^\pm\) are defined as follows:
+is the viscosity coefficient.
+The Knudsen-layer functions \(K^\pm = Y_0^\pm, H_A^\pm\):
 \begin{equation}\label{eq:linear_knudsen_functions}
-     K^\pm = K(\eta_\pm), \quad \eta_\pm = \frac{1 \mp 2y}{2k}.
+     K^\pm = K(\eta_\pm), \quad \eta_\pm = \frac{1 \mp 2y}{2k},
 \end{equation}
-For hard-sphere molecules, \(Y_0(\eta)\), \(H_A(\eta)\)
-are tabulated in~\citet{Ohwada1989a, Sone2002, Sone2007, Takata2015}.
+as well as the slip coefficient \(k_0\) are obtained from the numerical analysis
+of the shear flow problem as a half-space boundary-value problem.
+For hard-sphere molecules, \(\gamma_1 = 1.270042427\), \(k_0 = -1.25395\),
+and \(Y_0(\eta)\), \(H_A(\eta)\) are tabulated in~\citet{Ohwada1989creep, Sone2002, Sone2007, Takata2015}.
 This asymptotic solution assumes that the Knudsen layers of the both plates are not intersected.
-In other words, the terms as \(\exp(-1/k)\) are neglected.
 
-In case of arbitrary \(k\), the solution can be obtained by numerical analysis.
+In the case of arbitrary \(k\), the solution can be obtained by numerical analysis.
 \citet{Ohwada1990} have carefully accomplished it for the hard-sphere model.
 
 For comparison, consider also a solution of the widely used BKW (Boltzmann--Krook--Welander) equation,
@@ -356,7 +367,7 @@ Its solution can be written in the following form~\citep{Willis1962}:
 \end{equation}
 where \(g(y) = 2v_x/\Delta v\) is found from the Fredholm integral equation of the second kind
 \begin{equation}\label{eq:bkw_g_equation}
-    \sqrt{\pi} g(y) = \mathcal{T}_0^+ - \mathcal{T}_0^-
+    \sqrt{\pi} g(y) = \mathcal{T}_0 \left(\frac{1-2y}{2k}\right) - \mathcal{T}_0 \left(\frac{1+2y}{2k}\right)
         + \frac1k \int_0^{\frac12} \left[ \mathcal{T}_{-1}\left(\frac{|y-s|}{k}\right)
         - \mathcal{T}_{-1}\left(\frac{y+s}{k}\right) \right] g(s) \dd{s}.
 \end{equation}
@@ -385,7 +396,7 @@ The remaining macroscopic variables are calculated as follows:
 
 \section{Outline of the methods for the nonlinear problem}
 
-\subsection{Free molecular solution}
+\subsection{Free molecular limit}
 
 Collisionless Boltzmann equation, as well as in the linearized case,
 has a solution as a combination of two different half-Maxwellians:
@@ -418,7 +429,11 @@ which are usually solved with the nonslip boundary conditions at \(y=1/2\):
 \begin{equation}\label{eq:nonslip_bc}
     v_x = \frac{\Delta{v}}2, \quad T = 1.
 \end{equation}
-Incidentally, \(\gamma_2 = 1.922284066\) is the thermal conductivity coefficient of a hard-sphere gas.
+The thermal conductivity coefficient
+\begin{equation}\label{eq:gamma_2}
+    \gamma_2 = \frac{16}{15\sqrt{\pi}}\int_0^\infty \zeta^6 \mathcal{A}(\zeta)E\dd\zeta.
+\end{equation}
+For a hard-sphere gas, \(\gamma_2 = 1.922284066\).
 The constant pressure \(p\) is calculated from the total mass of the gas (see~\eqref{eq:total_mass}):
 \begin{equation}\label{eq:constant_pressure}
     p = \left( 2\int_{0}^\frac12\frac{\dd{y}}{T} \right)^{-1}.
@@ -431,109 +446,86 @@ and, in essence, describe some kind of disturbance of the equilibrium Maxwellian
 To obtain a rigorous asymptotic solution for small \(k\),
 one should refer to the Hilbert expansion in connection with the
 viscous boundary and Knudsen layers~\citep{Sone2000, Sone2002}.
+Owing to the degeneracy of the convection effect in the plane Couette flow,
+the viscous boundary layer spreads all over the channel;
+therefore, the solution is presented as a sum \(f = f_H + f_K\),
+where the subscripts \(H\) and \(K\) denote the Hilbert fluid-dynamic and Knudsen-layer parts, respectively.
 
-Expanding macroscopic variables \(h = \rho, v_i, T, \dots\) into a power series of \(k\), i.e.
-\begin{equation}\label{eq:hilbert_expansion}
-    h = h_0 + h_1k + h_2k^2 + \cdots,
+Expand macroscopic variables \(h = \rho, v_i, T, \dots\) into a power series of \(k\), i.e.,
+\begin{equation}\label{eq:solution_expansion}
+    h = h_0 + h_1k + h_2k^2 + \cdots.
 \end{equation}
-we obtain, in the context of the plane Couette-flow problem, the following set of equations up to the first order:
-\begin{gather}
-    \pder{y}\left( \sqrt{T_0}\pder[v_{x0}]{y} \right) = 0, \label{eq:Hilbert_U0}\\
-    \sqrt{T_0}\left( \pder[v_{x0}]{y}\right)^2 + \frac{5\gamma_2}{4\gamma_1}\pder{y}\left(\sqrt{T_0}\pder[T_0]{y} \right) = 0, \label{eq:Hilbert_T0}\\
-    \pder{y}\left( \sqrt{T_0}\pder[v_{x1}]{y} + \frac{T_1}{2\sqrt{T_0}}\pder[v_{x0}]{y} \right) = 0, \label{eq:Hilbert_U1}\\
-    \left( 2\sqrt{T_0}\pder[v_{x1}]{y} + \frac{T_1}{2\sqrt{T_0}}\pder[v_{x0}]{y} \right) \pder[v_{x0}]{y}
-        + \frac{5\gamma_2}{4\gamma_1} \pder{y}\left( \sqrt{T_0}\pder[T_1]{y} + \frac{T_1}{2\sqrt{T_0}}\pder[T_0]{y} \right) = 0. \label{eq:Hilbert_T1}
-\end{gather}
-The leading-order equations~\eqref{eq:Hilbert_U0}--\eqref{eq:Hilbert_T0}
-is seen to coincide with the Navier--Stokes equations~\eqref{eq:Navier-Stokes}.
-The pressure is constant up to the first order:
-\begin{gather}
-    \pder[p_0]{y} = 0, \quad \pder[p_1]{y} = 0, \label{eq:hilbert_p0_p1} \\
-    \frac{3p_0}{2}\pder[p_2]{y}
-        + \pder{y}\left[ \gamma_3 T_0 \pderdual[T_0]{y} + \gamma_7\left(\pder[T_0]{y}\right)^2 \right]
-        + \pder{y}\left[ (\gamma_8-2\gamma_9)T_0\left(\pder[v_{x0}]{y}\right)^2 \right] = 0, \label{eq:hilbert_p2}
-\end{gather}
-where
-\begin{equation}\label{eq:hilbert_expansion_p}
-    p_0 = \rho_0 T_0, \quad
-    p_1 = \rho_1 T_0 + \rho_0 T_1, \quad
-    p_2 = \rho_2 T_1 + \rho_1 T_1 + \rho_0 T_2.
+Up to the first order in \(k\), the Hilbert part of solution for the plane Couette-flow problem
+is obtained from the Navier--Stokes equations:
+\begin{equation}\label{eq:Hilbert_part}
+    \pder{y}\left(\sqrt{T_H}\pder[v_{Hx}]{y}\right) = \OO{k^2}, \quad
+    \sqrt{T_H}\left(\pder[v_{Hx}]{y}\right)^2 + \frac{5\gamma_2}{4\gamma_1}\pder{y}\left(\sqrt{T_H}\pder[T_H]{y}\right) = \OO{k^2},
 \end{equation}
-
-Boundary conditions at \(y=1/2\),
-\begin{gather}
-    v_{x0} = v_{Bx0}, \quad v_{x1} = v_{Bx1} + k_0 \frac{T_0}{p_0} \pder[v_{x0}]{y}, \label{eq:hilbert_bc_U}\\
-    T_0 = T_{B0}, \quad T_1 = T_{B1} - d_1 \frac{T_0}{p_0} \pder[T_0]{y}, \label{eq:hilbert_bc_T}
-\end{gather}
-where \(d_1 = 2.40014\) is another slip coefficient~\citep{Takata2015},
-have some freedom of the expansion in \(k\):
-\begin{equation}\label{eq:hilbert_boundary_expansion}
-    \frac{\Delta{v}}2 = v_{Bx} = v_{Bx0} + v_{Bx1}k, \quad 1 = T_B = T_{B0} + T_{B1}k.
+with the nonlinear slip boundary conditions at \(y=1/2\):
+\begin{equation}\label{eq:Hilbert_BC}
+    v_{Hx} = v_{Bx} + k_0\frac{T_H}{p_H}\pder[v_{Hx}]{y}k + \OO{k^2}, \quad T_H = T_B - d_1\frac{T_H}{p_H}\pder[T_H]{y}k + \OO{k^2},
 \end{equation}
-Putting \(T_1 = 0\) and \(v_{x1} = 0\) at \(y=1/2\), we obtain a trivial solution
-for~\eqref{eq:Hilbert_U1}--\eqref{eq:Hilbert_T1}:
-\begin{equation}\label{eq:hilbert_solution1}
-    T_1 = 0, \quad v_{x1} = 0.
-\end{equation}
-Thus, we come to the Navier--Stokes equations with the following slip boundary conditions at \(y=1/2\):
-\begin{equation}\label{eq:hilbert_slip_bc}
-    v_{x0} = v_{Bx} + k_0 \frac{T_0}{p_0} \pder[v_{x0}]{y} k, \quad
-    T_0 = T_B - d_1 \frac{T_0}{p_0} \pder[T_0]{y} k.
-\end{equation}
+where \(d_1 = 2.40014\) is another slip coefficient.
 Note that the slip boundary conditions for the linear problem, which is, for instance,
 used in~\citet{Sharipov2000}, are not correct in case of finite Mach numbers.
 
-Substituting the density \(\rho = \rho_0 + (\rho_1+\rho_{K1})k + \OO{k^2}\),
-where the subscript \(K\) denotes the Knudsen-layer part of solution,
-and Eqs.~\eqref{eq:hilbert_expansion_p} into Eq.~\eqref{eq:total_mass}, we obtain
+The pressure is constant up to the first order.
+Substituting \(\rho = \rho_H + \rho_{K1}k + \OO{k^2}\) and \(p_H = \rho_H T_H\)
+into Eq.~\eqref{eq:total_mass}, we obtain
 \begin{equation}\label{eq:hilbert_total_mass}
-    \frac12 = (p_0 + p_1k)\int_{0}^\frac12\frac{\dd y}{T_0} + \OO{k^2}.
+    p_H = \left(2\int_0^\frac12\frac{\dd y}{T_0}\right)^{-1} + \OO{k^2}.
 \end{equation}
-Due to~\eqref{eq:hilbert_solution1} and \(\int_{0}^{1/2}\rho_{K1}\dd{y} = \OO{k}\),
-\(T_1\) and \(\rho_{K1}\) are not included in~\eqref{eq:hilbert_total_mass}.
-Having the same degree of freedom in the choice of \(p_0\) and \(p_1\), put also \(p_1 = 0\).
+Due to \(\int_{0}^{1/2}\rho_{K1}\dd{y} = \OO{k}\), \(\rho_{K1}\) are not included in~\eqref{eq:hilbert_total_mass}.
+The second-order pressure can be calculated from
+\begin{equation}\label{eq:hilbert_p2}
+    \frac{3p_H}{2}\pder[p_{H2}]{y}
+        + \pder{y}\left[ \gamma_3 T_H \pderdual[T_H]{y} + \gamma_7\left(\pder[T_H]{y}\right)^2 \right]
+        + \pder{y}\left[ (\gamma_8-2\gamma_9)T_H\left(\pder[v_{Hx}]{y}\right)^2 \right] = 0.
+\end{equation}
+
 Finally, taking into account the Knudsen-layer correction, the asymptotic solution is expressed as
 \begin{gather}
-    p = \left( 2\int_{0}^\frac12\frac{\dd{y}}{T_0} \right)^{-1}
-        - (\Omega_1^-+\Omega_1^+ + \Theta_1^-+\Theta_1^+)\left.\pder[T_0]{y}\right|_{y=\frac12}k + \OO{k^2}, \label{eq:Hilbert_p}\\
-    v_x = v_{x0} - \frac{Y_0^--Y_0^+}{p_0}T_{B0}\left.\pder[v_{x0}]{y}\right|_{y=\frac12}k + \OO{k^2}, \label{eq:Hilbert_U}\\
-    T = T_0 - \frac{\Theta_1^-+\Theta_1^+}{p_0}T_{B0}\left.\pder[T_0]{y}\right|_{y=\frac12}k + \OO{k^2}, \label{eq:Hilbert_T}\\
-    p_{xy} = -\gamma_1\sqrt{T_0}\pder[v_{x0}]{y}k + \OO{k^3}, \label{eq:Hilbert_Pxy}\\
+    v_x = v_{Hx} - \frac{Y_0^--Y_0^+}{p_H}\left(T_H\pder[v_{Hx}]{y}\right)_{y=\frac12}k + \OO{k^2}, \label{eq:Hilbert_U}\\
+    T = T_H - \frac{\Theta_1^-+\Theta_1^+}{p_H}\left(T_H\pder[T_H]{y}\right)_{y=\frac12}k + \OO{k^2}, \label{eq:Hilbert_T}\\
+    p_{xy} = -\gamma_1\sqrt{T_H}\pder[v_{Hx}]{y}k + \OO{k^3}, \label{eq:Hilbert_Pxy}\\
     \begin{aligned}
-        q_x = (H_A^--H_A^+)T_{B0}\left.\pder[v_{x0}]{y}\right|_{y=\frac12}k &+ q_{xK2}k^2 \\
-        &+ \frac{T_0}{p_0}\left(\frac{\gamma_3}2 T_0 \pderdual[v_{x0}]{y}
-        + 4\gamma_{10} \pder[T_0]{y}\pder[v_{x0}]{y}\right)k^2 + \OO{k^3},
+        q_x = (H_A^--H_A^+)\left(T_H\pder[v_{Hx}]{y}\right)_{y=\frac12}k &+ q_{xK2}k^2 \\
+        &+ \frac{T_H}{p_H}\left(\frac{\gamma_3}2 T_H \pderdual[v_{Hx}]{y}
+        + 4\gamma_{10} \pder[T_H]{y}\pder[v_{Hx}]{y}\right)k^2 + \OO{k^3},
     \end{aligned}\label{eq:Hilbert_Qx}\\
-    q_y = -\frac54\gamma_2\sqrt{T_0}\pder[T_0]{y}k + q_{yK2}k^2 + \OO{k^3}, \label{eq:Hilbert_Qy}\\
+    q_y = -\frac54\gamma_2\sqrt{T_H}\pder[T_H]{y}k + q_{yK2}k^2 + \OO{k^3}, \label{eq:Hilbert_Qy}\\
+    p = p_H - (\Omega_1^-+\Omega_1^+ + \Theta_1^-+\Theta_1^+)\left(\pder[T_H]{y}\right)_{y=\frac12}k
+        + (p_2 + p_{K2})k^2 + \OO{k^3}, \label{eq:Hilbert_p}\\
     \begin{aligned}
-    p_{xx} - p &= -\frac12 (\Omega_1^-+\Omega_1^+ + \Theta_1^-+\Theta_1^+)\left.\pder[T_0]{y}\right|_{y=\frac12}k
+    p_{xx} - p &= -\frac12 (\Omega_1^-+\Omega_1^+ + \Theta_1^-+\Theta_1^+)\left(\pder[T_H]{y}\right)_{y=\frac12}k
         + (p_{xxK2}-p_{K2})k^2 \\
-        &+ \frac1{3p_0}\left[-\left(\gamma_3 T_0 \pderdual[T_0]{y} + \gamma_7\left(\pder[T_0]{y}\right)^2\right)
-        + 2(\gamma_8+\gamma_9)T_0\left(\pder[v_{x0}]{y}\right)^2\right]k^2 + \OO{k^3},
+        &+ \frac1{3p_H}\left[-\left(\gamma_3 T_H \pderdual[T_H]{y} + \gamma_7\left(\pder[T_H]{y}\right)^2\right)
+        + 2(\gamma_8+\gamma_9)T_H\left(\pder[v_{Hx}]{y}\right)^2\right]k^2 + \OO{k^3},
     \end{aligned}\label{eq:Hilbert_Pxx}\\
     \begin{aligned}
-    p_{yy} - p &= (\Omega_1^-+\Omega_1^+ + \Theta_1^-+\Theta_1^+)\left.\pder[T_0]{y}\right|_{y=\frac12}k
+    p_{yy} - p &= (\Omega_1^-+\Omega_1^+ + \Theta_1^-+\Theta_1^+)\left(\pder[T_H]{y}\right)_{y=\frac12}k
         + (p_{yyK2}-p_{K2})k^2 \\
-        &+ \frac1{3p_0}\left[2\left(\gamma_3 T_0 \pderdual[T_0]{y} + \gamma_7\left(\pder[T_0]{y}\right)^2\right)
-        + 2(\gamma_8-2\gamma_9)T_0\left(\pder[v_{x0}]{y}\right)^2\right]k^2 + \OO{k^3},
+        &+ \frac1{3p_H}\left[2\left(\gamma_3 T_H \pderdual[T_H]{y} + \gamma_7\left(\pder[T_H]{y}\right)^2\right)
+        + 2(\gamma_8-2\gamma_9)T_H\left(\pder[v_{Hx}]{y}\right)^2\right]k^2 + \OO{k^3},
     \end{aligned}\label{eq:Hilbert_Pyy}\\
     \begin{aligned}
-    p_{zz} - p &= -\frac12 (\Omega_1^-+\Omega_1^+ + \Theta_1^-+\Theta_1^+)\left.\pder[T_0]{y}\right|_{y=\frac12}k
+    p_{zz} - p &= -\frac12 (\Omega_1^-+\Omega_1^+ + \Theta_1^-+\Theta_1^+)\left(\pder[T_H]{y}\right)_{y=\frac12}k
         + (p_{zzK2}-p_{K2})k^2 \\
-        &+ \frac1{3p_0}\left[-\left(\gamma_3 T_0 \pderdual[T_0]{y} + \gamma_7\left(\pder[T_0]{y}\right)^2\right)
-        + 2(\gamma_9-2\gamma_8)T_0\left(\pder[v_{x0}]{y}\right)^2\right]k^2 + \OO{k^3}.
+        &+ \frac1{3p_H}\left[-\left(\gamma_3 T_H \pderdual[T_H]{y} + \gamma_7\left(\pder[T_H]{y}\right)^2\right)
+        + 2(\gamma_9-2\gamma_8)T_H\left(\pder[v_{Hx}]{y}\right)^2\right]k^2 + \OO{k^3},
     \end{aligned}\label{eq:Hilbert_Pzz}
 \end{gather}
+where the quantities in the parentheses with subscript \(y=1/2\) are evaluated at the corresponding boundary.
 In the above formulas, the following thermal-stress transport coefficients are used:
 \begin{equation}\label{eq:gamma_tabular}
     \gamma_3 = 1.947906335, \quad \gamma_7 = 0.189201.
 \end{equation}
-Evaluation of the transport coefficients \(\gamma_8\), \(\gamma_9\), \(\gamma_{10}\)
-for the hard-sphere model are not presented in the literature,
-therefore they have been obtained by direct solution of the corresponding integral equations
+Evaluation of the nonlinear transport coefficients \(\gamma_8\), \(\gamma_9\), \(\gamma_{10}\)
+for the hard-sphere model are not presented in the literature;
+therefore, they have been obtained by numerical computation of the corresponding integral equations
 (see Appendix~\ref{sec:gamma_coeffs}):
 \begin{equation}\label{eq:gamma_numerical}
-    \gamma_8 = 1.496(3), \quad \gamma_9 = 1.635(7), \quad \gamma_{10} = 2.463(3).
+    \gamma_8 = 1.495941968, \quad \gamma_9 = 1.636073459, \quad \gamma_{10} = 2.449780.
 \end{equation}
 The Knudsen-layer functions \(K^\pm = Y_0^\pm, \Theta_1^\pm, H_A^\pm, \Omega_1^\pm\)
 are defined as follows:
@@ -541,11 +533,11 @@ are defined as follows:
      K^\pm = K\left(\frac{p_0}{T_0}\eta_\pm\right), \quad \eta_\pm = \frac{1 \mp 2y}{2k}.
 \end{equation}
 For hard-sphere molecules, \(\Theta_1(\eta)\) and \(\Omega_1(\eta)\)
-are tabulated in~\citet{Ohwada1992, Sone2002, Sone2007, Takata2015}.
-The Knudsen-layer correction of the second order is not studied in the present paper.
+are tabulated in~\citet{Ohwada1989jump, Sone2002, Sone2007, Takata2015}.
+The Knudsen-layer correction of the second order is not included in the present paper.
 
-The presented set of equations~\eqref{eq:Hilbert_U0}--\eqref{eq:Hilbert_T0}
-with the boundary conditions~\eqref{eq:hilbert_slip_bc}
+The Navier--Stokes equations~\eqref{eq:Hilbert_part}
+with the boundary conditions~\eqref{eq:Hilbert_BC}
 is solved accurately by the finite-volume method
 implemented in OpenFOAM\textregistered{}.
 
@@ -570,208 +562,346 @@ The time step is chosen empirically to provide a satisfactory approximation of t
 In order to reduce the statistical noise, values of all macroscopic variables
 are averaged over time after reaching a steady state.
 
-\subsection{Discrete-velocity solution}
+\section{Primary numerical method}
 
-The Boltzmann equation is solved directly by symmetric splitting
-into the advection equation
-\begin{equation}\label{eq:split_advection}
+The Boltzmann equation is solved directly by the second-order symmetric splitting~\citep{Strang1968,Bobylev2001}
+into the transport equation
+\begin{equation}\label{eq:split_transport}
     \pder[f]{t} + \zeta_i\pder[f]{x_i} = 0,
 \end{equation}
-for which a finite-volume method with an explicit second-order TVD (total variation diminishing) scheme is used,
+for which a finite-volume method with
+an explicit second-order TVD (total variation diminishing) scheme~\citep{Harten1983} is used,
 and the space-homogeneous Boltzmann equation
 \begin{equation}\label{eq:split_collisions}
-    \pder[f]{t} = \frac1k J(f,f),
+    \pder[f]{t} = J(f),
 \end{equation}
 for which the second-order projection-interpolation method of discrete velocities is used.
 The main algorithm is presented in the literature~\citep[see e.g.][]{Tcheremissine1998, Tcheremissine2006, Dodulad2015}.
-In the present paper, we outline the conservative method for evaluation of the Boltzmann collision integral
-on nonuniform velocity grids based on the multipoint technique~\citep{Dodulad2012}.
+In the present paper, the extension of the projection-interpolation method
+for nonuniform velocity grids is presented.
+It is based on the multipoint technique~\citep{Dodulad2012}.
 
-%%% Numerical approximation
-Let a regular velocity grid \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) be constructed so that
-the cubature in \(\bzeta\) space is expressed in the weighted sum
-\begin{equation}\label{eq:zeta_cubature}
+\subsection{Discretization of the velocity space}
+
+Let a velocity grid \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) be constructed so that
+the cubature rule in \(\bzeta\) space is expressed as the weighted sum
+\begin{equation}\label{eq:bzeta_cubature}
     \int F(\bzeta) \dzeta \approx \sum_{\gamma\in\Gamma} F_\gamma w_\gamma =
-        \sum_{\gamma\in\Gamma} \hat{F_\gamma},
-        \quad \sum_{\gamma\in\Gamma} w_\gamma = V_\Gamma,
-        \quad F_\gamma = F(\bzeta_\gamma),
+        \sum_{\gamma\in\Gamma} \hat{F_\gamma}, \quad
+    \sum_{\gamma\in\Gamma} w_\gamma = V_\Gamma, \quad
+    F_\gamma = F(\bzeta_\gamma),
 \end{equation}
-where \(F\) is an arbitrary function of \(\bzeta\) (\(\hat{F_\gamma}\) is used for convenient),
-\(V_\Gamma\) is the total volume of the velocity grid.
-Then, the collision integral written in the symmetrized form
+where \(F(\bzeta)\) is an arbitrary integrable function,
+\(V_\Gamma\) is the total volume of the velocity grid, \(\Gamma\) is some index set.
+Then, the eight-dimensional cubature formula in \((\boldsymbol{\omega},\bzeta,\bzeta_*)\) space can be written as
+\begin{equation}\label{eq:nu_cubature}
+    \int F(\boldsymbol{\omega},\bzeta,\bzeta_*) \dd\Omega(\boldsymbol{\omega})\dzeta\dzeta_* \approx
+        \frac{4\pi V_\Gamma^2}{ \sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu} }
+        \sum_{\nu\in\Nu} F(\boldsymbol{\omega}_\nu,\bzeta_{\alpha_\nu},\bzeta_{\beta_\nu}) w_{\alpha_\nu}w_{\beta_\nu},
+\end{equation}
+where \(F(\boldsymbol{\omega},\bzeta,\bzeta_*)\) is again an arbitrary integrable function,
+\(\alpha_\nu\in\Gamma\), \(\beta_\nu\in\Gamma\),
+and \(\boldsymbol{\omega}_\nu\in S^2 = \Set{\boldsymbol{\omega}\in\mathbb{R}^3}{|\boldsymbol{\omega}| = 1}\)
+are obtained from some equal-weight cubature rule,
+\(\Nu\subset\mathbb{N}\) is its index set.
+Note that the numerical integration in~\eqref{eq:nu_cubature} is carried out over
+the discrete spectrum of \((\bzeta,\bzeta_*)\) and continuous spectrum of \(\boldsymbol{\omega}\).
+
+The collision integral written in the symmetrized form
 \begin{equation}\label{eq:symm_ci}
-    \begin{aligned}
-    J(f_\gamma, f_\gamma) = \frac14\int &\left[
+    J(f_\gamma) = \frac14\int \left[
         \delta(\bzeta-\bzeta_\gamma) + \delta(\bzeta_*-\bzeta_\gamma)
-        - \delta(\bzeta'-\bzeta_\gamma) - \delta(\bzeta'_*-\bzeta_\gamma)\right] \\
-        &\times(f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\alpha}) \dzeta\dzeta_*,
-    \end{aligned}
+        - \delta(\bzeta'-\bzeta_\gamma) - \delta(\bzeta'_*-\bzeta_\gamma)\right]
+        (f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\omega}) \dzeta\dzeta_*,
 \end{equation}
 where \(\delta(\bzeta)\) is the Dirac delta function in \(\mathbb{R}^3\),
 has the following discrete analogue:
 \begin{equation}\label{eq:discrete_symm_ci}
-    \hat{J_\gamma} = \frac{\pi V_\Gamma^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
+    \hat{J}_\gamma(\hat{f}_\gamma) =
+        \frac{\pi V_\Gamma^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
         \sum_{\nu\in\Nu} \left(
             \delta_{\alpha_\nu\gamma} + \delta_{\beta_\nu\gamma}
             - \delta_{\alpha'_\nu\gamma} - \delta_{\beta'_\nu\gamma}
         \right)\left(
             \frac{w_{\alpha_\nu}w_{\beta_\nu}}{w_{\alpha'_\nu}w_{\beta'_\nu}}
             \hat{f}_{\alpha'_\nu}\hat{f}_{\beta'_\nu} - \hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu}
-        \right)B_\nu.
+        \right)B_\nu,
 \end{equation}
-Here, \(\alpha_\nu\in\Gamma\) and \(\beta_\nu\in\Gamma\), along with \(\boldsymbol{\alpha}_\nu\),
-are taken from the Korobov's lattice rule~\citep{Korobov1959, Sloan1994}
-for the eight-dimensional cubature.
-To ensure equal contribution of all valid values of
-\(\bzeta_{\alpha_\nu}\), \(\bzeta_{\beta_\nu}\), and \(\alpha_\nu\),
-the integration lattice is randomly shifted every time step.
-To satisfy~\eqref{eq:total_mass} exactly, the following approximation of the Maxwell distribution is used:
-\begin{equation}\label{eq:discrete_Maxwell}
-    \hat{f}_{M\gamma} = \rho\left[\sum_{\alpha\in\Gamma}w_\alpha\exp
-            \left(-\frac{(\bzeta_\alpha - \boldsymbol{v})^2}{T}\right)
+where \(\delta_{\varsigma\gamma}\) is the Kronecker delta.
+In the general case, \(\bzeta_{\alpha'_\nu}\) and \(\bzeta_{\beta'_\nu}\) are not in \(\mathcal{V}\);
+therefore, quantities \(\hat{f}_{\alpha'_\nu}\), \(\hat{f}_{\beta'_\nu}\), \(w_{\alpha_\nu}\), \(w_{\beta_\nu}\)
+and functions \(\delta_{\alpha'_\nu\gamma}\), \(\delta_{\beta'_\nu\gamma}\) have to be defined in some way.
+
+To satisfy~\eqref{eq:total_mass} exactly, the following approximation of the Maxwellian is used:
+\begin{equation}\label{eq:discrete_Maxwellian}
+    \hat{f}_{M\gamma} = \rho\left[\sum_{\varsigma\in\Gamma}w_\varsigma\exp
+            \left(-\frac{(\bzeta_\varsigma - \boldsymbol{v})^2}{T}\right)
         \right]^{-1}
         w_\gamma\exp\left(-\frac{(\bzeta_\gamma - \boldsymbol{v})^2}{T}\right).
 \end{equation}
 
-%%% Projection and interpolation
-In the general case, the velocities after impact,
-\(\bzeta_{\alpha'_\nu}\) and \(\bzeta_{\beta'_\nu}\), are not in \(\mathcal{V}\).
-If they are replaced with the nearest grid velocities,
+\subsection{Projection-interpolation technique}
+
+If the velocities after collision,
+\(\bzeta_{\alpha'_\nu}\notin\mathcal{V}\) and \(\bzeta_{\beta'_\nu}\notin\mathcal{V}\),
+are replaced with the nearest grid velocities,
 \(\bzeta_{\lambda_\nu}\in\mathcal{V}\) and \(\bzeta_{\mu_\nu}\in\mathcal{V}\),
-the discrete collision integral~\eqref{eq:discrete_symm_ci} will not be strictly conservative,
-and the discrete Maxwell distribution will not be the equilibrium state.
-To resolve this issues, the following two procedures are applied in the projection-interpolation method.
+the discrete collision integral~\eqref{eq:discrete_symm_ci} is not strictly conservative,
+and the discrete Maxwellian~\eqref{eq:discrete_Maxwellian} is not the equilibrium state.
+To resolve these issues, two special procedures are applied in the projection-interpolation method.
 First, \(\bzeta_{\alpha'_\nu}\) is projected to a set of grid nodes
 \(\Set{\bzeta_{\lambda_\nu+s_a}}{a\in\Lambda}\subset\mathcal{V}\) in the following way:
 \begin{equation}\label{eq:ci_projection}
-    \delta_{\alpha'_\nu\gamma} = \sum_{a\in\Lambda} r_{\lambda,a}\delta_{\lambda_\nu+s_a,\gamma}.
+    \delta_{\alpha'_\nu\gamma} = \sum_{a\in\Lambda} r_{\lambda_\nu,a}\delta_{\lambda_\nu+s_a,\gamma}.
 \end{equation}
-Let \(\Lambda = \Set{a}{r_{\lambda,a}\neq0}\).
-The weights \(r_{\lambda,a}\) are selected to provide the conservation of mass, momentum, and energy, i.e.
+Let the index set \(\Lambda = \Set{a}{r_{\lambda_\nu,a}\neq0}\subset\mathbb{Z}\).
+The \emph{projection weights} \(r_{\lambda_\nu,a}\) are selected in such a way
+to ensure conservation of mass, momentum, and energy, i.e.,
 \begin{equation}\label{eq:stencil_conservation}
-    \sum_{a\in\Lambda} r_{\lambda,a} = 1, \quad
-    \sum_{a\in\Lambda} r_{\lambda,a} \bzeta_{\lambda_\nu+s_a} = \bzeta_{\alpha'_\nu}, \quad
-    \sum_{a\in\Lambda} r_{\lambda,a} \bzeta_{\lambda_\nu+s_a}^2 = \bzeta_{\alpha'_\nu}^2.
+    \sum_{a\in\Lambda} r_{\lambda_\nu,a} = 1, \quad
+    \sum_{a\in\Lambda} r_{\lambda_\nu,a} \bzeta_{\lambda_\nu+s_a} = \bzeta_{\alpha'_\nu}, \quad
+    \sum_{a\in\Lambda} r_{\lambda_\nu,a} \bzeta_{\lambda_\nu+s_a}^2 = \bzeta_{\alpha'_\nu}^2.
 \end{equation}
+The set of displacement rules \(\mathcal{S} = \Set{s_a}{a\in\Lambda}\)
+is called the \emph{projection stencil}.
 Second, to satisfy
 \begin{equation}\label{eq:strict_interpolation}
-    J_\gamma(\hat{f}_{M\gamma}, \hat{f}_{M\gamma}) = 0,
+    J_\gamma\left(\hat{f}_{M\gamma}\right) = 0,
 \end{equation}
 \(\hat{f}_{\alpha'_\nu}\) is interpolated in following way:
 \begin{equation}\label{eq:ci_interpolation}
     \frac{\hat{f}_{\alpha'_\nu}}{w_{\alpha'_\nu}} = \prod_{a\in\Lambda}
-        \left(\frac{\hat{f}_{\lambda_\nu+s_a}}{w_{\lambda_\nu+s_a}} \right)^{r_{\lambda,a}}.
+        \left(\frac{\hat{f}_{\lambda_\nu+s_a}}{w_{\lambda_\nu+s_a}} \right)^{r_{\lambda_\nu,a}}.
 \end{equation}
-This type of interpolation is a high-cost approach, but it is important,
+This type of interpolation has a high computational cost, but it is important,
 when the distribution function is close to the Maxwellian.
 In practice, the exponentiation can be performed with an accuracy \(10^{-5}\),
 which allows several times to speed up the calculations.
-Incidentally, \eqref{eq:strict_interpolation} ensures that the H-theorem holds in the discrete form~\citep{Dodulad2013}.
+Incidentally,~\eqref{eq:ci_interpolation} ensures that
+the Boltzmann H-theorem holds in the discrete form~\citep{Dodulad2013}.
 For \(\bzeta_{\beta'_\nu}\) and \(\hat{f}_{\beta'_\nu}\), all formulas are similar.
 
-%%% Description of the stencil
-The set of displacement rules \(\mathcal{S} = \Set{s_a}{a\in\Lambda}\)
-is called the projection stencil.
-In the present paper, the most compact stencil \(|\mathcal{S}|=5\) on a rectangular velocity grid is used.
-Let \(\boldsymbol{\eta} = \bzeta_{\alpha'_\nu} - \bzeta_{\lambda_\nu}\),
-\(\bh_+\) and \(\bh_-\) be such minimal diagonal displacements on the grid
-as \(\bh_+\) is directed in the same octant as \(\boldsymbol{\eta}\)
-and \(\bh_-\) lies in the opposite one.
-Then the compact 5-points scheme is constructed on the following nodes:
-\begin{equation}\label{eq:stencil_nodes}
-    \bzeta_{\lambda_\nu+s_0} = \bzeta_{\lambda_\nu}, \quad
-    \bzeta_{\lambda_\nu+s_i} = \bzeta_{\lambda_\nu} + (\bh_+\cdot \boldsymbol{e}_i)\boldsymbol{e}_i, \quad
-    \bzeta_{\lambda_\nu+s_4} = \bzeta_{\lambda_\nu} + \bh_-,
-\end{equation}
-where \(\boldsymbol{e}_i\) is the basis of the rectangular velocity grid.
-The appropriate weights that ensure~\eqref{eq:stencil_conservation} are
-\begin{equation}\label{eq:stencil_weights}
-    r_{\lambda,0} = 1 - \sum_{i=1}^4 r_{\lambda,i}, \quad
-    r_{\lambda,i} = \frac{(\boldsymbol{\eta} - r_{\lambda,4}\bh_-)\cdot\boldsymbol{e}_i}
-        {\bh_+\cdot\boldsymbol{e}_i}, \quad
-    r_{\lambda,4} = \frac{\boldsymbol{\eta}^2 - \boldsymbol{\eta}\cdot\bh_+}
-        {\bh_-^2 - \bh_-\cdot\bh_+}.
-\end{equation}
+\subsection{Solution of the initial-value problem}
 
-%%% Time-evolution scheme
-Now turn to the solution of the space-homogeneous Boltzmann equation~\eqref{eq:split_collisions}.
-Integrating it over the time step \(\Delta\tau\), we have
-\begin{equation}\label{eq:time_scheme}
-    f_\gamma(t+\Delta\tau) = f_\gamma(t) + \frac1k \int_t^{t+\Delta\tau} J_\gamma \dd\tau.
-\end{equation}
+Now turn to the space-homogeneous Boltzmann equation~\eqref{eq:split_collisions}.
+Let \(f_\gamma^n\) denote the approximate solution of~\eqref{eq:split_collisions}
+for velocity \(\bzeta_\gamma\), \(\gamma\in\Gamma\) at time \(t_n\), \(n\in\mathbb{N}\).
 Rewriting~\eqref{eq:discrete_symm_ci} as
 \begin{equation}\label{eq:discrete_short_ci}
-    J_\gamma = \sum_{\nu\in\Nu} \Delta_{\gamma\nu},
+    \hat{J}_\gamma^n\left(\hat{f}_\gamma^n\right) =
+        \sum_{\nu=1}^N \hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N} \left(\hat{f}_\gamma^n\right), \quad
+    N=|\Nu|,
 \end{equation}
-and substituting it into~\eqref{eq:time_scheme},
-we can obtain the following continuous-calculation scheme:
-\begin{equation}\label{eq:continuous_scheme}
-    f_\gamma^{\nu+1} = f_\gamma^\nu + \frac{\Delta\tau}{k}\Delta_{\gamma\nu}.
+where \(\hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N}\) is \(\nu\in\Nu_n\) term of sum~\eqref{eq:discrete_symm_ci},
+we can apply the first-order explicit Euler method in fractional steps:
+\begin{equation}\label{eq:time_scheme}
+    \hat{f}_\gamma^{n+\nu/N} = \hat{f}_\gamma^{n+(\nu-1)/N} + \tau \hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N}
+    \left(\hat{f}_\gamma^{n+(\nu-1)/N}\right),
 \end{equation}
-Iteration over all \(\nu\in\Nu\) approximates~\eqref{eq:time_scheme}
-with the second order.
+where \(\tau = t_{n+1} - t_n\) is the time step.
+Scheme~\eqref{eq:time_scheme} has a convergence rate of order \(\OO{\tau|\Gamma|/|\Nu|}\)
+if all the discrete velocities \(\bzeta_\gamma\) are distributed uniformly
+in sequences \((\alpha_\nu)_{\nu=1}^N\) and \((\beta_\nu)_{\nu=1}^N\).
+It can be accomplished by a random permutation of the cubature sequence.
+Incidentally, if \(|\Gamma|/|\Nu| = \OO{\tau}\), the second order of accuracy is achieved.
 
-%%% Positive property of collision integral
-There is one more necessary property of the numerical algorithm:
-the distribution function must always remain positive.
-If there is a term in the sum~\eqref{eq:discrete_symm_ci} that violates this property,
-it should be excluded from \(\Nu\).
-\begin{lemma}
-    If a randomly distributed set of points \(\Mu\subset\Nu\) is excluded from \(\Nu\), then
-    \begin{equation*}
-        \int F(\bzeta) \dzeta = \frac{\sum_{\nu\in\Nu} w_\nu}{\sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu}
-            \sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu F_\nu + \OO{\frac{\sqrt{|\Mu|}}{|\Nu|-|\Mu|}}.
-    \end{equation*}
-\end{lemma}
+%%% On the cubature rule
+The Korobov's lattice rule~\citep{Korobov1959, Sloan1994} is used as
+an equal-weight cubature rule in~\eqref{eq:discrete_symm_ci}.
+The integration lattice is randomly shifted every time step
+to obtain a sequence of sets of cubature points \((\Nu_n)_{n\in\mathbb{N}}\).
 
-\begin{proof}
+\subsection{Preservation of positivity}
 
-Korobov's integration lattices provide an approximation
-\begin{equation*}
-    \int F(\bzeta) \dzeta = \sum_{\nu\in\Nu} w_\nu F_\nu + \OO{|\Nu|^{-p}}, \quad p\geq1.
-\end{equation*}
-The worst case \(p=1\) corresponds to discontinuous functions.
-\begin{align*}
-    \int F(\bzeta) \dzeta &= \sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu F_\nu
-        + \sum_{\nu\in\Mu} w_\nu F_\nu + \OO{|\Nu|^{-p}} \\
-    &= \sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu F_\nu
-        + \frac{\sum_{\nu\in\Mu} w_\nu}{\sum_{\nu\in\Nu} w_\nu}
-             \left[ \int F(\bzeta) \dzeta + \OO{\frac1{\sqrt{|\Mu|}}} \right]
-        + \OO{|\Nu|^{-p}} \\
-    &= \sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu F_\nu
-        + \frac{\sum_{\nu\in\Mu} w_\nu}{\sum_{\nu\in\Nu} w_\nu} \int F(\bzeta) \dzeta
-        + \OO{\frac{\sqrt{|\Mu|}}{|\Nu|}}.
-\end{align*}
-We use that the convergence rate of the Monte Carlo integration is \(\OO{|\Mu|^{-1/2}}\). Hence,
-\begin{equation*}
-    \int F(\bzeta) \dzeta = \frac{\sum_{\nu\in\Nu} w_\nu}{\sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu}
-        \sum_{\nu\in\Nu,\nu\notin\Mu} w_\nu F_\nu + \OO{\frac{\sqrt{|\Mu|}}{|\Nu|-|\Mu|}}.
-\end{equation*}
+Scheme~\eqref{eq:time_scheme} allows negative values of the distribution function,
+contrary to its physical nature.
+To ensure its positivity, it is enough to require
+\begin{equation}\label{eq:positive_f}
+    \hat{f}_\gamma^{n+(j-1)/N} + \frac{\tau}N \hat{\mathscr{J}}_\gamma^{n+(j-1)/N} > 0
+\end{equation}
+for all \(\gamma\in\Gamma\) and \(\nu\in\Nu_n\).
+If \(\gamma = \alpha_\nu\), we have
+\begin{equation}\label{eq:positive_f_alpha}
+    \hat{f}_{\alpha_\nu} - \frac{A}{N}\hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu} > 0, \quad
+    A = \frac{\pi\tau V_\Gamma^2 N B_{\max}}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
+\end{equation}
+or
+\begin{equation}\label{eq:positive_f_alpha2}
+    N > A \hat{f}_{\max},
+\end{equation}
+where
+\begin{equation}\label{eq:f_B_max}
+    \hat{f}_{\max} = \max_{\gamma\in\Gamma} \hat{f}_\gamma, \quad
+    B_{\max} = \max_{\substack{\gamma,\varsigma\in\Gamma\\\boldsymbol{\omega}\in S^2}}
+        B(\boldsymbol{\omega}, \bzeta_{\gamma}, \bzeta_{\varsigma}) = \OO{\zeta_{\max}}, \quad
+    \zeta_{\max} = \max_{\gamma\in\Gamma}|\bzeta_\gamma|.
+\end{equation}
+The same estimate holds for \(\gamma = \beta_\nu\).
 
-\end{proof}
+The projection velocities \(\gamma = \lambda_\nu+s_a\) (and \(\gamma = \mu_\nu+s_a\))
+are considered with interpolation~\eqref{eq:ci_interpolation}.
+In addition, we assume \(r_{\lambda_\nu,a} \leq 1\).
+If \(r_{\lambda_\nu,a} \geq 0\), we obtain
+\begin{equation}\label{eq:positive_f_lambda2+}
+    N > A \hat{f}_{\max} \epsilon_f^2 \epsilon_w^2,
+\end{equation}
+where
+\begin{equation}\label{eq:epsilon_f}
+    \epsilon_f = \max_{\substack{s_a,s_b\in\mathcal{S}\\\gamma\in\Gamma}} \frac{\hat{f}_{\gamma+s_a}}{\hat{f}_{\gamma+s_b}}, \quad
+    \epsilon_w = \max_{\gamma,\varsigma\in\Gamma} \frac{w_\gamma}{w_\varsigma}.
+\end{equation}
+For smooth distribution functions, \(\epsilon_f\) is proportional to the maximum \emph{diameter} of the projection stencil
+\begin{equation}\label{eq:stencil_diameter}
+    R_\mathcal{S} = \max_{\substack{s_a,s_b\in\mathcal{S}\\\gamma\in\Gamma}}
+        \left| \bzeta_{\gamma+s_a} - \bzeta_{\gamma+s_b} \right|.
+\end{equation}
+If \(r_{\lambda_\nu,a} < 0\), we have
+\begin{equation}\label{eq:positive_f_lambda-}
+    \hat{f}_{\lambda_\nu+s_a} + \frac{A}{N}r_{\lambda_\nu,a} \hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu} > 0.
+\end{equation}
+For an arbitrary distribution function, we obtain a very expensive estimate
+\begin{equation}\label{eq:positive_f_lambda2-}
+    N > A \hat{f}_{\max} \bar{r}_{\max} \max_{\gamma,\varsigma\in\Gamma}\frac{\hat{f_\gamma}}{\hat{f_\varsigma}}, \quad
+    \bar{r}_{\max} = \max_{\gamma\in\Gamma,a\in\Lambda}( -r_{\gamma,a} ),
+\end{equation}
+but for a Maxwellian,
+\begin{equation}\label{eq:positive_f_lambda2-maxw}
+    N > A \hat{f}_{\max} \epsilon_f^2 \bar{r}_{\max}.
+\end{equation}
 
-It is easily seen that a large number of excluded collisions disturbs the integration lattice
-and, therefore, the integration error can increase significantly.
-To prevent this situation, one should either decrease the time step or increase \(|\Nu|\).
-Another way is a modification of the interpolation technique.
-The interpolation~\eqref{eq:ci_interpolation},
-which strictly complies with the requirement~\eqref{eq:strict_interpolation},
-can lead to a large number of excluded collisions.
-Symmetric projection method, proposed in~\citet{Tcheremissine2015},
-approximate~\eqref{eq:strict_interpolation} only with the second order,
-but it can significantly reduce \(|\Mu|\).
-In the present study, the only type of interpolation~\eqref{eq:ci_interpolation} is used.
+In summary, to decrease \(N\) required for~\eqref{eq:positive_f},
+we should construct a velocity grid, minimizing \(|\Gamma|\), \(\zeta_{\max}\), and \(\epsilon_w\),
+as well as a projection stencil, minimizing \(R_\mathcal{S}\) and \(\bar{r}_{\max}\).
+\(\epsilon_f\) decreases with refinement of the velocity grid in areas of large variation
+of the distribution function.
 
-\subsubsection{Discretization of the problem}
+%%% Excluding of the points
+In practice, condition~\eqref{eq:positive_f} for all \(\nu\) requires a large computational effort.
+To achieve acceptable accuracy, it is enough to exclude from~\eqref{eq:time_scheme} those terms
+that violate~\eqref{eq:positive_f}. In other words, the collision integral can be calculated as
+\begin{equation}\label{eq:discrete_short_ci_discarded}
+    \hat{J}_\gamma^n = \sum_{\nu\in\Nu\setminus\Mu} \hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N},
+\end{equation}
+where \(\Mu\) is the set of cubature points that are excluded from \(\Nu\).
+To prevent a significant error in this method of numerical integration,
+it is necessary to control the contribution of excluded points in the collision integral.
+For example, \(N\) may be chosen such that the following sum is small enough:
+\begin{equation}\label{eq:excluded_contribution}
+    \epsilon_J = \frac{\pi V_\Gamma^2}{\rho\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
+        \sum_{\nu\in\Mu} \left(
+            \hat{f}_{\lambda_\nu}\hat{f}_{\mu_\nu} - \hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu}
+        \right)B_\nu.
+\end{equation}
+Interpolation~\eqref{eq:ci_interpolation} can lead to enormous values of \(\hat{f}_{\alpha'_\nu}\)
+when one of \(\hat{f}_{\lambda_\nu+s_a}\) is extremely small and the corresponding \(r_{\lambda_\nu,a}\) is negative.
+Therefore, we avoid interpolation in~\eqref{eq:excluded_contribution}.
+
+\subsection{Projection stencils}
+
+%%% Rectangular grid
+Hereinafter, we assume that the velocity grid is rectangular in \(\mathbb{R}^3\);
+therefore, it can be indexed by an integer vector, i.e., \(\Gamma = \Set{\gamma}{\gamma\in\mathbb{Z}^3}\).
+A displacement rule can be also represented as an integer vector, i.e., \(\mathcal{S}\subset\mathbb{Z}^3\).
+Then, a sum of the indexes should be interpreted as a vector sum in \(\mathbb{Z}^3\).
+
+%%% Review of schemes
+Due to the symmetry of a uniform grid,
+it is sufficient to use two projection nodes to ensure the conservative laws.
+In the general case, five projection nodes are needed to satisfy~\eqref{eq:stencil_conservation}.
+The diameter of the stencil \(R_\mathcal{S}\) can be reduced if seven projection nodes are used.
+When \(|\mathcal{S}|=n\), scheme~\eqref{eq:time_scheme} is called \(n\)-\emph{point scheme}.
+
+%%% 2-point scheme
+The \emph{2-point scheme} is based on the symmetric projection
+\begin{equation}\label{eq:uniform_projection}
+    \delta_{\alpha'\gamma} = (1-r)\delta_{\lambda\gamma} + r\delta_{\lambda+s,\gamma}, \quad
+    \delta_{\beta'\gamma} = (1-r)\delta_{\mu\gamma} + r\delta_{\mu-s,\gamma},
+\end{equation}
+where \(\bzeta_{\lambda+s} + \bzeta_{\mu-s} = \bzeta_{\lambda} + \bzeta_{\mu}\) and
+\begin{equation}\label{eq:stencil_weights2}
+    r = \frac{E_0-E_1}{E_2-E_1}, \quad
+    E_0 = \bzeta_{\alpha'}^2 + \bzeta_{\beta'}^2, \quad
+    E_1 = \bzeta_{\lambda}^2 + \bzeta_{\mu}^2, \quad
+    E_2 = \bzeta_{\lambda+s}^2 + \bzeta_{\mu-s}^2.
+\end{equation}
+Subindex \(\nu\) is omitted for brevity.
+For this scheme, the following relations hold:
+\begin{equation}\label{eq:weights_ranges2}
+    0 \leq r < 1, \quad h \leq R_{\mathcal{S}} \leq \sqrt3h,
+\end{equation}
+where \(h^3 = w_\gamma = V_\Gamma/|\Gamma|\).
+
+%%% 5-point scheme
+Let \(\boldsymbol{\eta} = \bzeta_{\alpha'} - \bzeta_{\lambda}\),
+and \(\bh_+\), \(\bh_-\) be the minimal diagonal displacements from \(\bzeta_{\lambda}\)
+so that \(\bh_+\) is directed in the same octant as \(\boldsymbol{\eta}\)
+and \(\bh_-\) lies in the opposite one.
+Then, the \emph{compact 5-point scheme} is constructed on the nodes
+\begin{equation}\label{eq:stencil_nodes5}
+    \bzeta_{\lambda+s_0} = \bzeta_{\lambda}, \quad
+    \bzeta_{\lambda+s_i} = \bzeta_{\lambda} + (\bh_+\cdot \be_i)\be_i, \quad
+    \bzeta_{\lambda+s_4} = \bzeta_{\lambda} + \bh_-,
+\end{equation}
+where \(\be_i\) is the basis of the rectangular velocity grid.
+The projection weights that satisfy~\eqref{eq:stencil_conservation} are
+\begin{equation}\label{eq:stencil_weights5}
+    r_{\lambda,0} = 1 - \sum_{j=1}^4 r_{\lambda,j}, \quad
+    r_{\lambda,i} = \frac{\eta_i - r_{\lambda,4}h_{-i}}{h_{+i}}, \quad
+    r_{\lambda,4} = \frac{\boldsymbol{\eta}\cdot(\boldsymbol{\eta} - \bh_+)}
+        {\bh_-\cdot(\bh_- - \bh_+)}.
+\end{equation}
+For the uniform grid, the following relations hold:
+\begin{equation}\label{eq:weights_ranges5}
+    0 < r_{\lambda,0} \leq 1, \quad
+    -\frac1{12} \leq r_{\lambda,i} < \frac{11}{24}, \quad
+    -\frac18 \leq r_{\lambda,4} \leq 0, \quad
+    R_\mathcal{S} = \sqrt6h.
+\end{equation}
+
+%%% 7-point scheme
+The \emph{symmetric 7-point scheme} is constructed on the nodes
+\begin{equation}\label{eq:stencil_nodes7}
+    \bzeta_{\lambda+s_0} = \bzeta_{\lambda}, \quad
+    \bzeta_{\lambda+s_{\pm i}} = \bzeta_{\lambda} + (\bh_\pm\cdot \be_i)\be_i.
+\end{equation}
+The projection weights that satisfy~\eqref{eq:stencil_conservation} are
+\begin{equation}\label{eq:stencil_weights7}
+    r_{\lambda,0} = 1 - \sum_{j=1}^3 r_{\lambda,j} + r_{\lambda,-j}, \quad
+    r_{\lambda,\pm i} = \pm\frac{\eta_i(\eta_i - h_{\mp i})}{h_{\pm i}(h_{+i}-h_{-i})}.
+\end{equation}
+There is no summation over repeated indices in~\eqref{eq:stencil_weights7}.
+For the uniform grid, the following relations hold:
+\begin{equation}\label{eq:weights_ranges7}
+    \frac14 \leq r_{\lambda,0} \leq 1, \quad
+    0 \leq r_{\lambda,\pm i} \leq \frac38, \quad
+    -\frac18 \leq r_{\lambda,\mp i} \leq 0, \quad
+    R_\mathcal{S} = 2h.
+\end{equation}
+
+Both 5-point and 7-point schemes has \(\bar{r}_{\max}=1/8\).
+To reduce it, more projection nodes are required~\citep{Dodulad2012}.
+
+\section{Results and discussions}
+
+We first describe the discretization of the problem used to obtain the discrete-velocity solution.
+To control a numerical accuracy, some criteria and techniques are applied.
+They are introduced in the second subsection.
+Next, we demonstrate some cross-sections of the distribution function and
+profiles of the macroscopic variables obtained with
+the projection-interpolation method on the nonuniform velocity grid.
+Finally, these results are carefully compared with the DSMC and nonlinear asymptotic solutions
+as well as with the solutions of the linear problem.
+
+\subsection{Discretization of the problem}
 
 %%% The grid in the physical space
-The physical volume of the problem (\(0<y<1/2\)) consists of \(N_x\) cells arranged in a single row.
+The physical volume of the Couette-flow problem (\(0<y<1/2\)) consists of \(N_x\) cells arranged in a single row.
 For small \(\Kn\), the physical grid should be refined near \(y=1/2\)
-due to significant variations of the solution in the thin Knudsen layer in comparison to the overall volume.
+due to large variations of the solution in the thin Knudsen layer in comparison to the overall volume.
 
 %%% The grid in the velocity
 The discrete velocity space is bounded by the prolate spheroid
-filled with the centred rectangular grid \(\mathcal{V}\).
+filled with the centered rectangular grid \(\mathcal{V}\).
 The symmetry axis of the spheroid is parallel to \(x\) axis.
 \(\zeta^{(\mathrm{cut})}_x\) is the semi-major axis, \(\zeta^{(\mathrm{cut})}_r\) is the semi-minor axis.
 For the Couette-flow problem, the distribution function is sufficiently smooth along \(\zeta_x\) and \(\zeta_z\).
@@ -783,18 +913,19 @@ when integrals of the form \(\int h(s)\exp(-s^2)\dd{s}\) are evaluated.
 Along \(\zeta_x\) axis, the distance between nodes is constant.
 \(\zeta_y\) coordinates of \(\bzeta_\gamma\) are drift apart from \(\zeta_y=0\)
 as a geometric sequence with the ratio \(r\).
-This grid refinement allows significant variations of the distribution function
+This grid refinement allows large variations of the distribution function
 near \(\zeta_y=0\) to be approximated more accurately.
-The weights \(w_\gamma\) are selected to provide a midpoint approximation in~\eqref{eq:zeta_cubature}.
+The weights \(w_\gamma\) are selected to provide a midpoint approximation in~\eqref{eq:bzeta_cubature}.
 
-\subsubsection{Control of accuracy}
+\subsection{Control of accuracy}
 
+%%% Physical grid
 The physical grid is refined in such a way
 that the width of the marginal cell is about \(\Kn/100\).
 This condition provides accuracy of the order of \(10^{-4}\) for the trapezoidal-rule quadrature
 of the Knudsen-layer functions like \(Y_0(\eta)\), \(H_A(\eta)\).
 For \(\Kn=100\), when the solution is similar to the constant over the physical space,
-\(N_x = 30\) is sufficient for the same precision.
+\(N_x = 30\) is sufficient for the same accuracy.
 
 \begin{table}
     \centering
@@ -817,6 +948,7 @@ For \(\Kn=100\), when the solution is similar to the constant over the physical 
     \label{table:velocity_grid}
 \end{table}
 
+%%% Velocity grid
 To assess the accuracy of the discrete approximation in the velocity space,
 two opposite forms of the distribution function were considered.
 First, the Grad's thirteen-moment approximation
@@ -831,49 +963,30 @@ Second, the combination of two different half-Maxwellians
     f(\zeta_y\gtrless0) = \frac{\rho^\pm}{(\pi T^\pm)^{3/2}}\exp\left(-\frac{(\zeta_x-v_x^\pm)^2+\zeta_y^2+\zeta_z^2}{T^\pm}\right).
 \end{equation}
 is used to simulate a discontinuity at \(\zeta_y=0\).
-For small \(\Kn\) and large \(\Delta{u}\), there is a significant heating of the gas due to friction,
-therefore the velocity grid should be appropriate for a velocity distribution
+For small \(\Kn\) and large \(\Delta{u}\), there is a significant heating of the gas due to friction;
+therefore, the velocity grid should be appropriate for a velocity distribution
 for both \(T=1\) near the plate and the larger temperature near the symmetry plane.
 The parameters of the velocity grid sufficient to obtain accuracy of the order of \(10^{-4}\)
 are presented in Table.~\ref{table:velocity_grid}.
 
-\begin{figure}
-    \centering
-    \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig01}
-        \caption{}
-        \label{fig:exclusions-max}
-    \end{subfigure}%
-    \begin{subfigure}[b]{.5\linewidth}
-        \includegraphics{Fig02}
-        \caption{}
-        \label{fig:exclusions-mean}
-    \end{subfigure}
-    \caption{The quantity \(\sqrt{|\Mu|}/|\Nu|\) versus the Knudsen number for \(\Delta{v}=5\).
-        The maximum value~\subref{fig:exclusions-max} and arithmetic mean~\subref{fig:exclusions-mean}
-        are taken among all physical cells and 250 successive time steps.
-        The lines correspond to the various cardinality of \(\Nu\):
-        from \(|\Nu| = 20011\) till \(|\Nu| = 500009\).}
-    \label{fig:exclusions}
-\end{figure}
-
-The cardinality of the integration lattice \(|\Nu|\) is up to \(5\times10^5\).
-While the steady state is not reached, coarser lattices are used.
-From Fig.~\ref{fig:exclusions}, one can estimate an error introduced
-due to the exclusion of the points from the lattice.
-It is seen that \(|\Mu|\) practically does not depend on the Knudsen number.
-In fact, \(|\Mu|\) depends mostly on the nonuniformity of the velocity grid.
-The form of the distribution function is also important.
-Indeed, the maximum number of the excluded points \(|\Mu|\) is observed in the marginal physical cell,
-where the distribution function varies stronger near \(\zeta_y=0\).
+%%% Number of cubature points and scheme
+The number of cubature points \(N\) is chosen to provide \(\epsilon_J<10^{-4}\)
+in each physical cell and never exceed \(5\times10^5\).
+The maximum value of \(\epsilon_J\) is observed in the marginal physical cell,
+where \(f\) varies stronger near \(\zeta_y = 0\), and practically does not depend on \(\Kn\) for \(Kn<1\).
+For large \(\Kn\), it is smaller due to the smaller size of cells in terms of the mean free path.
+While the distribution function is far from the steady state, smaller \(N\) is used.
 To reduce a statistical error due to the random shifting of the integration lattice,
-the values of the macroscopic variables are averaged over the time iterations
+the values of all macroscopic variables are averaged over the time iterations
 after reaching a steady state.
+Although the 7-point scheme requires a slightly smaller \(N\),
+the 5-point scheme is used to obtain the present results,
+because it requires slightly less computational effort.
 
 %%% Remark on a time step
 It is worth to make a remark about the time step and the process of reaching a steady state.
 Owing to the Courant--Friedrichs--Lewy (CFL) condition
-for convergence of the explicit scheme for~\eqref{eq:split_advection},
+for convergence of the explicit scheme for~\eqref{eq:split_transport},
 the time step is of the same order as the size of the marginal cell.
 Therefore, to accelerate progress towards the steady state for small \(\Kn\),
 the initial distribution function is constructed as the local Maxwellian
@@ -881,9 +994,9 @@ with \(\rho\), \(v_i\), and \(T\) obtained from the simulation on the coarse uni
 Moreover, for the smallest \(\Kn\), the solution does not reach the steady state completely.
 The iteration is stopped when the amplitude of the wave oscillations reduces to about \(10^{-4}\).
 The relaxation process is extrapolated to evaluate the steady-state profiles of the macroscopic variables.
-Incidentally, to reach the steady state for the largest \(\Kn\), many time steps are also required.
+To reach the steady state for the largest \(\Kn\), many time steps are also required.
 
-\section{Results and discussions}
+\subsection{Discrete-velocity solution}
 
 \begin{figure}
     \centering
@@ -922,15 +1035,10 @@ Incidentally, to reach the steady state for the largest \(\Kn\), many time steps
     \label{fig:distrib}
 \end{figure}
 
-The present section consists of two parts.
-The first one demonstrates the discrete-velocity solution of the Boltzmann equation
-obtained with the projection-interpolation method on the nonuniform velocity grid.
-In the second part, these results are carefully compared with the DSMC and nonlinear asymptotic solutions.
-
 The two-dimensional cross-sections of distribution functions are shown
 in Fig.~\ref{fig:distrib} for the Couette-flow problem at \(\Delta{v}=2\).
-They are obtained without additional averaging over time,
-therefore there are some visible oscillations near \(\zeta_y=0\)
+They are obtained without additional averaging over time;
+therefore, there are some visible oscillations near \(\zeta_y=0\)
 (for example, in Fig.~\ref{fig:distrib-kn1.0:boundary}).
 %%% the distribution function at the boundary
 Near the boundary with the diffuse reflection, the distribution function resembles
@@ -996,7 +1104,7 @@ In the linear case, the longitudinal heat-flow vector \(q_x\) is presented only 
 but due to the strong anisotropy of the distribution function at large \(\Delta{v}\),
 its bulk component increases faster than \((\Delta{v})^2\).
 Therefore, the curvature of the profile \(q_x\) changes its sign with increasing \(\Delta{v}\).
-The asymptotic solution describes the same behaviour for \(q_x\) (see Eq.~\eqref{eq:Hilbert_Qx}).
+The asymptotic solution describes the same behavior for \(q_x\) (see Eq.~\eqref{eq:Hilbert_Qx}).
 Owing to the significant heating of the gas at large \(\Delta{v}\),
 the transverse heat-flow vector \(q_y\) grows faster than \((\Delta{v})^2\) too,
 but the curvature of the profile preserves its sign.
@@ -1007,6 +1115,9 @@ Note that \(P_{ij}\) is not a shear stress tensor but a perturbed stress tensor
 (see Eqs.~\eqref{eq:perturbed_variables}).
 The temperature of the gas increases with \(\Kn\), because more rarefied gas
 has a lower thermal conductivity.
+
+
+\subsection{Comparison of the results}
 
 \begin{figure}
     \centering
@@ -1101,8 +1212,8 @@ For small \(\Delta{v}\), verification of the results can be based
 on the comparison with the accurate numerical solution of
 the linearized Boltzmann equation~\citep{Ohwada1990} (the black line).
 In contrast to the DSMC method, the numerical fluctuations in the projection-interpolation method
-decrease when the flow approaches to the linear case (due to the power interpolation~\eqref{eq:ci_interpolation}).
-Linear flows require less computational cost for the projection-interpolation method,
+decrease when the flow approaches the linear case (due to the interpolation~\eqref{eq:ci_interpolation}).
+Linear flows require less computational cost for the projection-interpolation method;
 therefore, it is easy to compute a case of smaller \(\Delta{v}\) by the projection method,
 but it is missed to save space in figures.
 
@@ -1169,7 +1280,7 @@ For small \(\Kn\), the asymptotic analysis of the Boltzmann equation has demonst
 its superiority in terms of accuracy and performance.
 The derived fluid-dynamic-type equations, coinciding with the Navier--Stokes equations,
 together with the appropriate nonlinear slip boundary conditions (presented by~\citet{Sone2000})
-and the Knudsen-layer correction, allow to obtain a solution with error \(\OO{\Kn^2}\).
+and the Knudsen-layer correction, yield a solution with error \(\OO{\Kn^2}\).
 Note that the expressions for the deviatoric stress tensor and heat-flow vector
 differ from the Newton's and Fourier's laws and have an error \(\OO{\Kn^3}\).
 They contain the additional transport coefficients besides the viscosity and thermal conductivity ones,
@@ -1190,21 +1301,22 @@ but at the same time have slow convergence rate of \(\OO{N^{-1/2}}\)
 for both smooth and discontinuous distribution functions.
 In contrast, the projection method, under an appropriate discretization,
 has a satisfactory convergence of \(\OO{N^{-1}}\)
-(\(N\) is a total number of integration lattice points)
+(\(N\) is a total number of the cubature points)
 for a discontinuous distribution function and \(\OO{N^{-2}}\) for the smooth one.
 For the rather simple plane Couette-flow problem,
 the DSMC method yields a quite good accuracy, but its statistical noise
 is an order of magnitude greater than within the discrete-velocity solution, even for finite \(\Delta{v}\).
-Incidentally, the low-variance DSMC method~\citep{Hadji2011}
+Actually, the low-variance DSMC method~\citep{Hadji2011}
 can be applied to decrease an enormous statistical error for small \(\Delta{v}\),
 where fluctuations are especially large in comparison with the solution.
+However, simulation of multiscale flows always turns out to be a stumbling stone for stochastic methods.
 
 %%% Comparison of performance between the projection method and DSMC
-Finally, it is necessary to mention performance of the methods.
+Finally, it is necessary to mention the performance of the methods.
 In the present study, a direct numerical solution of the Boltzmann equation, on average,
 took an order of magnitude more time than the statistical simulation.
-However, for coarser grids and integration lattice, the projection method can
-have better performance with the same accuracy as that of the DSMC method.
+However, the projection method can have better performance with the same accuracy as that of the DSMC method,
+if coarse velocity grid is taken and the number of cubature points is decreased as well.
 Moreover, for complex \textit{ab initio} molecular potentials, computational costs are almost not increased~\citep{Dodulad2014},
 while simplified model potentials (e.g. variable hard spheres) have to be used in the DSMC method.
 In fact, discrete-velocity methods have high performance on fixed velocity grids,
@@ -1221,14 +1333,41 @@ for solving nonlinear boundary-value problems with high accuracy.
 
 The author is grateful to Dr. Oleg Dodulad, who implements the extension
 of the projection method for the nonuniform velocity grids,
-and Dr. Felix Tcheremissine for his valuable comments.
+and Dr. Felix Tcheremissine for his valuable comments and encouragement.
 
 \appendix
-\section{The transport coefficients \(\gamma_8\), \(\gamma_9\) and \(\gamma_{10}\)}
+
+\section{Computation of the transport coefficients \(\gamma_8\), \(\gamma_9\), and \(\gamma_{10}\)}
 \label{sec:gamma_coeffs}
 
-The general formulas for calculation \(\gamma_8\), \(\gamma_9\) and \(\gamma_{10}\)
-for hard-sphere molecules are~\citep{Sone2000, Sone2002, Sone2007}
+The general theory for the transport coefficients \(\gamma_8\), \(\gamma_9\), and \(\gamma_{10}\)
+are presented in~\citep{Sone2000, Sone2002}.
+Below we summarize the main formulas for their numerical computation
+under the assumption of the hard-sphere molecules.
+We based on the algorithm described by \citet{Ohwada1992}.
+
+First, notice that the linearized collision operator \(\mathcal{L}\) takes the following form:
+\begin{gather}
+    \mathcal{L}(\phi) = \mathcal{L}_1(\phi) - \mathcal{L}_2(\phi) - \nu(\zeta)\phi, \label{eq:linear_canonic}\\[6pt]
+    \mathcal{L}_1(\phi) = \frac1{\sqrt2\pi} \int \frac1{|\bzeta-\bxi|}
+        \exp\left(-\bxi^2 + \frac{|\bzeta_i\times\bxi|^2}{|\bzeta-\bxi|^2}\right) \phi(\bxi) \dxi, \label{eq:linear1}\\
+    \mathcal{L}_2(\phi) = \frac1{2\sqrt2\pi} \int |\bzeta-\bxi|\exp\left(-\bxi^2\right) \phi(\bxi) \dxi, \label{eq:linear2}\\
+    \nu(\zeta) = \frac1{2\sqrt2}\left[ \exp\left(-\zeta^2\right) + \left(2\zeta+\frac1\zeta\right)
+        \int_0^\zeta\exp\left(-\xi^2\right)\dd\xi \right]. \label{eq:linear_nu}
+\end{gather}
+With \(\zeta=(0,0,\zeta)\) и \(\phi(\bzeta) = \zeta^n f(\zeta_z/\zeta)\),
+integrals~\eqref{eq:linear1} and~\eqref{eq:linear2} are simplified:
+\begin{gather}
+    \mathcal{L}_1 = \sqrt2 \int_0^\infty \int_0^\pi
+        \frac{\xi^{n+2}f(\cos\theta)\sin\theta}{\sqrt{\zeta^2-2\zeta\xi\cos\theta+\xi^2}}
+        \exp\left( \frac{\zeta^2\xi^2\sin^2\theta}{\zeta^2-2\zeta\xi\cos\theta+\xi^2} -\xi^2 \right)
+        \dd\xi\dd\theta, \label{eq:linear1_sph}\\
+    \mathcal{L}_2 = \frac1{\sqrt2} \int_0^\infty \int_0^\pi
+        \xi^{n+2}f(\cos\theta)\sin\theta\sqrt{\zeta^2-2\zeta\xi\cos\theta+\xi^2}
+        \exp\left(-\xi^2\right) \dd\xi\dd\theta. \label{eq:linear2_sph}
+\end{gather}
+
+The desired transport coefficients are calculated as
 \begin{gather}
     \gamma_8 = I_6\left(\Q_2 - \QQ_{22}\right) + \frac17 I_8\left(\Q_3 - \QQ_3\right), \label{eq:gamma_8}\\
     \gamma_9 = -I_6\left(\B\right), \label{eq:gamma_9}\\
@@ -1240,68 +1379,164 @@ where,
     I_n[Z(\zeta)] = \frac{8}{15\sqrt{\pi}} \int_0^\infty \zeta^n Z(\zeta) \exp(-\zeta^2) \dd\zeta.
 \end{equation}
 The integrands can be obtained from the corresponding integral equations:
-\begin{align}
-    \mathcal{L}\left(\zeta_x\mathcal{A}\right) &= -\zeta_x\left(\zeta^2-\frac52\right), \label{eq:A}\\
-    \mathcal{L}\left(\zeta_x\zeta_y\mathcal{B}\right) &= -2\zeta_x\zeta_y, \label{eq:B}\\
-    \mathcal{L}\left(\zeta_x\zeta_y\B\right) &= \zeta_x\zeta_y\mathcal{B}, \label{eq:B_4}
-\end{align}
-\begin{align}
-    \mathcal{L}\left( \zeta_x\zeta_y\zeta_z\T{1}_2 \right)
-        &= -\zeta_x\zeta_y\zeta_z\left(2\mathcal{A} - \frac1\zeta\der[\mathcal{A}]{\zeta}\right), \label{eq:T2a}\\
-    \mathcal{L}\left[ \zeta_x\left(3\T{1}_1 + \zeta_x^2\T{1}_2\right) \right]
-        &= -\zeta_x^3\left(2\mathcal{A} - \frac1\zeta\der[\mathcal{A}]{\zeta}\right), \label{eq:T1a}\\
-    \mathcal{L}\left( \zeta_x\zeta_y\zeta_z\T{2}_2 \right)
-        &= -\zeta_x\zeta_y\zeta_z\left((\zeta^2-3)\mathcal{B} - \frac\zeta2\der[\mathcal{B}]{\zeta}\right), \label{eq:T2b}\\
-    \mathcal{L}\left[ \zeta_x\left(3\T{2}_1 + \zeta_x^2\T{2}_2\right) \right]
-        &= -\zeta_x^3\left((\zeta^2-3)\mathcal{B} - \frac\zeta2\der[\mathcal{B}]{\zeta}\right) + \frac{3\gamma_1}{2}\zeta_x, \label{eq:T1b}\\
-    \mathcal{L}\left( \zeta_x\zeta_y\zeta_z\TT_2 \right)
-        &= \mathcal{J}\left( \zeta_x\mathcal{A}, \zeta_y\zeta_z\mathcal{B} \right), \label{eq:TT2}\\
-    \mathcal{L}\left[ \zeta_y\left(\TT_{12} + \zeta_x^2\TT_2\right) \right]
-        &= \mathcal{J}\left( \zeta_x\mathcal{A}, \zeta_x\zeta_y\mathcal{B} \right), \label{eq:TT12}
-\end{align}
-\begin{align}
-    \mathcal{L}\left[ \zeta_x\zeta_y \left( 3\zeta_z^2-\zeta_x^2 \right)\Q_3 \right]
-        &= -\zeta_x\zeta_y\left( 3\zeta_z^2-\zeta_x^2 \right)\left(2\mathcal{B} - \frac1\zeta\der[\mathcal{B}]{\zeta}\right), \label{eq:Q3}\\
-    \mathcal{L}\left[ \zeta_x\zeta_y \left( 3\Q_2+\zeta_x^2\Q_3 \right) \right]
-        &= -\zeta_x^3\zeta_y\left(2\mathcal{B} - \frac1\zeta\der[\mathcal{B}]{\zeta}\right), \label{eq:Q2}\\
-    \mathcal{L}\left[ \zeta_x\zeta_y\left( 3\zeta_z^2 - \zeta_x^2 \right)\QQ_3 \right]
-        &= \mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_z^2\mathcal{B} \right)
-        + 2\mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_x\zeta_z\mathcal{B} \right)
-        - \mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_x^2\mathcal{B} \right), \label{eq:QQ3}\\
-    \mathcal{L}\left[ \zeta_x\zeta_y \left( \QQ_{22} + \zeta_z^2\QQ_3 \right) \right]
-        &= \mathcal{J}\left( \zeta_x\zeta_y\mathcal{B}, \zeta_x\zeta_z\mathcal{B} \right) \label{eq:QQ2}
-\end{align}
+\begin{gather}
+    \mathcal{L}\left[\zeta_z\mathcal{A}\right]
+        = -\zeta_z\left(\zeta^2-\frac52\right), \label{eq:A}\\[6pt]
+    \mathcal{L}\left[\left(3\zeta_z^2 - \zeta^2\right)\mathcal{B}(\zeta)\right]
+        = -2\left(3\zeta_z^2 - \zeta^2\right), \label{eq:B}\\
+    \mathcal{L}\left[\left(3\zeta_z^2 - \zeta^2\right)\B\right]
+        = 3\IF[4]{B}_{zz}, \label{eq:B4}\\[6pt]
+    \mathcal{L}\left[\zeta_z\left(5\zeta_z^2 - 3\zeta^2\right)\T{m}_2\right]
+        = 2\IF[m]{T}_{zzz} - 6\IF[m]{T}_{zxx}, \label{eq:Tm1}\\
+    \mathcal{L}\left[\zeta_z\left(5\T{m}_1 + \zeta^2\T{m}_2\right)\right]
+        = \IF[m]{T}_{zzz} + 2\IF[m]{T}_{zxx}, \label{eq:Tm2}\\[6pt]
+    \mathcal{L}\left[\zeta_z\left(5\zeta_z^2 - 3\zeta^2\right)\TT_2\right]
+        = 2\left(\IFF{T}_{z,zz} - \IFF{T}_{z,xx} - 2\IFF{T}_{x,xz}\right), \label{eq:TT1}\\
+    \mathcal{L}\left[\zeta_z\left(5\TT_{12} + \zeta^2\TT_2\right)\right]
+        = \IFF{T}_{z,zz} - \IFF{T}_{z,xx} + 3\IFF{T}_{x,xz}, \label{eq:TT2}\\[6pt]
+    \mathcal{L}\left[\left(35\zeta_z^4 - 30\zeta_z^2\zeta^2 + 3\zeta^4\right)\Q_3\right]
+        = 2\left( 4\IF{Q}_{zzzz} + 3\IF{Q}_{xxxx} - 24\IF{Q}_{zzxx} + 3\IF{Q}_{xxyy} \right), \label{eq:Q1}\\
+    \mathcal{L}\left[\left(3\zeta_z^2 - \zeta^2\right)\left(7\Q_2 + \zeta^2\Q_3\right)\right]
+        = 2\left( \IF{Q}_{zzzz} - \IF{Q}_{xxxx} + 2\IF{Q}_{zzxx} - 2\IF{Q}_{xxyy} \right), \label{eq:Q2}\\[6pt]
+    \begin{aligned}
+    \mathcal{L}&\left[\left(35\zeta_z^4 - 30\zeta_z^2\zeta^2 + 3\zeta^4\right)\QQ_3\right] \\
+        &= 2\left( 4\IFF{Q}_{zz,zz} + 3\IFF{Q}_{xx,xx} - 16\IFF{Q}_{zx,zx} + 2\IFF{Q}_{xy,xy} - 8\IFF{Q}_{zz,xx} + \IFF{Q}_{xx,yy} \right),
+    \end{aligned}\label{eq:QQ1}\\
+    \begin{aligned}
+    \mathcal{L}&\left[\left(3\zeta_z^2 - \zeta^2\right)\left(7\QQ_{22} + \zeta^2\QQ_3\right)\right] \\
+        &= 2\left( \IFF{Q}_{zz,zz} - \IFF{Q}_{xx,xx} + 3\IFF{Q}_{zx,zx} - 3\IFF{Q}_{xy,xy} - 2\IFF{Q}_{zz,xx} + 2\IFF{Q}_{xx,yy} \right),
+    \end{aligned}\label{eq:QQ2}
+\end{gather}
 with subsidiary conditions for \(\mathcal{A}\), \(\T{m}_1\), \(\TT_{12}\):
 \begin{gather}
     \int_0^\infty \zeta^4 \mathcal{A} E \dd\zeta = 0, \label{eq:A_constraint}\\
     \int_0^\infty \left( 5\zeta^4\T{m}_1 + \zeta^6\T{m}_2 \right) E \dd\zeta = 0, \label{eq:Tm_constraint}\\
     \int_0^\infty \left( 5\zeta^4\TT_{12} + \zeta^6\TT_2 \right) E \dd\zeta = 0. \label{eq:T12_constraint}
 \end{gather}
-The collision operators \(\mathcal{L}\) and \(\mathcal{J}\) are related to the collision integral \(J\) as follows:
-\begin{equation}\label{eq:mathcalLJ}
-    E\mathcal{L}(\phi) = 2J(1, E\phi), \quad E\mathcal{J}(\phi, \psi) = J(E\phi, E\psi).
+Inhomogeneous terms of~\eqref{eq:B4}--\eqref{eq:QQ2} are
+\begin{gather}
+    IB^{(4)}_{ij} = \left(\zeta_i\zeta_j-\frac13\zeta^2\delta_{ij}\right)\mathcal{B}(\zeta), \\
+    \IF[1]{T}_{ijk} = -\ZZZ\left( 2\mathcal{A}(\zeta) - \frac1\zeta \der[\mathcal{A}(\zeta)]{\zeta} \right), \\
+    \IF[2]{T}_{ijk} = -\ZZZ\left( (\zeta^2-3)\mathcal{B}(\zeta) - \frac\zeta2 \der[\mathcal{B}(\zeta)]{\zeta} \right), \\
+    \IFF{T}_{i,jk} = \mathcal{J}(\zeta_i\mathcal{A}(\zeta), \zeta_j\zeta_k\mathcal{B}(\zeta)), \\
+    \IF{Q}_{ijkl} = \frac13\left[\zeta^2\mathcal{B}(\zeta)+2\gamma_1\left(\zeta^2-\frac32\right)\right]
+        (\DD{ij}{kl}+\DD{ik}{jl}+\DD{il}{jk}), \\
+    \IFF{Q}_{ij,kl} = \mathcal{J}(\zeta_i\zeta_j\mathcal{B}(\zeta), \zeta_k\zeta_l\mathcal{B}(\zeta)),
+\end{gather}
+where the collision operator \(\mathcal{J}\) are related to the collision integral \(J\) as follows:
+\begin{equation}\label{eq:mathcalJ}
+    E\mathcal{J}(\phi, \psi) = J(E\phi, E\psi).
 \end{equation}
 
-The integral equations~\eqref{eq:A}--\eqref{eq:B} can be solved accurately
-by reducing them to ordinary differential equations~\citep[see e.g.][]{Pekeris1957, Ohwada1992}.
-For the present paper, the considered integral equations are solved
-by the fixed-point iteration and direct quasi-Monte Carlo integration.
-The desired functions are shown in Fig.~\ref{fig:transport_functions}.
+With~\eqref{eq:linear1_sph} and~\eqref{eq:linear2_sph}, one-dimensional integral equations are obtained:
+\begin{gather}
+    \int_0^\infty K_1(\zeta,\xi)\mathcal{A}(\xi)\dd\xi - \nu\mathcal{A} = -\left(\zeta^2-\frac52\right), \label{eq:A_1d}\\
+    \int_0^\infty K_2(\zeta,\xi)\mathcal{B}(\xi)\dd\xi - \nu\mathcal{B} = -2, \\
+    \int_0^\infty K_2(\zeta,\xi)\B(\xi)\dd\xi - \nu\B = \mathcal{B}, \\
+    %%%
+    \int_0^\infty K_3(\zeta,\xi)\T{1}_2(\xi)\dd\xi - \nu\T{1}_2
+        = \frac1\zeta\pder[\mathcal{A}]{\zeta} - 2\mathcal{A}, \\
+    \left\{\begin{aligned}
+    &\int_0^\infty K_1(\zeta,\xi)\T{1}_1(\xi)\dd\xi - \nu\T{1}_1 \\
+        &\quad = \frac15\left( \zeta\pder[\mathcal{A}]{\zeta} - 2\zeta^2\mathcal{A}
+        - \int_0^\infty K_1(\zeta,\xi)\xi^2\T{1}_2(\xi)\dd\xi
+        + \nu\zeta^2\T{1}_2 \right), \\
+    &\int_0^\infty \left( 5\T{1}_1 + \zeta^2\T{1}_2 \right) \zeta^4 \exp(-\zeta^2)\dd\zeta = 0,
+    \end{aligned}\right.\\
+    %%%
+    \int_0^\infty K_3(\zeta,\xi)\T{2}_2(\xi)\dd\xi - \nu\T{2}_2
+        = \frac\zeta2\pder[\mathcal{B}]{\zeta} - \left(\zeta^2-3\right)\mathcal{B}, \\
+    \left\{\begin{aligned}
+    &\int_0^\infty K_1(\zeta,\xi)\T{2}_1(\xi)\dd\xi - \nu\T{2}_1 \\
+        &\quad = \frac{\gamma_1}2 + \frac15\left( \frac{\zeta^3}2\pder[\mathcal{B}]{\zeta}
+        - \zeta^2\left(\zeta^2-3\right)\mathcal{B}
+        - \int_0^\infty K_1(\zeta,\xi)\xi^2\T{2}_2(\xi)\dd\xi
+        + \nu\zeta^2\T{2}_2 \right), \\
+    &\int_0^\infty \left( 5\T{2}_1 + \zeta^2\T{2}_2 \right) \zeta^4 \exp(-\zeta^2)\dd\zeta = 0,
+    \end{aligned}\right.\\
+    %%%
+    \int_0^\infty K_3(\zeta,\xi)\TT_2(\xi)\dd\xi - \nu\TT_2
+        = \frac1{\zeta^3}\left(\IFF{T}_{z,zz} - \IFF{T}_{z,xx} - 2\IFF{T}_{x,xz}\right), \\
+    \left\{\begin{aligned}
+    &\int_0^\infty K_1(\zeta,\xi)\TT_{12}(\xi)\dd\xi - \nu\TT_{12} \\
+        &\quad = \frac1{5\zeta}\left(\IFF{T}_{z,zz} - \IFF{T}_{z,xx} + 3\IFF{T}_{x,xz}\right)
+        - \frac15\left(\int_0^\infty K_1(\zeta,\xi)\xi^2\TT_2(\xi)\dd\xi
+        - \nu\zeta^2\TT_2 \right), \\
+    &\int_0^\infty \left( 5\TT_{12} + \zeta^2\TT_2 \right) \zeta^4 \exp(-\zeta^2)\dd\zeta = 0,
+    \end{aligned}\right.\\
+    %%%
+    \int_0^\infty K_4(\zeta,\xi)\Q_3(\xi)\dd\xi - \nu\Q_3
+        = \frac1\zeta\pder[\mathcal{B}]{\zeta} - 2\mathcal{B}, \\
+    \begin{aligned}
+    &\int_0^\infty K_2(\zeta,\xi)\Q_2(\xi)\dd\xi - \nu\Q_2 \\
+        &\qquad = \frac17\left( \zeta\pder[\mathcal{B}]{\zeta} - 2\zeta^2\mathcal{B}
+        - \int_0^\infty K_2(\zeta,\xi)\xi^2\Q_3(\xi)\dd\xi
+        + \nu\zeta^2\Q_3 \right),
+    \end{aligned}\\
+    %%%
+    \begin{aligned}
+    &\int_0^\infty K_4(\zeta,\xi)\QQ_3(\xi)\dd\xi - \nu\QQ_3 \\
+        &\qquad = \frac1{4\zeta^4}\left( 4\IFF{Q}_{zz,zz} + 3\IFF{Q}_{xx,xx} - 16\IFF{Q}_{zx,zx} + 2\IFF{Q}_{xy,xy} - 8\IFF{Q}_{zz,xx} + \IFF{Q}_{xx,yy} \right), \\
+    \end{aligned}\\
+    \begin{aligned}
+    &\int_0^\infty K_2(\zeta,\xi)\QQ_{22}(\xi)\dd\xi - \nu\QQ_{22} \\
+        &\qquad = \frac1{7\zeta^2}\left(
+        \IFF{Q}_{zz,zz} - \IFF{Q}_{xx,xx} + 3\IFF{Q}_{zx,zx} - 3\IFF{Q}_{xy,xy} - 2\IFF{Q}_{zz,xx} + 2\IFF{Q}_{xx,yy} \right)\\
+        &\qquad - \frac17\left(\int_0^\infty K_2(\zeta,\xi)\xi^2\QQ_3(\xi)\dd\xi
+        - \nu\zeta^2\QQ_3 \right).
+    \end{aligned}\label{eq:QQ2_1d}
+\end{gather}
+The kernels \(K_i(\zeta,\xi)\) are defined as
+\begin{gather}
+    K_1(\zeta,\xi) = \frac1{2\sqrt2}\frac{\xi^3}{\zeta}\left(4G_1-2J_1\right)\exp\left(-\xi^2\right), \\
+    K_2(\zeta,\xi) = \frac1{2\sqrt2}\frac{\xi^4}{\zeta^2}\left(6G_2-2G_0-3J_2+J_0\right)\exp\left(-\xi^2\right), \\
+    K_3(\zeta,\xi) = \frac1{2\sqrt2}\frac{\xi^5}{\zeta^3}\left(10G_3-6G_1-5J_3+3J_1\right)\exp\left(-\xi^2\right), \\
+    K_4(\zeta,\xi) = \frac1{8\sqrt2}\frac{\xi^6}{\zeta^4}\left(70G_4-60G_2+G_0-35J_4+30J_2-3J_0\right)\exp\left(-\xi^2\right),
+\end{gather}
+where
+\begin{gather}
+    \begin{aligned}
+    G_n &= \int_0^\pi \frac{\cos^n\theta \sin\theta}{\sqrt{R_s-2\xi\zeta\cos\theta}}
+        \exp\left(\frac{\xi^2\zeta^2\sin^2\theta}{R_s-2\xi\zeta\cos\theta}\right) \dd\theta \\
+        &\qquad = \frac1{2^n\xi^{n+1}\zeta^{n+1}} \sum_{k=0}^n {n \choose k} R_s^{n-k} (-1)^k C_k,
+    \end{aligned}\\
+    \left\{\begin{aligned}
+        C_0 &= \sqrt\pi\exp\left(\frac{R_s-R_d}2\right) \erf\left(\frac{r_s-r_d}2\right), \\
+        C_1 &= (2+R_d)C_0 - 2(r_s-r_d), \\
+        C_n &= 2(2n-1)C_{n-1} + R_d^2C_{n-2} - 2\left(r_s^{2n-1}-r_d^{2n-1}\right), \\
+    \end{aligned}\right.\\
+    \begin{aligned}
+    J_n &= \int_0^\pi \cos^n\theta \sin\theta \sqrt{R_s-2\xi\zeta\cos\theta} \dd\theta \\
+        &\qquad = \frac1{2^n\xi^{n+1}\zeta^{n+1}} \sum_{k=0}^n {n \choose k} R_s^{n-k} (-1)^k
+        \frac{r_s^{2k+3} - r_d^{2k+3}}{2k+3},
+    \end{aligned}\\
+    \left\{\begin{gathered}
+        R_s = \xi^2 + \zeta^2, \quad R_d = \left|\xi^2 - \zeta^2\right|, \\
+        r_s = \xi + \zeta, \quad r_d = \left|\xi - \zeta\right|, \\
+    \end{gathered}\right.\\
+    \erf(x) = \frac2{\sqrt\pi} \int_0^x \exp(-t^2)\dd{t}.
+\end{gather}
+
+Integral equations~\eqref{eq:A_1d}--\eqref{eq:QQ2_1d} are solved by the quadrature method.
+Since \(K_i(\zeta,\xi)\) decreases rapidly with \(\xi\),
+the domain of numerical integration is limited to \([0,\zeta^{(\mathrm{cut})}]\),
+which is divided into equal \(N_\zeta\) intervals.
+To confirm the accuracy of computation, three cases \(N_\zeta = 1200, 1400, 1600\)
+are considered. In all cases, \(\zeta^{(\mathrm{cut})} = 6.4\).
+For small \(\zeta\), \(K_i(\zeta,\xi)\) is calculated through the series expansion.
+Functions \((\Pder[A]{\zeta})/\zeta\) and \((\Pder[B]{\zeta})/\zeta\)
+also require an asymptotic analysis for small \(\zeta\).
+
+\citet{Pekeris1957} were the first who obtained the accurate solution of integral equations~\eqref{eq:A}--\eqref{eq:B}
+by reducing them to ordinary differential equations.
+Previously unreported functions are shown in Fig.~\ref{fig:transport_functions}.
 
 \begin{figure}
     \centering
     \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig27}
-        \label{fig:B}
-    \end{subfigure}%
-    \begin{subfigure}[b]{0.33\textwidth}
-        \includegraphics[right]{Fig28}
-        \label{fig:B_4}
-    \end{subfigure}%
-    \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[right]{Fig29}
         \label{fig:T1_1}
-    \end{subfigure}\\[-6pt]
+    \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[right]{Fig30}
         \label{fig:T1_2}
@@ -1309,11 +1544,11 @@ The desired functions are shown in Fig.~\ref{fig:transport_functions}.
     \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[right]{Fig31}
         \label{fig:T2_1}
-    \end{subfigure}%
+    \end{subfigure}\\[-6pt]
     \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[right]{Fig32}
         \label{fig:T2_2}
-    \end{subfigure}\\[-6pt]
+    \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[right]{Fig33}
         \label{fig:TT12}
@@ -1321,11 +1556,11 @@ The desired functions are shown in Fig.~\ref{fig:transport_functions}.
     \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[right]{Fig34}
         \label{fig:TT2}
-    \end{subfigure}%
+    \end{subfigure}\\[-6pt]
     \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[right]{Fig35}
         \label{fig:Q2}
-    \end{subfigure}\\[-6pt]
+    \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[right]{Fig36}
         \label{fig:Q3}
@@ -1333,12 +1568,16 @@ The desired functions are shown in Fig.~\ref{fig:transport_functions}.
     \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[right]{Fig37}
         \label{fig:QQ22}
-    \end{subfigure}%
+    \end{subfigure}\\[-6pt]
     \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[right]{Fig38}
         \label{fig:QQ3}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.33\textwidth}
+        \includegraphics[right]{Fig28}
+        \label{fig:B_4}
     \end{subfigure}\\[-6pt]
-    \caption{The transport functions for hard-sphere molecules.}
+    \caption{Some transport functions for hard-sphere molecules.}
     \label{fig:transport_functions}
 \end{figure}
 
