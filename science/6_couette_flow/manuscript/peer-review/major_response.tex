@@ -1,0 +1,293 @@
+%&pdflatex
+\documentclass{article}
+\usepackage{a4wide}
+
+\usepackage{amssymb, amsmath}
+\usepackage{framed}                % for leftbar
+\usepackage[%
+    font={bfseries},
+    leftmargin=0.1\textwidth,
+    indentfirst=false
+]{quoting}
+
+\title{Response to the Reviewers' Comments}
+\author{Oleg Rogozin%
+    \thanks{Electronic address: \texttt{oleg.rogozin@phystech.edu}}
+}
+
+%%% abbreviations for the manuscript
+\newcommand{\Kn}{\mathrm{Kn}}
+\newcommand{\NS}{N\!S}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\der}[2][]{\frac{\dd#1}{\dd#2}}
+\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
+\newcommand{\pderder}[3][]{\frac{\partial^2#1}{\partial#2\partial#3}}
+\newcommand{\Pder}[2][]{\partial#1/\partial#2}
+\newcommand{\dzeta}{\boldsymbol{\dd\zeta}}
+\newcommand{\dxi}{\boldsymbol{\dd\xi}}
+\newcommand{\bzeta}{\boldsymbol{\zeta}}
+\newcommand{\bxi}{\boldsymbol{\xi}}
+\newcommand{\bh}{\boldsymbol{h}}
+\newcommand{\be}{\boldsymbol{e}}
+\newcommand{\Nu}{\mathcal{N}}
+\newcommand{\Mu}{\mathcal{M}}
+\newcommand{\OO}[1]{O(#1)}
+\newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
+
+%%% abbreviations for the appendix
+\newcommand{\B}{\ensuremath{\mathcal{B}^{(4)}}}
+\newcommand{\Q}{\ensuremath{\mathcal{Q}^{(0)}}}
+\newcommand{\T}[1]{\ensuremath{\mathcal{T}^{(#1)}}}
+\newcommand{\TT}{\ensuremath{\tilde{\mathcal{T}}^{(0)}}}
+\newcommand{\QQ}{\ensuremath{\tilde{\mathcal{Q}}^{(0)}}}
+\newcommand{\IF}[2][0]{\ensuremath{I{#2}^{(#1)}}}
+\newcommand{\IFF}[1]{\ensuremath{I\tilde{#1}^{(0)}}}
+\newcommand{\ZD}[2]{\zeta_{#1}\delta_{#2}}
+\newcommand{\ZZD}[3]{\zeta_{#1}\zeta_{#2}\delta_{#3}}
+\newcommand{\ZZZ}{\zeta_i\zeta_j\zeta_k}
+\newcommand{\ZZZZ}{\zeta_i\zeta_j\zeta_k\zeta_l}
+\newcommand{\DD}[2]{\delta_{#1}\delta_{#2}}
+
+
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{natbib}
+
+\def\asterism{\par\vspace{1em}{\centering\scalebox{1}{\bfseries *~*~*}\par}\vspace{.5em}\par}
+
+\usepackage[
+    pdfauthor={Oleg Rogozin},
+    pdftitle={Response to the reviewers' comments},
+    pdftex,
+    unicode
+]{hyperref}
+
+\begin{document}
+
+\maketitle
+
+First of all, I would like to express my gratitude to the reviewers
+for the extremely valuable and detailed comments.
+Following up on the given suggestions, I have revised the whole
+manuscript. I have corrected the mentioned mistakes and ambiguous expressions.
+Furthermore, I have improved some of the presented results.
+Below I clarify all points raised by the reviewers.
+The reviewers' words are shown in bold.
+Individual parts of the corrected version of the manuscript
+can be recognized by the bold lateral line.
+
+\section{Referee Report \#1}
+
+\begin{quoting}
+1. On lines 14-16, it says \emph{"The gain term of the Boltzmann integral is interpolated in such a way
+that the discrete collision operator from the Maxwell distribution is strictly equal to zero"},
+which is not correct.
+Correct is to say that \emph{contributions from the inverse collisions are interpolated in such a way that...}
+\end{quoting}
+
+It is true that the gain term is not interpolated entirely, but the interpolation of the individual contributions
+is constructed in a special way. Indeed, the projection method without interpolation (\emph{direct collisions method})
+\begin{equation}
+    f_{\alpha'} f_{\beta'} = - f_\alpha f_\beta
+\end{equation}
+approximates the gain term through the symmetrized form of the collision integral.
+Therefore, I agree with the reviewer's wording.
+
+\begin{quoting}
+2. On lines 33-34 discovered a grammatical error.
+\end{quoting}
+
+Corrected.
+
+\begin{quoting}
+3. In the Lemma, the author made the assumption about the statistical distribution of the "rejected" contributions.
+Next, in lines 215--216, the author notes that the number of excluded contributions depends on the form of the distribution function.
+So it is not strictly statistically distributed over the space of velocities.
+Therefore, the assumption of the Lemma is quite reasonable to assess the impact of rejected contributions, but not strict.
+This should be noted in the text.
+\end{quoting}
+
+Indeed, the Lemma does not provide a rigorous evaluation of the impact of rejected contributions
+on the collision integral. In fact, a number of excluded cubature points is not indicative,
+because the most of these points correspond to the tails of the velocity distribution,
+which have a very small contribution to the collision integral.
+Instead of this, an accuracy of the numerical integration can be estimated
+by controlling of the relative contribution of the excluded points.
+
+I have removed the Lemma and Fig.~1,~2. Instead, I have added the following remarks.
+
+\begin{leftbar}
+To prevent a significant error in this method of numerical integration,
+it is necessary to control the contribution of excluded points in the collision integral.
+For example, \(N\) may be chosen such that the following sum is small enough:
+\begin{equation}\label{eq:excluded_contribution}
+    \epsilon_J = \frac{\pi V_\Gamma^2}{\rho\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
+        \sum_{\nu\in\Mu} \left(
+            \hat{f}_{\lambda_\nu}\hat{f}_{\mu_\nu} - \hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu}
+        \right)B_\nu.
+\end{equation}
+
+\asterism
+
+The number of cubature points \(N\) is chosen to provide \(\epsilon_J<10^{-4}\)
+in each physical cell and never exceed \(5\times10^5\).
+The maximum value of \(\epsilon_J\) is observed in the marginal physical cell,
+where \(f\) varies stronger near \(\zeta_y = 0\), and practically does not depend on \(\Kn\) for \(Kn<1\).
+For large \(\Kn\), it is smaller due to the smaller size of cells in terms of the mean free path.
+\end{leftbar}
+
+%%%%%%%%%%%%%%%%%%%
+\section{Referee Report \#2}
+%%%%%%%%%%%%%%%%%%%
+
+\begin{quoting}
+1. Concerning the literature, I should point out that the asymptotic solution of the nonlinear Couette flow for small Knudsen numbers
+was obtained on the basis of the BGK model by Sone and Yamamoto long time ago up to the second order in Knudsen number:
+Section 4 in Y. Sone and K. Yamamoto, Flow of rarefied gas over plane wall, J. Phys. Soc. Jpn. 29, 495--508 (1970)
+[Some data are improved in Y. Sone and Y. Onishi, Flow of rarefied gas over plane wall, J. Phys. Soc. Jpn. 47, 672 (1979)].
+\end{quoting}
+
+I have added the proposed citation at the end of introduction,
+but I intentionally do not compare the nonlinear asymptotic BGK solution with the hard-sphere one
+to avoid an overload of information in the figures.
+
+\begin{quoting}
+2. The sentence \emph{"To obtain a rigorous asymptotic solution ... the viscous boundary and Knudsen layers."}
+(lines 105--107) is slightly confusing.
+It is true in general, but in the plane Couette flow, the viscous boundary layer never appears.
+In other words, the viscous boundary layer spreads all over the channel.
+In fact, the viscous boundary layer does not appear in the analysis in Sec. 4.3.
+\end{quoting}
+
+To clear up this ambiguity, I have added the following remark.
+
+\begin{leftbar}
+Owing to the degeneracy of the convection effect in the plane Couette flow,
+the viscous boundary layer spreads all over the channel;
+therefore, the solution is presented as a sum \(f = f_H + f_K\),
+where the subscripts \(H\) and \(K\) denote the Hilbert fluid-dynamic and Knudsen-layer parts, respectively.
+\end{leftbar}
+
+\begin{quoting}
+3. The coefficient \(\gamma_2\) occurring in Eqs. (41) and (43) is not defined.
+\end{quoting}
+
+Corrected.
+
+\begin{leftbar}
+The thermal conductivity coefficient
+\begin{equation}\label{eq:gamma_2}
+    \gamma_2 = \frac{16}{15\sqrt{\pi}}\int_0^\infty \zeta^6 \mathcal{A}(\zeta)E\dd\zeta.
+\end{equation}
+For a hard-sphere gas, \(\gamma_2 = 1.922284066\).
+\end{leftbar}
+
+\begin{quoting}
+4. The logic deriving Eq. (51) is not convincing. In fact, in the Hilbert expansion, \(v_{x0}\) and \(T_0\)
+should not depend on the expansion parameter \(k\).
+Nevertheless, the boundary condition (51) for \(v_{x0}\) and \(T_0\) contain \(k\).
+This appears to be contradicting. I would prefer the following logic.
+Let us put \(v_x = v_{x0} + v_{x1}k + \OO{k^2}\), \(T = T_0 + T_1k + \OO{k^2}\).
+If we add Eq.~(40) and Eq.~(42) multiplied by \(k\) and add Eq.~(41) and Eq.~(43) multiplied by \(k\),
+we have, respectively,
+\begin{gather}
+    \pder{y}\left(\sqrt{T}\pder[v_x]{y}\right) + \OO{k^2} = 0, \\
+    \sqrt{T}\left(\pder[v_x]{y}\right)^2 + \frac{5\gamma_2}{4\gamma_1}\pder{y}\left(\sqrt{T}\pder[T]{y}\right) + \OO{k^2} = 0.
+\end{gather}
+If we neglect \(\OO{k^2}\) terms, we have exactly the same equations as Eqs.~(40) and~(41),
+that is, the Navier–Stokes equations. The same procedure for the boundary conditions~(47) and~(48) leads to
+\begin{equation}
+    v_x = v_{Bx} + k_0\frac{T}{p}\pder[v_x]{y}k + \OO{k^2}, \quad T = T_B - d_1\frac{T}{p}\pder[T]{y}k + \OO{k^2},
+\end{equation}
+which are the same as Eq.~(51) if we neglect \(\OO{k^2}\) terms.
+Therefore, Eqs.~(40) and~(41) with boundary condition~(51) essentially provide the asymptotic solution
+that is correct up to \(\OO{k}\).
+\end{quoting}
+
+I agree with the referee, so I have rewritten subsection 4.3 according to the proposed logic.
+
+\begin{quoting}
+5. Section 4.5 could be improved. Some symbols are not defined clearly.
+For instance, the set \(\Gamma\) (line 145) should be defined clearly.
+The definition of \(\delta_{\alpha\gamma}\) in Eq.~(70) is not given.
+It looks like the Kronecker delta.
+But, if so, \(\delta_{\alpha'_\nu\gamma}\) does not make sense because \(\alpha'_\nu\notin\Gamma\).
+The meaning of the subscript \(\nu\) in \(\alpha_\nu\) and \(\beta_\nu\) should be explained,
+and the space \(\Nu\) should be defined clearly, just after Eq.~(70).
+\end{quoting}
+
+Indeed, subsection 4.5 turns out to be very raw, so I have rewritten it as a whole,
+taking into account all referee's remarks. Please, see section 5.
+
+\begin{quoting}
+6. In regards to the values of the slip coefficients \(k_0 = −1.25395\) (line~78) and \(d_1 = 2.40014\) (line~110),
+the recent paper~[20] is quoted. It is true that these accurate values are obtained in [20].
+However, they were computed with sufficient accuracy more than 25 years ago in [15] and
+in Y. Sone, T. Ohwada, and K. Aoki, Temperature jump and Knudsen layer in a rarefied gas over a plane wall:
+Numerical analysis of the linearized Boltzmann equation for hard-sphere molecules, Phys. Fluids A 1, 363--370 (1989).
+Quoting only [20] may give the reader a wrong idea that \(k_0\) and \(d_1\) were obtained only recently.
+In connection with line~122, \(\Theta_1(\eta)\) and \(\Omega_1(\eta)\) were also obtained first time in the reference given above.
+\end{quoting}
+
+To avoid this ambiguity, I have rewritten the specified citations as follows.
+\begin{leftbar}
+For hard-sphere molecules, \(\gamma_1 = 1.270042427\), \(k_0 = -1.25395\),
+and \(Y_0(\eta)\), \(H_A(\eta)\) are tabulated in~\cite{Ohwada1989creep, Sone2002, Sone2007, Takata2015}.
+\asterism
+..., where \(d_1 = 2.40014\) is another slip coefficient.
+\asterism
+For hard-sphere molecules, \(\Theta_1(\eta)\) and \(\Omega_1(\eta)\)
+are tabulated in~\cite{Ohwada1989jump, Sone2002, Sone2007, Takata2015}.
+\end{leftbar}
+
+\begin{quoting}
+7. There are some typos:
+\begin{itemize}
+    \item On the right-hand side of Eq.~(8), \(-\zeta_x\) should be \(\zeta_x\).
+    \item What are \(\mathcal{T}_0^+\) and \(\mathcal{T}_0^-\) in Eq.~(28)?
+    \item \emph{"convenient"} should be \emph{"convenience"} in line 147.
+    \item \(\bzeta_\alpha-\boldsymbol{v}\) and \(\bzeta_\gamma-\boldsymbol{v}\) in Eq.~(71)
+        should be \(|\bzeta_\alpha-\boldsymbol{v}|^2\) and \(|\bzeta_\gamma-\boldsymbol{v}|^2\).
+    \item In Figs. 4–6, \emph{"Ohwada et al."} should be \emph{"Sone et al."}, since it refers to [2].
+\end{itemize}
+\end{quoting}
+
+The first remark is wrong. The plane Couette-flow problem is antisymmetric.
+I have corrected the paragraph as follows.
+\begin{leftbar}
+The following antisymmetry condition is imposed at \(y=0\):
+\begin{equation}\label{eq:specular_bc}
+    f(\zeta_x,\zeta_y,\zeta_z) = f(-\zeta_x,-\zeta_y,\zeta_z), \quad \zeta_y>0.
+\end{equation}
+\end{leftbar}
+The antisymmetry property is also seen from Fig.~1,
+where the contour plots of the velocity distribution function are depicted.
+
+The second remark is corrected as follows:
+\begin{leftbar}
+\begin{equation}\label{eq:bkw_g_equation}
+    \sqrt{\pi} g(y) = \mathcal{T}_0 \left(\frac{1-2y}{2k}\right) - \mathcal{T}_0 \left(\frac{1+2y}{2k}\right)
+        + \frac1k \int_0^{\frac12} \left[ \mathcal{T}_{-1}\left(\frac{|y-s|}{k}\right)
+        - \mathcal{T}_{-1}\left(\frac{y+s}{k}\right) \right] g(s) \dd{s}.
+\end{equation}
+\end{leftbar}
+
+The other remarks are corrected according to the reviewer's suggestions.
+
+\section{Additional improvements}
+
+\begin{enumerate}
+    \item Transport coefficients \(\gamma_8\), \(\gamma_9\), \(\gamma_{10}\) have been recomputed more accurately.
+    For this purpose, three-dimensional integral equations for hard-sphere molecules
+    have been reduced to the one-dimensional ones. Please, see Appendix.
+    \item Some estimates on \(|\Nu|\) for preserving positivity are represented in subsection 5.4.
+    \item A detailed description of three projection stencils has been added in subsection 5.5.
+\end{enumerate}
+
+\bibliographystyle{plain}
+\bibliography{../manuscript}
+
+\end{document}
+
+
