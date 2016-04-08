@@ -1,12 +1,14 @@
-FILE=manuscript
-SHELL=/bin/bash
-FIG=Fig*.pdf
-SOURCES=$(FILE).tex $(FILE).bib highlights.txt $(FIG)
+FILE = manuscript
+SHELL = /bin/bash
+FIG = Fig*.pdf
+MACRO = $(addsuffix .csv, Pxy vx qx qy Pxx Pyy Pzz tau P omega)
+GAMMA = $(addsuffix .csv, gamma1 gamma2)
+SOURCES=$(FILE).tex $(FILE).bib $(FIG) $(addprefix ../gamma/, $(GAMMA)) $(addprefix ../profiles/, $(MACRO))
 
 all: $(FILE).zip $(FILE).pdf
 
 $(FILE).zip:  $(SOURCES)
-	zip -r $@ $(SOURCES)
+	zip -ju $@ $?
 
 $(FILE).pdf: $(FILE).tex $(FILE).bib $(FIG)
 	latex $(FILE)
