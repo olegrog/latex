@@ -1,6 +1,8 @@
-FIGURES = Pxy.pdf vx.pdf qx.pdf qy.pdf Pxx.pdf Pyy.pdf Pzz.pdf tau.pdf P.pdf omega.pdf
+MACRO = Pxy vx qx qy Pxx Pyy Pzz tau P omega 
+FIGURES = $(addsuffix .pdf, $(MACRO))
+CSV=$(addsuffix .csv, $(MACRO))
 
-all: $(FIGURES)
+all: $(FIGURES) $(CSV)
 
 %.pdf: %.tex
 	pdflatex $< > /dev/null
@@ -11,6 +13,9 @@ all: $(FIGURES)
 
 _%.sh: template.sh plot_profiles.py
 	./plot_profiles.py $*
+
+%.csv: create_csv.py
+	./$< $* | sed 's/+00/-00/g' > $@
 
 clean:
 	rm -f $(FIGURES)

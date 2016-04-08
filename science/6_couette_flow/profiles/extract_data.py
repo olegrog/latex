@@ -78,8 +78,8 @@ for kn in Kn:
             return np.append(np.append(0, B), fL(L, *fitL))
         
         result['vx'][u] = asym(vx)/u/s2
-        result['qx'][u] = asym(qx)/u/s2
-        result['qy'][u] = asym(qy)/u/s2
+        result['qx'][u] = asym(qx)/u/u/s2
+        result['qy'][u] = asym(qy)/u/u/s2
         result['Pxy'][u] = symm(Pxy)/u
         result['Pxx'][u] = symm(Pxx-Pyy)/u/u
         result['Pyy'][u] = (symm(Pyy)-1)/u/u

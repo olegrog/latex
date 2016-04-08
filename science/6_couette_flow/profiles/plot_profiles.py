@@ -7,8 +7,8 @@ import numpy as np
 params = {
     'Pxy':      [ 'Pxy', 'center bottom', '-P_{xy}/\\Delta{v}', -0.3, 0.6, '-y', int(True) ],
     'vx':       [ 'vx', 'center top', 'v_x/\\Delta{v}', 0, 0.5, 'y', int(True) ],
-    'qx':       [ 'qx', 'center top', '-q_x/(\\Delta{v})^2', 0, 0.4, '-y/v', int(True) ],
-    'qy':       [ 'qy', 'center top', '-q_y/(\\Delta{v})^2', 0, 0.16, '-y/v', int(True) ],
+    'qx':       [ 'qx', 'center top', '-q_x/(\\Delta{v})^2', 0, 0.4, '-y', int(True) ],
+    'qy':       [ 'qy', 'center top', '-q_y/(\\Delta{v})^2', 0, 0.16, '-y', int(True) ],
     'Pxx':      [ 'Pxx', 'center bottom', '(P_{xx}-P_{yy})/(\\Delta{v})^2', -0.2, 0.5, 'y', int(False) ],
     'Pyy':      [ 'Pyy', 'center bottom', 'P_{yy}/(\\Delta{v})^2', -0.03, 0.07, 'y', int(False) ],
     'Pzz':      [ 'Pzz', 'center bottom', '(P_{zz}-P_{yy})/(\\Delta{v})^2', -0.02, 0.04, 'y', int(False) ],
