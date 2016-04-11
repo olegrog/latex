@@ -16,8 +16,9 @@ set lmargin 6
 set bmargin 2
 set nokey
 
-set xrange [0:0.135]
-#set xrange [1e-3:0.15]
+#set xrange [0:0.135]
+set xrange [3e-3:0.15]
+set log x
 set yrange [<ymin>:<ymax>]
 
 base(x) = x
