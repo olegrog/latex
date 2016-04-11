@@ -9,14 +9,18 @@ all: $(FILE).zip $(FILE).pdf
 $(FILE).zip:  $(SOURCES)
 	zip -r $@ $(SOURCES)
 
-$(FILE).pdf: $(FILE).tex $(FILE).bib $(FIG)
-	latex $(FILE)
-	bibtex $(FILE)
-	latex $(FILE)
-	latex $(FILE)
+_$(FILE).%: $(FILE).%
+	sed "s/$(FILE)/_$(FILE)/" $< | iconv -f UTF-8 -t CP866 > $@
+
+$(FILE).pdf: _$(FILE).tex _$(FILE).bib _$(FILE).rty $(FIG)
+	latex _$(FILE)
+	bibtex _$(FILE)
+	latex _$(FILE)
+	latex _$(FILE)
+	mv _$@ $@
 
 pics:
-	cp ../tikz/geometry.pdf             Fig01.pdf~
+	cp ../tikz/sone_bobylev.pdf         Fig01.pdf~
 	cp ../contours/heat-temp.pdf        Fig02.pdf
 	cp ../contours/snif-0-temp.pdf      Fig03.pdf
 	cp ../contours/nonslip-0-flow.pdf   Fig04.pdf
@@ -31,10 +35,12 @@ pics:
 	cp ../vs_kn/bottom_flow.pdf         Fig13.pdf
 	cp ../vs_kn/top_temp.pdf            Fig14.pdf
 	cp ../vs_kn/top_flow.pdf            Fig15.pdf
+	cp ../tikz/friedlander.pdf          Fig16.pdf
 
 Fig%.pdf: Fig%.pdf~
 	$(CONVERT) -o $@ -f $<
 	rm $<
 
 clean:
-	rm -f $(FILE).{aux,bbl,blg,bcf,fff,lof,log,spl,toc,out,pdf,zip}
+	rm -f _$(FILE).{aux,bbl,blg,bcf,fff,lof,log,spl,toc,out,tex,bib,pdf}
+	rm -f $(FILE).{pdf,zip}
