@@ -42,5 +42,5 @@ Fig%.pdf: Fig%.pdf~
 	rm $<
 
 clean:
-	rm -f _$(FILE).{aux,bbl,blg,bcf,fff,lof,log,spl,toc,out,tex,bib,pdf}
+	rm -f _$(FILE).{aux,bbl,blg,bcf,fff,lof,log,spl,toc,out,tex,bib,pdf,rty}
 	rm -f $(FILE).{pdf,zip}

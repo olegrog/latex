@@ -1,5 +1,5 @@
 SHELL = /bin/bash
-PROJECT = sone_bobylev
+PROJECT = snit_flows
 SUBDIRS = contours vs_kn vs_kn2 tikz
 SOURCES = $(PROJECT).tex $(PROJECT).bib
 
