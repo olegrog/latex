@@ -15,6 +15,7 @@ centertags]%
 {revtex4}
 
 \usepackage{wrapfig}
+\usepackage{mathrsfs}
 
 \usepackage[caption=false]{subfig}
 
@@ -30,9 +31,14 @@ centertags]%
 \newcommand{\pderder}[2][]{\frac{\partial^2 #1}{\partial #2^2}}
 \newcommand{\Pder}[2][]{\partial#1/\partial#2}
 \newcommand{\dzeta}{\boldsymbol{\dd\zeta}}
+\newcommand{\dxi}{\boldsymbol{\dd\xi}}
 \newcommand{\bzeta}{\boldsymbol{\zeta}}
+\newcommand{\bxi}{\boldsymbol{\xi}}
+\newcommand{\bh}{\boldsymbol{h}}
+\newcommand{\be}{\boldsymbol{e}}
 \newcommand{\Nu}{\mathcal{N}}
-\newcommand{\OO}[1]{O\left(#1\right)}
+\newcommand{\Mu}{\mathcal{M}}
+\newcommand{\OO}[1]{O(#1)}
 \newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
 
 \begin{document}
@@ -365,7 +371,7 @@ centertags]%
 Важно отметить, что эта особенность справедлива также для уравнений Навье"--~Стокса.
 Другими словами можно заключить, что медленность течений разреженного газа приводит
 как к появлению ненавье"--~стоксовсковских членов в уравнении импульса,
-так и к эффекту призрака в уравнении энергии.
+так и к смешению членов разного порядка (эффекту призрака) в уравнении энергии.
 
 В классической гидродинамике, уравнения Навье"--~Стокса (\(\bar{\gamma}_7=0\))
 с неподвижными границами (\(v_{Bi}=0\)) и условиями без скольжения (\(K_1=0\), \(d_1=0\))
@@ -373,6 +379,8 @@ centertags]%
 \begin{equation}\label{eq:heat_equation}
     \pder{x_i}\left(\sqrt{T_0}\pder[T_0]{x_i}\right) = 0.
 \end{equation}
+Оказывается, что оно в отличие от уравнений КГФ с соответствующими граничными условиями
+некорректно описывает температурное поле в континуальном пределе~\cite{Sone1996}.
 
 \subsection{Численное решение}
 
@@ -392,113 +400,334 @@ centertags]%
 \section{Метод решения уравнения Больцмана}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-В настоящей работе уравнение Больцмана решается численно с помощью
-симметричного расщепления на уравнение переноса
-\begin{equation}\label{eq:split_advection}
+В настоящей работе уравнение Больцмана, записанное в безразмерной форме,
+когда длина свободного пробега является характерной длиной,
+\begin{equation}\label{eq:split_transport}
+    \pder[f]{t} + \zeta_i\pder[f]{x_i} = J(f),
+\end{equation}
+решается численно с помощью симметричного расщепления второго порядка на уравнение переноса
+\begin{equation}\label{eq:split_transport}
     \pder[f]{t} + \zeta_i\pder[f]{x_i} = 0,
 \end{equation}
 для которого используется метод конечных объёмов с явной TVD-схемой второго порядка,
-и однородное уравнение Больцмана
-\begin{equation}\label{eq:split_integral}
-    \pder[f]{t} = \frac1k J(f,f),
+и пространственно-однородное уравнение Больцмана
+\begin{equation}\label{eq:split_collisions}
+    \pder[f]{t} = J(f),
 \end{equation}
-для которого используется проекционно-интерполяционный метод дискретных скоростей~\cite{Tcheremissine1997, Tcheremissine2006}.
-Несмотря на то что проекционный метод обладает вторым порядком аппроксимации в пространстве скоростей~\cite{Anikin2012},
-в граничных задачах медленных течений возникают разрывы функции распределения скоростей.
-Таким образом, для получения адекватной аппроксимации в слое Кнудсена необходимо прибегать
+для которого используется проекционно-интерполяционный
+метод дискретных скоростей~\cite{Tcheremissine1997, Tcheremissine2006, Dodulad2015}.
+Несмотря на то что проекционный метод обладает вторым порядком аппроксимации
+на равномерной скоростной сетке~\cite{Anikin2012},
+функция распределения нередко терпит разрывы, например, на поверхностях с диффузным граничным условием.
+Поэтому для получения удовлетворительной аппроксимации в слое Кнудсена необходимо прибегать
 к измельчению сетки вблизи линии разрыва.
-Далее коротко описывается методика консервативного вычисления интеграла столкновений Больцмана
-для произвольной прямоугольной сетки в пространстве скоростей.
+Кроме того, для течений с большим перепадом температур скоростная сетка должна удовлетворительно аппроксимировать
+распределения как холодного газа, так и горячего, что требует измельчения сетки для малых скоростей
+наравне с большим её объёмом.
+Для решения этих проблем необходимо обобщение проекционного метода для неравномерных скоростных сеток.
+Изложенное далее обобщение основано на методике многоточечного проецирования~\citep{Dodulad2012}.
 
-%%% Numerical approximation
-Пусть регулярная скоростная сетка построена таким образом,
+\subsection{Дискретизация скоростного пространства}
+
+Пусть регулярная скоростная сетка \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) построена таким образом,
 что кубатура в пространстве \(\bzeta\) выражается в виде взвешенной суммы
-\begin{equation}\label{eq:zeta_cubature}
-    \int F(\bzeta) \dzeta \approx \sum_{\gamma\in\Gamma} F_\gamma w_\gamma,
-        \quad \sum_{\gamma\in\Gamma} w_\gamma = V_\Gamma,
-        \quad F_\gamma = F(\bzeta_\gamma),
+\begin{equation}\label{eq:bzeta_cubature}
+    \int F(\bzeta) \dzeta \approx \sum_{\gamma\in\Gamma} F_\gamma w_\gamma =
+        \sum_{\gamma\in\Gamma} \hat{F_\gamma}, \quad
+    \sum_{\gamma\in\Gamma} w_\gamma = V_\Gamma, \quad
+    F_\gamma = F(\bzeta_\gamma),
 \end{equation}
-где \(\mathcal{V} = \Set{\zeta_\gamma}{\gamma\in\Gamma}\) "--- множество дискретных скоростей,
-\(F\) "--- произвольная функция от \(\bzeta\),
-а \(V_\Gamma\) "--- общий объём скоростной сетки.
-Тогда интеграл столкновений, записанный в симметризованной форме
+где \(F(\bzeta)\) "--- произвольная интегрируемая функция,
+\(V_\Gamma\) "--- полный объём скоростной сетки, \(\Gamma\) "--- некоторое множество индексов.
+Тогда восьмимерная кубатурная формула в пространстве \((\boldsymbol{\omega},\bzeta,\bzeta_*)\)
+может быть записана как
+\begin{equation}\label{eq:nu_cubature}
+    \int F(\boldsymbol{\omega},\bzeta,\bzeta_*) \dd\Omega(\boldsymbol{\omega})\dzeta\dzeta_* \approx
+        \frac{4\pi V_\Gamma^2}{ \sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu} }
+        \sum_{\nu\in\Nu} F(\boldsymbol{\omega}_\nu,\bzeta_{\alpha_\nu},\bzeta_{\beta_\nu}) w_{\alpha_\nu}w_{\beta_\nu},
+\end{equation}
+где \(F(\boldsymbol{\omega},\bzeta,\bzeta_*)\) "--- снова произвольная интегрируемая функция.
+\(\alpha_\nu\in\Gamma\), \(\beta_\nu\in\Gamma\)
+и \(\boldsymbol{\omega}_\nu\in S^2 = \Set{\boldsymbol{\omega}\in\mathbb{R}^3}{|\boldsymbol{\omega}| = 1}\)
+получаются из некоторого восьмимерного кубатурного правила,
+\(\Nu\subset\mathbb{N}\) "--- его множество индексов.
+Заметим, что численное интегрирование в~\eqref{eq:nu_cubature} выполняется по
+дискретному спектру \((\bzeta,\bzeta_*)\) и непрерывному спектру \(\boldsymbol{\omega}\).
+
+Интеграл столкновений, записанный в симметризованной форме,
 \begin{equation}\label{eq:symm_ci}
-    \begin{aligned}
-    J(f_\gamma, f_\gamma) = \frac14\int &\left[
+    J(f_\gamma) = \frac14\int \left[
         \delta(\bzeta-\bzeta_\gamma) + \delta(\bzeta_*-\bzeta_\gamma)
-        - \delta(\bzeta'-\bzeta_\gamma) - \delta(\bzeta'_*-\bzeta_\gamma)\right] \\
-        &\times(f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\alpha}) \dzeta\dzeta_*,
-    \end{aligned}
+        - \delta(\bzeta'-\bzeta_\gamma) - \delta(\bzeta'_*-\bzeta_\gamma)\right]
+        (f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\omega}) \dzeta\dzeta_*,
 \end{equation}
 где \(\delta(\bzeta)\) "--- дельта-функция Дирака в \(\mathbb{R}^3\),
 имеет следующий дискретный аналог:
 \begin{equation}\label{eq:discrete_symm_ci}
-    \hat{J}_\gamma = \frac{\pi V_\Gamma^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
+    \hat{J}_\gamma(\hat{f}_\gamma) =
+        \frac{\pi V_\Gamma^2}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
         \sum_{\nu\in\Nu} \left(
             \delta_{\alpha_\nu\gamma} + \delta_{\beta_\nu\gamma}
             - \delta_{\alpha'_\nu\gamma} - \delta_{\beta'_\nu\gamma}
         \right)\left(
             \frac{w_{\alpha_\nu}w_{\beta_\nu}}{w_{\alpha'_\nu}w_{\beta'_\nu}}
             \hat{f}_{\alpha'_\nu}\hat{f}_{\beta'_\nu} - \hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu}
-        \right)B_\nu.
+        \right)B_\nu,
 \end{equation}
-Здесь \(\alpha_\nu\in\Gamma\) и \(\beta_\nu\in\Gamma\), наряду с \(\boldsymbol{\alpha}_\nu\),
-берутся по правилу Коробова~\cite{Korobov1959, Sloan1994} для восьмимерной кубатуры.
-Кроме того, кубатурная решетка случайным образом сдвигается на каждом шаге по времени.
-Модифицированная функция распределения \(\hat{f}_\gamma = f_\gamma w_\gamma\) используется для удобства.
-Дискретный аналог распределения Максвелла может быть записан в следующем виде:
-\begin{equation}\label{eq:discrete_Maxwell}
-    \hat{f}_{M\gamma} = \rho\left[\sum_{\alpha\in\Gamma}w_\alpha\exp
-            \left(-\frac{(\bzeta_\alpha - \boldsymbol{v})^2}{T}\right)
+где \(\delta_{\varsigma\gamma}\) "--- символ Кронекера.
+В общем случае \(\bzeta_{\alpha'_\nu}\) и \(\bzeta_{\beta'_\nu}\) не попадают в \(\mathcal{V}\),
+поэтому величины \(\hat{f}_{\alpha'_\nu}\), \(\hat{f}_{\beta'_\nu}\), \(w_{\alpha_\nu}\), \(w_{\beta_\nu}\)
+и функции \(\delta_{\alpha'_\nu\gamma}\), \(\delta_{\beta'_\nu\gamma}\) должны быть определены некоторым образом.
+
+Для того чтобы выполнить условие~\eqref{eq:total_mass} точно, следующая аппроксимация Максвеллиана используется:
+\begin{equation}\label{eq:discrete_Maxwellian}
+    \hat{f}_{M\gamma} = \rho\left[\sum_{\varsigma\in\Gamma}w_\varsigma\exp
+            \left(-\frac{(\bzeta_\varsigma - \boldsymbol{v})^2}{T}\right)
         \right]^{-1}
         w_\gamma\exp\left(-\frac{(\bzeta_\gamma - \boldsymbol{v})^2}{T}\right).
 \end{equation}
 
-%%% Projection and interpolation
-В общем случае, скорости после столкновения,
-\(\bzeta_{\alpha'_\nu}\) и \(\bzeta_{\beta'_\nu}\), не попадают в \(\mathcal{V}\).
-Если они просто заменяются ближайшими сеточными скоростями,
+\subsection{Проекционно-интерполяционный метод}
+
+Если скорости после столкновения,
+\(\bzeta_{\alpha'_\nu}\notin\mathcal{V}\) и \(\bzeta_{\beta'_\nu}\notin\mathcal{V}\),
+заменяются ближайшими сеточными скоростями,
 \(\bzeta_{\lambda_\nu}\in\mathcal{V}\) и \(\bzeta_{\mu_\nu}\in\mathcal{V}\),
-дискретный интеграл столкновений~\eqref{eq:discrete_symm_ci} теряет свойство консервативности.
-Более того, дискретное распределение Максвелла~\eqref{eq:discrete_Maxwell} перестаёт быть равновесным состоянием.
-Для решения этих проблем в проекционно-интерполяционном методе применяются следующие две процедуры.
-Во-первых, \(\bzeta_{\alpha'_\nu}\) проецируется на \(\bzeta_{\lambda_\nu}\) и
-на некоторое множество соседних узлов, \(\Set{\bzeta_{\lambda_\nu+s_a}}{a\in\Lambda}\subset\mathcal{V}\),
-степенным образом:
+дискретный интеграл столкновений~\eqref{eq:discrete_symm_ci} теряет свойство консервативности,
+и дискретный Максвеллиан~\eqref{eq:discrete_Maxwellian} перестаёт быть равновесным состоянием.
+Для решения этих проблем в проекционно-интерполяционном методе применяются две специальные процедуры.
+Во-первых, \(\bzeta_{\alpha'_\nu}\) проецируется на множество сеточных скоростей
+\(\Set{\bzeta_{\lambda_\nu+s_a}}{a\in\Lambda}\subset\mathcal{V}\) следующим образом:
 \begin{equation}\label{eq:ci_projection}
-    \delta_{\alpha'_\nu\gamma} = \sum_{a\in\Lambda} r_{\lambda,a}\delta_{\lambda_\nu+s_a,\gamma}.
+    \delta_{\alpha'_\nu\gamma} = \sum_{a\in\Lambda} r_{\lambda_\nu,a}\delta_{\lambda_\nu+s_a,\gamma}.
 \end{equation}
-Веса \(r_{\lambda,a}\) выбираются так, чтобы обеспечить сохранение массы, импульса и энергии, т.е.
-\begin{equation}\label{eq:impact_conservation}
-    \sum_{a\in\Lambda} r_{\lambda,a} = 1, \quad
-    \sum_{a\in\Lambda} r_{\lambda,a} \bzeta_{\lambda_\nu+s_a} = \bzeta_{\alpha'_\nu}, \quad
-    \sum_{a\in\Lambda} r_{\lambda,a} \bzeta_{\lambda_\nu+s_a}^2 = \bzeta_{\alpha'_\nu}^2.
+Пусть множество индексов \(\Lambda = \Set{a}{r_{\lambda_\nu,a}\neq0}\subset\mathbb{Z}\).
+\emph{Проекционные веса} \(r_{\lambda_\nu,a}\) выбираются так,
+чтобы обеспечить сохранение массы, импульса и кинетической энергии, т.е.
+\begin{equation}\label{eq:stencil_conservation}
+    \sum_{a\in\Lambda} r_{\lambda_\nu,a} = 1, \quad
+    \sum_{a\in\Lambda} r_{\lambda_\nu,a} \bzeta_{\lambda_\nu+s_a} = \bzeta_{\alpha'_\nu}, \quad
+    \sum_{a\in\Lambda} r_{\lambda_\nu,a} \bzeta_{\lambda_\nu+s_a}^2 = \bzeta_{\alpha'_\nu}^2.
 \end{equation}
-Множество проекционных точек \(\mathcal{S}_{\alpha'_\nu} = \Set{\bzeta_{\lambda_\nu+s_a}}{a\in\Lambda, r_{\lambda,a}\neq0}\)
-называется проекционным шаблоном.
-Для равномерной сетки, достаточно двух проекционных точек для достижения консервативности,
-в то время как для неравномерной сетки минимальный шаблон состоит из пяти точек, \(|\mathcal{S}_{\alpha'_\nu}|=5\).
-Во-вторых, чтобы удовлетворить условию \(J_\gamma(\hat{f}_{M\gamma}, \hat{f}_{M\gamma}) = 0\),
+Множество правил смещения \(\mathcal{S} = \Set{s_a}{a\in\Lambda}\)
+называется \emph{проекционным шаблоном}.
+Во-вторых, для того чтобы выполнить
+\begin{equation}\label{eq:strict_interpolation}
+    J_\gamma\left(\hat{f}_{M\gamma}\right) = 0,
+\end{equation}
 \(\hat{f}_{\alpha'_\nu}\) интерполируется следующим образом:
 \begin{equation}\label{eq:ci_interpolation}
     \frac{\hat{f}_{\alpha'_\nu}}{w_{\alpha'_\nu}} = \prod_{a\in\Lambda}
-        \left(\frac{\hat{f}_{\lambda_\nu+s_a}}{w_{\lambda_\nu+s_a}} \right)^{r_{\lambda,a}}.
+        \left(\frac{\hat{f}_{\lambda_\nu+s_a}}{w_{\lambda_\nu+s_a}} \right)^{r_{\lambda_\nu,a}}.
 \end{equation}
 Этот тип интерполяции требует высоких затрат с вычислительной точки зрения,
 но для медленных течений, когда функция распределения близка к максвелловской,
 позволяет добиться высокой точности и низкого уровня флуктуаций.
+На практике операция возведения в степень может быть выполнена с точностью \(10^{-5}\),
+что позволяет в несколько раз ускорить вычисления.
+Между прочим,~\eqref{eq:ci_interpolation} обеспечивает также
+выполнение H-теоремы Больцмана в дискретной форме~\citep{Dodulad2013}.
 Для \(\bzeta_{\beta'_\nu}\) и \(\hat{f}_{\beta'_\nu}\) все формулы аналогичны.
 
-%%% About excluding points
-Существует ещё одно важное и необходимое свойство численного алгоритма:
-функция распределения должна всегда оставаться положительной.
-Если в сумме~\eqref{eq:discrete_symm_ci} присутствует член, нарушающий это свойство,
-то его необходимо исключить из \(\mathcal{N}\).
-С другой стороны, большое количество таких исключенных столкновений
-нарушает кубатурную решетку, следовательно, существенно увеличивается ошибка аппроксимации.
-Чтобы предотвратить такую ситуацию, необходимо либо уменьшить временной шаг, либо увеличить \(\mathcal{N}\).
-Если мы предположим, что кубатурная решетка создаёт ошибку аппроксимации \(\OO{|\mathcal{N}|^{-1}}\),
-то исключение \(M\) случайно распределённых узлов приводит к ошибке \(\OO{\sqrt{M}/|\mathcal{N}|}\).
+\subsection{Решение задачи Коши}
+
+Обратимся теперь к пространсвенно-однородному уравнению Больцмана~\eqref{eq:split_collisions}.
+Пусть \(f_\gamma^n\) обозначает приближённое решение~\eqref{eq:split_collisions}
+для скорости \(\bzeta_\gamma\), \(\gamma\in\Gamma\) в момент времени \(t_n\), \(n\in\mathbb{N}\).
+Переписывая~\eqref{eq:discrete_symm_ci} как
+\begin{equation}\label{eq:discrete_short_ci}
+    \hat{J}_\gamma^n\left(\hat{f}_\gamma^n\right) =
+        \sum_{\nu=1}^N \hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N} \left(\hat{f}_\gamma^n\right), \quad
+    N=|\Nu|,
+\end{equation}
+где \(\hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N}\) "--- это \(\nu\in\Nu_n\) член суммы~\eqref{eq:discrete_symm_ci},
+можно применить явный метод Эйлера первого порядка в дробных шагах
+\begin{equation}\label{eq:time_scheme}
+    \hat{f}_\gamma^{n+\nu/N} = \hat{f}_\gamma^{n+(\nu-1)/N} + \tau \hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N}
+    \left(\hat{f}_\gamma^{n+(\nu-1)/N}\right),
+\end{equation}
+где \(\tau = t_{n+1} - t_n\) "--- временн\'{о}й шаг.
+Схема~\eqref{eq:time_scheme} имеет порядок сходимости \(\OO{\tau|\Gamma|/|\Nu|}\),
+если все дискретные скорости \(\bzeta_\gamma\) распределены равномерно
+в последовательностях \((\alpha_\nu)_{\nu=1}^N\) и \((\beta_\nu)_{\nu=1}^N\).
+Этого можно добиться случайной перестановкой кубатурной последовательности.
+Если \(|\Gamma|/|\Nu| = \OO{\tau}\), второй порядок точности достигается.
+
+%%% On the cubature rule
+Решётчатое правило Коробова~\citep{Korobov1959, Sloan1994} используется в качестве
+восьмимерной кубатурной формулы в~\eqref{eq:discrete_symm_ci}.
+На каждом временн\'{о}м шаге решётка сдвигается на случайный вектор,
+так что получается последовательность множеств кубатурных точек \((\Nu_n)_{n\in\mathbb{N}}\)
+
+\subsection{Сохранение положительности}
+
+Схема~\eqref{eq:time_scheme} допускает отрицательные значения функции распределения,
+что противоречит её физической природе.
+Для того чтобы обеспечить её положительность, достаточно потребовать
+\begin{equation}\label{eq:positive_f}
+    \hat{f}_\gamma^{n+(j-1)/N} + \frac{\tau}N \hat{\mathscr{J}}_\gamma^{n+(j-1)/N} > 0
+\end{equation}
+для всех \(\gamma\in\Gamma\) и \(\nu\in\Nu_n\).
+Если \(\gamma = \alpha_\nu\), то имеем
+\begin{equation}\label{eq:positive_f_alpha}
+    \hat{f}_{\alpha_\nu} - \frac{A}{N}\hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu} > 0, \quad
+    A = \frac{\pi\tau V_\Gamma^2 N B_{\max}}{\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
+\end{equation}
+или
+\begin{equation}\label{eq:positive_f_alpha2}
+    N > A \hat{f}_{\max},
+\end{equation}
+где
+\begin{equation}\label{eq:f_B_max}
+    \hat{f}_{\max} = \max_{\gamma\in\Gamma} \hat{f}_\gamma, \quad
+    B_{\max} = \max_{\substack{\gamma,\varsigma\in\Gamma\\\boldsymbol{\omega}\in S^2}}
+        B(\boldsymbol{\omega}, \bzeta_{\gamma}, \bzeta_{\varsigma}) = \OO{\zeta_{\max}}, \quad
+    \zeta_{\max} = \max_{\gamma\in\Gamma}|\bzeta_\gamma|.
+\end{equation}
+Такая же оценка справедлива для \(\gamma = \beta_\nu\).
+
+Проективные узлы \(\gamma = \lambda_\nu+s_a\) (и \(\gamma = \mu_\nu+s_a\))
+рассматриваются с интерполяцией~\eqref{eq:ci_interpolation}.
+Дополнительно подразумеваем, что \(r_{\lambda_\nu,a} \leq 1\).
+Если \(r_{\lambda_\nu,a} \geq 0\), получаем
+\begin{equation}\label{eq:positive_f_lambda2+}
+    N > A \hat{f}_{\max} \epsilon_f^2 \epsilon_w^2,
+\end{equation}
+где
+\begin{equation}\label{eq:epsilon_f}
+    \epsilon_f = \max_{\substack{s_a,s_b\in\mathcal{S}\\\gamma\in\Gamma}} \frac{\hat{f}_{\gamma+s_a}}{\hat{f}_{\gamma+s_b}}, \quad
+    \epsilon_w = \max_{\gamma,\varsigma\in\Gamma} \frac{w_\gamma}{w_\varsigma}.
+\end{equation}
+Для гладкой функции распределения \(\epsilon_f\) пропорциональна максимальному \emph{диаметру} проекционного шаблона
+\begin{equation}\label{eq:stencil_diameter}
+    R_\mathcal{S} = \max_{\substack{s_a,s_b\in\mathcal{S}\\\gamma\in\Gamma}}
+        \left| \bzeta_{\gamma+s_a} - \bzeta_{\gamma+s_b} \right|.
+\end{equation}
+Если \(r_{\lambda_\nu,a} < 0\), имеем
+\begin{equation}\label{eq:positive_f_lambda-}
+    \hat{f}_{\lambda_\nu+s_a} + \frac{A}{N}r_{\lambda_\nu,a} \hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu} > 0.
+\end{equation}
+Для произвольной функции распределения, получаем дорогостоящую оценку
+\begin{equation}\label{eq:positive_f_lambda2-}
+    N > A \hat{f}_{\max} \bar{r}_{\max} \max_{\gamma,\varsigma\in\Gamma}\frac{\hat{f_\gamma}}{\hat{f_\varsigma}}, \quad
+    \bar{r}_{\max} = \max_{\gamma\in\Gamma,a\in\Lambda}( -r_{\gamma,a} ),
+\end{equation}
+но для Максвеллиана
+\begin{equation}\label{eq:positive_f_lambda2-maxw}
+    N > A \hat{f}_{\max} \epsilon_f^2 \bar{r}_{\max}.
+\end{equation}
+
+Таким образом, чтобы уменьшить количество точек \(N\), достаточное для~\eqref{eq:positive_f},
+скоростную сетку необходимо строить, минимизируя \(|\Gamma|\), \(\zeta_{\max}\) и \(\epsilon_w\),
+а проекционный шаблон выбирать, минимизируя \(R_\mathcal{S}\) и \(\bar{r}_{\max}\).
+Величина \(\epsilon_f\) уменьшается при сгущении сетки в областях больших градиентов функции распределения.
+
+%%% Excluding of the points
+На практике условие~\eqref{eq:positive_f} для всех \(\nu\) требует больших вычислительных затрат.
+Для достижения приемлемой точности, достаточно исключать из~\eqref{eq:time_scheme} члены,
+нарушающие~\eqref{eq:positive_f}. Другими словами, столкновительный интеграл можно вычислять как
+\begin{equation}\label{eq:discrete_short_ci_discarded}
+    \hat{J}_\gamma^n = \sum_{\nu\in\Nu\setminus\Mu} \hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N},
+\end{equation}
+где \(\Mu\) "--- множество кубатурных точек, исключённых из \(\Nu\).
+Для того чтобы не допустить значительной ошибки при такой методике численного интегрирования,
+необходимо контролировать вклад исключённых узлов в столкновительный интеграл.
+Например, \(N\) может быть выбрано так, что следующая сумма достаточно мала:
+\begin{equation}\label{eq:excluded_contribution}
+    \epsilon_J = \frac{\pi V_\Gamma^2}{\rho\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
+        \sum_{\nu\in\Mu} \left|
+            \hat{f}_{\lambda_\nu}\hat{f}_{\mu_\nu} - \hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu}
+        \right|B_\nu.
+\end{equation}
+Интерполяция~\eqref{eq:ci_interpolation} может приводить к огромным значениям \(\hat{f}_{\alpha'_\nu}\),
+когда одно из значений \(\hat{f}_{\lambda_\nu+s_a}\) очень мало,
+а соответствующий ему вес \(r_{\lambda_\nu,a}\) отрицателен.
+По этой причине, мы избегаем интерполяции в~\eqref{eq:excluded_contribution}.
+
+\subsection{Проекционные шаблоны}
+
+%%% Rectangular grid
+В дальнейшем будем предполагать, что скоростная сетка прямоугольна в~\(\mathbb{R}^3\),
+поэтому она может быть проиндексирована целочисленным вектором, т.\,е. \(\Gamma = \Set{\gamma}{\gamma\in\mathbb{Z}^3}\).
+Правило смещений может быть также представлено как целочисленный вектор, т.\,е. \(\mathcal{S}\subset\mathbb{Z}^3\).
+Тогда сумму индексов следует интерпретировать как векторную сумму в~\(\mathbb{Z}^3\).
+
+%%% Review of schemes
+Благодаря симметрии равномерной сетки,
+достаточно использовать два проекционных узла чтобы обеспечить консервативность.
+В общем случае, пять проекционных узлов необходимо, чтобы удовлетворить~\eqref{eq:stencil_conservation}.
+Диаметр шаблона \(R_\mathcal{S}\) можно уменьшить, если семь проекционных узлов использовать.
+Если \(|\mathcal{S}|=n\), то схема~\eqref{eq:time_scheme} называется \(n\)-\emph{точечной схемой}.
+
+%%% 2-point scheme
+\emph{2-точечная схема} основана на симметричном проецировании
+\begin{equation}\label{eq:uniform_projection}
+    \delta_{\alpha'\gamma} = (1-r)\delta_{\lambda\gamma} + r\delta_{\lambda+s,\gamma}, \quad
+    \delta_{\beta'\gamma} = (1-r)\delta_{\mu\gamma} + r\delta_{\mu-s,\gamma},
+\end{equation}
+где \(\bzeta_{\lambda+s} + \bzeta_{\mu-s} = \bzeta_{\lambda} + \bzeta_{\mu}\) и
+\begin{equation}\label{eq:stencil_weights2}
+    r = \frac{E_0-E_1}{E_2-E_1}, \quad
+    E_0 = \bzeta_{\alpha'}^2 + \bzeta_{\beta'}^2, \quad
+    E_1 = \bzeta_{\lambda}^2 + \bzeta_{\mu}^2, \quad
+    E_2 = \bzeta_{\lambda+s}^2 + \bzeta_{\mu-s}^2.
+\end{equation}
+Подстрочный индекс \(\nu\) опущен для краткости.
+Для этой схемы выполняются следующие соотношения:
+\begin{equation}\label{eq:weights_ranges2}
+    0 \leq r < 1, \quad h \leq R_{\mathcal{S}} \leq \sqrt3h,
+\end{equation}
+где \(h^3 = w_\gamma = V_\Gamma/|\Gamma|\).
+
+%%% 5-point scheme
+Пусть \(\boldsymbol{\eta} = \bzeta_{\alpha'} - \bzeta_{\lambda}\),
+а \(\bh_+\), \(\bh_-\) "--- минимальные диагональные смещения от \(\bzeta_{\lambda}\),
+такие что вектор \(\bh_+\) направлен в тот же октант, что и \(\boldsymbol{\eta}\),
+а вектор \(\bh_-\) лежит в противоположном.
+Тогда \emph{компактная 5-точечная схема} строится на узлах
+\begin{equation}\label{eq:stencil_nodes5}
+    \bzeta_{\lambda+s_0} = \bzeta_{\lambda}, \quad
+    \bzeta_{\lambda+s_i} = \bzeta_{\lambda} + (\bh_+\cdot \be_i)\be_i, \quad
+    \bzeta_{\lambda+s_4} = \bzeta_{\lambda} + \bh_-,
+\end{equation}
+где \(\be_i\) "--- базис прямоугольной скоростной сетки.
+Проекционные веса, удовлетворяющие~\eqref{eq:stencil_conservation}, равны
+\begin{equation}\label{eq:stencil_weights5}
+    r_{\lambda,0} = 1 - \sum_{j=1}^4 r_{\lambda,j}, \quad
+    r_{\lambda,i} = \frac{\eta_i - r_{\lambda,4}h_{-i}}{h_{+i}}, \quad
+    r_{\lambda,4} = \frac{\boldsymbol{\eta}\cdot(\boldsymbol{\eta} - \bh_+)}
+        {\bh_-\cdot(\bh_- - \bh_+)}.
+\end{equation}
+Для равномерной сетки справедливы следующие соотношения:
+\begin{equation}\label{eq:weights_ranges5}
+    0 < r_{\lambda,0} \leq 1, \quad
+    -\frac1{12} \leq r_{\lambda,i} < \frac{11}{24}, \quad
+    -\frac18 \leq r_{\lambda,4} \leq 0, \quad
+    R_\mathcal{S} = \sqrt6h.
+\end{equation}
+
+%%% 7-point scheme
+\emph{Симметричная 7-точечная схема} строится на узлах
+\begin{equation}\label{eq:stencil_nodes7}
+    \bzeta_{\lambda+s_0} = \bzeta_{\lambda}, \quad
+    \bzeta_{\lambda+s_{\pm i}} = \bzeta_{\lambda} + (\bh_\pm\cdot \be_i)\be_i.
+\end{equation}
+Проекционные веса, удовлетворяющие~\eqref{eq:stencil_conservation}, равны
+\begin{equation}\label{eq:stencil_weights7}
+    r_{\lambda,0} = 1 - \sum_{j=1}^3 r_{\lambda,j} + r_{\lambda,-j}, \quad
+    r_{\lambda,\pm i} = \pm\frac{\eta_i(\eta_i - h_{\mp i})}{h_{\pm i}(h_{+i}-h_{-i})}.
+\end{equation}
+В~\eqref{eq:stencil_weights7} суммирование по повторяющимся индексам не производится.
+Для равномерной сетки справедливы следующие соотношения:
+\begin{equation}\label{eq:weights_ranges7}
+    \frac14 \leq r_{\lambda,0} \leq 1, \quad
+    0 \leq r_{\lambda,\pm i} \leq \frac38, \quad
+    -\frac18 \leq r_{\lambda,\mp i} \leq 0, \quad
+    R_\mathcal{S} = 2h.
+\end{equation}
+
+И 5-точечная, и 7-точечная схемы обладают \(\bar{r}_{\max}=1/8\).
+Для того чтобы уменьшить это значение, ещё больше проекционных узлов необходимо использовать~\citep{Dodulad2012}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Численные примеры}
