@@ -129,7 +129,7 @@ else:
 
 ### Plot black contours with labels
 levels = np.linspace(lmin, lmax, 1 + lsteps)
-levels = np.append(levels, laux)
+levels = np.sort(np.append(levels, laux))
 CS = py.contour(xi, yi, Fi, levels=levels, colors='k', linewidths=linewidth)
 py.clabel(CS, levels,
     inline=True,
