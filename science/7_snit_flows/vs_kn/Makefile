@@ -1,5 +1,5 @@
 FIGURES = top_temp.pdf top_flow.pdf bottom_temp.pdf bottom_flow.pdf
-TXT = data.txt asym.txt snif.txt heat.txt high.txt
+TXT = data.txt asym.txt high.txt
 
 all: $(FIGURES)
 
