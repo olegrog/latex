@@ -117,8 +117,8 @@ def add_real_data(x, y, T0, U1, T_old, U_old, data):
         rho += k*rho1K
         T += k*T1K
         V += k**2*t*np.tile(U2Kt, (3, 1)).T/p0
-    names = [ 'rho', 'T', 'U', 'diff(T0)', 'diff(U1)' ]
-    fields = [ rho, T, V, T-T_old, V*p0/k-U_old ]
+    names = [ 'rho', 'T', 'U', 'T0', 'U1', 'diff(T0)', 'diff(U1)' ]
+    fields = [ rho, T, V, T_old, U_old, T-T_old, V*p0/k-U_old ]
     for name, field in zip(names, fields):
         add_array(data, field, name)
     # NB: we should return fields to prevent memory freeing,
