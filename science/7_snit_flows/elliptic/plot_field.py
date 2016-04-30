@@ -25,6 +25,7 @@ parser = argparse.ArgumentParser(description='2D contour plots of scalar and vec
 parser.add_argument('vtkfile', help='an input VTK file')
 parser.add_argument('pdffile', help='an output PDF file')
 parser.add_argument('field', help='a name of the VTK field')
+parser.add_argument('--latex', default='\\frac{v_i}{k}', metavar='latex', help='a LaTeX formula of the field')
 parser.add_argument('--factor', default='1', metavar='expr', help='a multiplier for the field')
 parser.add_argument('--kn', type=float, default=1, metavar='value', help='a Knudsen number for transform (x,y)-coords')
 parser.add_argument('--lmax', type=float, default=1e6, metavar='value', help='maximum contour level')
@@ -131,7 +132,7 @@ labelpos = [(lx[i], ly[i]) for i in xrange(1, lsteps_)]
 linewidth, fontsize = .5, 6
 
 ### Plot detailed contours
-levels = np.linspace(lmin, lmax, 1 + lsteps*4)
+levels = np.linspace(lmin, lmax, 1 + lsteps*2)
 if grayscale:
     py.tricontour(triang, magU, levels=levels, colors='lightgray', linewidths=0.05)
 else:
@@ -183,7 +184,7 @@ py.setp(ax,
     xticks=[0, a0, a1], xticklabels=[r'$0$', r'$a_0$', r'$a_1$'],
     yticks=[0, b0, 1], yticklabels=[r'$0$', r'$b_0$', r'$1$'])
 
-ax.text(1.5, .9, r'$\displaystyle\frac{v_i}{k}$')
+ax.text(1.5, .9, r'$\displaystyle %s$' % args.latex)
 ax.text(.15, .4, r'$T_1$', zorder=50)
 ax.text(1., .8, r'$T_2$')
 ax.set_xlim(0, a1+.05)

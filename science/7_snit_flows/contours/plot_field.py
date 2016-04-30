@@ -78,7 +78,7 @@ if len(F.shape) == 1:
         lx = xmax/2 + R*np.cos(np.linspace(phi_min, phi_max, npts))
         ly = R*np.sin(np.linspace(phi_min, phi_max, npts))
         labelpos = [(lx[i], ly[i]) for i in xrange(0, npts)]
-    linewidth, fontsize = 1, 8
+    linewidth, fontsize, detailed = 1, 8, 4
 
 ### Draw vector field
 else:
@@ -110,17 +110,19 @@ else:
     amin, amax = np.argmin(Fi[area_min]), np.argmax(Fi[area_max])
     Xmin, Ymin = X[area_min].flat[amin], Y[area_min].flat[amin]
     Xmax, Ymax = X[area_max].flat[amax], Y[area_max].flat[amax]
-    lx = np.linspace(Xmin, Xmax, 1 + lsteps)
-    ly = np.linspace(Ymin**(1./args.lpow), Ymax**(1./args.lpow), 1 + lsteps)**args.lpow
-    labelpos = [(lx[i], ly[i]) for i in xrange(1, lsteps)]
-    linewidth, fontsize = .5, 6
+    lsteps_ = lsteps if np.sqrt((Xmax-Xmin)**2 + (Ymax-Ymin)**2) > np.sqrt((ymax-xmin)**2 + (ymax-ymin)**2)/2 else int(lsteps/2)+1
+    lx = np.linspace(Xmin, Xmax, 1 + lsteps_)
+    ly = np.linspace(Ymin**(1./args.lpow), Ymax**(1./args.lpow), 1 + lsteps_)**args.lpow
+    #py.plot(lx, ly, 'D')
+    labelpos = [(lx[i], ly[i]) for i in xrange(1, lsteps_)]
+    linewidth, fontsize, detailed = .5, 6, 2
 
 
 print '%s: max(magF) = %g, lmin = %g, lmax = %g, lsteps = %g' % \
     (args.pdffile, np.max(Fi), lmin, lmax, lsteps)
 
 ### Plot color detailed contours
-levels = np.linspace(lmin, lmax, 1 + lsteps*8)
+levels = np.linspace(lmin, lmax, 1 + lsteps*detailed)
 if grayscale:
     py.contour(xi, yi, Fi, levels=levels, colors='lightgray', linewidths=0.05)
 else:
@@ -131,12 +133,14 @@ else:
 levels = np.linspace(lmin, lmax, 1 + lsteps)
 levels = np.sort(np.append(levels, laux))
 CS = py.contour(xi, yi, Fi, levels=levels, colors='k', linewidths=linewidth)
-py.clabel(CS, levels,
+clabels = py.clabel(CS, levels,
     inline=True,
     use_clabeltext=True,
     fmt='%g',
     manual=labelpos,
     fontsize=fontsize)
+[ txt.set_backgroundcolor('white') for txt in clabels ]
+[ txt.set_bbox(dict(facecolor='white', edgecolor='none', pad=0)) for txt in clabels ]
 
 ### Add a streamplot for the vector field
 # NB: py.streamplot relies on evenly grid
