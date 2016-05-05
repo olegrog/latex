@@ -33,7 +33,7 @@ plot \
     filter(x, heat(x), <is_heat>) title "Heat-conduction equation" w l lw 3 lt 4 lc 5, \
     filter(x, snit(x), 0.05) title "KGF equations$" w l lw 3 lt 2 lc 2, \
     "asym.txt" using 1:(base($<column>)) title "KGF equations with additional BC$" w l lw 3 lt 1 lc 1, \
-    "data.txt" using 1:(base($<column>*<corr>)) title "Uniform velocity grid" w lp lw 3 lt 2 lc 2 pt 6, \
+    "data.txt" using 1:(base($<column>)) title "Uniform velocity grid" w lp lw 3 lt 2 lc 2 pt 6, \
     "high.txt" using 1:(base($<column>*<corr>)) title "Nonuniform velocity grid" w lp lw 3 lt 3 lc 4 pt 4
 
 #    "asym-old.txt" using 1:(base($<column>)) title "KGF equations with $T_{B1}\\ne0$" w l lw 1 lt 1 lc 3, \
