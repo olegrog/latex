@@ -13,7 +13,7 @@ k = np.sqrt(np.pi)*float(kn)/2
 eta_max = 20
 
 Curve = namedtuple('Curve', [ 'x', 'y', 'nx', 'ny', 't', 'tmin', 'tmax' ])
-Fields = namedtuple('Fields', [ 'T0', 'dT0n', 'd2T0nt', 'dU1nt' ])
+Fields = namedtuple('Fields', [ 'T0', 'dT0n', 'd2T0nt', 'dU1nt', 'dTt', 'dTn', 'curv', 'dUnt' ])
 
 def get_point_data(out, name):
     vtk_array = out.GetPointData().GetArray(name)
@@ -35,8 +35,9 @@ def get_cell_centers(out):
     return get_points(centers.GetOutput())
 
 def log_interp(eta, F):
-    func = interp1d(eta, np.log(F), kind='linear')
-    return lambda x: np.exp(func(x))
+#    func = interp1d(eta, np.log(F), kind='linear')
+#    return lambda x: np.exp(func(x))
+    return interp1d(eta, F, kind='cubic')
 
 def add_array(data, F, name):
     vtk_array = numpy_to_vtk(F, array_type=vtk.VTK_FLOAT)
@@ -54,6 +55,14 @@ def ellipse(a, b, sign):
         0, np.pi/2
     )
 
+def norm_marg(f):
+    f[0], f[-1] = 2*f[0], 2*f[-1]
+    return f
+
+def norm_marg2(f):
+    f[0], f[-1] = f[1], f[-2]
+    return f
+
 class Boundary:
     def __init__(self, curve, X, Y, Z, fields):
         T = np.linspace(curve.tmin, curve.tmax, 1e3)
@@ -70,13 +79,30 @@ class Boundary:
         s = np.array(map(lambda x, y: self.project(geom.Point(x, y)), X[m], Y[m]))
         t = np.array(map(lambda x, y: self.tangent(geom.Point(x, y)), X[m], Y[m]))
         arg = np.argsort(s)
-        kind = 'cubic'
-        interp_mag = lambda f: interp1d(s[arg], f[arg], kind, bounds_error=False, fill_value=f[arg][-1])
+        kind = 'linear'
+        # NB: we should use 'bounds_error=False' since argument can exceed s.max() by 1e-9 (looks like a bug)
+        interp_wall = lambda f: interp1d(s[arg], norm_marg(f[arg]), kind, bounds_error=False, fill_value=2*f[arg][-1])
+        interp_int = lambda f: interp1d(s[arg], norm_marg2(f[arg]), kind, bounds_error=False, fill_value=f[arg][-2])
         self.fields = Fields(
-            interp_mag(fields.T0[m]),
-            interp_mag(fields.dT0n[m]),
-            interp_mag(np.sum(fields.d2T0nt[m]*t, axis=1)),
-            interp_mag(np.sum(fields.dU1nt[m]*t, axis=1)))
+            interp_int(fields.T0[m]),
+            interp_wall(fields.dT0n[m]),
+            interp_wall(np.sum(fields.d2T0nt[m]*t, axis=1)),
+            interp_wall(np.sum(fields.dU1nt[m]*t, axis=1)),
+            interp_wall(np.sum(fields.dTt[m]*t, axis=1)),
+            interp_wall(fields.dTn[m]),
+            interp_wall(fields.curv[m]),
+            interp_wall(np.sum(fields.dUnt[m]*t, axis=1)))
+        '''
+        import pylab as py
+        S = np.array(map(lambda x, y: self.project(geom.Point(x, y)), X, Y))
+        print S.min(), S.max()
+        print s.min(), s.max()
+        x = np.linspace(S.min(), S.max(), 1000)
+        for name in self.fields._fields:
+            print name, getattr(self.fields, name)(x).min(), getattr(self.fields, name)(x).max()
+            py.plot(x, getattr(self.fields, name)(x), label=name)
+            py.show()
+        '''
 
     def normal(self, point):
         project = self.__line.interpolate(self.__line.project(point))
@@ -98,27 +124,29 @@ def get_kn_layer_corr(boundary, x, y):
     point = geom.Point(x, y)
     eta = boundary.distance(point)/k
     if eta >= eta_max:
-        return np.zeros(3)
+        return np.zeros(4)
     s = boundary.project(point)
-    T0, dT0n, d2T0nt, dU1nt = boundary.fields
-    T0, dT0n, d2T0nt, dU1nt = T0(s), dT0n(s), d2T0nt(s), dU1nt(s)
+    T0, dT0n, d2T0nt, dU1nt, dTt, dTn, curv, dUnt = boundary.fields
+    T0, dT0n, d2T0nt, dU1nt, dTt, dTn, curv, dUnt = T0(s), dT0n(s), d2T0nt(s), dU1nt(s), dTt(s), dTn(s), curv(s), dUnt(s)
     rho1K = 1./T0 * dT0n * Omega_1(eta)
-    T1K = T0/p0 * dT0n * Theta_1(eta)
-    U2Kt = T0/p0*( np.sqrt(T0)*d2T0nt*Y_a4(eta) + dU1nt*Y_0(eta) )
-    return rho1K, T1K, U2Kt
+    T1K = T0/p0 * dTn * Theta_1(eta)
+    T2K = (T0/p0)**2 * dT0n * (dT0n*Theta_3(eta)/T0 + (Theta_5(eta) - 2*Theta_3(eta))*curv)/2
+    U2Kt = T0/p0*( np.sqrt(T0)*(d2T0nt*Y_a4(eta) - curv*dTt*(Y_a6(eta)-Y_a5(eta)/2)) + dUnt*Y_0(eta) )
+    return rho1K, T1K, U2Kt, T2K
 
 def add_real_data(x, y, T0, U1, T_old, U_old, data):
-    rho, T, V = p0/T_old, np.copy(T_old), U_old*k/p0
+    rho, T, U = p0/T_old, np.copy(T_old), U_old*k/p0
     for boundary in boundaries:
-        t = np.zeros((len(X), 3))
+        tang, norm = np.zeros((len(X), 3)), np.zeros((len(X), 3))
         for i in xrange(len(X)):
-            t[i,:] = boundary.tangent(geom.Point(X[i], Y[i]))
-        rho1K, T1K, U2Kt = np.transpose(map(partial(get_kn_layer_corr, boundary), x, y))
+            tang[i,:] = boundary.tangent(geom.Point(X[i], Y[i]))
+            norm[i,:] = boundary.normal(geom.Point(X[i], Y[i]))
+        rho1K, T1K, U2Kt, T2K = np.transpose(map(partial(get_kn_layer_corr, boundary), x, y))
         rho += k*rho1K
-        T += k*T1K
-        V += k**2*t*np.tile(U2Kt, (3, 1)).T/p0
+        T += k*T1K + k**2*T2K
+        U += k**2*tang*np.tile(U2Kt, (3, 1)).T/p0
     names = [ 'rho', 'T', 'U', 'T0', 'U1', 'diff(T0)', 'diff(U1)' ]
-    fields = [ rho, T, V, T_old, U_old, T-T_old, V*p0/k-U_old ]
+    fields = [ rho, T, U, T0, U1/p0, T-T_old, U/k-U_old/p0 ]
     for name, field in zip(names, fields):
         add_array(data, field, name)
     # NB: we should return fields to prevent memory freeing,
@@ -128,12 +156,20 @@ def add_real_data(x, y, T0, U1, T_old, U_old, data):
 
 ### Read the Knudsen-layer functions
 pwd = os.path.dirname(os.path.realpath(__file__))
-eta, Y_0, Y_1, Omega_1, Theta_1, H_A, H_B, Y_a4 = np.loadtxt(os.path.join(pwd, '../tables/kn-layer-hs.txt')).T
+eta, Y_0, Y_1, Omega_1, Theta_1, Y_a4, Y_a5, Y_a6, Omega_3, Theta_3, Omega_5, Theta_5, intY_1 \
+    = np.loadtxt(os.path.join(pwd, '../tables/kn-layer-hs.txt')).T
 Y_0 = log_interp(eta, Y_0)
 Y_1 = log_interp(eta, Y_1)
 Y_a4 = log_interp(eta, Y_a4)
+Y_a5 = log_interp(eta, Y_a5)        # NB: Y_a5 = -Y_a5(eta)
+Y_a6 = log_interp(eta, Y_a6)
 Theta_1 = log_interp(eta, Theta_1)  # NB: Theta_1 = -Theta_1(eta)
 Omega_1 = log_interp(eta, Omega_1)
+Theta_3 = log_interp(eta, Theta_3)  # NB: Theta_3 = -Theta_3(eta)
+Omega_3 = log_interp(eta, Omega_3)
+Theta_5 = log_interp(eta, Theta_5)  # NB: Theta_5 = -Theta_5(eta)
+Omega_5 = log_interp(eta, Omega_5)
+intY_1 = log_interp(eta, intY_1)    # NB: intY_1 = int_eta^infty Y_1(z)dz/2
 
 ### Read a VTK-file
 reader = vtk.vtkUnstructuredGridReader()
@@ -153,10 +189,15 @@ U = get_point_data(out, 'U')
 T0 = get_point_data(out, 'T0')
 U1 = get_point_data(out, 'U1')
 p0 = get_point_data(out, 'p0')[0]
-gradT0 = get_point_data(out, 'wallGradT0n')
-grad2T0 = get_point_data(out, 'wallGradGradT0nt')
-gradU1 = get_point_data(out, 'wallGradU1nt')
-fields = Fields(T0, gradT0, grad2T0, gradU1)
+fields = Fields(T0,
+    get_point_data(out, 'wallGradT0n'),
+    get_point_data(out, 'wallGradGradT0nt'),
+    get_point_data(out, 'wallGradU1nt'),
+    get_point_data(out, 'wallGradTt'),
+    get_point_data(out, 'wallGradTn'),
+    get_point_data(out, 'curvature'),
+    get_point_data(out, 'wallGradU1nt'),
+)
 
 ### Create boundaries
 inner = Boundary(ellipse(0.3, 0.7, 1), X, Y, Z, fields)

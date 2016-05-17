@@ -3,7 +3,6 @@
 import sys, os, re, math, vtk, argparse
 import numpy as np
 import matplotlib as mpl
-#import matplotlib.pyplot as plt
 from matplotlib import tri, cm, pyplot as plt
 from matplotlib.patches import Ellipse, Arc
 from datetime import datetime
@@ -187,7 +186,7 @@ else:
         'cmap': cm.get_cmap('autumn')
     }
 plt.streamplot(xi, yi, U, V,
-    density=1.,
+    density=0.9,
     minlength=.2,
     arrowstyle='->',
     linewidth=lw,
