@@ -376,6 +376,9 @@ Here, \(\mathcal{T}_n(s)\) are special Abramowitz functions~\citep{Abramowitz197
     \mathcal{T}_n(s) = \int_0^\infty t^n \exp\left(-t^2-\frac{s}{t}\right) \dd t,
     \quad s\ge0, \quad n \in \mathbb{Z}.
 \end{equation}
+Equation~\ref{eq:bkw_solution} contains a weakly singular kernel,
+therefore some special techniques have to be employed to obtain
+a high-accuracy solution~\cite{Luo2015, Luo2016}.
 The remaining macroscopic variables are calculated as follows:
 \begin{gather}
     \frac{P_{xy}}{\Delta v} = -\frac{2k}{\sqrt{\pi}} \left(
@@ -599,7 +602,7 @@ Then, the eight-dimensional cubature formula in \((\boldsymbol{\omega},\bzeta,\b
         \frac{4\pi V_\Gamma^2}{ \sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu} }
         \sum_{\nu\in\Nu} F(\boldsymbol{\omega}_\nu,\bzeta_{\alpha_\nu},\bzeta_{\beta_\nu}) w_{\alpha_\nu}w_{\beta_\nu},
 \end{equation}
-where \(F(\boldsymbol{\omega},\bzeta,\bzeta_*)\) is again an arbitrary integrable function,
+where \(F(\boldsymbol{\omega},\bzeta,\bzeta_*)\) is again an arbitrary integrable function.
 \(\alpha_\nu\in\Gamma\), \(\beta_\nu\in\Gamma\),
 and \(\boldsymbol{\omega}_\nu\in S^2 = \Set{\boldsymbol{\omega}\in\mathbb{R}^3}{|\boldsymbol{\omega}| = 1}\)
 are obtained from some equal-weight cubature rule,
@@ -649,14 +652,14 @@ are replaced with the nearest grid velocities,
 the discrete collision integral~\eqref{eq:discrete_symm_ci} is not strictly conservative,
 and the discrete Maxwellian~\eqref{eq:discrete_Maxwellian} is not the equilibrium state.
 To resolve these issues, two special procedures are applied in the projection-interpolation method.
-First, \(\bzeta_{\alpha'_\nu}\) is projected to a set of grid nodes
+First, \(\bzeta_{\alpha'_\nu}\) is projected to a set of grid velocities
 \(\Set{\bzeta_{\lambda_\nu+s_a}}{a\in\Lambda}\subset\mathcal{V}\) in the following way:
 \begin{equation}\label{eq:ci_projection}
     \delta_{\alpha'_\nu\gamma} = \sum_{a\in\Lambda} r_{\lambda_\nu,a}\delta_{\lambda_\nu+s_a,\gamma}.
 \end{equation}
 Let the index set \(\Lambda = \Set{a}{r_{\lambda_\nu,a}\neq0}\subset\mathbb{Z}\).
 The \emph{projection weights} \(r_{\lambda_\nu,a}\) are selected in such a way
-to ensure conservation of mass, momentum, and energy, i.e.,
+to ensure conservation of mass, momentum, and kinetic energy, i.e.,
 \begin{equation}\label{eq:stencil_conservation}
     \sum_{a\in\Lambda} r_{\lambda_\nu,a} = 1, \quad
     \sum_{a\in\Lambda} r_{\lambda_\nu,a} \bzeta_{\lambda_\nu+s_a} = \bzeta_{\alpha'_\nu}, \quad
@@ -677,7 +680,7 @@ This type of interpolation has a high computational cost, but it is important,
 when the distribution function is close to the Maxwellian.
 In practice, the exponentiation can be performed with an accuracy \(10^{-5}\),
 which allows several times to speed up the calculations.
-Incidentally,~\eqref{eq:ci_interpolation} ensures that
+In addition,~\eqref{eq:ci_interpolation} ensures that
 the Boltzmann H-theorem holds in the discrete form~\citep{Dodulad2013}.
 For \(\bzeta_{\beta'_\nu}\) and \(\hat{f}_{\beta'_\nu}\), all formulas are similar.
 
@@ -693,7 +696,7 @@ Rewriting~\eqref{eq:discrete_symm_ci} as
     N=|\Nu|,
 \end{equation}
 where \(\hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N}\) is \(\nu\in\Nu_n\) term of sum~\eqref{eq:discrete_symm_ci},
-we can apply the first-order explicit Euler method in fractional steps:
+one can apply the first-order explicit Euler method in fractional steps:
 \begin{equation}\label{eq:time_scheme}
     \hat{f}_\gamma^{n+\nu/N} = \hat{f}_\gamma^{n+(\nu-1)/N} + \tau \hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N}
     \left(\hat{f}_\gamma^{n+(\nu-1)/N}\right),
@@ -703,7 +706,7 @@ Scheme~\eqref{eq:time_scheme} has a convergence rate of order \(\OO{\tau|\Gamma|
 if all the discrete velocities \(\bzeta_\gamma\) are distributed uniformly
 in sequences \((\alpha_\nu)_{\nu=1}^N\) and \((\beta_\nu)_{\nu=1}^N\).
 It can be accomplished by a random permutation of the cubature sequence.
-Incidentally, if \(|\Gamma|/|\Nu| = \OO{\tau}\), the second order of accuracy is achieved.
+If \(|\Gamma|/|\Nu| = \OO{\tau}\), the second order of accuracy is achieved.
 
 %%% On the cubature rule
 The Korobov's lattice rule~\citep{Korobov1959, Sloan1994} is used as
@@ -738,7 +741,7 @@ where
 \end{equation}
 The same estimate holds for \(\gamma = \beta_\nu\).
 
-The projection velocities \(\gamma = \lambda_\nu+s_a\) (and \(\gamma = \mu_\nu+s_a\))
+The projection nodes \(\gamma = \lambda_\nu+s_a\) (and \(\gamma = \mu_\nu+s_a\))
 are considered with interpolation~\eqref{eq:ci_interpolation}.
 In addition, we assume \(r_{\lambda_\nu,a} \leq 1\).
 If \(r_{\lambda_\nu,a} \geq 0\), we obtain
@@ -772,7 +775,7 @@ but for a Maxwellian,
 In summary, to decrease \(N\) required for~\eqref{eq:positive_f},
 we should construct a velocity grid, minimizing \(|\Gamma|\), \(\zeta_{\max}\), and \(\epsilon_w\),
 as well as a projection stencil, minimizing \(R_\mathcal{S}\) and \(\bar{r}_{\max}\).
-\(\epsilon_f\) decreases with refinement of the velocity grid in areas of large variation
+Quantity \(\epsilon_f\) decreases with refinement of the velocity grid in areas of large variation
 of the distribution function.
 
 %%% Excluding of the points
@@ -788,13 +791,13 @@ it is necessary to control the contribution of excluded points in the collision 
 For example, \(N\) may be chosen such that the following sum is small enough:
 \begin{equation}\label{eq:excluded_contribution}
     \epsilon_J = \frac{\pi V_\Gamma^2}{\rho\sum_{\nu\in\Nu} w_{\alpha_\nu}w_{\beta_\nu}}
-        \sum_{\nu\in\Mu} \left(
+        \sum_{\nu\in\Mu} \left|
             \hat{f}_{\lambda_\nu}\hat{f}_{\mu_\nu} - \hat{f}_{\alpha_\nu}\hat{f}_{\beta_\nu}
-        \right)B_\nu.
+        \right|B_\nu.
 \end{equation}
 Interpolation~\eqref{eq:ci_interpolation} can lead to enormous values of \(\hat{f}_{\alpha'_\nu}\)
 when one of \(\hat{f}_{\lambda_\nu+s_a}\) is extremely small and the corresponding \(r_{\lambda_\nu,a}\) is negative.
-Therefore, we avoid interpolation in~\eqref{eq:excluded_contribution}.
+For this reason, we avoid interpolation in~\eqref{eq:excluded_contribution}.
 
 \subsection{Projection stencils}
 
@@ -928,15 +931,6 @@ For \(\Kn=100\), when the solution is similar to the constant over the physical 
 \(N_x = 30\) is sufficient for the same accuracy.
 
 \begin{table}
-    \centering
-    \begin{tabular}{cccccccc}
-        \(\Delta{v}\) & \(\zeta^{(\mathrm{cut})}_x\) & \(\zeta^{(\mathrm{cut})}_r\)
-            & \(N_{\zeta_i}/2\) & \(|\mathcal{V}|\) & \(r\) & \(\Delta\zeta_x\) & \(\min(\Delta\zeta_y)\) \\[3pt]
-        0.1 & 4.35 & 4.3 & (12, 26, 8)  & 15008 & 1.28 & 0.36 & 0.0020 \\
-        1.0 & 4.80 & 4.5 & (14, 23, 9)  & 16872 & 1.29 & 0.34 & 0.0037 \\
-        2.0 & 5.30 & 5.0 & (16, 24, 10) & 23096 & 1.28 & 0.33 & 0.0038 \\
-        5.0 & 8.00 & 8.0 & (20, 26, 13) & 41520 & 1.27 & 0.40 & 0.0043 \\
-    \end{tabular}
     \caption{The parameters of the velocity grid for various \(\Delta{v}\):
         \(\zeta^{(\mathrm{cut})}_x\) is the semi-major axis of the cut-off spheroid,
         \(\zeta^{(\mathrm{cut})}_r\) is the semi-minor axis,
@@ -946,6 +940,15 @@ For \(\Kn=100\), when the solution is similar to the constant over the physical 
         \(\Delta\zeta_x\) is the distance between nodes along \(\zeta_x\) axis,
         \(\min(\Delta\zeta_y)\) is the minimum distance between nodes along \(\zeta_y\) axis.}
     \label{table:velocity_grid}
+    \centering
+    \begin{tabular}{cccccccc}
+        \(\Delta{v}\) & \(\zeta^{(\mathrm{cut})}_x\) & \(\zeta^{(\mathrm{cut})}_r\)
+            & \(N_{\zeta_i}/2\) & \(|\mathcal{V}|\) & \(r\) & \(\Delta\zeta_x\) & \(\min(\Delta\zeta_y)\) \\\hline
+        0.1 & 4.35 & 4.3 & (12, 26, 8)  & 15008 & 1.28 & 0.36 & 0.0020 \\
+        1.0 & 4.80 & 4.5 & (14, 23, 9)  & 16872 & 1.29 & 0.34 & 0.0037 \\
+        2.0 & 5.30 & 5.0 & (16, 24, 10) & 23096 & 1.28 & 0.33 & 0.0038 \\
+        5.0 & 8.00 & 8.0 & (20, 26, 13) & 41520 & 1.27 & 0.40 & 0.0043 \\
+    \end{tabular}
 \end{table}
 
 %%% Velocity grid
@@ -963,8 +966,8 @@ Second, the combination of two different half-Maxwellians
     f(\zeta_y\gtrless0) = \frac{\rho^\pm}{(\pi T^\pm)^{3/2}}\exp\left(-\frac{(\zeta_x-v_x^\pm)^2+\zeta_y^2+\zeta_z^2}{T^\pm}\right).
 \end{equation}
 is used to simulate a discontinuity at \(\zeta_y=0\).
-For small \(\Kn\) and large \(\Delta{u}\), there is a significant heating of the gas due to friction;
-therefore, the velocity grid should be appropriate for a velocity distribution
+For small \(\Kn\) and large \(\Delta{u}\), there is a significant heating of the gas due to friction.
+Thus, the velocity grid should be appropriate for a velocity distribution
 for both \(T=1\) near the plate and the larger temperature near the symmetry plane.
 The parameters of the velocity grid sufficient to obtain accuracy of the order of \(10^{-4}\)
 are presented in Table.~\ref{table:velocity_grid}.
@@ -1037,8 +1040,8 @@ To reach the steady state for the largest \(\Kn\), many time steps are also requ
 
 The two-dimensional cross-sections of distribution functions are shown
 in Fig.~\ref{fig:distrib} for the Couette-flow problem at \(\Delta{v}=2\).
-They are obtained without additional averaging over time;
-therefore, there are some visible oscillations near \(\zeta_y=0\)
+They are obtained without additional averaging over time.
+Thus, there are some visible oscillations near \(\zeta_y=0\)
 (for example, in Fig.~\ref{fig:distrib-kn1.0:boundary}).
 %%% the distribution function at the boundary
 Near the boundary with the diffuse reflection, the distribution function resembles
