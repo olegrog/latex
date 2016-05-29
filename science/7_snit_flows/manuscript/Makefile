@@ -35,7 +35,9 @@ pics:
 	cp ../vs_kn/bottom_flow.pdf         Fig13.pdf
 	cp ../vs_kn/top_temp.pdf            Fig14.pdf
 	cp ../vs_kn/top_flow.pdf            Fig15.pdf
-	cp ../tikz/friedlander.pdf          Fig16.pdf
+	cp ../elliptic/kgf-0.02-flow.pdf    Fig16.pdf
+	cp ../elliptic/asym-0.02-flow.pdf   Fig17.pdf
+	cp ../elliptic/kes-0.02-flow.pdf    Fig18.pdf
 
 Fig%.pdf: Fig%.pdf~
 	$(CONVERT) -o $@ -f $<
