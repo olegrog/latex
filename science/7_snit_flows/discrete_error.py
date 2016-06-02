@@ -1,23 +1,27 @@
 #!/usr/bin/env python
 r"Script for evaluating the errors in the various moments calculation of the discrete distribution function"
-r"Usage: ./discrete_error.py <U> <N_r> <N_y> <cut_r> <ratio>"
+r"Usage: ./discrete_error.py <U> <args.rN> <args.yN> <cut_r> <ratio>"
 r"Example:  ./discrete_error.py .5 12 22 4.3 1.3"
 
-import sys
+import argparse
 import numpy as np
 from functools import partial
 from collections import namedtuple
 
-_, temp_ratio, N_r, N_y, cut_r, q_r, q_y = sys.argv
+parser = argparse.ArgumentParser(description='2D contour plots of scalar and vector from VTK data')
+parser.add_argument('--rN', type=int, default=8, metavar='value', help='number of points on the radius')
+parser.add_argument('--yN', type=int, default=8, metavar='value', help='number of points along y-axis')
+parser.add_argument('--rtype', default='uniform', metavar='value', help='type of the grid on the radius')
+parser.add_argument('--ytype', default='uniform', metavar='value', help='type of the grid along y-axis')
+parser.add_argument('--rmin', type=float, default=1, metavar='value', help='minimal size of the cell on the radius')
+parser.add_argument('--ymin', type=float, default=1, metavar='value', help='minimal size of the cell along y-axis')
+parser.add_argument('--radius', type=float, default=4, metavar='value', help='radius of the grid')
+parser.add_argument('--temp-ratio', type=float, default=2, metavar='value', help='temperature ratio')
+args = parser.parse_args()
 
 Rho, Temp, Speed = 1., 1., np.zeros(3)
-Speed[0] = 1e-1
-Qflow, Tau = np.array([0.1, 0.2, 0]), np.array([0.05, 0., 0.2])*0
-temp_ratio = float(temp_ratio)
-heat = temp_ratio*Speed[0]
-N_r, N_y = int(N_r), int(N_y)
-cut_r, cut_y = float(cut_r), float(cut_r)
-q_r, q_y = float(q_r), float(q_y)
+Qflow, Tau = np.array([0.1, 0.2, 0.]), np.array([0., 0., 0.05])
+cut_r, cut_y = args.radius, args.radius
 
 zeros, ones = np.zeros_like(Speed), np.ones_like(Speed)
 hodge = np.zeros((3,3,3))
@@ -71,9 +75,8 @@ idx = lambda N: np.arange(2*N) - N + .5
 
 ### Create grid
 
-gtype_r = gtype_y = 'quadratic'
-H_r, Xi_r = grids[gtype_r].i2h(q_r, cut_r, N_r), grids[gtype_r].i2xi(q_r, cut_r, N_r)
-H_y, Xi_y = grids[gtype_y].i2h(q_y, cut_y, N_y), grids[gtype_y].i2xi(q_y, cut_y, N_y)
+H_r, Xi_r = grids[args.rtype].i2h(args.rmin, cut_r, args.rN), grids[args.rtype].i2xi(args.rmin, cut_r, args.rN)
+H_y, Xi_y = grids[args.ytype].i2h(args.ymin, cut_y, args.yN), grids[args.ytype].i2xi(args.ymin, cut_y, args.yN)
 E_r, E_y = np.ones_like(Xi_r), np.ones_like(Xi_y)
 
 dxi = np.einsum('i,j,k', H_r, H_y, H_r)
@@ -90,11 +93,11 @@ if print_grid:
     print "--- y:", H_y, Xi_y
 
 sizes = lambda H: (H.min(), H.max(), H.max()/H.min())
-print "cut_r = %g, cut_y = %g, q_r = %g, q_y = %g" % (cut_r, cut_y, q_r, q_y)
+print "cut_r = %g, cut_y = %g, min_r = %g, min_y = %g" % (cut_r, cut_y, args.rmin, args.ymin)
 print "Cell size (r): min = %.4g, max = %.4g, ratio = %.3g" % sizes(H_r)
 print "Cell size (y): min = %.4g, max = %.4g, ratio = %.3g" % sizes(H_y)
 total = lambda X, cut: np.sum(np.abs(X) <= cut)/2
-print "Total cells: %d (%d, %d, %d):" % (np.sum(ball), N_r, N_y, N_r)
+print "Total cells: %d (%d, %d, %d):" % (np.sum(ball), args.rN, args.yN, args.rN)
 
 def splot(f):
     import pylab as py
@@ -127,7 +130,7 @@ def calc_macro(f):
 def test_1(Temp, Speed):
     P = Rho * Temp
     Xi, Sqr_xi = xi(Speed), sqr_xi(Speed)
-    f1 = 1./P/Temp * np.einsum('ijkl,ijkm,n,lmn->ijk', Xi, Xi, Tau, hodge)
+    f1 = 2./P/Temp * np.einsum('ijkl,ijkm,n,lmn->ijk', Xi, Xi, Tau, hodge)
     f2 = 4./5/P/Temp * (np.einsum('ijkl,ijk,l->ijk', Xi, Sqr_xi/Temp-2.5, Qflow))
     f = Maxwell(Speed, Temp) * (1 + f1 + f2)
     rho, temp, speed, qflow, tau = calc_macro(f)
@@ -139,36 +142,33 @@ def test_1(Temp, Speed):
     print "qflow =", err(Qflow, qflow/rho)
     print "tau =", err(Tau, tau/rho)
 
-def test_2(Temp):
-    Temp1, Temp2 = Temp, Temp*temp_ratio
+def test_2(Temp1, Temp2):
+    Speed[1] = 0
     double_temp = np.sqrt(Temp1*Temp2)
     ss_temp = np.sqrt(Temp1) + np.sqrt(Temp2)
     delta_temp = Temp2 - Temp1
 
     Rho1, Rho2 = 2*Rho*np.sqrt(Temp2)/ss_temp, 2*Rho*np.sqrt(Temp1)/ss_temp
-    f = Maxwell(Speed, Temp1, Rho1)
     negative = xi()[...,1] < 0
+    f = Maxwell(Speed, Temp1, Rho1)
     f[negative] = Maxwell(-Speed, Temp2, Rho2)[negative]
     rho, temp, speed, qflow, tau = calc_macro(f)
 
     Rho_ = Rho
     Temp_ = double_temp * (1 + 8./3*np.dot(Speed,Speed)/ss_temp**2)
     Speed_ = Speed * delta_temp / ss_temp**2
-    for i in [1,2]:
-        Speed_[i] = 1.
-        speed[i] += 1.
     Qflow_ = [ 0, -2*Rho*double_temp*delta_temp/ss_temp/np.sqrt(np.pi) * (1 + 2*np.dot(Speed,Speed)/ss_temp**2), 0 ]
     Tau_ = [ 0, 0, 4*Rho*Speed[0]*double_temp/ss_temp/np.sqrt(np.pi) ]
 
     #splot(f)
     #splot(f*c[0]*c[1])
 
-    print "\n-- Test #2: free molecular flows - sum of 2 half-Maxwellians"
+    print "\n-- Test #2: free molecular flows - sum of 2 half-Maxwellians (temp1 = %g, temp2 = %g)" % (Temp1, Temp2)
     print "rho =", err(Rho_, rho)
     print "temp =", err(Temp_, temp)
     print "speed =", err(Speed_, speed)
     print "qflow =", err(Qflow_, qflow/rho)
-    print "tau =", err(Tau_, tau/rho)
+    print "tau =", err(Tau, tau/rho)
 
 def test_3():
     kn = 1
@@ -186,11 +186,9 @@ def test_3():
     print "tau =", err((0, 0, -2*gamma_1*Speed[0]*kn), tau/rho)
 
 with np.errstate(divide='ignore', invalid='ignore'):
-    test_1(Temp*(temp_ratio-1), Speed)
+    Speed[0] = 1e-3
+    test_1(Temp*(args.temp_ratio-1), Speed)
     test_1(Temp, Speed)
-    test_1(Temp*temp_ratio, Speed)
-    #test_1(Temp*np.sqrt(temp_ratio), Speed)
-    Speed[1] = 1e-2
-    test_2(Temp)
-    #test_2(Temp*temp_ratio)
-    #test_2(Temp*np.sqrt(temp_ratio))
+    test_1(Temp*args.temp_ratio, Speed)
+    test_2(Temp, Temp*args.temp_ratio)
+    test_2(Temp, Temp*(args.temp_ratio-1))

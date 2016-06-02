@@ -16,8 +16,19 @@ $(SUBDIRS)::
 clean:
 	rm -f $(PROJECT).{aux,toc,log,out,run.xml,bbl,bcf,blg,pdf}
 
-gsb:
-	./discrete_error.py 1.5 12 15 4.5 0.05 0.005
+m1:
+	./discrete_error.py --temp-ratio=1.5 --radius=4.25 \
+		--rN=8 --rtype=uniform --yN=8 --ytype=uniform
+
+m2:
+	./discrete_error.py --temp-ratio=1.5 --radius=5.3 \
+		--rN=11 --rtype=hermite \
+		--yN=26 --ymin=1.24 --ytype=geometric
+
+m3:
+	./discrete_error.py --temp-ratio=1.5 --radius=4.5 \
+		--rN=12 --rmin=0.05  --rtype=quadratic \
+		--yN=15 --ymin=0.005 --ytype=quadratic
 
 gell:
 	./discrete_error.py 5 16 16 8 0.1 0.1
