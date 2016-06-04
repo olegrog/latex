@@ -21,16 +21,16 @@ $(FILE).pdf: _$(FILE).tex _$(FILE).bib _$(FILE).rty $(FIG)
 
 pics:
 	cp ../tikz/sone_bobylev.pdf         Fig01.pdf~
-	cp ../contours/heat-temp.pdf        Fig02.pdf
-	cp ../contours/snif-0-temp.pdf      Fig03.pdf
-	cp ../contours/nonslip-0-flow.pdf   Fig04.pdf
-	cp ../contours/snif-0-flow.pdf      Fig05.pdf
+	cp ../contours/heat-0-temp.pdf      Fig02.pdf
+	cp ../contours/asym-0-temp.pdf      Fig03.pdf
+	cp ../contours/nonslip-0-vel.pdf    Fig04.pdf
+	cp ../contours/asym-0-vel.pdf       Fig05.pdf
 	cp ../contours/asym-0.01-temp.pdf   Fig06.pdf
-	cp ../contours/data-0.01-temp.pdf   Fig07.pdf
-	cp ../contours/asym-0.01-flow.pdf   Fig08.pdf
-	cp ../contours/data-0.01-flow.pdf   Fig09.pdf
-	cp ../contours/data-0.1-temp.pdf    Fig10.pdf
-	cp ../contours/data-0.1-flow.pdf    Fig11.pdf
+	cp ../contours/kes-0.01-temp.pdf    Fig07.pdf
+	cp ../contours/asym-0.01-vel.pdf    Fig08.pdf
+	cp ../contours/kes-0.01-vel.pdf     Fig09.pdf
+	cp ../contours/kes-0.1-temp.pdf     Fig10.pdf
+	cp ../contours/kes-0.1-vel.pdf      Fig11.pdf
 	cp ../vs_kn/bottom_temp.pdf         Fig12.pdf
 	cp ../vs_kn/bottom_flow.pdf         Fig13.pdf
 	cp ../vs_kn/top_temp.pdf            Fig14.pdf
