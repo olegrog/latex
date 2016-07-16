@@ -17,6 +17,7 @@ parser.add_argument('--rmin', type=float, default=1, metavar='value', help='mini
 parser.add_argument('--ymin', type=float, default=1, metavar='value', help='minimal size of the cell along y-axis')
 parser.add_argument('--radius', type=float, default=4, metavar='value', help='radius of the grid')
 parser.add_argument('--temp-ratio', type=float, default=2, metavar='value', help='temperature ratio')
+parser.add_argument('--velocity', type=float, default=1e-3, metavar='value', help='reference velocity')
 args = parser.parse_args()
 
 Rho, Temp, Speed = 1., 1., np.zeros(3)
@@ -186,7 +187,7 @@ def test_3():
     print "tau =", err((0, 0, -2*gamma_1*Speed[0]*kn), tau/rho)
 
 with np.errstate(divide='ignore', invalid='ignore'):
-    Speed[0] = 1e-3
+    Speed[0] = args.velocity
     test_1(Temp*(args.temp_ratio-1), Speed)
     test_1(Temp, Speed)
     test_1(Temp*args.temp_ratio, Speed)
