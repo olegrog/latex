@@ -5,12 +5,12 @@ import sys
 import numpy as np
 
 params = {
-    'top_temp':     [ '\\left.T\\right|_{y=\\frac12}',              0.495, 0.535, 0.39, 2, '5.15537e-01', '5.24818e-01', 1, 1               ],
-    'top_flow':     [ '\\left.\\frac{v_x}{k}\\right|_{y=\\frac12}', -0.14, 0,     0.38, 3, '0',           '-1.2149e-01', 0, '2/sqrt(pi)/$1' ],
-    'bottom_temp':  [ '\\left.T\\right|_{y=0}',                     0.485, 0.505, 0.38, 4, '0.5',         '5.00000e-01', 1, 1               ],
-    'bottom_flow':  [ '\\left.\\frac{v_x}{k}\\right|_{y=0}',        0,     0.25,  0.37, 5, '0',           '1.94545e-01', 0, '2/sqrt(pi)/$1' ],
+    'top_temp':     [ '\\left.T\\right|_{y=\\frac12}',              0.495, 0.535, 0.40, 2, '5.15537e-01', '5.24818e-01', 1, 1 ],
+    'top_flow':     [ '\\left.\\frac{v_x}{k}\\right|_{y=\\frac12}', -0.14, 0,     0.39, 3, '0',           '-1.2149e-01', 0, 0 ],
+    'bottom_temp':  [ '\\left.T\\right|_{y=0}',                     0.485, 0.505, 0.39, 4, '0.5',         '5.00000e-01', 1, 1 ],
+    'bottom_flow':  [ '\\left.\\frac{v_x}{k}\\right|_{y=0}',        0,     0.25,  0.38, 5, '0',           '1.94545e-01', 0, 0 ],
 }
-dummies = [ 'name', 'expr', 'ymin', 'ymax', 'xcoord', 'column', 'heat', 'snit', 'is_heat', 'corr' ]
+dummies = [ 'name', 'expr', 'ymin', 'ymax', 'xcoord', 'column', 'heat', 'snit', 'is_heat', 'is_temp']
 
 name = sys.argv[1]
 data = [ name ] + params[name]
