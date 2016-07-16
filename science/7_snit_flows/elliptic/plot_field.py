@@ -201,8 +201,8 @@ plt.setp(ax,
     yticks=[0, b0, 1], yticklabels=[r'$0$', r'$b_0$', r'$1$'])
 
 ax.text(1.5, .9, r'$\displaystyle %s$' % args.latex)
-ax.text(.15, .4, r'$T_1$', zorder=50)
-ax.text(1., .8, r'$T_2$')
+ax.text(.15, .4, r'$T_0$', zorder=50)
+ax.text(1., .8, r'$T_1$')
 ax.set_xlim(0, a1+.05)
 ax.set_ylim(0, 1+.05)
 ax.text(a1/2, -.09, r'$x$')
