@@ -12,6 +12,8 @@ parser.add_argument('--column', type=int, metavar='value', help='column to plot'
 parser.add_argument('--xcoord', type=float, default=1, metavar='value', help='x-coord of the y-label')
 parser.add_argument('--ytics', type=float, default=1, metavar='value', help='step of ytics')
 parser.add_argument('--kn', type=float, default=1, metavar='value', help='a Knudsen number for transform (x,y)-coord')
+parser.add_argument('--lmargin', type=float, default=5, metavar='value', help='left margin')
+parser.add_argument('--corr', type=float, default=1, metavar='value', help='correction for KES-solution')
 args = parser.parse_args()
 
 out = '_%s%s' % (args.name, os.path.splitext(args.template)[1])
