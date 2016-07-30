@@ -42,6 +42,7 @@ centertags]%
 \newcommand{\dzeta}{\boldsymbol{\dd\zeta}}
 \newcommand{\dxi}{\boldsymbol{\dd\xi}}
 \newcommand{\bzeta}{\boldsymbol{\zeta}}
+\newcommand{\deltann}[2]{(\delta_{#1#2}-n_#1 n_#2)}
 \newcommand{\bxi}{\boldsymbol{\xi}}
 \newcommand{\bh}{\boldsymbol{h}}
 \newcommand{\be}{\boldsymbol{e}}
@@ -362,13 +363,18 @@ centertags]%
         &+ 2J\left[\onwall{f_{H1}}+\eta\onwall{\pder[f_{H0}]{x_i}}n_i,f_{K1}\right] + J(f_{K1},f_{K1}),
     \end{aligned}\label{eq:knlayer2}
 \end{gather}
+При соответствующих граничных условиях в полупространстве \(\eta>0\) существует единственное решение
+одномерного линеаризованного (около максвеллиана \(\onwall{f_{H0}}\)) уравнения Больцмана~\eqref{eq:knlayer1}
+тогда и только тогда, когда граничные значения \(\tau_{H1}\) и \(u_{jH1}\deltann{i}{j}\)
+принимают определённые значения~\cite{Maslova1982}.
+Аналогичное утверждение имеет место для уравнения~\eqref{eq:knlayer2}
+и граничных значений \(\tau_{H2}\) и \(u_{jH2}\deltann{i}{j}\).
 
-Уравнение~\eqref{eq:knlayer1} является одномерным однородным линеаризованным уравнением Больцмана
-около максвеллиана \(\onwall{f_{H0}}\),
-решение которого приводит к следующим граничным условиям и коррекциям макроскопических переменных:
+Однородное уравнение~\eqref{eq:knlayer1} приводит к следующим
+граничным условиям и коррекциям макроскопических переменных:
 \begin{gather}
-    \frac1{\sqrt{T_{B0}}}\begin{bmatrix} (u_{jH1} - u_{Bj2}) \\ u_{jK1} \end{bmatrix} (\delta_{ij}-n_i n_j) =
-        - \onwall{\pder[T_{H0}]{x_j}} (\delta_{ij}-n_i n_j)
+    \frac1{\sqrt{T_{B0}}}\begin{bmatrix} (u_{jH1} - u_{Bj2}) \\ u_{jK1} \end{bmatrix} \deltann{i}{j} =
+        - \onwall{\pder[T_{H0}]{x_j}} \deltann{i}{j}
         \begin{bmatrix} K_1 \\ \frac12 Y_1(\tilde\eta) \end{bmatrix}, \label{eq:boundary_u1t}\\
     \begin{bmatrix} u_{jH1} \\ u_{jK1} \end{bmatrix} n_j = 0, \label{eq:boundary_u1n}\\
     \frac{p_{H0}}{T_{B0}}\begin{bmatrix} T_{H1} - T_{B1} \\ T_{K1} \\ T_{B0}^2\rho_{K1} \end{bmatrix} =
@@ -393,16 +399,16 @@ centertags]%
 \begin{gather}
     \begin{aligned}
         \frac1{\sqrt{T_{B0}}}
-            \begin{bmatrix} (u_{jH2} - u_{Bj2}) \\ u_{jK2} \end{bmatrix}(\delta_{ij}-n_i n_j) =
-        &- \frac{\sqrt{T_{B0}}}{p_{H0}}\onwall{\pder[u_{jH1}]{x_k}} (\delta_{ij}-n_i n_j)n_k
+            \begin{bmatrix} (u_{jH2} - u_{Bj2}) \\ u_{jK2} \end{bmatrix}\deltann{i}{j} =
+        &- \frac{\sqrt{T_{B0}}}{p_{H0}}\onwall{\pder[u_{jH1}]{x_k}} \deltann{i}{j}n_k
             \begin{bmatrix} k_0 \\ Y_0(\tilde\eta) \end{bmatrix} \\
-        - \frac{T_{B0}}{p_{H0}}\onwall{\pderder[T_{H0}]{x_j}{x_k}} (\delta_{ij}-n_i n_j)n_k
+        - \frac{T_{B0}}{p_{H0}}\onwall{\pderder[T_{H0}]{x_j}{x_k}} \deltann{i}{j}n_k
             \begin{bmatrix} a_4 \\ Y_{a4}(\tilde\eta) \end{bmatrix}
-        &- \bar\kappa\frac{T_{B0}}{p_{H0}}\onwall{\pder[T_{H0}]{x_j}} (\delta_{ij}-n_i n_j)
+        &- \bar\kappa\frac{T_{B0}}{p_{H0}}\onwall{\pder[T_{H0}]{x_j}} \deltann{i}{j}
             \begin{bmatrix} a_5 \\ Y_{a5}(\tilde\eta) \end{bmatrix} \\
-        - \kappa_{jk}\frac{T_{B0}}{p_{H0}}\onwall{\pder[T_{H0}]{x_k}} (\delta_{ij}-n_i n_j)
+        - \kappa_{jk}\frac{T_{B0}}{p_{H0}}\onwall{\pder[T_{H0}]{x_k}} \deltann{i}{j}
             \begin{bmatrix} a_6 \\ Y_{a6}(\tilde\eta) \end{bmatrix}
-        &- \pder[T_{B1}]{x_j} (\delta_{ij}-n_i n_j)
+        &- \pder[T_{B1}]{x_j} \deltann{i}{j}
             \begin{bmatrix} K_1 \\ \frac12 Y_1(\tilde\eta) \end{bmatrix},
     \end{aligned}\label{eq:boundary_u2t}\\
     \begin{aligned}
@@ -448,7 +454,7 @@ centertags]%
 Последние два члена в~\eqref{eq:knlayer2} приводят к дополнительным нелинейным слагаемым
 в~\eqref{eq:boundary_u2t} и~\eqref{eq:boundary_T2}:
 \begin{equation}\label{eq:boundary_nonlinear}
-    \frac1{p_{H0}^2}\onwall{\pder[T_{H0}]{x_j}(\delta_{ij}-n_i n_j)}\onwall{\pder[T_{H0}]{x_k}n_k}, \quad
+    \frac1{p_{H0}^2}\onwall{\pder[T_{H0}]{x_j}\deltann{i}{j}}\onwall{\pder[T_{H0}]{x_k}n_k}, \quad
     \frac1{p_{H0}^2}\onwall{\pder[T_{H0}]{x_i}n_i}^2,
 \end{equation}
 однако полное решение этой неоднородной задачи кнудсеновского слоя
@@ -482,7 +488,7 @@ centertags]%
 Аналогично можно учесть скоростной скачок на границе:
 \begin{equation}\label{eq:boundary_u}
     u_{iH} = u_{Bi1}k - \left[ K_1\sqrt{T_{B0}}\onwall{\pder[T_{H0}]{x_j}}
-        + k_0\frac{T_{B0}}{p_{H0}}\onwall{\pder[u_{jH}]{x_k}}n_k \right] (\delta_{ij}-n_i n_j)k + \OO{k^2}.
+        + k_0\frac{T_{B0}}{p_{H0}}\onwall{\pder[u_{jH}]{x_k}}n_k \right] \deltann{i}{j}k + \OO{k^2}.
 \end{equation}
 Таким же образом в граничные условия могут быть включены члены из~\eqref{eq:boundary_u2t} и~\eqref{eq:boundary_T2},
 содержащие вторую производную от \(T_{H0}\), а также \(\bar\kappa\), \(\kappa_{ij}\).
