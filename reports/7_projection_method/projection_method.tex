@@ -146,13 +146,14 @@
 Подставляя \(\varphi_\gamma = \delta^{(n)}_\gamma(\bzeta)\) в~\eqref{eq:symm_weak_form}, ищем решение в пространстве \(L^2_n\):
 \begin{multline}\label{eq:L2n_Boltzmann}
     \pder[f^{(n)}_\gamma]{t} =
-        \frac14\int_{\mathbb{R}^3\times\mathbb{R}^3\times\mathbb{S}^2}
+        \frac14\int_{\Omega^{(n)}\times\Omega^{(n)}\times\mathbb{S}^2}
         \left(\delta^{(n)}_\gamma(\bzeta)+\delta^{(n)}_\gamma(\bzeta_*)-\delta^{(n)}_\gamma(\bzeta')-\delta^{(n)}_\gamma(\bzeta'_*)\right) \\
         \times\left(f^{(n)}(\bzeta')f^{(n)}(\bzeta'_*)-f^{(n)}(\bzeta)f^{(n)}(\bzeta_*)\right) B(\bzeta,\bzeta_*,\bomega)
         \dd\Omega(\bomega)\dzeta\dzeta_*.
 \end{multline}
 Последовательность решений \(\{f^{(n)}(\bzeta)\}\) при \(n\to\infty\) стремится к точному решению~\eqref{eq:symm_weak_form} в \(L^2\).
-Если аппроксимировать подинтегральное выражение некоторыми функциями из \(L^2_n(\mathbb{R}^6)\):
+
+Если аппроксимировать подинтегральное выражение в~\eqref{eq:L2n_Boltzmann} некоторыми функциями из \(L^2_n(\mathbb{R}^6)\):
 \begin{gather}
     w^{(n)}_\gamma \delta^{(n)}_\gamma(\bzeta') = \sum_{\alpha=1}^n \sum_{\beta=1}^n
         \Phi^{(n)}_{\alpha\beta\gamma}(\bomega) w^{(n)}_\alpha \delta^{(n)}_\alpha(\bzeta)
@@ -271,7 +272,7 @@
 Выражения~\eqref{deltas_conservative} можно формально рассматривать как приближённое решение уравнений
 \(\phi=\delta(\bzeta'-\bzeta_\gamma)\) и \(\phi=\delta(\bzeta'_*-\bzeta_\gamma)\)
 в пространстве функций вида~\eqref{eq:deltas_expansion}
-\emph{проекционным} методом (Петрова"--~Галёркина) для весовых функций \(\psi_s(\bzeta)\):
+\emph{проекционным} методом (Петрова"--~Галёркина) на линейную оболочку функций \(\psi_s(\bzeta)\):
 \begin{gather}
     \int_{\mathbb{R}^3} \psi_s(\bzeta_\gamma) \left( \delta(\bzeta'-\bzeta_\gamma)
         - \sum_{i=1}^N r_{\lambda_i} \delta(\bzeta_{\lambda_i}-\bzeta_\gamma) \right) \dzeta_\gamma = 0, \label{lambda_galerkin}\\
