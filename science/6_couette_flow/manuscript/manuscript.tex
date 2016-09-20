@@ -1,5 +1,5 @@
 %&pdflatex
-\documentclass[review]{elsarticle}
+\documentclass[]{elsarticle} %review
 \journal{European Journal of Mechanics - B/Fluids}
 
 \usepackage{graphicx}
@@ -13,7 +13,7 @@
 \newtheorem{lemma}{Lemma}
 
 %%% line numbers
-\usepackage{lineno}
+%\usepackage{lineno}
 
 %%% breaking long formulas
 \allowdisplaybreaks[3]
@@ -99,8 +99,7 @@
    Boltzmann equation \sep
    asymptotic analysis \sep
    projection method \sep
-   OpenFOAM \sep
-   DSMC
+   OpenFOAM
 \end{keyword}
 
 %\pacs{
@@ -127,7 +126,7 @@
 \renewcommand*{\appendixname}{}
 \tableofcontents
 
-\linenumbers
+%\linenumbers
 
 \section{Introduction}
 
@@ -541,7 +540,7 @@ The Knudsen-layer correction of the second order is not included in the present 
 
 The Navier--Stokes equations~\eqref{eq:Hilbert_part}
 with the boundary conditions~\eqref{eq:Hilbert_BC}
-is solved accurately by the finite-volume method
+are solved accurately by the finite-volume method
 implemented in OpenFOAM\textregistered{}.
 
 \subsection{Statistical simulation}
@@ -579,7 +578,7 @@ and the space-homogeneous Boltzmann equation
     \pder[f]{t} = J(f),
 \end{equation}
 for which the second-order projection-interpolation method of discrete velocities is used.
-The main algorithm is presented in the literature~\citep[see e.g.][]{Tcheremissine1998, Tcheremissine2006, Dodulad2015}.
+The main algorithm can be found in the literature~\citep[see e.g.][]{Tcheremissine1998, Tcheremissine2006, Dodulad2015}.
 In the present paper, the extension of the projection-interpolation method
 for nonuniform velocity grids is presented.
 It is based on the multipoint technique~\citep{Dodulad2012}.
@@ -671,7 +670,7 @@ Second, to satisfy
 \begin{equation}\label{eq:strict_interpolation}
     J_\gamma\left(\hat{f}_{M\gamma}\right) = 0,
 \end{equation}
-\(\hat{f}_{\alpha'_\nu}\) is interpolated in following way:
+\(\hat{f}_{\alpha'_\nu}\) is interpolated in the following way:
 \begin{equation}\label{eq:ci_interpolation}
     \frac{\hat{f}_{\alpha'_\nu}}{w_{\alpha'_\nu}} = \prod_{a\in\Lambda}
         \left(\frac{\hat{f}_{\lambda_\nu+s_a}}{w_{\lambda_\nu+s_a}} \right)^{r_{\lambda_\nu,a}}.
@@ -1358,7 +1357,7 @@ First, notice that the linearized collision operator \(\mathcal{L}\) takes the f
     \nu(\zeta) = \frac1{2\sqrt2}\left[ \exp\left(-\zeta^2\right) + \left(2\zeta+\frac1\zeta\right)
         \int_0^\zeta\exp\left(-\xi^2\right)\dd\xi \right]. \label{eq:linear_nu}
 \end{gather}
-With \(\zeta=(0,0,\zeta)\) и \(\phi(\bzeta) = \zeta^n f(\zeta_z/\zeta)\),
+With \(\zeta=(0,0,\zeta)\) and \(\phi(\bzeta) = \zeta^n f(\zeta_z/\zeta)\),
 integrals~\eqref{eq:linear1} and~\eqref{eq:linear2} are simplified:
 \begin{gather}
     \mathcal{L}_1 = \sqrt2 \int_0^\infty \int_0^\pi
