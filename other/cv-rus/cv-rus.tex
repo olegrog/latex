@@ -1,0 +1,134 @@
+%&pdflatex
+\documentclass[10pt,a4paper,final]{moderncv}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+
+%% ModernCV themes
+\moderncvstyle{classic}                    % style options are 'casual' (default), 'classic', 'oldstyle' and 'banking'
+\moderncvcolor{orange}
+\nopagenumbers{}
+
+%% Adjust the page margins
+\usepackage[scale=0.75]{geometry}
+
+%% Personal data
+\firstname{Олег}
+\familyname{Рогозин}
+\title{}
+\address{ул. Расплетина, д. 21, кв. 176}{123060 Москва, Россия}
+\mobile{+7~(916)~660~09~52}
+\email{oleg.rogozin@phystech.edu}
+\extrainfo{17 ноября 1987}
+\photo[64pt][0.4pt]{../cv/photo}
+
+%\usepackage{mathpazo}
+\usepackage{csquotes}
+\usepackage{graphicx}
+
+\author{Олег Рогозин}
+\title{Резюме}
+\date{\today}
+
+\usepackage[
+    backend=biber,
+    style=gost-numeric,
+    autolang=other,
+    maxbibnames=99, minbibnames=99,
+    natbib=true,
+    sorting=ydnt,
+    url=false,
+    eprint=false,
+    pagetracker,
+    firstinits]{biblatex}
+\bibliography{cv-rus}
+
+\newcommand{\Mipt}{Московский физико-технический институт}
+\newcommand{\Kurchatov}{Hациональный исследовательский центр <<Курчатовский Институт>>}
+\newcommand{\Dolgopa}{Долгопрудный}
+\newcommand{\Moscow}{Москва}
+
+\begin{document}
+\makecvtitle
+
+\section{Опыт}
+
+\subsection{Исследовательский}
+\cventry{2009--2016}{Диссертационное исследование}{\Mipt}{\Dolgopa}{}{
+    \begin{itemize}
+    \item Разработка проблемно-моделирующей среды для высокопроизводительных вычислений
+    \item Развитие и реализация численных методов для молекулярной газовой динамики
+    \item Численный анализ на основе кинетических и гидродинамических уравнений
+    \end{itemize}
+}
+
+\subsection{Профессиональный}
+\cventry{2013--сейчас}{Инженер-программист}{ООО <<Атомстрой>>}{\Moscow}{}{
+\begin{itemize}
+    \item Поддержка и обслуживание программного обеспечения
+\end{itemize}
+}
+\cventry{2013--2015}{Старший программист}{ООО <<Бином>>}{\Moscow}{}{
+\begin{itemize}
+    \item Программная разработка на стороне сервера на основе NodeJS и Amazon Web Services
+    \item Проектирование и реализация файловой системы специального назначения на основе Amazon S3
+\end{itemize}
+}
+\cventry{2011--2012}{Инженер второй категории}{\Kurchatov}{\Moscow}{}{
+\begin{itemize}
+    \item Поиск и устранение неисправностей в сетях InfiniBand на суперкомпьютере
+    \item Разработка диагностических инструментов для сети InfiniBand
+    \item Настройка программного обеспечения для суперкомпьютера
+    \item Стерео-визуализация научных презентаций
+\end{itemize}
+}
+\cventry{2006--2011}{Лаборант шестого разряда}{\Kurchatov}{\Moscow}{}{
+\begin{itemize}
+    \item Администрирование Linux-станций
+\end{itemize}
+}
+
+\subsection{Преподавательский}
+\cventry{2012--2012}{Лектор}{\Mipt}{\Dolgopa}{}{
+\begin{itemize}
+    \item Лекции по архитектуре компьютеров для студентов второго курса
+\end{itemize}
+}
+\cventry{2005--2006}{Преподаватель}{\Mipt}{\Dolgopa}{}{
+\begin{itemize}
+    \item Проверка работ учеников Заочной физико-технической школы
+\end{itemize}
+}
+
+\section{Образование}
+\cventry{2011--2014}{Аспирантура}{\Mipt}{\Dolgopa}
+{диссертация не защищена}{%Кандидат физико-математических наук
+Численный анализ некоторых классических задач молекулярной газодинамики
+\begin{itemize}
+    \item Научный руководитель: д.ф.-м.н. Феликс Григорьевич Черемисин
+    \item Специальность: 01.02.05 <<Механика жидкости, газа и плазмы>>
+\end{itemize}
+}
+\cventry{2009--2011}{Магистр прикладной математики и физики}{\Mipt}{\Dolgopa}{\textit{4.88/5.00}}
+{Решение классических задач динамики разреженного газа проекционным методом дискретных ординат}
+\cventry{2005--2009}{Бакалавр прикладной математики и физики}{\Mipt}{\Dolgopa}{\textit{4.97/5.00}}
+{Моделирование неравновесных газовых течений в каналах различной геометрии на основе уравнения Больцмана}
+
+\section{Языки}
+\cvitem{Русский}{Родной}
+\cvitem{Английский}{Выше среднего}
+\cvitem{Немецкий}{Базовый}
+\cvitem{Французский}{Базовый}
+
+\section{Компьютерные навыки}
+\cvitem{Операционные системы}{Linux (администрирование), OS X, Windows}
+\cvitem{Языки}{C++98/11, python, javascript, shell, Matlab/Octave, SQL, assembler}
+\cvitem{Программное обеспечение}{OpenFOAM, Amazon Web Services}
+\cvitem{Параллельные технологии}{MPI, OpenMP, Hadoop}
+\cvitem{Сети}{Ethernet, InfiniBand}
+
+\renewcommand{\refname}{Публикации}
+\nocite{*}
+\printbibliography
+
+\end{document}
