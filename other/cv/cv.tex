@@ -1,9 +1,9 @@
 %&pdflatex
-\documentclass[11pt,a4paper,sans,english]{moderncv}
+\documentclass[11pt,a4paper,english]{moderncv}
 
 %% ModernCV themes
 \moderncvstyle{classic}                    % style options are 'casual' (default), 'classic', 'oldstyle' and 'banking'
-\moderncvcolor{orange}
+\moderncvcolor{blue}
 \nopagenumbers{}
 
 %% Adjust the page margins
@@ -13,14 +13,15 @@
 \firstname{Oleg}
 \familyname{Rogozin}
 \title{}
-\address{Ul. Raspletina 21, kv. 176}{123060 Moscow, Russia}
+\address{Ul. Raspletina 21, kv. 176}{123060 \Moscow, Russia}
 \mobile{+7~(916)~660~09~52}
-\email{o.a.rogozin@gmail.com}
+%\email{o.a.rogozin@gmail.com}
+\email{oleg.rogozin@phystech.edu}
+\extrainfo{17 November 1987}
 \photo[64pt][0.4pt]{photo}
 
 %% Character encoding
 \usepackage[utf8]{inputenc}
-
 
 %\usepackage{mathpazo}
 \usepackage{babel}
@@ -45,13 +46,18 @@
     firstinits]{biblatex}
 \bibliography{cv}
 
+\newcommand{\Mipt}{Moscow Institute of Physics and Technology}
+\newcommand{\Kurchatov}{National Research Centre "Kurchatov Institute"}
+\newcommand{\Dolgopa}{Dolgoprudny}
+\newcommand{\Moscow}{Moscow}
+
 \begin{document}
 \makecvtitle
 
 \section{Experience}
 
 \subsection{Research}
-\cventry{2009--2015}{Doctoral Research}{Moscow Institute of Physics and Technology}{Dolgoprudny}{}{
+\cventry{2009--2015}{Doctoral Research}{\Mipt}{\Dolgopa}{}{
     \begin{itemize}
     \item Development of the problem solving environment for high performance computing
     \item Computer simulation of the kinetic and fluid-dynamic-type equations
@@ -60,20 +66,20 @@
 }
 
 \subsection{Vocational}
-\cventry{2013--2015}{Software Developer}{iBinom}{Moscow}{}{
+\cventry{2013--2015}{Software Developer}{iBinom}{\Moscow}{}{
 \begin{itemize}
     \item Server-side development based on NodeJS and Amazon Web Services
     \item Design of the special-purpose file system over Amazon S3
 \end{itemize}
 }
-\cventry{2011--2012}{Software Engineer}{National Research Centre "Kurchatov Institute"}{Moscow}{}{
+\cventry{2011--2012}{Software Engineer}{\Kurchatov}{\Moscow}{}{
 \begin{itemize}
     \item InfiniBand network troubleshooting on a supercomputer
     \item Diagnostic tools development for InfiniBand network (shell)
     \item Stereo 3D visualization
 \end{itemize}
 }
-\cventry{2006--2011}{Laboratory Assistant}{National Research Centre "Kurchatov Institute"}{Moscow}{}{
+\cventry{2006--2011}{Laboratory Assistant}{\Kurchatov}{\Moscow}{}{
 \begin{itemize}
     \item Scientific research on rarefied gas dynamics
     \item Administration of Ubuntu-based stations
@@ -81,24 +87,29 @@
 }
 
 \subsection{Teaching}
-\cventry{2012--2012}{Lecturer}{Moscow Institute of Physics and Technology}{Dolgoprudny}{}{
+\cventry{2012--2012}{Lecturer}{\Mipt}{\Dolgopa}{}{
 \begin{itemize}
     \item Lectures on computer architecture for second year students
 \end{itemize}
 }
-\cventry{2005--2006}{Instructor}{Moscow Institute of Physics and Technology}{Dolgoprudny}{}{
+\cventry{2005--2006}{Instructor}{\Mipt}{\Dolgopa}{}{
 \begin{itemize}
     \item Extramural courses for university entrants
 \end{itemize}
 }
 
 \section{Education}
-\cventry{2011--2015}{Ph.D. (Physics and Mathematics)}{Moscow Institute of Physics and Technology}{Dolgoprudny}
-{still not defended}
-{Numerical analysis of some problems of molecular gas dynamics}
-\cventry{2009--2011}{M.Sc. (Applied Mathematics and Physics)}{Moscow Institute of Physics and Technology}{Dolgoprudny}{\textit{4.88/5.00}}
+\cventry{2011--2015}{Ph.D. (Physics and Mathematics)}{\Mipt}{\Dolgopa}
+{still not defended}{
+Numerical analysis of some classical problems of molecular gas dynamics
+\begin{itemize}
+    \item Supervisor: Felix Tcheremissine
+    \item Speciality: mechanics of liquid, gas, and plasma
+\end{itemize}
+}
+\cventry{2009--2011}{M.Sc. (Applied Mathematics and Physics)}{\Mipt}{\Dolgopa}{\textit{4.88/5.00}}
 {The solution of classical problems of rarefied gas dynamics by the projection method of discrete ordinates}
-\cventry{2005--2009}{B.Sc. (Applied Mathematics and Physics)}{Moscow Institute of Physics and Technology}{Dolgoprudny}{\textit{4.97/5.00}}
+\cventry{2005--2009}{B.Sc. (Applied Mathematics and Physics)}{\Mipt}{\Dolgopa}{\textit{4.97/5.00}}
 {Nonequilibrium gas flows simulation in channels with different geometry on the basis of the Boltzmann equation}
 
 \section{Languages}
@@ -116,8 +127,8 @@
 \cvitem{Parallel}{MPI, OpenMP, Hadoop}
 \cvitem{Networking}{Ethernet, InfiniBand}
 
-\section{Interests}
-\cvitem{Sport}{Skiing, Volleyball, Table Tennis, Triatlon, Chess}
+%\section{Interests}
+%\cvitem{Sport}{Skiing, Volleyball, Table Tennis, Triathlon, Chess}
 
 \renewcommand{\refname}{Publications}
 \nocite{*}
