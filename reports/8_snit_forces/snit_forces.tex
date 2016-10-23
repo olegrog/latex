@@ -1,0 +1,176 @@
+%&pdflatex
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+
+\usepackage{amssymb, amsmath, amsthm}
+\usepackage{fullpage}
+\usepackage{indentfirst}
+
+\usepackage[
+    pdfauthor={Rogozin Oleg},
+    pdftitle={Problem},
+    colorlinks, pdftex, unicode
+]{hyperref}
+
+\theoremstyle{plain}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{exercise}{Exercise}
+
+%\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\title{Задача}
+\author{Олег Рогозин}
+
+\DeclareMathOperator{\supp}{supp}
+
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
+\newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
+%\newcommand{\eqdef}{\overset{\mathrm{def}}{=\joinrel=}}
+\newcommand{\eqdef}{\equiv}
+
+\begin{document}
+
+\section{Известный метод решения}
+
+Рассмотрим классическую задачу электростатики о нахождении электрического поля,
+возникающего между идеально проводящими телами. На основании законов Максвелла,
+существует потенциал электрического поля \(\varphi\), для которого справедливо
+уравнение Лапласа
+\begin{equation}\label{eq:Laplace}
+    \pderdual[\varphi]{x_i} = 0.
+\end{equation}
+Будем считать, что на поверхности проводников \(\varphi\) постоянен.
+В силу линейности~\eqref{eq:Laplace} электрический заряд линейно связан с граничными условиями:
+\begin{equation}\label{eq:charge}
+    e_a \eqdef \oint_{S_a} \pder[\varphi]{x_i}n_i\dd{S} = C_{ab} \varphi_b,
+\end{equation}
+где \(n_i\) "--- единичный вектор нормали к поверхности, направленный наружу от тела,
+\(\varphi_a\) "--- потенциал тела \(a\), \(S_a\) "--- его поверхность.
+Коэффициенты ёмкости \(C_{aa}\) и коэффициенты электростатической индукции \(C_{ab}\,(a\neq b)\)
+зависят только от геометрии задачи.
+Энергия электрического поля
+\begin{equation}\label{eq:energy}
+    U \eqdef \int \left(\pder[\varphi]{x_i}\right)^2\dd{V} =
+    \sum_a \varphi_a \oint_{S_a} \pder[\varphi]{x_i}n_i\dd{S} = C_{ab} \varphi_a \varphi_b.
+\end{equation}
+Сила, действующая на проводник \(a\),
+\begin{equation}\label{eq:force}
+    F^a_i = \oint_{S_a} \left(\pder[\varphi]{x_j}\right)^2 n_i\dd{S}
+\end{equation}
+может быть найдена как вариационная производная функционала~\eqref{eq:energy}
+при смещении проводника \(a\) на вектор \(\delta r^a_i\):
+\begin{equation}\label{eq:variation}
+    \delta \int \left(\pder[\varphi]{x_j}\right)^2\dd{V} =
+    \oint_{S_a} \left(\pder[\varphi]{x_j}\right)^2 n_i \delta r^a_i \dd{S} +
+    2\sum_b \oint_{S_b} \pder[\varphi]{x_j} n_j\delta\varphi - 2\int \pderdual[\varphi]{x_j} \delta\varphi.
+\end{equation}
+Последние два интеграла равны нулю благодаря~\eqref{eq:Laplace} и неизменности потенциалов тел:
+\begin{equation}\label{eq:delta_phi}
+    \forall a \quad \delta\varphi|_{S_a} = 0.
+\end{equation}
+
+Для случая двух тел
+\begin{equation}\label{eq:capacity}
+    e_2 = -e_1 \eqdef e = C\Delta\varphi \eqdef C(\varphi_2 - \varphi_1).
+\end{equation}
+Эти тела притягиваются друг другу с силой
+\begin{equation}\label{eq:force2}
+    F_i = \left(\frac{\delta U}{\delta r^a_i}\right)_\varphi = \pder[C]{r^a_i}(\Delta\varphi)^2.
+\end{equation}
+
+\section{Задача}
+
+Вместо~\eqref{eq:Laplace} рассмотрим поле, подчиняющееся эллиптическому уравнению вида
+\begin{equation}\label{eq:elliptic}
+    \pder{x_i}\left( \Gamma_2(T) \pder[T]{x_i} \right) = 0
+\end{equation}
+и дополним его уравнением сохранения импульса
+\begin{equation}\label{eq:momentum}
+    \pder{x_i}\left( p + \frac{\Gamma_7(T)}{2}\left(\pder[T]{x_j}\right)^2 \right) =
+    \pder{x_j}\left( \Gamma_7(T)\pder[T]{x_i}\pder[T]{x_j} \right).
+\end{equation}
+Давление \(p\) определяется с точностью до константы, поэтому для удобства положим
+\begin{equation}\label{eq:pressure}
+    \int p\dd{V} = 0.
+\end{equation}
+На основе уравнения импульса~\eqref{eq:momentum} можно определить силу, действующую на тело \(a\),
+\begin{equation}\label{eq:force_ell}
+    F^a_i \eqdef \oint_{S_a} \left( p - \frac{\Gamma_7(T)}{2}\left(\pder[T]{x_j}\right)^2 \right) n_i\dd{S}.
+\end{equation}
+Коэффициенты \(\Gamma_2\) и \(\Gamma_7\) определим в виде
+\begin{equation}\label{eq:gammas}
+    \Gamma_n(T) = \gamma_n T^{p_n}.
+\end{equation}
+При \(T=1+o(1)\) задача сводится к \emph{линейной} электростатической,
+где два равномерно нагретых тела с температурами \(T_1\) и \(T_2\) притягиваются с силой \(F \propto (T_2-T_1)^2\).
+Требуется доказать следующую
+\begin{lemma}\label{lem:force}
+    Два равномерно нагретых тела притягиваются с силой
+    \begin{equation}\label{eq:force_temp}
+        F \propto \left( T_2^{1+p_7-p_2} - T_1^{1+p_7-p_2} \right)\left( T_2^{1+p_2} - T_1^{1+p_2} \right).
+    \end{equation}
+\end{lemma}
+
+\begin{remark}
+    Справедливость утверждения проверена на численных примерах:
+    \begin{itemize}
+        \item при \(p_2=1/2\) и \(p_7=0\) (газ твёрдых сфер),
+        \item при \(p_2=1\) и \(p_7=1\) (модель БГК).
+    \end{itemize}
+\end{remark}
+
+\subsection{Решение}
+
+В отличие от~\eqref{eq:Laplace} уравнение~\eqref{eq:elliptic} нелинейно, однако его бездивергентная форма
+позволяет по аналогии с~\eqref{eq:charge} сделать
+\begin{proposition}
+    В области, заключённой между телами с площадью \(S_a\) и температурой \(T_a\),
+    \begin{equation}\label{eq:charge_ell}
+        e_a \eqdef T_a^{p_2} \oint_{S_a} \pder[T]{x_i}n_i\dd{S} = C_{ab} T_b^{1+p_2}.
+    \end{equation}
+\end{proposition}
+\begin{proof}
+     Нелинейное уравнение~\eqref{eq:elliptic} для \(T\) является линейным для поля \(\psi=T^{1+p_2}\).
+     Подставляя это выражение в~\eqref{eq:charge} вместо \(\varphi\), получаем искомое утверждение.
+\end{proof}
+Отметим, что в силу~\eqref{eq:elliptic} и~\eqref{eq:momentum}
+\begin{equation}\label{eq:closed}
+    \sum_a F^a_i = 0, \quad \sum_a e_a = 0.
+\end{equation}
+Несложно построить аналог энергии
+\begin{equation}\label{eq:energy_ell}
+    U \eqdef \int \left[ p - \frac{\Gamma_7(T)}2\left(\pder[T]{x_i}\right)^2 \right]\dd{V} =
+    \gamma_7 \sum_a T_a^{1+p_7} \oint_{S_a} \pder[T]{x_i}n_i\dd{S} =
+    C_{ab} T_a^{1+p_7-p_2} T_b^{1+p_2},
+\end{equation}
+Для двух тел с температурами \(T_1\) и \(T_2\) можно записать:
+\begin{equation}\label{eq:two_bodies}
+    e = C \left( T_2^{1+p_2} - T_1^{1+p_2} \right), \quad
+    U = C \left( T_2^{1+p_7-p_2} - T_1^{1+p_7-p_2} \right)\left( T_2^{1+p_2} - T_1^{1+p_2} \right).
+\end{equation}
+Выпишем вариацию энергии \(\delta{U}\) при смещении тела \(a\) на вектор \(\delta r^a_i\):
+\begin{equation}\label{eq:variation_ell}
+    \delta U = F^a_i\delta r^a_i +
+        \int \delta\left[ p - \frac{\Gamma_7(T)}2\left(\pder[T]{x_j}\right)^2 \right]\dd{V}.
+\end{equation}
+Последний интеграл равен нулю, поскольку
+\begin{equation}\label{eq:sum_forces}
+    \int \pder{x_i} \left[ p - \frac{\Gamma_7(T)}2\left(\pder[T]{x_j}\right)^2 \right]\dd{V} = 0
+\end{equation}
+и справедливо
+\begin{proposition}
+    Если \(\delta T|_{S_a} = 0\) для всех тел \(a\), то
+    \begin{equation}\label{eq:delta_to_partial}
+        \int \frac{\delta}{\delta r^a_i} \left[ p - \frac{\Gamma_7(T)}2\left(\pder[T]{x_j}\right)^2 \right]\dd{V} =
+        \int \pder{x_i} \left[ p - \frac{\Gamma_7(T)}2\left(\pder[T]{x_j}\right)^2 \right]\dd{V}.
+    \end{equation}
+\end{proposition}
+Лемма~\ref{lem:force} доказана.
+
+\end{document}
