@@ -7,6 +7,9 @@
 \usepackage{amssymb, amsmath, amsthm}
 \usepackage{fullpage}
 \usepackage{indentfirst}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{pgfplots}
 
 \usepackage[
     pdfauthor={Rogozin Oleg},
@@ -14,13 +17,23 @@
     colorlinks, pdftex, unicode
 ]{hyperref}
 
-\theoremstyle{plain}
-\newtheorem{lemma}{Lemma}
-\newtheorem{proposition}{Proposition}
-\newtheorem{exercise}{Exercise}
+\usepackage[
+    backend=biber,
+    style=gost-numeric,
+    autolang=other,
+    maxbibnames=99, minbibnames=99,
+    natbib=true,
+    sorting=ydnt,
+    url=false,
+    eprint=false,
+    pagetracker,
+    firstinits]{biblatex}
+\bibliography{snit_forces}
 
+\theoremstyle{plain}
+\newtheorem*{lemma}{Lemma}
 %\theoremstyle{remark}
-\newtheorem{remark}{Remark}
+\newtheorem*{remark}{Remark}
 
 \title{Задача}
 \author{Олег Рогозин}
@@ -30,6 +43,10 @@
 \newcommand{\dd}{\mathrm{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
 \newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
+\newcommand{\pderder}[3][]{\frac{\partial^2#1}{\partial#2\partial#3}}
+\newcommand{\Pder}[2][]{\partial#1/\partial#2}
+\newcommand{\Pderdual}[2][]{\partial^2#1/\partial#2^2}
+\newcommand{\Pderder}[3][]{\partial^2#1/\partial#2\partial#3}
 \newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
 %\newcommand{\eqdef}{\overset{\mathrm{def}}{=\joinrel=}}
 \newcommand{\eqdef}{\equiv}
@@ -86,7 +103,7 @@
 
 \section{Задача}
 
-Вместо~\eqref{eq:Laplace} рассмотрим поле, подчиняющееся эллиптическому уравнению вида
+Рассмотрим температурное поле, подчиняющееся эллиптическому уравнению вида
 \begin{equation}\label{eq:elliptic}
     \pder{x_i}\left( \Gamma_2(T) \pder[T]{x_i} \right) = 0
 \end{equation}
@@ -105,7 +122,7 @@
 \end{equation}
 Коэффициенты \(\Gamma_2\) и \(\Gamma_7\) определим в виде
 \begin{equation}\label{eq:gammas}
-    \Gamma_n(T) = \gamma_n T^{p_n}.
+    \Gamma_n(T) = \gamma_n T^{s_n}.
 \end{equation}
 При \(T=1+o(1)\) задача сводится к \emph{линейной} электростатической,
 где два равномерно нагретых тела с температурами \(T_1\) и \(T_2\) притягиваются с силой \(F \propto (T_2-T_1)^2\).
@@ -113,64 +130,153 @@
 \begin{lemma}\label{lem:force}
     Два равномерно нагретых тела притягиваются с силой
     \begin{equation}\label{eq:force_temp}
-        F \propto \left( T_2^{1+p_7-p_2} - T_1^{1+p_7-p_2} \right)\left( T_2^{1+p_2} - T_1^{1+p_2} \right).
+        F_i \propto \left( T_2^{1+s_7-s_2} - T_1^{1+s_7-s_2} \right)\left( T_2^{1+s_2} - T_1^{1+s_2} \right).
     \end{equation}
 \end{lemma}
 
-\begin{remark}
-    Справедливость утверждения проверена на численных примерах:
-    \begin{itemize}
-        \item при \(p_2=1/2\) и \(p_7=0\) (газ твёрдых сфер),
-        \item при \(p_2=1\) и \(p_7=1\) (модель БГК).
-    \end{itemize}
-\end{remark}
-
-\subsection{Решение}
-
-В отличие от~\eqref{eq:Laplace} уравнение~\eqref{eq:elliptic} нелинейно, однако его бездивергентная форма
-позволяет по аналогии с~\eqref{eq:charge} сделать
-\begin{proposition}
-    В области, заключённой между телами с площадью \(S_a\) и температурой \(T_a\),
-    \begin{equation}\label{eq:charge_ell}
-        e_a \eqdef T_a^{p_2} \oint_{S_a} \pder[T]{x_i}n_i\dd{S} = C_{ab} T_b^{1+p_2}.
-    \end{equation}
-\end{proposition}
 \begin{proof}
-     Нелинейное уравнение~\eqref{eq:elliptic} для \(T\) является линейным для поля \(\psi=T^{1+p_2}\).
-     Подставляя это выражение в~\eqref{eq:charge} вместо \(\varphi\), получаем искомое утверждение.
-\end{proof}
-Отметим, что в силу~\eqref{eq:elliptic} и~\eqref{eq:momentum}
+
+В отличие от~\eqref{eq:Laplace} уравнение~\eqref{eq:elliptic} нелинейно,
+однако при помощи замены \(\psi=T^{1+s_2}\) получаем уравнение Лапласа для \(\psi\).
+Таким образом, в соответствии с~\eqref{eq:charge} имеем
+\begin{equation}\label{eq:charge_linear}
+    \oint_{S_a} \pder[\psi]{x_i}n_i\dd{S} = C'_{ab} \psi,
+\end{equation}
+на основе чего можно ввести аналог заряда
+\begin{equation}\label{eq:charge_ell}
+    e_a \eqdef T_a^{s_2} \oint_{S_a} \pder[T]{x_i}n_i\dd{S} = C_{ab} T_b^{1+s_2}.
+\end{equation}
+Отметим, что в силу бездивергентных уравнений~\eqref{eq:elliptic} и~\eqref{eq:momentum},
 \begin{equation}\label{eq:closed}
     \sum_a F^a_i = 0, \quad \sum_a e_a = 0.
 \end{equation}
 Несложно построить аналог энергии
 \begin{equation}\label{eq:energy_ell}
     U \eqdef \int \left[ p - \frac{\Gamma_7(T)}2\left(\pder[T]{x_i}\right)^2 \right]\dd{V} =
-    \gamma_7 \sum_a T_a^{1+p_7} \oint_{S_a} \pder[T]{x_i}n_i\dd{S} =
-    C_{ab} T_a^{1+p_7-p_2} T_b^{1+p_2},
+    \gamma_7 \sum_a T_a^{1+s_7} \oint_{S_a} \pder[T]{x_i}n_i\dd{S} =
+    C_{ab} T_a^{1+s_7-s_2} T_b^{1+s_2},
 \end{equation}
 Для двух тел с температурами \(T_1\) и \(T_2\) можно записать:
 \begin{equation}\label{eq:two_bodies}
-    e = C \left( T_2^{1+p_2} - T_1^{1+p_2} \right), \quad
-    U = C \left( T_2^{1+p_7-p_2} - T_1^{1+p_7-p_2} \right)\left( T_2^{1+p_2} - T_1^{1+p_2} \right).
+    e = C \left( T_2^{1+s_2} - T_1^{1+s_2} \right), \quad
+    U = C \left( T_2^{1+s_7-s_2} - T_1^{1+s_7-s_2} \right)\left( T_2^{1+s_2} - T_1^{1+s_2} \right).
 \end{equation}
-Выпишем вариацию энергии \(\delta{U}\) при смещении тела \(a\) на вектор \(\delta r^a_i\):
+
+Используем основную формулу для вариации в случае переменной области\cite{Gelfand1961}
 \begin{equation}\label{eq:variation_ell}
-    \delta U = F^a_i\delta r^a_i +
-        \int \delta\left[ p - \frac{\Gamma_7(T)}2\left(\pder[T]{x_j}\right)^2 \right]\dd{V}.
+    \delta U = \int \left[
+        \left( \pder[\Phi]{\psi} - \pderder[\Phi]{x_i}{\pder[\psi]{x_i}} \right) \delta\psi +
+        \pder{x_i}\left( \pder[\Phi]{\pder[\psi]{x_i}} \delta\psi \right) +
+        \pder{x_i}\left( \Phi \delta x_i \right)
+    \right]\dd{V}
 \end{equation}
-Последний интеграл равен нулю, поскольку
-\begin{equation}\label{eq:sum_forces}
-    \int \pder{x_i} \left[ p - \frac{\Gamma_7(T)}2\left(\pder[T]{x_j}\right)^2 \right]\dd{V} = 0
+для
+\begin{equation}\label{eq:psi_Phi_definition}
+    \psi = T^{\frac{2+s_7}{3}}, \quad
+    \Phi = p - \frac{\gamma_7}2 T^{s_7}\left(\pder[T]{x_j}\right)^2 =
+    p - \frac{\gamma_7}2 \left(\frac3{2+s_7}\right)^2 \psi \left(\pder[\psi]{x_j}\right)^2.
 \end{equation}
-и справедливо
-\begin{proposition}
-    Если \(\delta T|_{S_a} = 0\) для всех тел \(a\), то
-    \begin{equation}\label{eq:delta_to_partial}
-        \int \frac{\delta}{\delta r^a_i} \left[ p - \frac{\Gamma_7(T)}2\left(\pder[T]{x_j}\right)^2 \right]\dd{V} =
-        \int \pder{x_i} \left[ p - \frac{\Gamma_7(T)}2\left(\pder[T]{x_j}\right)^2 \right]\dd{V}.
-    \end{equation}
-\end{proposition}
-Лемма~\ref{lem:force} доказана.
+Для поля \(\psi\) вместо~\eqref{eq:elliptic} и~\eqref{eq:momentum} получаем уравнения
+\begin{equation}\label{eq:psi_equations}
+    \pder[p]{x_i} = \frac{\gamma_7}2 (s_7-2s_2)\left(\frac3{2+s_7}\right)^3
+        \left(\pder[\psi]{x_j}\right)^2 \pder[\psi]{x_i}, \quad
+    \pder{x_i}\left( \psi^\frac{1-s_7+3s_2}{2+s_7} \pder[\psi]{x_i} \right) = 0.
+\end{equation}
+Замечаем, что
+\begin{equation}\label{eq:pressure_psi}
+    p = p\left(x_i, \pder[\psi]{x_i}\right),
+\end{equation}
+поэтому
+\begin{equation}\label{eq:pressure_variations}
+    \pder[p]{\psi} = 0, \quad \pderder[p]{x_i}{\pder[\psi]{x_i}} =
+    \frac{3\gamma_7}2(s_7-2s_2)\left(\frac3{2+s_7}\right)^3\left(\pder[\psi]{x_i}\right)^2.
+\end{equation}
+Таким образом, оказывается, что
+\begin{equation}\label{eq:eq:variation_ell1}
+    \pder[\Phi]{\psi} - \pderder[\Phi]{x_i}{\pder[\psi]{x_i}} = 0.
+\end{equation}
+С физической точки зрения, это отражение закона сохранения энергии.
+Для вариации энергии \(\delta{U}\) при смещении тела \(a\) на вектор \(\delta r^a_i\) и
+при постоянных температурах тел (\(\delta \psi_b=0\)) получаем
+\begin{gather}
+    \int \pder{x_i}\left( \pder[\Phi]{\pder[\psi]{x_i}} \delta\psi \right) \dd{V} =
+    \sum_b \delta \psi_b \oint_{S_b} \pder[\Phi]{\pder[\psi]{x_i}} n_i \dd{S} = 0, \label{eq:variation_ell2}\\
+    \int \pder{x_i}\left( \Phi \delta x_i \right) \dd{V} =
+    \oint_{S_a} \Phi n_i \delta r^a_i \dd{S} = F^a_i \delta r^a_i. \label{eq:variation_ell3}
+\end{gather}
+Итак, для двух тел
+\begin{equation}\label{eq:answer}
+    F_i = \frac{\delta U}{\delta r^a_i}
+        \propto \left( T_2^{1+s_7-s_2} - T_1^{1+s_7-s_2} \right)\left( T_2^{1+s_2} - T_1^{1+s_2} \right).
+\end{equation}
+
+\end{proof}
+\begin{remark}
+    При \(s_2 = 2s_7\) оказывается, что \(\Pder[p]{x_i} = 0\).
+\end{remark}
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \begin{tikzpicture}
+            \begin{loglogaxis}[
+                xlabel=\(\tau\),
+                ylabel=\(F\)]
+                \addplot gnuplot [raw gnuplot, mark=none, color=blue, thick]{
+                    set logscale xy;
+                    set xrange [1e-2:1e3];
+                    plot ((x+1)**.5-1)*((x+1)**1.5-1);
+                };
+                \addplot gnuplot [raw gnuplot, mark=none, color=black, very thin, dashed]{
+                    set xrange [1e0:1e3];
+                    plot x**2;
+                };
+                \addplot gnuplot [raw gnuplot, mark=none, color=black, very thin, dashed]{
+                    set xrange [1e-2:1e+2];
+                    plot 4./5*x**2;
+                };
+            \end{loglogaxis}
+        \end{tikzpicture}
+        \caption{газ твёрдых сфер: \(s_2=1/2\) и \(s_7=0\).
+            Асимптоты: \(\frac45\tau^2\),~\(\tau\to0\) и \(\tau^2\),~\(\tau\to\infty\)}
+        \label{fig:gull}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \begin{tikzpicture}
+            \begin{loglogaxis}[
+                xlabel=\(\tau\),
+                ylabel=\(F\)]
+                \addplot gnuplot [raw gnuplot, mark=none, color=blue, thick]{
+                    set logscale xy;
+                    set xrange [1e-2:1e3];
+                    plot ((x+1)**1-1)*((x+1)**2-1);
+                };
+                \addplot gnuplot [raw gnuplot, mark=none, color=black, very thin, dashed]{
+                    set samples 2;
+                    set xrange [1e0:1e3];
+                    plot x**3;
+                };
+                \addplot gnuplot [raw gnuplot, mark=none, color=black, very thin, dashed]{
+                    set samples 2;
+                    set xrange [1e-2:1e+1];
+                    plot 2*x**2;
+                };
+            \end{loglogaxis}
+        \end{tikzpicture}
+        \caption{модель БГК: \(s_2=1\) и \(s_7=1\).
+            Асимптоты: \(2\tau^2\),~\(\tau\to0\) и \(\tau^3\),~\(\tau\to\infty\)}
+        \label{fig:mouse}
+    \end{subfigure}
+    \caption{Зависимость силы притяжения двух тел \(F\) от разности температур \(\tau=T_2-T_1\) при \(T_1=1\).
+        Тонкие пунктирные линии соответствуют асимптотам.}
+    \label{fig:temperature}
+\end{figure}
+
+На рис.~\ref{fig:temperature} показаны соответствующие зависимости для некоторых частных случаев.
+
+\printbibliography
 
 \end{document}
