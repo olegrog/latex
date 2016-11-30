@@ -2,7 +2,7 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T2A]{fontenc}
-\usepackage[russian]{babel}
+\usepackage[english,french,russian]{babel}
 
 \usepackage{amssymb, amsmath, amsthm}
 \usepackage{fullpage}
@@ -25,13 +25,14 @@
     natbib=true,
     sorting=ydnt,
     url=false,
-    eprint=false,
+    eprint=true,
     pagetracker,
     firstinits]{biblatex}
 \bibliography{snit_forces}
 
 \theoremstyle{plain}
 \newtheorem*{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
 %\theoremstyle{remark}
 \newtheorem*{remark}{Remark}
 
@@ -48,6 +49,8 @@
 \newcommand{\Pderdual}[2][]{\partial^2#1/\partial#2^2}
 \newcommand{\Pderder}[3][]{\partial^2#1/\partial#2\partial#3}
 \newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\by}{\boldsymbol{y}}
 %\newcommand{\eqdef}{\overset{\mathrm{def}}{=\joinrel=}}
 \newcommand{\eqdef}{\equiv}
 
@@ -63,7 +66,7 @@
     \pderdual[\varphi]{x_i} = 0.
 \end{equation}
 Будем считать, что на поверхности проводников \(\varphi\) постоянен.
-В силу линейности~\eqref{eq:Laplace} электрический заряд линейно связан с граничными условиями:
+В силу линейности~\eqref{eq:Laplace} электрический заряд линейно связан с граничными условиями,
 \begin{equation}\label{eq:charge}
     e_a \eqdef \oint_{S_a} \pder[\varphi]{x_i}n_i\dd{S} = C_{ab} \varphi_b,
 \end{equation}
@@ -81,15 +84,35 @@
     F^a_i = \oint_{S_a} \left(\pder[\varphi]{x_j}\right)^2 n_i\dd{S}
 \end{equation}
 может быть найдена как вариационная производная функционала~\eqref{eq:energy}
-при смещении проводника \(a\) на вектор \(\delta r^a_i\):
-\begin{equation}\label{eq:variation}
-    \delta \int \left(\pder[\varphi]{x_j}\right)^2\dd{V} =
-    \oint_{S_a} \left(\pder[\varphi]{x_j}\right)^2 n_i \delta r^a_i \dd{S} +
-    2\sum_b \oint_{S_b} \pder[\varphi]{x_j} n_j\delta\varphi - 2\int \pderdual[\varphi]{x_j} \delta\varphi.
+при смещении проводника \(a\) на вектор \(\delta r^a_i\).
+Для этого воспользуемся основной формулой для вариации функционала от \(\Phi(\varphi,\Pder[\varphi]{x_i})\)
+в случае переменной области~\cite{Gelfand1961},
+\begin{equation}\label{eq:variation_general}
+    \delta \int \Phi \dd{V} = \int \left[
+        \left( \Phi_\varphi - \pder[\Phi_{\varphi_i}]{x_i} \right) \delta\varphi +
+        \pder{x_i}\left( \pder[\Phi_{\varphi_i}]{x_i} \delta\varphi \right) +
+        \pder{x_i}\left( \Phi \delta x_i \right)
+    \right]\dd{V},
 \end{equation}
-Последние два интеграла равны нулю благодаря~\eqref{eq:Laplace} и неизменности потенциалов тел:
+где введены следующие обозначения:
+\begin{equation}\label{eq:Phi_derivatives}
+    \Phi_\varphi = \pder[\Phi]{\varphi}, \quad \Phi_{\varphi_i} = \pder[\Phi]{\pder[\varphi]{x_i}}.
+\end{equation}
+При \(\Phi=(\Pder[\varphi]{x_j})^2\) получается
+\begin{equation}\label{eq:variation}
+    \delta U =
+    - 2\int \pderdual[\varphi]{x_j} \delta\varphi
+    + 2\sum_b \oint_{S_b} \pder[\varphi]{x_j} n_j\delta\varphi
+    + \oint_{S_a} \left(\pder[\varphi]{x_j}\right)^2 n_i \delta r^a_i \dd{S}.
+\end{equation}
+Первые два интеграла в правой части~\eqref{eq:variation} равны нулю
+благодаря~\eqref{eq:Laplace} и неизменности потенциалов тел,
 \begin{equation}\label{eq:delta_phi}
-    \forall a \quad \delta\varphi|_{S_a} = 0.
+    \forall a \quad \delta\varphi|_{S_a} = 0,
+\end{equation}
+поэтому
+\begin{equation}\label{eq:force_n}
+    F^a_i = \left(\frac{\delta U}{\delta r^a_i}\right)_\varphi = \pder[C_{ab}]{r^a_i} \varphi_a \varphi_b.
 \end{equation}
 
 Для случая двух тел
@@ -98,122 +121,52 @@
 \end{equation}
 Эти тела притягиваются друг другу с силой
 \begin{equation}\label{eq:force2}
-    F_i = \left(\frac{\delta U}{\delta r^a_i}\right)_\varphi = \pder[C]{r^a_i}(\Delta\varphi)^2.
+    F_i = \left(\frac{\delta U}{\delta r_i}\right)_\varphi = \pder[C]{r_i}(\Delta\varphi)^2.
 \end{equation}
 
 \section{Задача}
 
-Рассмотрим температурное поле, подчиняющееся эллиптическому уравнению вида
+Рассмотрим температурное поле \(T\), подчиняющееся эллиптическому уравнению вида
 \begin{equation}\label{eq:elliptic}
-    \pder{x_i}\left( \Gamma_2(T) \pder[T]{x_i} \right) = 0
+    \pder{x_i}\left( \Gamma_2(T) \pder[T]{x_i} \right) = 0,
 \end{equation}
-и дополним его уравнением сохранения импульса
-\begin{equation}\label{eq:momentum}
-    \pder{x_i}\left( p + \frac{\Gamma_7(T)}{2}\left(\pder[T]{x_j}\right)^2 \right) =
-    \pder{x_j}\left( \Gamma_7(T)\pder[T]{x_i}\pder[T]{x_j} \right).
-\end{equation}
-Давление \(p\) определяется с точностью до константы, поэтому для удобства положим
-\begin{equation}\label{eq:pressure}
+и дополним его полем давления \(p\), которое вычисляется из краевой задачи Неймана
+\begin{gather}
+    \pderdual{x_i}\left( p + \frac{\Gamma_7(T)}{2}\left(\pder[T]{x_j}\right)^2 \right) =
+    \pderder{x_i}{x_j}\left( \Gamma_7(T)\pder[T]{x_i}\pder[T]{x_j} \right), \label{eq:pressure_equation}\\
+    \pder{x_i}\left.\left( p + \frac{\Gamma_7(T)}{2}\left(\pder[T]{x_j}\right)^2 \right)n_i\right|_S =
+    \pder{x_j}\left.\left( \Gamma_7(T)\pder[T]{x_i}\pder[T]{x_j} \right)n_i\right|_S. \label{eq:pressure_boundary}
+\end{gather}
+Давление \(p\) определяется с точностью до константы, поэтому для определённости положим
+\begin{equation}\label{eq:pressure_integral}
     \int p\dd{V} = 0.
 \end{equation}
-На основе уравнения импульса~\eqref{eq:momentum} можно определить силу, действующую на тело \(a\),
+На основе уравнения~\eqref{eq:pressure_equation} можно определить силу, действующую на тело \(a\),
 \begin{equation}\label{eq:force_ell}
-    F^a_i \eqdef \oint_{S_a} \left( p - \frac{\Gamma_7(T)}{2}\left(\pder[T]{x_j}\right)^2 \right) n_i\dd{S}.
+    F^a_i \eqdef \oint_{S_a} \left( \frac{\Gamma_7(T)}{2}\left(\pder[T]{x_j}\right)^2 - p \right) n_i\dd{S}.
 \end{equation}
-Коэффициенты \(\Gamma_2\) и \(\Gamma_7\) определим в виде
+Транспортные коэффициенты для степенных потенциалов:
 \begin{equation}\label{eq:gammas}
-    \Gamma_n(T) = \gamma_n T^{s_n}.
+    \Gamma_2(T) = \gamma_2 T^s, \quad \Gamma_7(T) = \gamma_7 T^{2s-1}.
 \end{equation}
 При \(T=1+o(1)\) задача сводится к \emph{линейной} электростатической,
 где два равномерно нагретых тела с температурами \(T_1\) и \(T_2\) притягиваются с силой \(F \propto (T_2-T_1)^2\).
 Требуется доказать следующую
 \begin{lemma}\label{lem:force}
     Два равномерно нагретых тела притягиваются с силой
-    \begin{equation}\label{eq:force_temp}
-        F_i \propto \left( T_2^{1+s_7-s_2} - T_1^{1+s_7-s_2} \right)\left( T_2^{1+s_2} - T_1^{1+s_2} \right).
+    \begin{equation}\label{eq:force_temp_0}
+        F_i \propto \left( \ln{T_2}-\ln{T_1} \right)\left( T_2 - T_1 \right)
     \end{equation}
+    при \(s=0\),
+    \begin{equation}\label{eq:force_temp_-1}
+        F_i \propto \left( T_2^{-1} - T_1^{-1} \right)\left( \ln{T_2}-\ln{T_1} \right)
+    \end{equation}
+    при \(s=-1\) и
+    \begin{equation}\label{eq:force_temp}
+        F_i \propto \left( T_2^s - T_1^s \right)\left( T_2^{1+s} - T_1^{1+s} \right)
+    \end{equation}
+    в остальных случаях.
 \end{lemma}
-
-\begin{proof}
-
-В отличие от~\eqref{eq:Laplace} уравнение~\eqref{eq:elliptic} нелинейно,
-однако при помощи замены \(\psi=T^{1+s_2}\) получаем уравнение Лапласа для \(\psi\).
-Таким образом, в соответствии с~\eqref{eq:charge} имеем
-\begin{equation}\label{eq:charge_linear}
-    \oint_{S_a} \pder[\psi]{x_i}n_i\dd{S} = C'_{ab} \psi,
-\end{equation}
-на основе чего можно ввести аналог заряда
-\begin{equation}\label{eq:charge_ell}
-    e_a \eqdef T_a^{s_2} \oint_{S_a} \pder[T]{x_i}n_i\dd{S} = C_{ab} T_b^{1+s_2}.
-\end{equation}
-Отметим, что в силу бездивергентных уравнений~\eqref{eq:elliptic} и~\eqref{eq:momentum},
-\begin{equation}\label{eq:closed}
-    \sum_a F^a_i = 0, \quad \sum_a e_a = 0.
-\end{equation}
-Несложно построить аналог энергии
-\begin{equation}\label{eq:energy_ell}
-    U \eqdef \int \left[ p - \frac{\Gamma_7(T)}2\left(\pder[T]{x_i}\right)^2 \right]\dd{V} =
-    \gamma_7 \sum_a T_a^{1+s_7} \oint_{S_a} \pder[T]{x_i}n_i\dd{S} =
-    C_{ab} T_a^{1+s_7-s_2} T_b^{1+s_2},
-\end{equation}
-Для двух тел с температурами \(T_1\) и \(T_2\) можно записать:
-\begin{equation}\label{eq:two_bodies}
-    e = C \left( T_2^{1+s_2} - T_1^{1+s_2} \right), \quad
-    U = C \left( T_2^{1+s_7-s_2} - T_1^{1+s_7-s_2} \right)\left( T_2^{1+s_2} - T_1^{1+s_2} \right).
-\end{equation}
-
-Используем основную формулу для вариации в случае переменной области\cite{Gelfand1961}
-\begin{equation}\label{eq:variation_ell}
-    \delta U = \int \left[
-        \left( \pder[\Phi]{\psi} - \pderder[\Phi]{x_i}{\pder[\psi]{x_i}} \right) \delta\psi +
-        \pder{x_i}\left( \pder[\Phi]{\pder[\psi]{x_i}} \delta\psi \right) +
-        \pder{x_i}\left( \Phi \delta x_i \right)
-    \right]\dd{V}
-\end{equation}
-для
-\begin{equation}\label{eq:psi_Phi_definition}
-    \psi = T^{\frac{2+s_7}{3}}, \quad
-    \Phi = p - \frac{\gamma_7}2 T^{s_7}\left(\pder[T]{x_j}\right)^2 =
-    p - \frac{\gamma_7}2 \left(\frac3{2+s_7}\right)^2 \psi \left(\pder[\psi]{x_j}\right)^2.
-\end{equation}
-Для поля \(\psi\) вместо~\eqref{eq:elliptic} и~\eqref{eq:momentum} получаем уравнения
-\begin{equation}\label{eq:psi_equations}
-    \pder[p]{x_i} = \frac{\gamma_7}2 (s_7-2s_2)\left(\frac3{2+s_7}\right)^3
-        \left(\pder[\psi]{x_j}\right)^2 \pder[\psi]{x_i}, \quad
-    \pder{x_i}\left( \psi^\frac{1-s_7+3s_2}{2+s_7} \pder[\psi]{x_i} \right) = 0.
-\end{equation}
-Замечаем, что
-\begin{equation}\label{eq:pressure_psi}
-    p = p\left(x_i, \pder[\psi]{x_i}\right),
-\end{equation}
-поэтому
-\begin{equation}\label{eq:pressure_variations}
-    \pder[p]{\psi} = 0, \quad \pderder[p]{x_i}{\pder[\psi]{x_i}} =
-    \frac{3\gamma_7}2(s_7-2s_2)\left(\frac3{2+s_7}\right)^3\left(\pder[\psi]{x_i}\right)^2.
-\end{equation}
-Таким образом, оказывается, что
-\begin{equation}\label{eq:eq:variation_ell1}
-    \pder[\Phi]{\psi} - \pderder[\Phi]{x_i}{\pder[\psi]{x_i}} = 0.
-\end{equation}
-С физической точки зрения, это отражение закона сохранения энергии.
-Для вариации энергии \(\delta{U}\) при смещении тела \(a\) на вектор \(\delta r^a_i\) и
-при постоянных температурах тел (\(\delta \psi_b=0\)) получаем
-\begin{gather}
-    \int \pder{x_i}\left( \pder[\Phi]{\pder[\psi]{x_i}} \delta\psi \right) \dd{V} =
-    \sum_b \delta \psi_b \oint_{S_b} \pder[\Phi]{\pder[\psi]{x_i}} n_i \dd{S} = 0, \label{eq:variation_ell2}\\
-    \int \pder{x_i}\left( \Phi \delta x_i \right) \dd{V} =
-    \oint_{S_a} \Phi n_i \delta r^a_i \dd{S} = F^a_i \delta r^a_i. \label{eq:variation_ell3}
-\end{gather}
-Итак, для двух тел
-\begin{equation}\label{eq:answer}
-    F_i = \frac{\delta U}{\delta r^a_i}
-        \propto \left( T_2^{1+s_7-s_2} - T_1^{1+s_7-s_2} \right)\left( T_2^{1+s_2} - T_1^{1+s_2} \right).
-\end{equation}
-
-\end{proof}
-\begin{remark}
-    При \(s_2 = 2s_7\) оказывается, что \(\Pder[p]{x_i} = 0\).
-\end{remark}
 
 \begin{figure}[ht]
     \centering
@@ -234,12 +187,12 @@
                 };
                 \addplot gnuplot [raw gnuplot, mark=none, color=black, very thin, dashed]{
                     set xrange [1e-2:1e+2];
-                    plot 4./5*x**2;
+                    plot 3./4*x**2;
                 };
             \end{loglogaxis}
         \end{tikzpicture}
         \caption{газ твёрдых сфер: \(s_2=1/2\) и \(s_7=0\).
-            Асимптоты: \(\frac45\tau^2\),~\(\tau\to0\) и \(\tau^2\),~\(\tau\to\infty\)}
+            Асимптоты: \(\frac34\tau^2\),~\(\tau\to0\) и \(\tau^2\),~\(\tau\to\infty\)}
         \label{fig:gull}
     \end{subfigure}
     ~
@@ -266,7 +219,7 @@
                 };
             \end{loglogaxis}
         \end{tikzpicture}
-        \caption{модель БГК: \(s_2=1\) и \(s_7=1\).
+        \caption{максвелловские молекулы или модель БГК: \(s_2=1\) и \(s_7=1\).
             Асимптоты: \(2\tau^2\),~\(\tau\to0\) и \(\tau^3\),~\(\tau\to\infty\)}
         \label{fig:mouse}
     \end{subfigure}
@@ -276,6 +229,133 @@
 \end{figure}
 
 На рис.~\ref{fig:temperature} показаны соответствующие зависимости для некоторых частных случаев.
+
+\section{Обоснование леммы}
+
+В отличие от~\eqref{eq:Laplace} уравнение~\eqref{eq:elliptic} нелинейно,
+однако при помощи замены \(\psi=T^{1+s}\) получается уравнение Лапласа для \(\psi\).
+При \(s=-1\) используется замена \(\psi=\ln{T}\).
+Таким образом, по аналогии с~\eqref{eq:charge} можно ввести аналог заряда
+\begin{equation}\label{eq:charge_ell}
+    e_a \eqdef T_a^s \oint_{S_a} \pder[T]{x_i}n_i\dd{S} = C'_{ab} T_b^{1+s}, \quad \sum_a e_a = 0.
+\end{equation}
+При \(s=-1\) получается \(e_a = C_{ab} \ln{T_b}\).
+Несложно также построить аналог энергии
+\begin{equation}\label{eq:energy_ell}
+    U \eqdef \int \left[ \frac{\Gamma_7(T)}2\left(\pder[T]{x_i}\right)^2 - p \right]\dd{V} =
+    \gamma_7 \sum_a T_a^{2s} \oint_{S_a} \pder[T]{x_i}n_i\dd{S} =
+    C_{ab} T_a^s T_b^{1+s}.
+\end{equation}
+При \(s=0\)
+\begin{equation}\label{eq:energy_ell0}
+    U = \gamma_7 \sum_a \ln{T_a} \oint_{S_a} \pder[T]{x_i}n_i\dd{S} = C_{ab} T_b \ln{T_a}.
+\end{equation}
+Для двух тел с температурами \(T_1\) и \(T_2\) можно записать
+\begin{equation}\label{eq:two_bodies}
+    e = C \left( T_2^{1+s} - T_1^{1+s} \right), \quad
+    U = C \left( T_2^s - T_1^s \right)\left( T_2^{1+s} - T_1^{1+s} \right),
+\end{equation}
+поскольку \(e_1+e_2=0\) и \(e_1=e_2=0\) при \(T_1=T_2\).
+Для частных случаев \(s=-1\) и \(s=0\) выражения аналогичны.
+
+\section{Функция Грина}
+
+Для удобства обозначим
+\begin{equation}\label{eq:g7_function}
+    f\left(\psi,\pder[\psi]{x_i}\right) = \frac{\Gamma_7(T)}2\left(\pder[T]{x_j}\right)^2 =
+    \frac{\gamma_7}2 c^2 \psi^c\left(\pder[\psi]{x_j}\right)^2, \quad c=-\frac1{1+s},
+\end{equation}
+тогда краевая задача~\eqref{eq:pressure_equation},~\eqref{eq:pressure_boundary} примет вид
+\begin{equation}\label{eq:pressure_short}
+    \pderdual[p]{x_k} = \pder[f_\psi]{x_k}\pder[\psi]{x_k}, \quad
+    \left.\pder[p]{x_k}n_k\right|_S = \left.f_\psi\pder[\psi]{x_k}n_k\right|_S,
+\end{equation}
+где использованы обозначения частных производных~\eqref{eq:Phi_derivatives}.
+Через функцию Грина \(G(\bx, \bx')\) для задачи Неймана~\cite{Franklin2012},
+\begin{equation}\label{eq:Green_function}
+    \pderdual[G]{x_k'} = \delta(\bx-\bx') - \frac1V, \quad
+    \left.\pder[G]{x_k'}n_k\right|_{S'} = 0,
+\end{equation}
+можно выразить решение~\eqref{eq:pressure_short}:
+\begin{equation}\label{eq:pressure_solution}
+    p = \frac1V\int p\dd{V} - \int f_\psi(\bx')\pder[\psi(\bx')]{x_k'}\pder[G(\bx,\bx')]{x_k'} \dd{V'}.
+\end{equation}
+Функция \(G(\bx, \bx')\) определяется с точностью до функции от \(x\).
+При дополнительном условии
+\begin{equation}\label{eq:Green_normalization}
+    \int G(\bx, \bx') \dd{V'} = 0
+\end{equation}
+обеспечивается её симметричность
+\begin{equation}\label{eq:Green_symmetry}
+    G(\bx, \bx') = G(\bx', \bx).
+\end{equation}
+Этот факт легко подтверждается подстановкой \(v=G(\bx,\by)\), \(u=G(\bx',\by)\)
+во вторую формулу Грина
+\begin{equation}\label{eq:Green_second_identity}
+    \oint \left( u\pder[v]{x_k} - v\pder[u]{x_k} \right)n_k\dd{S} =
+    \int \left( u\pderdual[v]{x_k} - v\pderdual[u]{x_k} \right)\dd{V}.
+\end{equation}
+
+Используем основную формулу для вариации в случае переменной области~\eqref{eq:variation_general}
+для \(\Phi = f-p\) при сдвиге тела \(a\) на вектор \(\delta r^a_i\):
+\begin{equation}\label{eq:variation_energy}
+    \delta\int(f-p)\dd{V} = F^a_i \delta r^a_i + \int\delta(f-p)\dd{V}.
+\end{equation}
+При подстановке~\eqref{eq:energy_ell} и~\eqref{eq:pressure_solution} в~\eqref{eq:variation_energy} получаем
+\begin{equation}\label{eq:variation_energy2}
+    \pder[C_{ab}]{r^a_i} \psi^{c+1}_a \psi_b - F^a_i \delta r^a_i =
+    \int\dd{V}\left( \delta{f} + \delta\int f'_\psi\pder[\psi']{x_k'}\pder[G]{x_k'} \dd{V'} \right) =
+    \int\dd{V}\left[ \delta{f} + \int\delta\left( f'_\psi\pder[\psi']{x_k'}\pder[G]{x_k'}\right) \dd{V'} \right].
+\end{equation}
+Последнее равенство справедливо, поскольку \(\Pder[\psi]{x_k}\) и \(\Pder[G]{x_k}\) перпендикулярны на границе.
+
+Из определения функции Грина~\eqref{eq:Green_function} следует,
+что для произвольной дифференцируемой функции \(g(\bx)\) справедливы равенства
+\begin{equation}\label{eq:Green_double_integral}
+    \iint g\pderdual[G]{x_k'}\dd{V'}\dd{V} = 0, \quad
+    \iint \pder[g]{x_k'}\pder[G]{x_k'}\dd{V'}\dd{V} = 0.
+\end{equation}
+Используя постоянство температур тел (\(\delta\psi|_S=0\)) и~\eqref{eq:Green_double_integral},
+получаем цепочку тождественных преобразований
+\begin{multline}\label{eq:variation_energy3}
+    \iint \pder[G]{x_k'}\delta\left( f'_\psi\pder[\psi']{x_k'} \right) \dd{V'}\dd{V} =
+    -\iint \pder{x_j'}\left( f'_{\psi\psi_j}\pder[\psi']{x_k'}\pder[G]{x_k'} \right)\delta\psi' \dd{V'}\dd{V} = \\
+    \iint f'_{\psi\psi_j}\pder[\psi']{x_k'}\pder[G]{x_k'} \delta\left(\pder[\psi']{x_j'}\right) \dd{V'}\dd{V} =
+    -\frac12\iint \psi'^c\pder[G]{x_k'} \delta\left[\pder{x_k}\left(\pder[\psi']{x_j}\right)^2\right] \dd{V'}\dd{V}.
+\end{multline}
+
+Для вариации функции Грина справедлива формула Адамара~\cite{Hadamard1908, Schiffer1958}
+\begin{equation}\label{eq:Hadamard_identity}
+    \delta{G}(\bx,\bx') = \oint\pder[G(\bx,\by)]{x_k}\pder[G(\bx',\by)]{x_k} n_i\delta{x_i}.
+\end{equation}
+Доказательство~\eqref{eq:Hadamard_identity} основывается на второй формуле Грина~\eqref{eq:Green_second_identity}
+при \(v=G(\bx,\by)\), \(u=G(\bx',\by)+\delta{G}(\bx',\by)\), поскольку \(\delta{G}\) является гармонической функцией.
+Кроме того, очевидно \(\delta(\Pderdual[G]{x_k'}) = 0\).
+
+\section{Утверждения, требующие доказательства}
+
+\begin{proposition}
+    Сумма сил, действующих на тела, равна нулю:
+    \begin{equation}\label{eq:problem1}
+        \sum_a F^a_i = \int \pder{x_i}(f-p) \dd{V} = 0
+    \end{equation}
+    или через функцию Грина
+    \begin{equation}\label{eq:problem1_Green}
+        \int \pder[f]{x_i} \dd{V} = -\iint f'_\psi\pder[\psi']{x_k} \pderder[G]{x_i}{x_k'} \dd{V'}\dd{V}.
+    \end{equation}
+\end{proposition}
+
+\begin{proposition}
+    Функционал~\eqref{eq:energy_ell} экcтремален по отношению к вариации поля \(\psi\):
+    \begin{equation}\label{eq:problem2}
+        \int \delta(f-p)\dd{V} = 0
+    \end{equation}
+    или через функцию Грина
+    \begin{equation}\label{eq:problem2_Green}
+        \int\delta{f}\dd{V} = -\iint \delta\left( f'_\psi\pder[\psi']{x_k'}\pder[G]{x_k'}\right) \dd{V'}\dd{V}.
+    \end{equation}
+\end{proposition}
+
 
 \printbibliography
 
