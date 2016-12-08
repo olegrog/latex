@@ -13,7 +13,7 @@
 
 \usepackage[
     pdfauthor={Rogozin Oleg},
-    pdftitle={Problem},
+    pdftitle={On forces acting on the uniform heated bodies},
     colorlinks, pdftex, unicode
 ]{hyperref}
 
@@ -36,10 +36,8 @@
 %\theoremstyle{remark}
 \newtheorem*{remark}{Remark}
 
-\title{Задача}
+\title{О силах, действующих на равномерно нагретые тела}
 \author{Олег Рогозин}
-
-\DeclareMathOperator{\supp}{supp}
 
 \newcommand{\dd}{\mathrm{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
@@ -141,9 +139,11 @@
 \begin{equation}\label{eq:pressure_integral}
     \int p\dd{V} = 0.
 \end{equation}
-На основе уравнения~\eqref{eq:pressure_equation} можно определить силу, действующую на тело \(a\),
+Для задачи~\eqref{eq:pressure_equation} можно определить силу, действующую на тело \(a\),
 \begin{equation}\label{eq:force_ell}
-    F^a_i \eqdef \oint_{S_a} \left( \frac{\Gamma_7(T)}{2}\left(\pder[T]{x_j}\right)^2 - p \right) n_i\dd{S}.
+    F^a_i \eqdef \oint_{S_a} \left( \frac{\Gamma_7(T)}{2}\left(\pder[T]{x_j}\right)^2 - p \right) n_i\dd{S} =
+    \oint_{S_a} \Gamma_7(T)\pder[T]{x_i}\pder[T]{x_j} n_j\dd{S} -
+    \oint_{S_a} \left( \frac{\Gamma_7(T)}{2}\left(\pder[T]{x_j}\right)^2 + p \right) n_i\dd{S}.
 \end{equation}
 Транспортные коэффициенты для степенных потенциалов:
 \begin{equation}\label{eq:gammas}
@@ -278,7 +278,7 @@
 \end{equation}
 можно выразить решение~\eqref{eq:pressure_short}:
 \begin{equation}\label{eq:pressure_solution}
-    p = \frac1V\int p\dd{V} - \int f_\psi(\bx')\pder[\psi(\bx')]{x_k'}\pder[G(\bx,\bx')]{x_k'} \dd{V'}.
+    p = -\int f_\psi(\bx')\pder[\psi(\bx')]{x_k'}\pder[G(\bx,\bx')]{x_k'} \dd{V'}.
 \end{equation}
 Функция \(G(\bx, \bx')\) определяется с точностью до функции от \(x\).
 При дополнительном условии
@@ -334,6 +334,20 @@
 
 \section{Утверждения, требующие доказательства}
 
+Для гармонической функции \(\psi\) (\(\Pderdual[\psi]{x_j} = 0\)) с граничными условиями
+\(\psi|_{S_a} = \psi_a = \mathrm{const}\), где полная поверхность \(S=\bigcup_a S_a\), справедливо
+\begin{equation}\label{eq:integral_mixed}
+    \int g(\psi)\pderder[\psi]{x_i}{x_j}\pder[\psi]{x_j}\dd{V} = \int g(\psi)\pderdual[\psi]{x_j}\pder[\psi]{x_i}\dd{V} = 0,
+\end{equation}
+где \(g\) "--- произвольная функция от \(\psi\). Доказательство следует из формул
+\begin{gather}
+    \pder{x_i}\left( g \left(\pder[\psi]{x_j}\right)^2 \right) =
+        g_\psi\pder[\psi]{x_i}\left(\pder[\psi]{x_j}\right)^2 + 2g\pderder[\psi]{x_i}{x_j}\pder[\psi]{x_j}, \\
+    \pder{x_j}\left( g \pder[\psi]{x_i}\pder[\psi]{x_j} \right) =
+        g_\psi\pder[\psi]{x_i}\left(\pder[\psi]{x_j}\right)^2 + g\pderder[\psi]{x_i}{x_j}\pder[\psi]{x_j} +
+        g\pder[\psi]{x_i}\pderdual[\psi]{x_j}.
+\end{gather}
+
 \begin{proposition}
     Сумма сил, действующих на тела, равна нулю:
     \begin{equation}\label{eq:problem1}
@@ -341,7 +355,7 @@
     \end{equation}
     или через функцию Грина
     \begin{equation}\label{eq:problem1_Green}
-        \int \pder[f]{x_i} \dd{V} = -\iint f'_\psi\pder[\psi']{x_k} \pderder[G]{x_i}{x_k'} \dd{V'}\dd{V}.
+        \int \pder[f]{x_i} \dd{V} = -\iint f'_\psi\pder[\psi']{x_k'} \pderder[G]{x_i}{x_k'} \dd{V'}\dd{V}.
     \end{equation}
 \end{proposition}
 
