@@ -1,0 +1,146 @@
+%&pdflatex
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+
+\usepackage{amssymb, amsmath, amsthm}
+\usepackage{fullpage}
+\usepackage{indentfirst}
+
+\usepackage[
+    pdfauthor={Rogozin Oleg},
+    pdftitle={Problem},
+    colorlinks, pdftex, unicode
+]{hyperref}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+
+\title{Задача}
+\author{Олег Рогозин}
+
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\by}{\boldsymbol{y}}
+
+\begin{document}
+
+\section{Задача}
+
+Рассмотрим некоторую область \(\Omega\subset\mathbb{R}^3\), ограниченную поверхностью \(S\),
+состоящей из \emph{замкнутых} поверхностей:
+\begin{equation}\label{eq:domain_boundary}
+    S \equiv \partial\Omega = \bigcup_a S_a, \quad \partial{S_a} = 0.
+\end{equation}
+Определим внутри \(\Omega\) гармоническую функцию \(\psi\) на основе единственного решения задачи Дирихле:
+\begin{equation}\label{eq:psi_Dirichlet}
+    \psi_{ii} = 0, \quad \psi|_{S_a} = \psi_a,
+\end{equation}
+где \(\psi_a\) "--- константы, \(\psi_i\equiv\partial_i\psi\), \(\psi_{ii}\) "--- лаплассиан.
+
+Внутри \(\Omega\) определим также фукнцию \(p\) на основе решения задачи Неймана:
+\begin{equation}\label{eq:p_Neumann}
+    \partial_{ii}\left( p + \frac{g}2\psi_j^2 \right) = \partial_{ij}\left( g\psi_i\psi_j \right), \quad
+    \left.\partial_i\left( p + \frac{g}2\psi_j^2 \right)n_i\right|_S =
+    \left.\partial_j\left( g\psi_i\psi_j \right)n_i\right|_S,
+\end{equation}
+которое упрощается до
+\begin{equation}\label{eq:p_Neumann2}
+    p_{ii} = \partial_i\left( f_\psi \psi_i \right), \quad
+    p_i n_i|_S = \left. f_\psi \psi_i n_i \right|_S,
+\end{equation}
+где \(g\) "--- заданная произвольная функция от \(\psi\), \(g_\psi\) "--- её производная, \(f=g\psi_j^2/2\).
+Решение задачи Неймана определяется с точностью до константы, поэтому для определённости можно положить
+\begin{equation}\label{eq:p_over_domain}
+    \int_\Omega p = 0.
+\end{equation}
+
+Необходимо доказать
+\begin{proposition}\label{prop:main}
+\begin{equation}\label{eq:forces_sum}
+    \int_S\left( p + \frac{g}2\psi_j^2\right)n_i - \int_S\left( g\psi_i\psi_j \right)n_j \equiv
+    \int_S\left( p - f \right)n_i = 0.
+\end{equation}
+\end{proposition}
+
+\begin{remark}
+    Утверждение~\ref{prop:main} проверено численно для области, заключённой между двумя некоаксиальными цилиндрами,
+    и функций \(g=\psi^s\).
+\end{remark}
+
+\section{Известные утверждения}
+
+\begin{proposition}\label{prop:integral_mixed}
+Для произвольной функции \(h(\psi)\)
+\begin{equation}\label{eq:integral_mixed}
+    \int_\Omega h \psi_{ij} \psi_j = 0.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Запишем два дифференциальных тождества:
+\begin{gather}
+    \partial_i\left( h\psi_j^2 \right) = h_\psi\psi_i\psi_j^2 + 2h\psi_{ij}\psi_j, \label{eq:prop1-1}\\
+    \partial_j\left( h\psi_i\psi_j \right) = h_\psi\psi_i\psi_j^2 + h\psi_{ij}\psi_j + h\psi_i\psi_{jj}. \label{eq:prop1-2}
+\end{gather}
+Внутри \(\Omega\) последний член в~\eqref{eq:prop1-2} равен нулю.
+Интегралы от~\eqref{eq:prop1-1} и~\eqref{eq:prop1-2} по \(\Omega\) равны друг другу,
+поскольку все поверхности \(S_a\) эквипотенциальны, а значит \(\psi_i|_S = \psi_k n_k n_i\).
+\end{proof}
+
+В частности,~\eqref{eq:forces_sum} можно записать как
+\begin{equation}\label{eq:forces_sum2}
+    \int_S\left( p - f \right)n_i = \int_\Omega \left( p_i - f_\psi\psi_i \right) = 0.
+\end{equation}
+
+\begin{remark}
+    \[ p_i \neq f_\psi\psi_i. \]
+\end{remark}
+
+\section{Функция Грина}
+
+Определим функцию Грина \(G(\bx, \bx')\) для задачи Неймана~\eqref{eq:p_Neumann2}:
+\begin{equation}\label{eq:Green_function}
+    G_{ii} = \delta(\bx-\bx') - \frac1V, \quad
+    \left. G_k n_k \right|_S = 0,
+\end{equation}
+где \(V = \int_\Omega\). Здесь и далее подразумеваем, что производные от \(G\)
+берутся по переменной \(\bx'\), а выражения под интегралом по \(\Omega'\) также
+зависят от \(\bx'\) вместо \(\bx\).
+Тогда решение~\eqref{eq:p_Neumann2} может быть записано явно:
+\begin{equation}\label{eq:pressure_solution}
+    p = -\int_{\Omega'} f_\psi \psi_k G_k.
+\end{equation}
+
+Функция \(G(\bx, \bx')\) определяется с точностью до функции от \(x\).
+При дополнительном условии \(\int_{\Omega'} G = 0\)
+обеспечивается её симметричность \(G(\bx, \bx') = G(\bx', \bx)\)
+
+Поскольку \(f_k = f_\psi \psi_k + f_{\psi_j}\psi_{jk}\) и
+\(\int_{\Omega'} f_k G_k = -\int_{\Omega'} f G_{kk} = \frac1V\int_\Omega f - f\),
+то~\eqref{eq:pressure_solution} можно переписать как
+\begin{equation}\label{eq:pressure_solution2}
+    p - f + \frac1V\int_\Omega f = \int_{\Omega'} f_{\psi_j} \psi_{jk} G_k =
+    \int_{\Omega'} f_{\psi_j} \left( \psi_k G_{jk} - \psi_j G_{kk} \right).
+\end{equation}
+Последнее равенство вытекает из следующих тождеств:
+\begin{gather*}
+    \partial_k\left( g\psi_j^2 G_k \right) = g_\psi \psi_j^2\psi_k G_k + 2g\psi_j\psi_{jk}G_k + g\psi_j^2 G_{kk}, \\
+    \partial_j\left( g\psi_j\psi_k G_k\right) = g_\psi \psi_j^2\psi_k G_k + g\psi_j\psi_{jk}G_k + g\psi_j\psi_k G_{jk}.
+\end{gather*}
+
+Таким образом, утверждение~\ref{prop:main} равносильно
+\begin{proposition}\label{prop:main2}
+\begin{equation}\label{eq:forces_sum3}
+    \int_S n_i \int_{\Omega'} g \psi_j \psi_{jk} G_k = 0.
+\end{equation}
+\end{proposition}
+
+Кстати, в силу~\eqref{eq:Green_function}, для произвольной дифференцируемой функции \(h(\bx)\) справедливы равенства
+\begin{equation}\label{eq:Green_double_integral}
+    \int_\Omega \int_{\Omega'} h G_{kk} = 0, \quad
+    \int_\Omega \int_{\Omega'} h_k G_k = 0.
+\end{equation}
+
+
+\end{document}
