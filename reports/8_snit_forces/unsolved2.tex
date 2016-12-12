@@ -1,0 +1,183 @@
+%&pdflatex
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+
+\usepackage{amssymb, amsmath, amsthm}
+\usepackage{fullpage}
+\usepackage{indentfirst}
+
+\usepackage[
+    pdfauthor={Rogozin Oleg},
+    pdftitle={Problem},
+    colorlinks, pdftex, unicode
+]{hyperref}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+
+\title{Задача}
+\author{Олег Рогозин}
+
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\by}{\boldsymbol{y}}
+
+\begin{document}
+
+\section{Задача}
+
+Рассмотрим некоторую область \(\Omega\subset\mathbb{R}^3\), ограниченную поверхностью \(S\),
+состоящей из \emph{замкнутых} поверхностей:
+\begin{equation}\label{eq:domain_boundary}
+    S \equiv \partial\Omega = \bigcup_a S_a, \quad \partial{S_a} = 0.
+\end{equation}
+Определим внутри \(\Omega\) функции \(\psi\), \(p\) и \(u_i\):
+\begin{gather}
+    \partial_i \left( \psi^c u_i \right) = 0, \label{eq:p_def}\\
+    u_i\psi_i = \frac{\gamma_2}2\psi\psi_{ii}, \label{eq:psi_def}\\
+    p_k = f_\psi \psi_k + f_{\psi_k} \psi_{jj} - 2\psi^c u_j\partial_j u_k, \label{eq:u_i_def}
+\end{gather}
+где \(\psi_i\equiv\partial_i\psi\), \(\psi_{ii}\) "--- лаплассиан,
+\begin{equation}\label{eq:f_def}
+    f = \frac{\gamma_7}2 c^2 \psi^c\psi_j^2, \quad
+    f_\psi\equiv\partial_\psi f, \quad
+    f_{\psi_j}\equiv\partial_{\psi_j} f.
+\end{equation}
+Граничные условия:
+\begin{equation}\label{eq:boundary_conditions}
+    \psi|_{S_a} = \psi_a, \quad u_i|_S = 0.
+\end{equation}
+где \(\psi_a\) "--- константы.
+Функция \(p\) входит в систему уравнений только своей производной,
+поэтому при известных \(\psi\) и \(u_i\) может быть найдена из решения задачи Неймана:
+\begin{equation}\label{eq:p_Neumann}
+    p_{kk} = \partial_k\left( f_\psi \psi_k + f_{\psi_k} \psi_{jj} - 2\psi^c u_j\partial_j u_k \right), \quad
+    p_k n_k|_S = \left. f_\psi \psi_k n_k \right|_S,
+\end{equation}
+Решение задачи Неймана определяется с точностью до константы, поэтому для определённости можно положить
+\begin{equation}\label{eq:p_over_domain}
+    \int_\Omega p = 0.
+\end{equation}
+
+Определим дополнительно следующие функционалы:
+\begin{equation}\label{eq:force_energy}
+    F_i^a = \oint_{S_a} (f-p) n_i, \quad U = \int_\Omega (f-p).
+\end{equation}
+Известно, что при сдвиге поверхности \(S_a\) на вектор \(\delta r_i^a\) вариация равна
+\begin{equation}\label{eq:variation_U}
+    \delta\int_\Omega f = F_i^a + \int_\Omega \delta(f-p).
+\end{equation}
+При \(\delta\psi|_S = 0\)
+\begin{equation}\label{eq:variation_f}
+    \int_\Omega \delta f = \int_\Omega \left( f_\psi - \partial_k f_{\psi_k} \right)\delta\psi =
+    -\int_\Omega \left( g_\psi\psi_k^2 + 2g\psi_{kk} \right)\delta\psi,
+\end{equation}
+где \(f = g\psi_k^2\).
+
+Необходимо вычислить
+\begin{equation}\label{eq:problem}
+    \int_\Omega \delta p.
+\end{equation}
+
+\section{Известные утверждения}
+
+\begin{proposition}\label{prop:integral_mixed}
+Для произвольной функции \(h(\psi)\)
+\begin{equation}\label{eq:integral_mixed}
+    \int_\Omega h \psi_{ij} \psi_j = \int_\Omega h \psi_i \psi_{jj}.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Запишем два дифференциальных тождества:
+\begin{gather}
+    \partial_i\left( h\psi_j^2 \right) = h_\psi\psi_i\psi_j^2 + 2h\psi_{ij}\psi_j, \label{eq:prop1-1}\\
+    \partial_j\left( h\psi_i\psi_j \right) = h_\psi\psi_i\psi_j^2 + h\psi_{ij}\psi_j + h\psi_i\psi_{jj}. \label{eq:prop1-2}
+\end{gather}
+В силу~\eqref{eq:boundary_conditions}, \(\psi_i|_S = \psi_k n_k n_i\), следовательно,
+интегралы от~\eqref{eq:prop1-1} и~\eqref{eq:prop1-2} по \(\Omega\) равны друг другу.
+\end{proof}
+
+\begin{proposition}\label{prop:sum_forces}
+Справедливо
+\begin{equation}\label{eq:sum_forces}
+    \sum_a F_i^a = 0.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Используя~\eqref{eq:u_i_def},~\eqref{eq:boundary_conditions} и~\eqref{eq:integral_mixed}, получаем
+\[
+    \sum_a F_i^a = \int_\Omega \left( f_\psi\psi_i + f_{\psi_j}\psi_{ij} - p_i \right) =
+    2\oint_S \psi^c u_i u_j n_j = 0.
+\]
+\end{proof}
+
+\begin{proposition}\label{prop:energy_psi}
+Справедливо
+\begin{equation}\label{eq:energy_psi}
+    U = \frac{\gamma_7}{2}c^2 \sum_a \frac{\psi_a^{c+1}}{c+1} \oint_{S_a} \psi_j n_j.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Утверждение следует из определения~\eqref{eq:f_def} и равенств
+\begin{gather*}
+    \partial_j\left( \psi^{c+1} \psi_j \right) = (c+1)\psi^c\psi_j^2 + \psi^{c+1}\psi_{jj} =
+        (c+1)\psi^c\psi_j^2 + \frac2{\gamma_2}\psi^c\psi_j u_j, \\
+    \partial_j\left( \psi^{c+1} u_j \right) = (c+1)\psi^c\psi_j u_j + \psi^{c+1}\partial_j u_j =
+        \psi^c \psi_j u_j.
+\end{gather*}
+\end{proof}
+
+\begin{proposition}\label{prop:capacity}
+Если пренебречь полем \(u_i\) по сравнению с \(\psi_i\), то существует константная матрица \(C_{ab}\), такая что
+\begin{equation}\label{eq:capacity}
+    e_a\equiv\oint_{S_a} \psi_j n_j = C_{ab}\psi_b, \quad
+    U = \frac{\gamma_7c^2}{2(c+1)} C_{ab} \psi_a^{c+1}\psi_b.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Из~\eqref{eq:p_def} и~\eqref{eq:psi_def} вытекает уравнение
+\[ \psi_{kk} = -\frac2{c\gamma_2}\partial_k u_k, \]
+общее решение которого
+\begin{equation}\label{eq:psi_Green}
+    \psi = \frac2{c\gamma_2} \int_{\Omega'} u_k G_k + \sum_b \psi_b \oint_{S_b'} G_k n_k
+\end{equation}
+записывается через функцию Грина \(G(\bx, \bx')\):
+\begin{equation}\label{eq:Green_function_psi}
+    G_{kk} = \delta(\bx-\bx'), \quad G|_S = 0.
+\end{equation}
+Приравнивая \(u_k=0\) в~\eqref{eq:psi_Green}, получаем искомое утверждение, причём
+\[ C_{ab} = \oint_{S_a}\oint_{S_b'} \partial_{x_i x_k'} G n_i n_k'. \]
+\end{proof}
+
+
+\section{Функция Грина}
+
+Определим функцию Грина \(G(\bx, \bx')\) для задачи Неймана~\eqref{eq:p_Neumann}:
+\begin{equation}\label{eq:Green_function_p}
+    G_{kk} = \delta(\bx-\bx') - \frac1V, \quad \left. G_k n_k \right|_S = 0,
+\end{equation}
+где \(V = \int_\Omega\). Здесь и далее подразумеваем, что производные от \(G\)
+берутся по переменной \(\bx'\), а выражения под интегралом по \(\Omega'\) также
+зависят от \(\bx'\) вместо \(\bx\).
+Тогда решение~\eqref{eq:p_Neumann} может быть записано явно:
+\begin{equation}\label{eq:pressure_solution}
+    p = \int_{\Omega'} p G_{kk} = -\int_{\Omega'} p_k G_k.
+\end{equation}
+
+Функция \(G(\bx, \bx')\) определяется с точностью до функции от \(x\).
+При дополнительном условии \(\int_{\Omega'} G = 0\)
+обеспечивается её симметричность \(G(\bx, \bx') = G(\bx', \bx)\).
+
+Кстати, в силу~\eqref{eq:Green_function_p}, для произвольной дифференцируемой функции \(h(\bx)\) справедливы равенства
+\begin{equation}\label{eq:Green_double_integral}
+    \int_\Omega \int_{\Omega'} h G_{kk} = 0, \quad
+    \int_\Omega \int_{\Omega'} h_k G_k = 0.
+\end{equation}
+
+
+\end{document}
