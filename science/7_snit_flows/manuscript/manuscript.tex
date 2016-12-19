@@ -108,7 +108,7 @@ centertags]%
 Медленность течений следует понимать как малость числа Маха (\(\Ma\ll1\)),
 а неизотермичность как присутствие в газе существенного градиента температур.
 Основным импульсом упомянутых работ стала попытка учесть влияние температурных напряжений
-на конвекцию газа через анализ барнеттовского приближения слаборазреженного газа.
+на движение газа через анализ барнеттовского приближения слаборазреженного газа.
 Несмотря на то что барнеттовские члены второго порядка малости по числу Кнудсена \(\Kn\),
 при \(\Ma\sim\Kn\) (число Рейнольдса порядка единицы)
 они становятся сравнимыми с ньютоновскими вязкостными напряжениями.
@@ -631,14 +631,6 @@ centertags]%
 поэтому величины \(\hat{f}_{\alpha'_\nu}\), \(\hat{f}_{\beta'_\nu}\), \(w_{\alpha_\nu}\), \(w_{\beta_\nu}\)
 и функции \(\delta_{\alpha'_\nu\gamma}\), \(\delta_{\beta'_\nu\gamma}\) должны быть определены некоторым образом.
 
-Для того чтобы выполнить условие~\eqref{eq:total_mass} точно, следующая аппроксимация Максвеллиана используется:
-\begin{equation}\label{eq:discrete_Maxwellian}
-    \hat{f}_{M\gamma} = \rho\left[\sum_{\varsigma\in\Gamma}w_\varsigma\exp
-            \left(-\frac{(\bzeta_\varsigma - \boldsymbol{v})^2}{T}\right)
-        \right]^{-1}
-        w_\gamma\exp\left(-\frac{(\bzeta_\gamma - \boldsymbol{v})^2}{T}\right).
-\end{equation}
-
 \subsection{Проекционно-интерполяционный метод}
 
 Если скорости после столкновения,
@@ -698,13 +690,13 @@ centertags]%
 Переписывая~\eqref{eq:discrete_symm_ci} как
 \begin{equation}\label{eq:discrete_short_ci}
     \hat{J}_\gamma^n\left(\hat{f}_\gamma^n\right) =
-        \sum_{\nu=1}^N \hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N} \left(\hat{f}_\gamma^n\right), \quad
+        \sum_{\nu=1}^N \hat{\Delta}_\gamma^{n+(\nu-1)/N} \left(\hat{f}_\gamma^n\right), \quad
     N=|\Nu|,
 \end{equation}
-где \(\hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N}\) "--- это \(\nu\in\Nu_n\) член суммы~\eqref{eq:discrete_symm_ci},
+где \(\hat{\Delta}_\gamma^{n+(\nu-1)/N}\) "--- это \(\nu\in\Nu_n\) член суммы~\eqref{eq:discrete_symm_ci},
 можно применить явный метод Эйлера первого порядка в дробных шагах
 \begin{equation}\label{eq:time_scheme}
-    \hat{f}_\gamma^{n+\nu/N} = \hat{f}_\gamma^{n+(\nu-1)/N} + \tau \hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N}
+    \hat{f}_\gamma^{n+\nu/N} = \hat{f}_\gamma^{n+(\nu-1)/N} + \tau \hat{\Delta}_\gamma^{n+(\nu-1)/N}
     \left(\hat{f}_\gamma^{n+(\nu-1)/N}\right),
 \end{equation}
 где \(\tau = t_{n+1} - t_n\) "--- временн\'{о}й шаг.
@@ -726,7 +718,7 @@ centertags]%
 при которых она теряет свойство устойчивости.
 Для того чтобы сохранить положительность, достаточно потребовать
 \begin{equation}\label{eq:positive_f}
-    \hat{f}_\gamma^{n+(j-1)/N} + \frac{\tau}N \hat{\mathscr{J}}_\gamma^{n+(j-1)/N} > 0
+    \hat{f}_\gamma^{n+(j-1)/N} + \frac{\tau}N \hat{\Delta}_\gamma^{n+(j-1)/N} > 0
 \end{equation}
 для всех \(\gamma\in\Gamma\) и \(\nu\in\Nu_n\).
 Если \(\gamma = \alpha_\nu\), то имеем
@@ -788,7 +780,7 @@ centertags]%
 Для достижения приемлемой точности, достаточно исключать из~\eqref{eq:time_scheme} члены,
 нарушающие~\eqref{eq:positive_f}. Другими словами, столкновительный интеграл можно вычислять как
 \begin{equation}\label{eq:discrete_short_ci_discarded}
-    \hat{J}_\gamma^n = \sum_{\nu\in\Nu\setminus\Mu} \hat{\mathscr{J}}_\gamma^{n+(\nu-1)/N},
+    \hat{J}_\gamma^n = \sum_{\nu\in\Nu\setminus\Mu} \hat{\Delta}_\gamma^{n+(\nu-1)/N},
 \end{equation}
 где \(\Mu\) "--- множество кубатурных точек, исключённых из \(\Nu\).
 Для того чтобы не допустить значительной ошибки при такой методике численного интегрирования,
