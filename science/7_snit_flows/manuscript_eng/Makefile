@@ -1,7 +1,7 @@
 FILE=manuscript
 SHELL=/bin/bash
 FIG=Fig*.pdf
-SOURCES=$(FILE).tex $(FILE).bib $(FIG)
+SOURCES=$(FILE).tex $(FILE).bib $(FILE).bbl $(FIG)
 CONVERT=gs -sDEVICE=pdfwrite -sProcessColorModel=DeviceGray -sColorConversionStrategy=Gray -dOverrideICC
 
 all: $(FILE).zip $(FILE).pdf
@@ -9,8 +9,10 @@ all: $(FILE).zip $(FILE).pdf
 $(FILE).zip:  $(SOURCES)
 	zip -r $@ $(SOURCES)
 
-$(FILE).pdf: $(FILE).tex $(FILE).bib $(FIG)
-	latexmk -pdf $(FILE)
+$(FILE).bbl: $(FILE).pdf
+
+%.pdf: %.tex %.bib $(FIG)
+	latexmk -pdf $*
 
 pics:
 	cp ../tikz/sone_bobylev.pdf         Fig01.pdf~
