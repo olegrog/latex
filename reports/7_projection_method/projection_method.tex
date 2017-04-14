@@ -265,27 +265,27 @@
 аппроксимаций~\eqref{eq:Phi_abc}--\eqref{eq:G_ab} при~\eqref{conservative_scheme} и~\eqref{htheorem_scheme}:
 \begin{gather}
     \delta(\bzeta'-\bzeta_\gamma) = \sum_{i=1}^N r_{\lambda_i} \delta(\bzeta_{\lambda_i}-\bzeta_\gamma), \quad
-    \delta(\bzeta'_*-\bzeta_\gamma) = \sum_{i=1}^N r_{\mu_i}\delta(\bzeta_{\mu_i}-\bzeta_\gamma), \label{deltas_conservative}\\
+    \delta(\bzeta'_*-\bzeta_\gamma) = \sum_{i=1}^N r_{\mu_i}\delta(\bzeta_{\mu_i}-\bzeta_\gamma), \label{eq:deltas_conservative}\\
     \ln f(\bzeta') = \sum_{i=1}^N r_{\lambda_i} \ln f(\bzeta_{\lambda_i}), \quad
-    \ln f(\bzeta'_*) = \sum_{i=1}^N r_{\mu_i} \ln f(\bzeta_{\mu_i}). \label{deltas_htheorem}
+    \ln f(\bzeta'_*) = \sum_{i=1}^N r_{\mu_i} \ln f(\bzeta_{\mu_i}). \label{eq:deltas_htheorem}
 \end{gather}
-Выражения~\eqref{deltas_conservative} можно формально рассматривать как приближённое решение уравнений
+Выражения~\eqref{eq:deltas_conservative} можно формально рассматривать как приближённое решение уравнений
 \(\phi=\delta(\bzeta'-\bzeta_\gamma)\) и \(\phi=\delta(\bzeta'_*-\bzeta_\gamma)\)
 в пространстве функций вида~\eqref{eq:deltas_expansion}
 \emph{проекционным} методом (Петрова"--~Галёркина) на линейную оболочку функций \(\psi_s(\bzeta)\):
 \begin{gather}
     \int_{\mathbb{R}^3} \psi_s(\bzeta_\gamma) \left( \delta(\bzeta'-\bzeta_\gamma)
-        - \sum_{i=1}^N r_{\lambda_i} \delta(\bzeta_{\lambda_i}-\bzeta_\gamma) \right) \dzeta_\gamma = 0, \label{lambda_galerkin}\\
+        - \sum_{i=1}^N r_{\lambda_i} \delta(\bzeta_{\lambda_i}-\bzeta_\gamma) \right) \dzeta_\gamma = 0, \label{eq:lambda_galerkin}\\
     \int_{\mathbb{R}^3} \psi_s(\bzeta_\gamma) \left( \delta(\bzeta'_*-\bzeta_\gamma)
-        - \sum_{i=1}^N r_{\mu_i} \delta(\bzeta_{\mu_i}-\bzeta_\gamma) \right) \dzeta_\gamma = 0, \label{mu_galerkin}\\
+        - \sum_{i=1}^N r_{\mu_i} \delta(\bzeta_{\mu_i}-\bzeta_\gamma) \right) \dzeta_\gamma = 0, \label{eq:mu_galerkin}\\
 \end{gather}
 Если множество \(\{\psi_s\}\) содержит все столкновительные инварианты, например
-\begin{equation}\label{collision_invariants}
+\begin{equation}\label{eq:collision_invariants}
     \psi_0 = 1, \quad \psi_i = \zeta_i, \quad \psi_4 = \zeta_i^2,
 \end{equation}
 то при найденных \(\bzeta_{\lambda_i}\), \(r_{\lambda_i}\), \(\bzeta_{\mu_i}\), \(r_{\mu_i}\)
 кубатура~\eqref{eq:deltas_Boltzmann_sum_hat} консервативна.
-В~\eqref{deltas_htheorem} значения функции распределения в промежуточных точках (\(\bzeta'\) и \(\bzeta'_*\))
+В~\eqref{eq:deltas_htheorem} значения функции распределения в промежуточных точках (\(\bzeta'\) и \(\bzeta'_*\))
 выражаются через определённый набор значений \(\{f(\bzeta_\gamma)\}\).
 Это есть не что иное, как точечная \emph{интерполяция}.
 Таким образом, изложенный метод вычисления интеграла столкновений может быть назван \emph{проекционно"=интерполяционным}.
