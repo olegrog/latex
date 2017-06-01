@@ -13,16 +13,15 @@ parser.add_argument('-t', '--time', type=int, default=int(1e2), metavar='value',
 parser.add_argument('--step', type=float, default=1, metavar='value', help='Reduce timestep in given times')
 parser.add_argument('-r', '--radius', type=float, default=4., metavar='value', help='radius of the velocity grid')
 parser.add_argument('-s', '--solver', default='bgk', metavar='value', help='type of solver')
-parser.add_argument('--scheme', default='implicit', metavar='value', help='explicit or implicit')
 parser.add_argument('--order', type=int, default=2, metavar='1|2', help='order of approximation')
-parser.add_argument('-k', '--kn', type=float, default=5e-1*np.pi**.5/2, metavar='value', help='Knudsen number')
+parser.add_argument('-k', '--kn', type=float, default=2e-1/np.pi**.5, metavar='value', help='Knudsen number')
 parser.add_argument('-U', type=float, default=4e-2, metavar='value', help='difference in velocity of plates')
 args = parser.parse_args()
 
 print ''.join(['=' for i in range(20)])
 print 'Grid: (%d)x(%d)^3, xi_max = %g' % (args.N, 2*args.M, args.radius)
 print 'Kn = %g, U = %g' % (args.kn, args.U)
-print 'Solver = %s, scheme = %s, order = %d' % (args.solver, args.scheme, args.order)
+print 'Solver = %s, order = %d' % (args.solver, args.order)
 print ''.join(['=' for i in range(20)])
 
 ### Constants
@@ -72,7 +71,7 @@ def plot_profiles(f):
     rho, temp, vel, qflow, tau = calc_macro(f)
     U = args.U
     x, Vel, Tau = np.loadtxt('k1e-1.txt').T
-    py.plot(X, vel[:,0]/U, 'r', X, -tau[:,2]/U, 'g', x, Vel, 'rD--', x, -Tau, 'gD--')
+    py.plot(X, vel[:,0]/U, 'r', X, -tau[:,2]/U, 'g', x, Vel, 'rD--', x, -2*Tau, 'gD--')
     #py.plot(X, 1e3*(rho*temp-1), 'b*--')
     py.plot(x, x, 'r-.', x, 0*x + np.pi**-.5, 'g-.')
     py.show()
@@ -104,20 +103,13 @@ def test():
 def check(f):
     if np.sum(np.isnan(f)) > 0:
         raise NameError("NaN has been found!")
-    '''
-    eps = 1e-4
-    f[(f<0)*(f>-eps)] = 0
     if np.sum(f<0) > 0:
-        print "Negative: ", f[f<=0]
+        print "Negative: ", f[f<0]
         raise NameError("Negative value has been found!")
-    '''
 
 # Second-order TVD scheme
-def iterate_bgk(f, delta_y):
-    nu = lambda rho: 2/(np.pi**.5*args.kn) * rho
-    check(f)
+def transport(f, delta_t, delta_y):
     rho, temp, vel, qflow, tau = calc_macro(f)
-    delta_t = delta_y/args.radius/args.order/2/args.step        # from CFL
     #print "Delta_h = %g, Delta_t = %g" % (delta_y, delta_t)
     N, xi_y, _xi_y = args.N, xi()[...,1], _xi()[...,1]
     gamma = _xi_y * delta_t / delta_y
@@ -129,12 +121,10 @@ def iterate_bgk(f, delta_y):
     F.fill(np.NaN); f3.fill(np.NaN);                            # for debug
     def calc_F(f, idx, F, Idx, mask):
         df1, df2, df3 = [f[idx+1] - f[idx], f[idx] - f[idx-1], f[idx+1] - f[idx-1]]
-        check(df1[mask])
-        check(df2[mask])
-        check(df3[mask])
         # MC limiter
         lim = lambda d1, d2, d3: (args.order-1)*np.minimum(np.abs(d3)/2, 2*np.minimum(np.abs(d1), np.abs(d2)))*np.sign(d1)
-        F[Idx][mask] = (f[idx] + np.einsum('ijk,aijk->aijk', (1-gamma)/2, np.where(df1*df2 > 0, lim(df1, df2, df3), 0)))[mask]
+        with np.errstate(divide='ignore', invalid='ignore'):
+            F[Idx][mask] = (f[idx] + np.einsum('ijk,aijk->aijk', (1-gamma)/2, np.where(df1*df2 > 0, lim(df1, df2, df3), 0)))[mask]
     def calc2N(f, F, sgn):
         m0, m1, m2, mN = _mask(sgn), mask(sgn, 1), mask(sgn, 2), mask(sgn, N-2)
         f3[:2][m2] = f[-2:][m2]
@@ -149,7 +139,6 @@ def iterate_bgk(f, delta_y):
         bc(F[0], F[0], m0)                                      # first flux
         f3[1:3][m2] = f[:2][m2]
         bc(f3[0], f[0], m0)
-        #f3[0][m0] = (2*f3[0] - f[0])[m0]
         calc_F(f3, np.arange(1, 2), F, slice(1, 2), m1)         # second flux
         #check(F[:2][m2])
     def antisym(F, F0, mask):
@@ -160,17 +149,17 @@ def iterate_bgk(f, delta_y):
     calc2N(f[::-1], F[::-1], -1)
     calc01(f, F, 1, antisym)
     calc01(f[::-1], F[::-1], -1, diffuse)
-    check(f3)
-    check(F)
-    nu_f = lambda rho, vel, temp, f: delta_t*np.einsum('a, aijk', nu(rho), Maxwell(rho, vel, temp) - f)
-    fluxes = np.einsum('ijk,aijk->aijk', gamma, F[1:N+1] - F[0:N])
-    if args.scheme == 'implicit':
-        rho, temp, vel, qflow, tau = calc_macro(f-fluxes)
-        #print rho, temp, vel
-        vel[:,1] = vel[:,2] = 0
-        f += np.einsum('aijk,a->aijk',  nu_f(rho, vel, temp, f) - fluxes, 1./(1 + delta_t*nu(rho)))
-    else:
-        f += nu_f(rho, vel, temp, f) - fluxes
+    #check(f3)
+    #check(F)
+    f -= np.einsum('ijk,aijk->aijk', gamma, F[1:N+1] - F[0:N])
+    check(f) # after transport
+
+def bgk(f, delta_t):
+    rho, temp, vel, qflow, tau = calc_macro(f)
+    nu = lambda rho: 2/(np.pi**.5*args.kn) * rho
+    M = Maxwell(rho, vel, temp)
+    f[:] = np.einsum('aijk,a->aijk', f - M, np.exp(-delta_t*nu(rho))) + M
+    check(f) # after BGK
 
 def solve_bgk():
     delta_y, U, N = L/args.N, args.U, args.N
@@ -181,8 +170,12 @@ def solve_bgk():
     total_values(f)
     py.ion()
     plot_profiles(f)
+    delta_t = delta_y/args.radius/args.step                     # from CFL
     for i in xrange(args.time):
-        iterate_bgk(f, delta_y)
+        # Symmetry second-order splitting
+        transport(f, delta_t, delta_y)
+        bgk(f, 2*delta_t)
+        transport(f, delta_t, delta_y)
         if not i % 10:
             rho, temp, vel, qflow, tau = calc_macro(f)
             rho_disp, pxy_mean = sum((rho-rho0)**2)/N, np.sum(tau[:,2])/N
@@ -194,7 +187,7 @@ def solve_bgk():
     rho, temp, vel, qflow, tau = calc_macro(f)
     print rho, temp, vel/U, qflow/U, tau/U
     #splot(f[-1])
-    splot(f[0])
+    #splot(f[0])
     py.ioff(); py.show()
 
 {
