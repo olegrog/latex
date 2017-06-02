@@ -4,101 +4,110 @@ r'Example: ./solver.py --solver=bgk -N=10 -M=10'
 
 import argparse
 import numpy as np
-import pylab as py
+from functools import partial
+from collections import namedtuple
+import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description='2D contour plots of scalar and vector from VTK data')
-parser.add_argument('-N', type=int, default=8, metavar='value', help='number of cells in the physical space')
-parser.add_argument('-M', type=int, default=8, metavar='value', help='number of points along each axis in the velocity space')
-parser.add_argument('-t', '--time', type=int, default=int(1e2), metavar='value', help='Maximum total time')
-parser.add_argument('--step', type=float, default=1, metavar='value', help='Reduce timestep in given times')
-parser.add_argument('-r', '--radius', type=float, default=4., metavar='value', help='radius of the velocity grid')
-parser.add_argument('-s', '--solver', default='bgk', metavar='value', help='type of solver')
-parser.add_argument('--order', type=int, default=2, metavar='1|2', help='order of approximation')
-parser.add_argument('-k', '--kn', type=float, default=2e-1/np.pi**.5, metavar='value', help='Knudsen number')
-parser.add_argument('-U', type=float, default=4e-2, metavar='value', help='difference in velocity of plates')
+parser.add_argument('-N', type=int, default=8, metavar='<int>', help='number of cells in the physical space')
+parser.add_argument('-M', type=int, default=8, metavar='<int>', help='number of points along each axis in the velocity space')
+parser.add_argument('-t', '--time', type=int, default=int(1e2), metavar='<int>', help='maximum total time')
+parser.add_argument('-s', '--step', type=float, default=1, metavar='<float>', help='reduce timestep in given times')
+parser.add_argument('-r', '--radius', type=float, default=4., metavar='<float>', help='radius of the velocity grid')
+parser.add_argument('-m', '--model', default='dvm', metavar='dvm|lbm', help='type of velocity model')
+parser.add_argument('-o', '--order', type=int, default=2, metavar='1|2', help='order of approximation')
+parser.add_argument('-k', '--kn', type=float, default=2e-1/np.pi**.5, metavar='<float>', help='the Knudsen number')
+parser.add_argument('-U', type=float, default=4e-2, metavar='<float>', help='difference in velocity of plates')
 args = parser.parse_args()
 
 print ''.join(['=' for i in range(20)])
 print 'Grid: (%d)x(%d)^3, xi_max = %g' % (args.N, 2*args.M, args.radius)
 print 'Kn = %g, U = %g' % (args.kn, args.U)
-print 'Solver = %s, order = %d' % (args.solver, args.order)
+print 'Model = %s, order = %d' % (args.model, args.order)
 print ''.join(['=' for i in range(20)])
 
 ### Constants
-zeros, ones, dom, L = np.zeros(3), np.ones(3), np.ones(args.N), .5
+T_B, L = 1., .5
+_zeros, _ones, dom = np.zeros(3), np.ones(3), np.ones(args.N)
 hodge = np.zeros((3,3,3))
 hodge[0, 1, 2] = hodge[1, 2, 0] = hodge[2, 0, 1] = 1
 e_x, e_y, e_z = np.array([1.,0,0]), np.array([0,1.,0]), np.array([0,0,1.])
-X = L * (np.arange(args.N) + .5) / args.N
+X = L * (np.arange(args.N) + .5) / args.N               # coordinates of cell centers in physical space
 
-### Velocity grid
-idx = lambda M: np.arange(2*M) - M + .5
-_H, _Xi = args.radius / args.M + idx(args.M)*0, args.radius / args.M * idx(args.M)
-H, Xi = np.einsum('i,a', _H, dom), np.einsum('i,a', _Xi, dom)
-_I, I, Zeros = np.ones_like(_Xi), np.ones_like(Xi), np.einsum('l,a', zeros, dom)
+### BGK velocity grid
+idx, delta_v = lambda M: np.arange(2*M) - M + .5, args.radius / args.M
+_Xi = args.radius / args.M * idx(args.M)
+Xi, zeros  = np.einsum('i,a', _Xi, dom), np.einsum('l,a', _zeros, dom)
+_I, I = np.ones_like(_Xi), np.ones_like(Xi)
 
-dxi = np.einsum('i,j,k', _H, _H, _H)
-_xi = lambda v=zeros: np.einsum('li,lj,lk->ijkl', (_Xi-v[0], _I, _I), (_I, _Xi-v[1], _I), (_I, _I, _Xi-v[2]))
-_sqr_xi = lambda vel, s=ones: np.linalg.norm(np.einsum('ijkl,l->ijkl', _xi(vel), s), axis=3)**2
+_xi = lambda v: np.einsum('li,lj,lk->ijkl', (_Xi-v[0], _I, _I), (_I, _Xi-v[1], _I), (_I, _I, _Xi-v[2]))
+_sqr_xi = lambda v, s=_ones: np.linalg.norm(np.einsum('ijkl,l->ijkl', _xi(v), s), axis=3)**2
 _vel = lambda v, i: np.einsum('a,i', v[:,i], _I) 
-_Maxwell = lambda rho, vel, temp: rho/(np.pi*temp)**1.5 * np.exp(-_sqr_xi(vel)/temp)*dxi
+_Maxw = lambda rho, vel, temp: rho/(np.pi*temp)**1.5 * np.exp(-_sqr_xi(vel)/temp)*delta_v**3
 
-xi = lambda v=Zeros: np.einsum('lai,laj,lak->aijkl', (Xi-_vel(v,0), I, I), (I, Xi-_vel(v,1), I), (I, I, Xi-_vel(v,2)))
-sqr_xi = lambda vel, s=ones: np.linalg.norm(np.einsum('aijkl,l->aijkl', xi(vel), s), axis=4)**2
-Maxwell = lambda rho, vel, temp: np.einsum('a,aijk,ijk->aijk', rho/(np.pi*temp)**1.5, np.exp(np.einsum('aijk,a->aijk', -sqr_xi(vel), 1./temp)), dxi)
+xi = lambda v: np.einsum('lai,laj,lak->aijkl', (Xi-_vel(v,0), I, I), (I, Xi-_vel(v,1), I), (I, I, Xi-_vel(v,2)))
+sqr_xi = lambda v: np.einsum('aijkl,aijkl->aijk', xi(v), xi(v))
+Maxw = lambda rho, vel, temp: np.einsum('a,aijk->aijk', rho/(np.pi*temp)**1.5*delta_v**3, np.exp(np.einsum('aijk,a->aijk', -sqr_xi(vel), 1./temp)))
 
+half_M = lambda model: -np.sum(model.xi0()[...,1] * model.Maxw0(1., args.U*e_x/2, T_B) * (model.xi0()[...,1] < 0))
 _gr1 = lambda vel, temp, tau: 2 * np.einsum('ijkl,ijkm,n,lmn->ijk', xi(vel), xi(vel), tau, hodge)
 _gr2 = lambda vel, temp, qflow: 4./5 * (np.einsum('ijkl,ijk,l->ijk', xi(vel), sqr_xi(vel)/temp-2.5, qflow))
-Grad13 = lambda rho, vel, temp, tau, qflow: Maxwell(vel, temp, rho) * (1 + (_gr1(vel, temp, tau) + _gr2(vel, temp, qflow))/(rho*temp**2))
+Grad13 = lambda rho, vel, temp, tau, qflow: Maxw(vel, temp, rho) * (1 + (_gr1(vel, temp, tau) + _gr2(vel, temp, qflow))/(rho*temp**2))
 
-# Diffuse boundary constants
-T_B = 1.
-half_M = -np.sum(_xi()[...,1] * _Maxwell(1., args.U*e_x/2, T_B) * (_xi()[...,1] < 0))
+_xi_y = _xi(_zeros)[...,1]
+p = np.where((_xi_y > 0)*(_sqr_xi(_zeros) <= args.radius**2))
+n = np.where((_xi_y < 0)*(_sqr_xi(_zeros) <= args.radius**2))
+# antisymmerty packing, use p[0][::-1] for specular reflection
+ball = ( np.hstack((n[0], p[0])), np.hstack((n[1], p[1])), np.hstack((n[2], p[2])) )
 
-def splot(f):
+### Factory of classes
+Model = namedtuple('Model', ['xi0', 'Maxw0', 'weights', 'xi', 'sqr_xi', 'Maxw'])
+models = {
+    'dvm': Model(
+        xi0 = lambda v=_zeros: _xi(v)[ball],
+        Maxw0 = lambda rho, vel, temp: _Maxw(rho, vel, temp)[ball],
+        weights = lambda: np.ones_like(_xy_y)*delta_v**3,
+        xi = lambda v=zeros: xi(v)[(slice(None),) + ball],
+        sqr_xi = lambda v=zeros: sqr_xi(v)[(slice(None),) + ball],
+        Maxw = lambda rho, vel, temp: Maxw(rho, vel, temp)[(slice(None),) + ball]
+    )
+}
+
+def splot(model, f):
     import mpl_toolkits.mplot3d.axes3d as p3
-    fig = py.figure()
+    fig = plt.figure()
     ax = p3.Axes3D(fig)
-    xv, yv = np.meshgrid(_Xi, _Xi, sparse=False, indexing='ij')
-    f /= dxi
-    ball = _sqr_xi(zeros, ones/args.radius) <= 1
-    f[np.invert(ball)] = np.NaN
-    ax.plot_wireframe(xv, yv, f[:,:,args.M], linewidth=0.25)
-    py.show()
+    xi = model.xi0()
+    m = xi[:,2] == delta_v/2
+    ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.weights())[m])
+    plt.show()
 
-def plot_profiles(f):
-    py.clf()
-    rho, temp, vel, qflow, tau = calc_macro(f)
+def plot_profiles(model, f):
+    plt.clf()
+    rho, temp, vel, qflow, tau = calc_macro(model, f)
     U = args.U
     x, Vel, Tau = np.loadtxt('k1e-1.txt').T
-    py.plot(X, vel[:,0]/U, 'r', X, -tau[:,2]/U, 'g', x, Vel, 'rD--', x, -2*Tau, 'gD--')
-    #py.plot(X, 1e3*(rho*temp-1), 'b*--')
-    py.plot(x, x, 'r-.', x, 0*x + np.pi**-.5, 'g-.')
-    py.show()
-    py.pause(1e-3)
+    plt.plot(X, vel[:,0]/U, 'r', X, -tau[:,2]/U, 'g', x, Vel, 'rD--', x, -2*Tau, 'gD--')
+    #plt.plot(X, 1e3*(rho*temp-1), 'b*--')
+    plt.plot(x, x, 'r-.', x, 0*x + np.pi**-.5, 'g-.')
+    plt.show()
+    plt.pause(1e-3)
 
-def calc_macro(f):
-    #f = np.einsum('aijk,ijk->ijk', f, ball)
-    rho = np.einsum('aijk->a', f)
-    vel = np.einsum('aijk,ijkl,a->al', f, _xi(), 1./rho)
-    c, sqr_c = xi(vel), sqr_xi(vel)
-    csqr_c = np.einsum('aijk,aijkl->aijkl', sqr_c, c)
-    cc_ij = np.einsum('aijkl,aijkm->aijklm', c, c)
-    cc = np.einsum('aijklm,lmn', cc_ij, hodge)
-    temp = 2./3*np.einsum('aijk,aijk,a->a', f, sqr_c, 1./rho)
-    qflow = np.einsum('aijk,aijkl->al', f, csqr_c)
-    tau = 2*np.einsum('aijk,aijkl->al', f, cc)
+def calc_macro(model, f):
+    rho = np.einsum('ai->a', f)
+    vel = np.einsum('ai,il,a->al', f, model.xi0(), 1./rho)
+    c, sqr_c = model.xi(vel), model.sqr_xi(vel)
+    csqr_c = np.einsum('ai,ail->ail', sqr_c, c)
+    cc_ij = np.einsum('ail,aim->ailm', c, c)
+    cc = np.einsum('ailm,lmn', cc_ij, hodge)
+    temp = 2./3*np.einsum('ai,ai,a->a', f, sqr_c, 1./rho)
+    qflow = np.einsum('ai,ail->al', f, csqr_c)
+    tau = 2*np.einsum('ai,ail->al', f, cc)
     return rho, temp, vel, qflow, tau
 
-def total_values(f):
-    rho, temp, vel, qflow, tau = calc_macro(f)
+def total_values(model, f):
+    rho, temp, vel, qflow, tau = calc_macro(model, f)
     print 'Total mass =', sum(rho)/args.N
-
-def test():
-    sca_ones, vec_zeros = np.array([1.,]), np.array([zeros,])
-    rho, temp, vel, qflow, tau = calc_macro(Maxwell(sca_ones, vec_zeros, sca_ones))
-    print rho[0], temp[0], vel[0], qflow[0], tau[0]
-    # print calc_macro(Grad13([0,0,1e-1],zeros,[1e-1,0,0],1,1))
 
 def check(f):
     if np.sum(np.isnan(f)) > 0:
@@ -108,23 +117,24 @@ def check(f):
         raise NameError("Negative value has been found!")
 
 # Second-order TVD scheme
-def transport(f, delta_t, delta_y):
-    rho, temp, vel, qflow, tau = calc_macro(f)
+def transport(model, f, delta_t, delta_y):
+    rho, temp, vel, qflow, tau = calc_macro(model, f)
+    _half_M = half_M(model)
     #print "Delta_h = %g, Delta_t = %g" % (delta_y, delta_t)
-    N, xi_y, _xi_y = args.N, xi()[...,1], _xi()[...,1]
+    N, xi_y, _xi_y = args.N, model.xi()[...,1], model.xi0()[...,1]
     gamma = _xi_y * delta_t / delta_y
     mask, _mask = lambda sgn, N: sgn*xi_y[0:N] > 0, lambda sgn: sgn*_xi_y > 0
     # Create additional matrices
     shape = np.array(f.shape)
-    F = np.empty(shape + np.array([1, 0, 0, 0]))                # xi_y*F -- fluxes between cells
-    f3 = np.empty(shape + np.array([3-N, 0, 0, 0]))             # ghost + two cells
+    F = np.empty(shape + np.array([1, 0]))                      # xi_y*F -- fluxes between cells
+    f3 = np.empty(shape + np.array([3-N, 0]))                   # ghost + two cells
     F.fill(np.NaN); f3.fill(np.NaN);                            # for debug
     def calc_F(f, idx, F, Idx, mask):
         df1, df2, df3 = [f[idx+1] - f[idx], f[idx] - f[idx-1], f[idx+1] - f[idx-1]]
         # MC limiter
         lim = lambda d1, d2, d3: (args.order-1)*np.minimum(np.abs(d3)/2, 2*np.minimum(np.abs(d1), np.abs(d2)))*np.sign(d1)
         with np.errstate(divide='ignore', invalid='ignore'):
-            F[Idx][mask] = (f[idx] + np.einsum('ijk,aijk->aijk', (1-gamma)/2, np.where(df1*df2 > 0, lim(df1, df2, df3), 0)))[mask]
+            F[Idx][mask] = (f[idx] + np.einsum('i,ai->ai', (1-gamma)/2, np.where(df1*df2 > 0, lim(df1, df2, df3), 0)))[mask]
     def calc2N(f, F, sgn):
         m0, m1, m2, mN = _mask(sgn), mask(sgn, 1), mask(sgn, 2), mask(sgn, N-2)
         f3[:2][m2] = f[-2:][m2]
@@ -142,56 +152,53 @@ def transport(f, delta_t, delta_y):
         calc_F(f3, np.arange(1, 2), F, slice(1, 2), m1)         # second flux
         #check(F[:2][m2])
     def antisym(F, F0, mask):
-        F[mask] = F0[::-1,::-1][mask]
+        F[mask] = F0[::-1][mask]
     def diffuse(F, F0, mask):
-        F[mask] = _Maxwell(np.sum((_xi_y*F0)[:,::-1][mask])/half_M, args.U*e_x/2, T_B)[mask]
+        F[mask] = model.Maxw0(np.sum((_xi_y*F0)[::-1][mask])/_half_M, args.U*e_x/2, T_B)[mask]
     calc2N(f, F, 1)
     calc2N(f[::-1], F[::-1], -1)
     calc01(f, F, 1, antisym)
     calc01(f[::-1], F[::-1], -1, diffuse)
     #check(f3)
     #check(F)
-    f -= np.einsum('ijk,aijk->aijk', gamma, F[1:N+1] - F[0:N])
+    f -= np.einsum('i,ai->ai', gamma, F[1:N+1] - F[0:N])
     check(f) # after transport
 
-def bgk(f, delta_t):
-    rho, temp, vel, qflow, tau = calc_macro(f)
+def bgk(model, f, delta_t):
+    rho, temp, vel, qflow, tau = calc_macro(model, f)
     nu = lambda rho: 2/(np.pi**.5*args.kn) * rho
-    M = Maxwell(rho, vel, temp)
-    f[:] = np.einsum('aijk,a->aijk', f - M, np.exp(-delta_t*nu(rho))) + M
+    M = model.Maxw(rho, vel, temp)
+    f[:] = np.einsum('ai,a->ai', f - M, np.exp(-delta_t*nu(rho))) + M
     check(f) # after BGK
 
-def solve_bgk():
+def solve_bgk(model):
     delta_y, U, N = L/args.N, args.U, args.N
     U0 = .9*U if args.kn < 1 else 0
     Rho0, Vel0, Temp0 = dom, np.einsum('a,l',X, U0*e_x), dom
-    f = Maxwell(Rho0, Vel0, Temp0)
-    rho0, temp0, vel0, qflow0, tau0 = calc_macro(f)
-    total_values(f)
-    py.ion()
-    plot_profiles(f)
+    f = model.Maxw(Rho0, Vel0, Temp0)
+    rho0, temp0, vel0, qflow0, tau0 = calc_macro(model, f)
+    total_values(model, f)
+    plt.ion()
+    plot_profiles(model, f)
     delta_t = delta_y/args.radius/args.step                     # from CFL
     for i in xrange(args.time):
         # Symmetry second-order splitting
-        transport(f, delta_t, delta_y)
-        bgk(f, 2*delta_t)
-        transport(f, delta_t, delta_y)
+        transport(model, f, delta_t, delta_y)
+        bgk(model, f, 2*delta_t)
+        transport(model, f, delta_t, delta_y)
         if not i % 10:
-            rho, temp, vel, qflow, tau = calc_macro(f)
+            rho, temp, vel, qflow, tau = calc_macro(model, f)
             rho_disp, pxy_mean = sum((rho-rho0)**2)/N, np.sum(tau[:,2])/N
             pxy_disp = sum((tau[:,2]-pxy_mean)**2)/N
             print '%d: err(rho) = %g, p_xy/U = %g, err(p_xy)/U = %g, vel[-1]/U = %g, T[-1] = %g' \
                 % ( i, rho_disp, pxy_mean/U, pxy_disp/U, vel[-1,0]/U, temp[-1] )
-            plot_profiles(f)
-    total_values(f)
-    rho, temp, vel, qflow, tau = calc_macro(f)
+            plot_profiles(model, f)
+    total_values(model, f)
+    rho, temp, vel, qflow, tau = calc_macro(model, f)
     print rho, temp, vel/U, qflow/U, tau/U
     #splot(f[-1])
     #splot(f[0])
-    py.ioff(); py.show()
+    plt.ioff(); plt.show()
 
-{
-    'bgk': solve_bgk,
-    'lbe': solve_bgk,
-    'hybrid': solve_bgk,
-}[args.solver]()
+solve_bgk(models[args.model])
+
