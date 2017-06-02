@@ -15,9 +15,10 @@ parser.add_argument('-t', '--time', type=int, default=int(1e2), metavar='<int>',
 parser.add_argument('-s', '--step', type=float, default=1, metavar='<float>', help='reduce timestep in given times')
 parser.add_argument('-r', '--radius', type=float, default=4., metavar='<float>', help='radius of the velocity grid')
 parser.add_argument('-m', '--model', default='dvm', metavar='dvm|lbm', help='type of velocity model')
+parser.add_argument('-l', '--lattice', default='d3q19', metavar='d3q15|19|27', help='type of velocity lattice')
 parser.add_argument('-o', '--order', type=int, default=2, metavar='1|2', help='order of approximation')
 parser.add_argument('-k', '--kn', type=float, default=2e-1/np.pi**.5, metavar='<float>', help='the Knudsen number')
-parser.add_argument('-U', type=float, default=4e-2, metavar='<float>', help='difference in velocity of plates')
+parser.add_argument('-U', type=float, default=2e-2, metavar='<float>', help='difference in velocity of plates')
 args = parser.parse_args()
 
 print ''.join(['=' for i in range(20)])
@@ -31,10 +32,10 @@ T_B, L = 1., .5
 _zeros, _ones, dom = np.zeros(3), np.ones(3), np.ones(args.N)
 hodge = np.zeros((3,3,3))
 hodge[0, 1, 2] = hodge[1, 2, 0] = hodge[2, 0, 1] = 1
-e_x, e_y, e_z = np.array([1.,0,0]), np.array([0,1.,0]), np.array([0,0,1.])
+e_x = np.eye(3)[0]
 X = L * (np.arange(args.N) + .5) / args.N               # coordinates of cell centers in physical space
 
-### BGK velocity grid
+### DVM velocity grid
 idx, delta_v = lambda M: np.arange(2*M) - M + .5, args.radius / args.M
 _Xi = args.radius / args.M * idx(args.M)
 Xi, zeros  = np.einsum('i,a', _Xi, dom), np.einsum('l,a', _zeros, dom)
@@ -54,22 +55,70 @@ _gr1 = lambda vel, temp, tau: 2 * np.einsum('ijkl,ijkm,n,lmn->ijk', xi(vel), xi(
 _gr2 = lambda vel, temp, qflow: 4./5 * (np.einsum('ijkl,ijk,l->ijk', xi(vel), sqr_xi(vel)/temp-2.5, qflow))
 Grad13 = lambda rho, vel, temp, tau, qflow: Maxw(vel, temp, rho) * (1 + (_gr1(vel, temp, tau) + _gr2(vel, temp, qflow))/(rho*temp**2))
 
-_xi_y = _xi(_zeros)[...,1]
-p = np.where((_xi_y > 0)*(_sqr_xi(_zeros) <= args.radius**2))
-n = np.where((_xi_y < 0)*(_sqr_xi(_zeros) <= args.radius**2))
-# antisymmerty packing, use p[0][::-1] for specular reflection
-ball = ( np.hstack((n[0], p[0])), np.hstack((n[1], p[1])), np.hstack((n[2], p[2])) )
+# 1d packing, symm=1 for antisymmetry, symm=-1 for specular reflection
+def dvm_ball(symm):
+    _xi_y = _xi(_zeros)[...,1]
+    p = np.where((_xi_y > 0)*(_sqr_xi(_zeros) <= args.radius**2))
+    n = np.where((_xi_y < 0)*(_sqr_xi(_zeros) <= args.radius**2))
+    return np.hstack((n[0], p[0][::symm])), np.hstack((n[1], p[1])), np.hstack((n[2], p[2]))
+ball = dvm_ball(1)
+
+### LBM velocity grid
+Lattice = namedtuple('Lattice', ['xi', 'w'])
+def lbm_d3(nodes, weights):
+    lattice, k = [], 0
+    def sort(item):
+        return 2*np.sum(item[0]) + np.sum(item[0]/2**np.arange(3.))
+    def add_symm(i, node, lattice):
+        if i < 3:
+            s = np.ones(3); s[i] *= -1
+            if node[i]:
+                add_symm(i+1, node, lattice)
+                add_symm(i+1, s*node, lattice)
+            else:
+                add_symm(i+1, node, lattice)
+        else:
+            lattice += [ (node, weights[k]) ]
+    for node in nodes:
+        _node = np.array(node)
+        while True:
+            add_symm(0, _node, lattice)
+            _node = np.roll(_node, 1)
+            if (_node == node).all():
+                break
+        k += 1
+    xi, w = np.transpose(sorted(lattice, key=sort))
+    return Lattice(np.vstack(xi), np.hstack(w))
+
+lattices = {
+    'd3q15': lbm_d3([(0,0,0), (1,0,0), (1,1,1)], np.array([2, 1, .125])/9),
+    'd3q19': lbm_d3([(0,0,0), (1,0,0), (1,1,0)], np.array([3, 18, 36])**-1.),
+    'd3q27': lbm_d3([(0,0,0), (1,0,0), (1,1,0), (1,1,1)], np.array([8, 2, .5, .125])/27)
+}
+
+_xi_v = lambda v: np.einsum('il,l', lattices[args.lattice].xi, v)
+_sqr = lambda v: np.einsum('l,l', v, v)
+_weighted = lambda f: np.einsum('i,i->i', lattices[args.lattice].w, f)
+xi_v = lambda v: np.einsum('il,al', lattices[args.lattice].xi, v)
+weighted = lambda rho, f: np.einsum('a,i,ai->ai', rho, lattices[args.lattice].w, f)
+lat = np.ones_like(lattices[args.lattice].w)
 
 ### Factory of classes
-Model = namedtuple('Model', ['xi0', 'Maxw0', 'weights', 'xi', 'sqr_xi', 'Maxw'])
+Model = namedtuple('Model', ['xi0', 'Maxw0', 'weights', 'xi', 'Maxw'])
 models = {
     'dvm': Model(
         xi0 = lambda v=_zeros: _xi(v)[ball],
         Maxw0 = lambda rho, vel, temp: _Maxw(rho, vel, temp)[ball],
-        weights = lambda: np.ones_like(_xy_y)*delta_v**3,
+        weights = lambda: np.ones_like(_xy_y) * delta_v**3,
         xi = lambda v=zeros: xi(v)[(slice(None),) + ball],
-        sqr_xi = lambda v=zeros: sqr_xi(v)[(slice(None),) + ball],
         Maxw = lambda rho, vel, temp: Maxw(rho, vel, temp)[(slice(None),) + ball]
+    ),
+    'lbm': Model(
+        xi0 = lambda v=_zeros: lattices[args.lattice].xi - np.einsum('i,l', lat, v),
+        Maxw0 = lambda rho, vel, temp: rho*_weighted(1 + _xi_v(vel) + (_xi_v(vel))**2/2 - _sqr(vel)),
+        weights = lambda: lattices[args.lattice].w,
+        xi = lambda v=zeros: np.einsum('il,a', lattices[args.lattice].xi, dom) - np.einsum('i,al', lat, v),
+        Maxw = lambda rho, vel, temp: weighted(rho, 1 + 3*(xi_v(vel) + 1.5*xi_v(vel)**2 - np.einsum('al,al,i', vel, vel, lat)/2))
     )
 }
 
@@ -96,7 +145,7 @@ def plot_profiles(model, f):
 def calc_macro(model, f):
     rho = np.einsum('ai->a', f)
     vel = np.einsum('ai,il,a->al', f, model.xi0(), 1./rho)
-    c, sqr_c = model.xi(vel), model.sqr_xi(vel)
+    c, sqr_c = model.xi(vel), np.einsum('ail,ail->ai', model.xi(vel), model.xi(vel))
     csqr_c = np.einsum('ai,ail->ail', sqr_c, c)
     cc_ij = np.einsum('ail,aim->ailm', c, c)
     cc = np.einsum('ailm,lmn', cc_ij, hodge)
@@ -124,11 +173,12 @@ def transport(model, f, delta_t, delta_y):
     N, xi_y, _xi_y = args.N, model.xi()[...,1], model.xi0()[...,1]
     gamma = _xi_y * delta_t / delta_y
     mask, _mask = lambda sgn, N: sgn*xi_y[0:N] > 0, lambda sgn: sgn*_xi_y > 0
+    _zmask = _xi_y == 0
     # Create additional matrices
     shape = np.array(f.shape)
-    F = np.empty(shape + np.array([1, 0]))                      # xi_y*F -- fluxes between cells
-    f3 = np.empty(shape + np.array([3-N, 0]))                   # ghost + two cells
-    F.fill(np.NaN); f3.fill(np.NaN);                            # for debug
+    F = np.zeros(shape + np.array([1, 0]))                      # xi_y*F -- fluxes between cells
+    f3 = np.zeros(shape + np.array([3-N, 0]))                   # ghost + two cells
+    #F.fill(np.NaN); f3.fill(np.NaN);                            # for debug
     def calc_F(f, idx, F, Idx, mask):
         df1, df2, df3 = [f[idx+1] - f[idx], f[idx] - f[idx-1], f[idx+1] - f[idx-1]]
         # MC limiter
@@ -174,7 +224,7 @@ def bgk(model, f, delta_t):
 def solve_bgk(model):
     delta_y, U, N = L/args.N, args.U, args.N
     U0 = .9*U if args.kn < 1 else 0
-    Rho0, Vel0, Temp0 = dom, np.einsum('a,l',X, U0*e_x), dom
+    Rho0, Vel0, Temp0 = dom, np.einsum('a,l', X, U0*e_x), dom
     f = model.Maxw(Rho0, Vel0, Temp0)
     rho0, temp0, vel0, qflow0, tau0 = calc_macro(model, f)
     total_values(model, f)
