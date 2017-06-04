@@ -1,17 +1,14 @@
 #!/usr/bin/env python
-r'Solver for the plane Couette-flow problem'
-r'Example: ./solver.py --solver=bgk -N=10 -M=10'
-
 import argparse
 import numpy as np
 from functools import partial
 from collections import namedtuple
 import matplotlib.pyplot as plt
 
-parser = argparse.ArgumentParser(description='2D contour plots of scalar and vector from VTK data')
+parser = argparse.ArgumentParser(description='Solver for the plane Couette-flow problem')
 parser.add_argument('-N', type=int, default=8, metavar='<int>', help='number of cells in the physical space')
 parser.add_argument('-M', type=int, default=8, metavar='<int>', help='number of points along each axis in the velocity space')
-parser.add_argument('-t', '--time', type=int, default=int(1e2), metavar='<int>', help='maximum total time')
+parser.add_argument('-e', '--end', type=int, default=int(1e2), metavar='<int>', help='maximum total time')
 parser.add_argument('-s', '--step', type=float, default=1, metavar='<float>', help='reduce timestep in given times')
 parser.add_argument('-r', '--radius', type=float, default=4., metavar='<float>', help='radius of the velocity grid')
 parser.add_argument('-m', '--model', default='dvm', metavar='dvm|lbm', help='type of velocity model')
@@ -19,6 +16,7 @@ parser.add_argument('-l', '--lattice', default='d3q19', metavar='d3q15|19|27', h
 parser.add_argument('-o', '--order', type=int, default=2, metavar='1|2', help='order of approximation')
 parser.add_argument('-k', '--kn', type=float, default=2e-1/np.pi**.5, metavar='<float>', help='the Knudsen number')
 parser.add_argument('-U', type=float, default=2e-2, metavar='<float>', help='difference in velocity of plates')
+parser.add_argument('-t', '--tests', action='store_true', help='to run some tests')
 args = parser.parse_args()
 
 print ''.join(['=' for i in range(20)])
@@ -100,6 +98,7 @@ _xi_v = lambda v: np.einsum('il,l', lattices[args.lattice].xi, v)
 _sqr = lambda v: np.einsum('l,l', v, v)
 _weighted = lambda f: np.einsum('i,i->i', lattices[args.lattice].w, f)
 xi_v = lambda v: np.einsum('il,al', lattices[args.lattice].xi, v)
+sqr = lambda v: np.einsum('al,al,i->ai', v, v, lat)
 weighted = lambda rho, f: np.einsum('a,i,ai->ai', rho, lattices[args.lattice].w, f)
 lat = np.ones_like(lattices[args.lattice].w)
 
@@ -115,10 +114,10 @@ models = {
     ),
     'lbm': Model(
         xi0 = lambda v=_zeros: lattices[args.lattice].xi - np.einsum('i,l', lat, v),
-        Maxw0 = lambda rho, vel, temp: rho*_weighted(1 + _xi_v(vel) + (_xi_v(vel))**2/2 - _sqr(vel)),
+        Maxw0 = lambda rho, vel, temp: rho*_weighted(1 + 3*(_xi_v(vel) + 1.5*_xi_v(vel)**2 - _sqr(vel)/2)),
         weights = lambda: lattices[args.lattice].w,
         xi = lambda v=zeros: np.einsum('il,a', lattices[args.lattice].xi, dom) - np.einsum('i,al', lat, v),
-        Maxw = lambda rho, vel, temp: weighted(rho, 1 + 3*(xi_v(vel) + 1.5*xi_v(vel)**2 - np.einsum('al,al,i', vel, vel, lat)/2))
+        Maxw = lambda rho, vel, temp: weighted(rho, 1 + 3*(xi_v(vel) + 1.5*xi_v(vel)**2 - sqr(vel)/2))
     )
 }
 
@@ -165,6 +164,21 @@ def check(f):
         print "Negative: ", f[f<0]
         raise NameError("Negative value has been found!")
 
+def check_maxw(mod, M):
+    rho, temp, vel, qflow, tau = calc_macro(mod, M)
+    U, fmt1, fmt2 = args.U, '%+.2e ', '%9s '
+    columns = ( 'rho-1', 'temp', 'vel_x/U', 'vel_y/U', 'p_xy/U', 'q_x/U' )
+    values = ( 0., 1., 1., 0., 0., 0. )
+    print 'Values:   ' + ''.join([fmt2 for i in range(len(values))]) % columns
+    print 'Expected: ' + ''.join([fmt1 for i in range(len(values))]) % values
+    print 'Computed: ' + ''.join([fmt1 for i in range(len(values))]) % \
+        ( rho[0]-1, temp[0], 2*vel[-1, 0]/U, 2*vel[-1, 1]/U, tau[-1, 2]/U, qflow[-1, 0]/U )
+ 
+def tests():
+    mod = models[args.model]
+    check_maxw(mod, mod.Maxw(dom, np.einsum('a,l', dom, args.U*e_x/2), dom))
+    check_maxw(mod, np.einsum('a,i', dom, mod.Maxw0(1, args.U*e_x/2, 1)))
+
 # Second-order TVD scheme
 def transport(model, f, delta_t, delta_y):
     rho, temp, vel, qflow, tau = calc_macro(model, f)
@@ -173,7 +187,6 @@ def transport(model, f, delta_t, delta_y):
     N, xi_y, _xi_y = args.N, model.xi()[...,1], model.xi0()[...,1]
     gamma = _xi_y * delta_t / delta_y
     mask, _mask = lambda sgn, N: sgn*xi_y[0:N] > 0, lambda sgn: sgn*_xi_y > 0
-    _zmask = _xi_y == 0
     # Create additional matrices
     shape = np.array(f.shape)
     F = np.zeros(shape + np.array([1, 0]))                      # xi_y*F -- fluxes between cells
@@ -231,7 +244,7 @@ def solve_bgk(model):
     plt.ion()
     plot_profiles(model, f)
     delta_t = delta_y/args.radius/args.step                     # from CFL
-    for i in xrange(args.time):
+    for i in xrange(args.end):
         # Symmetry second-order splitting
         transport(model, f, delta_t, delta_y)
         bgk(model, f, 2*delta_t)
@@ -250,5 +263,8 @@ def solve_bgk(model):
     #splot(f[0])
     plt.ioff(); plt.show()
 
-solve_bgk(models[args.model])
+if args.tests:
+    tests()
+else:
+    solve_bgk(models[args.model])
 
