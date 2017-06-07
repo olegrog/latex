@@ -135,8 +135,12 @@ def plot_profiles(solution):
     y, h, rho, vel, temp, tau, qflow = calc_macro(solution)
     U = args.U
     Y, Vel, Tau = np.loadtxt('k1e-1.txt').T
-    plt.plot(y, vel[:,0]/U, 'r*-', y, -tau[:,2]/U, 'g*-', Y, Vel, 'rD--', Y, -2*Tau, 'gD--')
-    plt.plot(Y, Y, 'r-.', Y, 0*Y + np.pi**-.5, 'g-.')
+    plt.plot(Y, Vel, 'rD--', Y, -2*Tau, 'gD--')             # k = 0.1
+    Y, Vel, Tau = np.loadtxt('k1e-0.txt').T
+    plt.plot(Y, Vel, 'rs--', Y, -2*Tau, 'gs--')             # k = 1
+    plt.plot(Y, Y, 'r-.')                                   # k = 0
+    plt.plot(Y, 0*Y + np.pi**-.5, 'g-.')                    # k = \infty
+    plt.plot(y, vel[:,0]/U, 'r*-', y, -tau[:,2]/U, 'g*-')   # present
     plt.show()
     plt.pause(1e-3)
 
