@@ -10,7 +10,7 @@ parser.add_argument('-N1', type=int, default=4, metavar='<int>', help='number of
 parser.add_argument('-N2', type=int, default=4, metavar='<int>', help='number of cells in the second domain')
 parser.add_argument('-M', type=int, default=8, metavar='<int>', help='number of points along each axis in the velocity space')
 parser.add_argument('-e', '--end', type=int, default=int(1e2), metavar='<int>', help='maximum total time')
-parser.add_argument('-w', '--width', type=float, default=1.2, metavar='<float>', help='width of the second domain in terms of mean free path')
+parser.add_argument('-w', '--width', type=str, default='1.2*kn', metavar='<expr>', help='width of the second domain')
 parser.add_argument('-s', '--step', type=float, default=1, metavar='<float>', help='reduce timestep in given times')
 parser.add_argument('-r', '--radius', type=float, default=4., metavar='<float>', help='radius of the velocity grid')
 parser.add_argument('-m1', '--model1', default='lbm', metavar='dvm|lbm', help='type of velocity model in the first domain')
@@ -24,12 +24,12 @@ parser.add_argument('-t', '--tests', action='store_true', help='run some tests i
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
 args = parser.parse_args()
 
-if args.verbose:
-    logging.basicConfig(level=logging.DEBUG, format='(%(threadName)-10s) %(message)s')
+log_level = logging.DEBUG if args.verbose else logging.INFO
+logging.basicConfig(level=log_level, format='(%(threadName)-10s) %(message)s')
 
 ### Constants
-T_B, L = 1., .5
-width = min(args.width*args.kn, L/2)
+T_B, L, kn = 1., .5, args.kn
+width = min(eval(args.width), L/2)
 zeros, ones = np.zeros(3), np.ones(3)
 hodge = np.zeros((3,3,3))
 hodge[0, 1, 2] = hodge[1, 2, 0] = hodge[2, 0, 1] = 1
@@ -37,7 +37,7 @@ e_x = np.eye(3)[0]
 
 ### Auxiliary functions
 cells = lambda domain: domain.y0 + domain.L*(np.arange(domain.N) + .5)/domain.N
-delta_y = lambda domain: domain.L/domain.N
+delta_y = lambda domain: domain.L/domain.N * np.ones(domain.N)
 half_M = lambda model: -np.sum(model.xi0()[...,1] * model.Maxw0(1., args.U*e_x/2, T_B) * (model.xi0()[...,1] < 0))
 
 ### DVM velocity grid
@@ -72,11 +72,6 @@ def dvm_grid():
         xi = lambda v: xi(v)[(slice(None),) + ball],
         Maxw = lambda rho, vel, temp: Maxw(rho, vel, temp)[(slice(None),) + ball]
     )
-
-def grad13():
-    _gr1 = lambda vel, temp, tau: 2 * np.einsum('ijkl,ijkm,n,lmn->ijk', xi(vel), xi(vel), tau, hodge)
-    _gr2 = lambda vel, temp, qflow: 4./5 * (np.einsum('ijkl,ijk,l->ijk', xi(vel), sqr_xi(vel)/temp-2.5, qflow))
-    Grad13 = lambda rho, vel, temp, tau, qflow: Maxw(vel, temp, rho) * (1 + (_gr1(vel, temp, tau) + _gr2(vel, temp, qflow))/(rho*temp**2))
 
 def lbm_d3(nodes, weights):
     lattice = []
@@ -144,22 +139,36 @@ def plot_profiles(solution):
     plt.show()
     plt.pause(1e-3)
 
+def calc_macro0(model, f):
+    f = [f] if len(f.shape) == 1 else f
+    #TODO: optimize using generators
+    rho = np.einsum('ai->a', f)
+    vel = np.einsum('ai,il,a->al', f, model.xi0(), 1./rho)
+    c = model.xi(vel)
+    sqr_c = np.einsum('ail,ail->ai', c, c)
+    csqr_c = np.einsum('ai,ail->ail', sqr_c, c)
+    cc_ij = np.einsum('ail,aim->ailm', c, c)
+    cc = np.einsum('ailm,lmn', cc_ij, hodge)
+    temp = 2./3*np.einsum('ai,ai,a->a', f, sqr_c, 1./rho)
+    qflow = np.einsum('ai,ail->al', f, csqr_c)
+    tau = 2*np.einsum('ai,ail->al', f, cc)
+    return rho, vel, temp, tau, qflow
+
+def reconstruct(old_model, new_model, f):
+    rho, vel, temp, tau, qflow = calc_macro0(old_model, f)
+    temp = np.ones_like(temp)      # Isothermal model
+    c = new_model.xi(vel)
+    H2 = lambda tau: 2 * np.einsum('ail,aim,an,lmn,a->ai', c, c, tau, hodge, 1/rho)
+    idx = 0 if len(vel) == 1 else slice(None)
+    return (new_model.Maxw(rho, vel, temp) * (1 + H2(tau)))[idx]
+
 def calc_macro(solution):
     y, h, rho, vel, temp, tau, qflow = [], [], [], [], [], [], []
-    #TODO: optimize using generators
     for d, s in zip(domains, solution):
         y += [ cells(d) ]
-        h += [ delta_y(d)*np.ones(d.N) ]
-        rho += [ np.einsum('ai->a', s.f) ]
-        vel += [ np.einsum('ai,il,a->al', s.f, d.model.xi0(), 1./rho[-1]) ]
-        c = d.model.xi(vel[-1])
-        sqr_c = np.einsum('ail,ail->ai', c, c)
-        csqr_c = np.einsum('ai,ail->ail', sqr_c, c)
-        cc_ij = np.einsum('ail,aim->ailm', c, c)
-        cc = np.einsum('ailm,lmn', cc_ij, hodge)
-        temp += [ 2./3*np.einsum('ai,ai,a->a', s.f, sqr_c, 1./rho[-1]) ]
-        qflow += [ np.einsum('ai,ail->al', s.f, csqr_c) ]
-        tau += [ 2*np.einsum('ai,ail->al', s.f, cc) ]
+        h += [ delta_y(d) ]
+        for m, m0 in zip((rho, vel, temp, tau, qflow), calc_macro0(d.model, s.f)):
+            m.append(m0)
     s = lambda m: np.hstack(m)
     v = lambda m: np.vstack(m)
     return s(y), s(h), s(rho), v(vel), s(temp), v(tau), v(qflow)
@@ -172,55 +181,58 @@ def check(f):
     if np.sum(np.isnan(f)) > 0:
         raise NameError("NaN has been found!")
     if np.sum(f<0) > 0:
-        print "Negative: ", f[f<0]
+        logging.error('Negative:')
+        print f[f<0]
         raise NameError("Negative value has been found!")
 
 # Second-order TVD scheme
 def transport(domain, bc, solution, delta_t):
     logging.debug('Starting transfer')
     N, xi_y, _xi_y = domain.N, domain.model.xi(np.zeros((domain.N, 3)))[...,1], domain.model.xi0()[...,1]
-    gamma = _xi_y * delta_t / delta_y(domain)
+    gamma, h = _xi_y * delta_t,  delta_y(domain)
     mask, _mask = lambda sgn, N: sgn*xi_y[0:N] > 0, lambda sgn: sgn*_xi_y > 0
-    #F.fill(np.NaN); f3.fill(np.NaN);                            # for debug
-    def calc_F(f, idx, F, Idx, mask):
+    def calc_F(h, f, idx, F, Idx, mask):
         logging.debug('  - calc_F')
-        df1, df2, df3 = [f[idx+1] - f[idx], f[idx] - f[idx-1], f[idx+1] - f[idx-1]]
+        g = np.einsum('i,a', gamma, 1/h[idx])
+        d1, d2 = f[idx+1] - f[idx], f[idx] - f[idx-1]
+        h1, h2 = (h[idx+1] + h[idx])/2, (h[idx] + h[idx-1])/2
         # MC limiter
-        lim = lambda d1, d2, d3: (args.order-1)*np.minimum(np.abs(d3)/2, 2*np.minimum(np.abs(d1), np.abs(d2)))*np.sign(d1)
+        D = lambda d, h: np.einsum('ai,a->ai', np.abs(d), 1/h)
+        H = np.einsum('a,ai->ai', h[idx], np.sign(d1))
+        lim = (args.order-1) * H * np.minimum(D(d1+d2, h1+h2), 2*np.minimum(D(d1, h1), D(d2, h2)))
         with np.errstate(divide='ignore', invalid='ignore'):
-            F[Idx][mask] = (f[idx] + np.einsum('i,ai->ai', (1-gamma)/2, np.where(df1*df2 > 0, lim(df1, df2, df3), 0)))[mask]
+            F[Idx][mask] = (f[idx] + (1-g)*np.where(d1*d2 > 0, lim, 0)/2)[mask]
     def calc2N(f, F, sgn, bc):
-        logging.debug(' - calc2N')
+        logging.debug(' - calc2N %+d', sgn)
         m0, m1, m2, mN = _mask(sgn), mask(sgn, 1), mask(sgn, 2), mask(sgn, N-2)
-        f3[:2][m2] = f[-2:][m2]
-        f3[2][m0] = (2*f[-1] - f[-2])[m0]                       # last ghost cell (extrapolation for diffuse)
-        if bc.__class__ == Symmetry:
-            bc.cell(f3[2], f[-1], m0)                           # last ghost cell (exact for antisymmetry)
-        calc_F(f, np.arange(1, N-1), F, slice(2, N), mN)        # interior fluxes
-        calc_F(f3, np.arange(1, 2), F, slice(N, N+1), m1)       # last flux
+        f3[:2][m2], h3[:2] = f[-2:][m2], h[-2:]
+        h3[2] = bc.last(h3, f3, f, m0)
+        calc_F(h3, f3, np.array([1]), F, slice(-1, None), m1)   # last flux
         bc.update()
-        #check(F[2:][mask(sgn, N-1)])
+        calc_F(h, f, np.arange(1, N-1), F, slice(2, -1), mN)    # interior fluxes
+        #check(F[2:][mask(sgn, N-1)]) # after calc2N
     def calc01(f, F, sgn, bc):
-        logging.debug(' - calc01')
+        logging.debug(' - calc01 %+d', sgn)
         m0, m1, m2 = _mask(sgn), mask(sgn, 1), mask(sgn, 2)
-        bc.flux(F[0], F[0], m0)                                 # first flux
-        f3[1:3][m2] = f[:2][m2]
-        bc.cell(f3[0], f[0], m0)
-        calc_F(f3, np.arange(1, 2), F, slice(1, 2), m1)         # second flux
-        #check(F[:2][m2])
-    f, F, f3 = solution.f, solution.F, solution.f3
+        bc.flux(F, m0, calc_F)                                  # first flux
+        f3[1:3][m2], h3[1:3] = f[:2][m2], h[:2]
+        h3[0] = bc.first(h3, f3, f, m0)
+        calc_F(h3, f3, np.array([1]), F, slice(1, 2), m1)       # second flux
+        #check(F[:2][m2]) # after calc01
+    f, F, f3, h3 = solution.f, solution.F, solution.f3, np.empty(3)
+    #F.fill(np.NaN); f3.fill(np.NaN);                            # for debug
     calc2N(f, F, 1, bc[1])
     calc2N(f[::-1], F[::-1], -1, bc[0])
     calc01(f, F, 1, bc[0])
     calc01(f[::-1], F[::-1], -1, bc[1])
     #check(f3)
     #check(F)
-    f -= np.einsum('i,ai->ai', gamma, F[1:N+1] - F[0:N])
+    f -= np.einsum('i,a,ai->ai', gamma, 1/h, F[1:] - F[:-1])
     check(f) # after transport
 
 def bgk(domain, bc, solution, delta_t):
     logging.debug('Starting BGK')
-    y, h, rho, vel, temp, tau, qflow = calc_macro([solution])
+    rho, vel, temp, tau, qflow = calc_macro0(domain.model, solution.f)
     nu = lambda rho: 2/(np.pi**.5*args.kn) * rho
     M = domain.model.Maxw(rho, vel, temp)
     solution.f[:] = np.einsum('ai,a->ai', solution.f - M, np.exp(-delta_t*nu(rho))) + M
@@ -230,16 +242,23 @@ def bgk(domain, bc, solution, delta_t):
 class Boundary():
     def __init__(self, n):
         pass
-    def update(self):
+    def update(self):                           # synchronization before coupling
         pass
-    def flux(self, F, F0, mask):
-        self(F, F0, mask)
-    def cell(self, f, f0, mask):
-        self(f, f0, mask)
+    def last(self, h3, f3, f, mask):            # last ghost cell
+        f3[2][mask] = (2*f[-1] - f[-2])[mask]   # extrapolation by default
+        return h3[0]
+    def flux(self, F, mask, calc_F):            # first flux
+        self(F[0], F[0], mask)
+    def first(self, h3, f3, f, mask):           # first ghost cell
+        self(f3[0], f[0], mask)
+        return h3[1]
 
 class Symmetry(Boundary):
     def __call__(self, F, F0, mask):
         F[mask] = F0[::-1][mask]
+    def last(self, h3, f3, f, mask):
+        self(f3[2], f[-1], mask)
+        return h3[1]
 
 class Diffuse(Boundary):
     def __init__(self, n):
@@ -252,22 +271,43 @@ class Diffuse(Boundary):
 
 class Couple(Boundary):
     def __init__(self, n, n_partner, idx):
+        self._n = n
         self._n_partner = n_partner
         self._idx = idx
-        self._coeff = delta_y(domains[n]) / delta_y(domains[n_partner])
         self._lock = threading.Event()
+    def __call__(self, f, mask):
+        model, model_partner = domains[self._n].model, domains[self._n_partner].model
+        f_partner = self._f_partner[self._idx]
+        if model == model_partner:
+            f[mask] = f_partner[mask]
+        else:
+            f[mask] = reconstruct(model_partner, model, f_partner)[mask]
+        return delta_y(domains[self._n_partner])[self._idx]
     def connect(self, solution):
-        self._lock_partner = bc[self._n_partner][self._idx]._lock
-        self._f = solution[self._n_partner].f
-        self._F = solution[self._n_partner].F
-    def flux(self, F, F0, mask):
-        self._lock.wait()
-        F[mask] = self._F[self._idx][mask]
-        self._lock.clear()
-    def cell(self, f, f0, mask):
-        f[mask] = (self._f[self._idx]*self._coeff + f0*(1-self._coeff))[mask]
+        self._f_partner = solution[self._n_partner].f
+        self._F_partner = solution[self._n_partner].F
+        self._f = solution[self._n].f
+    def flux(self, F, mask, calc_F):
+        model, model_partner = domains[self._n].model, domains[self._n_partner].model
+        if model == model_partner:
+            # take the prepared flux from the partner
+            self._lock.wait()
+            F[0][mask] = self._F_partner[self._idx][mask]
+            self._lock.clear()
+        else:
+            # reconstruct a flux from the partner distribution function (2 cells)
+            idx, idx_partner = self._idx, bc[self._n_partner][self._idx]._idx
+            f3, h3 = np.empty((3,) + F[0].shape), np.empty(3)
+            f3[2], h3[2] = self._f[idx_partner], delta_y(domains[self._n])[idx_partner]
+            f3[:2] = reconstruct(model_partner, model, self._f_partner[::(2*idx+1)][:2])
+            h3[:2] = delta_y(domains[self._n_partner])[::(2*idx+1)][:2]
+            calc_F(h3, f3, np.array([1]), F, slice(1), np.array([mask]))
+    def first(self, h3, f3, f, mask):
+        return self(f3[0], mask)
+    def last(self, h3, f3, f, mask):
+        return self(f3[2], mask)
     def update(self):
-        self._lock_partner.set()
+        bc[self._n_partner][self._idx]._lock.set()
 
 def create_bc():
     bc = []
@@ -291,17 +331,17 @@ def new_solution(initial):
 def run_threads(solution, operator, delta_t):
     threads = []
     for d, s, b in zip(domains, solution, bc):
-        thread = threading.Thread(target=operator, args=(d, b, s, delta_t), name=operator.__name__)
+        thread = threading.Thread(target=operator, args=(d, b, s, delta_t))
         thread.start()
         threads.append(thread)
     for t in threads:
         t.join()            # wait until all threads terminate
 
 def solve_bgk():
-    delta_t = min(map(delta_y, domains))/args.radius/args.step
     U, U0 = args.U, .9*args.U if args.kn < 1 else 0
     solution = new_solution(lambda y: (1+0*y, U0*np.einsum('a,l', y, e_x), 1+0*y))
     y, h, rho0, vel0, temp0, tau0, qflow0 = calc_macro(solution)
+    delta_t = min(h)/args.radius/args.step
     total_values(solution)
     plt.ion()
     plot_profiles(solution)
@@ -367,7 +407,7 @@ bc = create_bc()
 class Solution():
     def __init__(self, domain, initial):
         empty = lambda model, N: np.empty((N,) + model.Maxw0().shape)
-        self.f = domain.model.Maxw(*initial(cells(domain)))
+        self.f = domain.model.Maxw(*initial(cells(domain)))         # distribution function
         self.F = empty(domain.model, domain.N + 1)                  # fluxes between cells
         self.f3 = empty(domain.model, 3)                            # ghost + 2 cells
 
