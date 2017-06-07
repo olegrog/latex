@@ -152,11 +152,14 @@ def calc_macro0(model, f):
     temp = 2./3*np.einsum('ai,ai,a->a', f, sqr_c, 1./rho)
     qflow = np.einsum('ai,ail->al', f, csqr_c)
     tau = 2*np.einsum('ai,ail->al', f, cc)
+    if abs(temp[0] - 2./3) < 1e-4:
+        temp *= 1.5
+        tau *= 1.5
     return rho, vel, temp, tau, qflow
 
 def reconstruct(old_model, new_model, f):
     rho, vel, temp, tau, qflow = calc_macro0(old_model, f)
-    temp = np.ones_like(temp)      # Isothermal model
+    #temp = np.ones_like(temp)      # Isothermal model (need for conservation of mass)
     c = new_model.xi(vel)
     H2 = lambda tau: 2 * np.einsum('ail,aim,an,lmn,a->ai', c, c, tau, hodge, 1/rho)
     idx = 0 if len(vel) == 1 else slice(None)
