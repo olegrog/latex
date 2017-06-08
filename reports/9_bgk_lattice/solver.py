@@ -28,8 +28,12 @@ log_level = logging.DEBUG if args.verbose else logging.INFO
 logging.basicConfig(level=log_level, format='(%(threadName)-10s) %(message)s')
 
 ### Constants
-T_B, L, kn = 1., .5, args.kn
-width = min(eval(args.width), L/2)
+class fixed:
+    T_B = 1             # temperature of the plates
+    L = 0.5             # width of computational domain
+    sqr_a = 1.5         # sound velocity in LBM
+kn = args.kn
+args.width = min(eval(args.width), fixed.L/2)
 zeros, ones = np.zeros(3), np.ones(3)
 hodge = np.zeros((3,3,3))
 hodge[0, 1, 2] = hodge[1, 2, 0] = hodge[2, 0, 1] = 1
@@ -38,7 +42,7 @@ e_x = np.eye(3)[0]
 ### Auxiliary functions
 cells = lambda domain: domain.y0 + domain.L*(np.arange(domain.N) + .5)/domain.N
 delta_y = lambda domain: domain.L/domain.N * np.ones(domain.N)
-half_M = lambda model: -np.sum(model.xi0()[...,1] * model.Maxw0(1., args.U*e_x/2, T_B) * (model.xi0()[...,1] < 0))
+half_M = lambda model: -np.sum(model.xi0()[...,1] * model.Maxw0(1., args.U*e_x/2, fixed.T_B) * (model.xi0()[...,1] < 0))
 
 ### DVM velocity grid
 def dvm_grid():
@@ -90,7 +94,7 @@ def lbm_d3(nodes, weights):
     for node in nodes:
         _node = np.array(node)
         while True:
-            add_symm(0, _node, lattice)
+            add_symm(0, _node*np.sqrt(fixed.sqr_a), lattice)
             _node = np.roll(_node, 1)
             if (_node == node).all():
                 break
@@ -106,13 +110,12 @@ def lbm_grid():
     sqr = lambda v: np.einsum('al,al,i->ai', v, v, lat)
     weighted = lambda rho, f: np.einsum('a,i,ai->ai', rho, lattices[args.lattice].w, f)
     lat = np.ones_like(lattices[args.lattice].w)
-    Maxw0 = lambda rho=1, vel=zeros, temp=1: rho*_weighted(1 + 3*(_xi_v(vel) + 1.5*_xi_v(vel)**2 - _sqr(vel)/2))
     return Model(
         xi0 = lambda v=zeros: lattices[args.lattice].xi - np.einsum('i,l', lat, v),
-        Maxw0 = lambda rho=1, vel=zeros, temp=1: rho*_weighted(1 + 3*(_xi_v(vel) + 1.5*_xi_v(vel)**2 - _sqr(vel)/2)),
+        Maxw0 = lambda rho=1, vel=zeros, temp=1: rho*_weighted(1 + 3/fixed.sqr_a*(_xi_v(vel) + 1.5/fixed.sqr_a*_xi_v(vel)**2 - .5*_sqr(vel))),
         weights0 = lambda: lattices[args.lattice].w,
         xi = lambda v: np.einsum('il,a', lattices[args.lattice].xi, np.ones(v.shape[0])) - np.einsum('i,al', lat, v),
-        Maxw = lambda rho, vel, temp: weighted(rho, 1 + 3*(xi_v(vel) + 1.5*xi_v(vel)**2 - sqr(vel)/2))
+        Maxw = lambda rho, vel, temp: weighted(rho, 1 + 3/fixed.sqr_a*(xi_v(vel) + 1.5/fixed.sqr_a*xi_v(vel)**2 - .5*sqr(vel)))
     )
 
 def splot(model, f):
@@ -152,9 +155,6 @@ def calc_macro0(model, f):
     temp = 2./3*np.einsum('ai,ai,a->a', f, sqr_c, 1./rho)
     qflow = np.einsum('ai,ail->al', f, csqr_c)
     tau = 2*np.einsum('ai,ail->al', f, cc)
-    if abs(temp[0] - 2./3) < 1e-4:
-        temp *= 1.5
-        tau *= 1.5
     return rho, vel, temp, tau, qflow
 
 def reconstruct(old_model, new_model, f):
@@ -270,7 +270,7 @@ class Diffuse(Boundary):
         self._half_M = half_M(self._model)
     def __call__(self, F, F0, mask):
         rho = np.sum((self._xi_y*F0)[::-1][mask])/self._half_M
-        F[mask] = self._model.Maxw0(rho, args.U*e_x/2, T_B)[mask]
+        F[mask] = self._model.Maxw0(rho, args.U*e_x/2, fixed.T_B)[mask]
 
 class Couple(Boundary):
     def __init__(self, n, n_partner, idx):
@@ -398,8 +398,8 @@ models = {
 
 Domain = namedtuple('Domain', ['y0', 'L', 'model', 'N' ])
 domains = (
-    Domain(0, L-width, models[args.model1], args.N1),
-    Domain(L-width, width, models[args.model2], args.N2)
+    Domain(0, fixed.L-args.width, models[args.model1], args.N1),
+    Domain(fixed.L-args.width, args.width, models[args.model2], args.N2)
 )
 boundaries = (
     [ ( Symmetry, {} ),  ( Couple, { 'n_partner': 1, 'idx': 0 }) ],
@@ -419,8 +419,8 @@ print 'DVM: xi_max = %g, grid=(%d)^3, total = %d' % (args.radius, 2*args.M, mode
 print 'LBM: type = %s' % (args.lattice)
 print 'Kn = %g, U = %g, cells = %d + %d' % (args.kn, args.U, args.N1, args.N2)
 print 'Model: (antisym)[ %s | %s ](diffuse), order = %d' % (args.model1, args.model2, args.order)
-print 'Width:  |<-- %.3f -->|<-- %.3f -->|' % (L-width, width)
-print 'Delta_y:     | %.4f | %.4f |' % ((L-width)/args.N1, width/args.N2)
+print 'Width:  |<-- %.3f -->|<-- %.3f -->|' % (fixed.L-args.width, args.width)
+print 'Delta_y:     | %.4f | %.4f |' % ((fixed.L-args.width)/args.N1, args.width/args.N2)
 print ''.join(['=' for i in range(50)])
 
 if args.tests:
