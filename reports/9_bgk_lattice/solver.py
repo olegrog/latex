@@ -37,12 +37,12 @@ args.width = min(eval(args.width), fixed.L/2)
 zeros, ones = np.zeros(3), np.ones(3)
 hodge = np.zeros((3,3,3))
 hodge[0, 1, 2] = hodge[1, 2, 0] = hodge[2, 0, 1] = 1
-e_x = np.eye(3)[0]
+e_x, e_y, e_z = np.eye(3)
 
 ### Auxiliary functions
 cells = lambda domain: domain.y0 + domain.L*(np.arange(domain.N) + .5)/domain.N
 delta_y = lambda domain: domain.L/domain.N * np.ones(domain.N)
-half_M = lambda model: -np.sum(model.xi0()[...,1] * model.Maxw0(1., args.U*e_x/2, fixed.T_B) * (model.xi0()[...,1] < 0))
+half_M = lambda model: -np.sum(model.xi0()[...,1] * model.Maxw0(Macro(vel=args.U*e_x/2, temp=fixed.T_B)) * (model.xi0()[...,1] < 0))
 
 ### DVM velocity grid
 def dvm_grid():
@@ -55,11 +55,11 @@ def dvm_grid():
 
     _xi = lambda v: np.einsum('li,lj,lk->ijkl', _G(v, 0), _G(v, 1), _G(v, 2))
     _sqr_xi = lambda v: np.einsum('ijkl,ijkl->ijk', _xi(v), _xi(v))
-    _Maxw = lambda rho, vel, temp: rho/(np.pi*temp)**1.5 * np.exp(-_sqr_xi(vel)/temp)*delta_v**3
+    _Maxw = lambda m: m.rho/(np.pi*m.temp)**1.5 * np.exp(-_sqr_xi(m.vel)/m.temp)*delta_v**3
 
     xi = lambda v: np.einsum('lai,laj,lak->aijkl', G(v, 0), G(v, 1), G(v, 2))
     sqr_xi = lambda v: np.einsum('aijkl,aijkl->aijk', xi(v), xi(v))
-    Maxw = lambda rho, vel, temp: np.einsum('a,aijk->aijk', rho/(np.pi*temp)**1.5*delta_v**3, np.exp(np.einsum('aijk,a->aijk', -sqr_xi(vel), 1./temp)))
+    Maxw = lambda m: np.einsum('a,aijk->aijk', m.rho/(np.pi*m.temp)**1.5*delta_v**3, np.exp(np.einsum('aijk,a->aijk', -sqr_xi(m.vel), 1./m.temp)))
 
     # 1d packing, symm=1 for antisymmetry, symm=-1 for specular reflection
     def dvm_ball(symm):
@@ -71,10 +71,10 @@ def dvm_grid():
 
     return Model(
         xi0 = lambda v=zeros: _xi(v)[ball],
-        Maxw0 = lambda rho=1, vel=zeros, temp=1: _Maxw(rho, vel, temp)[ball],
+        Maxw0 = lambda macro: _Maxw(macro)[ball],
         weights0 = lambda: np.ones_like(ball[0]) * delta_v**3,
         xi = lambda v: xi(v)[(slice(None),) + ball],
-        Maxw = lambda rho, vel, temp: Maxw(rho, vel, temp)[(slice(None),) + ball]
+        Maxw = lambda macro: Maxw(macro)[(slice(None),) + ball]
     )
 
 def lbm_d3(nodes, weights):
@@ -112,10 +112,10 @@ def lbm_grid():
     lat = np.ones_like(lattices[args.lattice].w)
     return Model(
         xi0 = lambda v=zeros: lattices[args.lattice].xi - np.einsum('i,l', lat, v),
-        Maxw0 = lambda rho=1, vel=zeros, temp=1: rho*_weighted(1 + 3/fixed.sqr_a*(_xi_v(vel) + 1.5/fixed.sqr_a*_xi_v(vel)**2 - .5*_sqr(vel))),
+        Maxw0 = lambda m: m.rho*_weighted(1 + 3/fixed.sqr_a*(_xi_v(m.vel) + 1.5/fixed.sqr_a*_xi_v(m.vel)**2 - .5*_sqr(m.vel))),
         weights0 = lambda: lattices[args.lattice].w,
         xi = lambda v: np.einsum('il,a', lattices[args.lattice].xi, np.ones(v.shape[0])) - np.einsum('i,al', lat, v),
-        Maxw = lambda rho, vel, temp: weighted(rho, 1 + 3/fixed.sqr_a*(xi_v(vel) + 1.5/fixed.sqr_a*xi_v(vel)**2 - .5*sqr(vel)))
+        Maxw = lambda m: weighted(m.rho, 1 + 3/fixed.sqr_a*(xi_v(m.vel) + 1.5/fixed.sqr_a*xi_v(m.vel)**2 - .5*sqr(m.vel)))
     )
 
 def splot(model, f):
@@ -125,20 +125,20 @@ def splot(model, f):
     xi = model.xi0()
     m = ( xi[:,2] <= (model.weights0()[0])**(1./3)/2 ) * ( xi[:,2] >= 0 ) 
     #ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.weights0())[m])
-    ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.Maxw0())[m])
+    ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.Maxw0(Macro()))[m])
     plt.show()
 
 def plot_profiles(solution):
     plt.clf()
-    y, h, rho, vel, temp, tau, qflow = calc_macro(solution)
+    y, h, m = calc_macro(solution)
     U = args.U
     Y, Vel, Tau = np.loadtxt('k1e-1.txt').T
-    plt.plot(Y, Vel, 'rD--', Y, -2*Tau, 'gD--')             # k = 0.1
+    plt.plot(Y, Vel, 'rD--', Y, -2*Tau, 'gD--')                 # k = 0.1
     Y, Vel, Tau = np.loadtxt('k1e-0.txt').T
-    plt.plot(Y, Vel, 'rs--', Y, -2*Tau, 'gs--')             # k = 1
-    plt.plot(Y, Y, 'r-.')                                   # k = 0
-    plt.plot(Y, 0*Y + np.pi**-.5, 'g-.')                    # k = \infty
-    plt.plot(y, vel[:,0]/U, 'r*-', y, -tau[:,2]/U, 'g*-')   # present
+    plt.plot(Y, Vel, 'rs--', Y, -2*Tau, 'gs--')                 # k = 1
+    plt.plot(Y, Y, 'r-.')                                       # k = 0
+    plt.plot(Y, 0*Y + np.pi**-.5, 'g-.')                        # k = \infty
+    plt.plot(y, m.vel[:,0]/U, 'r*-', y, -m.tau[:,2]/U, 'g*-')   # present
     plt.show()
     plt.pause(1e-3)
 
@@ -155,30 +155,34 @@ def calc_macro0(model, f):
     temp = 2./3*np.einsum('ai,ai,a->a', f, sqr_c, 1./rho)
     qflow = np.einsum('ai,ail->al', f, csqr_c)
     tau = 2*np.einsum('ai,ail->al', f, cc)
-    return rho, vel, temp, tau, qflow
+    return Macro(rho, vel, temp, tau, qflow)
 
+def grad13(model, macro):
+    if not hasattr(macro.rho, '__len__'):
+        macro = Macro(*[ np.array([m]) for m in macro._asdict().values() ])
+    c = model.xi(macro.vel)
+    H2 = lambda m: 2 * np.einsum('ail,aim,an,lmn,a->ai', c, c, m.tau, hodge, 1/m.rho)
+    idx = 0 if len(macro.vel) == 1 else slice(None)
+    return (model.Maxw(macro) * (1 + H2(macro)))[idx]
+    
 def reconstruct(old_model, new_model, f):
-    rho, vel, temp, tau, qflow = calc_macro0(old_model, f)
-    #temp = np.ones_like(temp)      # Isothermal model (need for conservation of mass)
-    c = new_model.xi(vel)
-    H2 = lambda tau: 2 * np.einsum('ail,aim,an,lmn,a->ai', c, c, tau, hodge, 1/rho)
-    idx = 0 if len(vel) == 1 else slice(None)
-    return (new_model.Maxw(rho, vel, temp) * (1 + H2(tau)))[idx]
+    macro = calc_macro0(old_model, f)
+    return grad13(new_model, macro)
 
 def calc_macro(solution):
     y, h, rho, vel, temp, tau, qflow = [], [], [], [], [], [], []
     for d, s in zip(domains, solution):
         y += [ cells(d) ]
         h += [ delta_y(d) ]
-        for m, m0 in zip((rho, vel, temp, tau, qflow), calc_macro0(d.model, s.f)):
+        for m, m0 in zip((rho, vel, temp, tau, qflow), calc_macro0(d.model, s.f)._asdict().values()):
             m.append(m0)
     s = lambda m: np.hstack(m)
     v = lambda m: np.vstack(m)
-    return s(y), s(h), s(rho), v(vel), s(temp), v(tau), v(qflow)
+    return s(y), s(h), Macro(s(rho), v(vel), s(temp), v(tau), v(qflow))
 
 def total_values(domains):
-    y, h, rho, vel, temp, tau, qflow = calc_macro(domains)
-    print 'Total mass =', 2*sum(h*rho)
+    y, h, macro = calc_macro(domains)
+    print 'Total mass =', 2*sum(h*macro.rho)
 
 def check(f):
     if np.sum(np.isnan(f)) > 0:
@@ -235,10 +239,10 @@ def transport(domain, bc, solution, delta_t):
 
 def bgk(domain, bc, solution, delta_t):
     logging.debug('Starting BGK')
-    rho, vel, temp, tau, qflow = calc_macro0(domain.model, solution.f)
+    macro = calc_macro0(domain.model, solution.f)
     nu = lambda rho: 2/(np.pi**.5*args.kn) * rho
-    M = domain.model.Maxw(rho, vel, temp)
-    solution.f[:] = np.einsum('ai,a->ai', solution.f - M, np.exp(-delta_t*nu(rho))) + M
+    M = domain.model.Maxw(macro)
+    solution.f[:] = np.einsum('ai,a->ai', solution.f - M, np.exp(-delta_t*nu(macro.rho))) + M
     check(solution.f) # after BGK
 
 # Boundary conditions
@@ -270,7 +274,7 @@ class Diffuse(Boundary):
         self._half_M = half_M(self._model)
     def __call__(self, F, F0, mask):
         rho = np.sum((self._xi_y*F0)[::-1][mask])/self._half_M
-        F[mask] = self._model.Maxw0(rho, args.U*e_x/2, fixed.T_B)[mask]
+        F[mask] = self._model.Maxw0(Macro(rho, args.U*e_x/2, fixed.T_B))[mask]
 
 class Couple(Boundary):
     def __init__(self, n, n_partner, idx):
@@ -343,7 +347,7 @@ def run_threads(solution, operator, delta_t):
 def solve_bgk():
     U, U0 = args.U, .9*args.U if args.kn < 1 else 0
     solution = new_solution(lambda y: (1+0*y, U0*np.einsum('a,l', y, e_x), 1+0*y))
-    y, h, rho0, vel0, temp0, tau0, qflow0 = calc_macro(solution)
+    y, h, m0 = calc_macro(solution)
     delta_t = min(h)/args.radius/args.step
     total_values(solution)
     plt.ion()
@@ -355,48 +359,61 @@ def solve_bgk():
         run_threads(solution, transport, delta_t)
         [ check(s.f) for s in solution ]
         if not i % args.plot:
-            y, h, rho, vel, temp, tau, qflow = calc_macro(solution)
-            rho_disp, pxy_mean = sum(h*(rho-rho0)**2), np.sum(h*tau[:,2])
-            pxy_disp = sum(h*(tau[:,2]-pxy_mean)**2)
+            y, h, m = calc_macro(solution)
+            rho_disp, pxy_mean = sum(h*(m.rho-m0.rho)**2), np.sum(h*m.tau[:,2])
+            pxy_disp = sum(h*(m.tau[:,2]-pxy_mean)**2)
             print '%d: err(rho) = %g, p_xy/U = %g, err(p_xy)/U = %g, vel[-1]/U = %g, T[-1] = %g' \
-                % ( i, rho_disp, pxy_mean/U, pxy_disp/U, vel[-1,0]/U, temp[-1] )
+                % ( i, rho_disp, pxy_mean/U, pxy_disp/U, m.vel[-1,0]/U, m.temp[-1] )
             plot_profiles(solution)
     total_values(solution)
-    y, h, rho, vel, temp, tau, qflow = calc_macro(solution)
-    #print rho, temp, vel/U, qflow/U, tau/U
     #splot(domains[-1].model, solution[-1].f[-1])
     #splot(domains[0].model, solution[0].f[0])
     plt.ioff(); plt.show()
 
-def check_maxw(solution):
-    y, h, rho, vel, temp, tau, qflow = calc_macro(solution)
-    U, fmt1, fmt2 = args.U, '%+.2e ', '%9s '
-    columns = ( 'rho-1', 'temp', 'vel_x/U', 'vel_y/U', 'p_xy/U', 'q_x/U' )
-    values = ( 0., 1., 1., 0., 0., 0. )
-    print 'Values:   ' + ''.join([fmt2 for i in range(len(values))]) % columns
-    print 'Expected: ' + ''.join([fmt1 for i in range(len(values))]) % values
-    print 'Computed: ' + ''.join([fmt1 for i in range(len(values))]) % \
-        ( rho[0]-1, temp[0], 2*vel[-1, 0]/U, 2*vel[-1, 1]/U, tau[-1, 2]/U, qflow[-1, 0]/U )
-
 def tests():
+    def is_almost_equal(a, b):
+        assert np.sum(np.abs(a-b)) < 1e-5
+    def print_sample(m, m0):
+        s = lambda name: m._asdict()[name] - m0._asdict()[name]
+        v = lambda name, idx: m._asdict()[name][:,idx] - m0._asdict()[name][idx]
+        columns = ( 'rho', 'temp', 'vel_x', 'vel_y', 'p_xy', 'q_x', 'q_y' )
+        values = ( s('rho'), s('temp'), v('vel',0), v('vel',1), v('tau',2), v('qflow', 0), v('qflow', 1) )
+        print 'Variable: ', ''.join(['%9s ' for i in range(len(columns))]) % columns
+        print 'Deviation:', ''.join(['%+.2e ' for i in range(len(values))]) % values
+    def check_macro(model, f, expected):
+        computed = calc_macro0(model, f)
+        print_sample(computed, expected)
+        for m, m0 in zip(computed._asdict().values(), expected._asdict().values()):
+            is_almost_equal(m, m0)
     o = lambda y: np.ones_like(y)
-    solution = new_solution(lambda y: (o(y), args.U/2*np.einsum('a,l', o(y), e_x), o(y)))
-    check_maxw(solution)
+    delta = args.U
+    rho, vel, temp, tau = 1 + delta, delta*e_x, 1., delta*e_z
+    print 'Test #1: Maxwell distribution (rho=%g, vel_x=%g, temp=%g)' % (rho, vel[0], temp)
+    macro = Macro(rho, vel, temp)
+    for name, model in models.iteritems():
+        print '-- %s model:' % name
+        check_macro(model, model.Maxw0(macro), macro)
+    print ''.join(['-' for i in range(50)])
+    print 'Test #2: Grad distribution (rho=%g, vel_x=%g, temp=%g, p_xy=%g)' % (rho, vel[0], temp, tau[2])
+    macro = Macro(rho, vel, temp, tau)
+    for name, model in models.iteritems():
+        print '-- %s model:' % name
+        check_macro(model, grad13(model, macro), macro)
 
-Lattice = namedtuple('Lattice', ['xi', 'w'])
+Macro = namedtuple('Macro', 'rho vel temp tau qflow')
+Macro.__new__.__defaults__ = (1., zeros, 1., zeros, zeros)
+Lattice = namedtuple('Lattice', 'xi w')
 lattices = {
     'd3q15': lbm_d3([(0,0,0), (1,0,0), (1,1,1)], np.array([2, 1, .125])/9),
     'd3q19': lbm_d3([(0,0,0), (1,0,0), (1,1,0)], np.array([3, 18, 36])**-1.),
     'd3q27': lbm_d3([(0,0,0), (1,0,0), (1,1,0), (1,1,1)], np.array([8, 2, .5, .125])/27)
 }
-
-Model = namedtuple('Model', ['xi0', 'Maxw0', 'weights0', 'xi', 'Maxw'])
+Model = namedtuple('Model', 'xi0 Maxw0 weights0 xi Maxw')
 models = {
     'dvm': dvm_grid(),
     'lbm': lbm_grid()
 }
-
-Domain = namedtuple('Domain', ['y0', 'L', 'model', 'N' ])
+Domain = namedtuple('Domain', 'y0 L model N')
 domains = (
     Domain(0, fixed.L-args.width, models[args.model1], args.N1),
     Domain(fixed.L-args.width, args.width, models[args.model2], args.N2)
@@ -409,8 +426,8 @@ bc = create_bc()
 
 class Solution():
     def __init__(self, domain, initial):
-        empty = lambda model, N: np.empty((N,) + model.Maxw0().shape)
-        self.f = domain.model.Maxw(*initial(cells(domain)))         # distribution function
+        empty = lambda model, N: np.empty((N,) + model.Maxw0(Macro()).shape)
+        self.f = domain.model.Maxw(Macro(*initial(cells(domain))))  # distribution function
         self.F = empty(domain.model, domain.N + 1)                  # fluxes between cells
         self.f3 = empty(domain.model, 3)                            # ghost + 2 cells
 
