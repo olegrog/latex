@@ -280,19 +280,19 @@ class Diffuse(Boundary):
         F[mask] = self._model.Maxw0(Macro(rho, args.U*e_x/2, fixed.T_B))[mask]
 
 class Couple(Boundary):
-    def __init__(self, n, n_partner, idx):
+    def __init__(self, n, n_partner, idx_partner):
         self._n = n
         self._n_partner = n_partner
-        self._idx = idx
+        self._idx_partner = idx_partner
         self._lock = threading.Event()
     def __call__(self, f, mask):
         model, model_partner = domains[self._n].model, domains[self._n_partner].model
-        f_partner = self._f_partner[self._idx]
+        f_partner = self._f_partner[self._idx_partner]
         if model == model_partner:
             f[mask] = f_partner[mask]
         else:
             f[mask] = reconstruct(model_partner, model, f_partner)[mask]
-        return delta_y(domains[self._n_partner])[self._idx]
+        return delta_y(domains[self._n_partner])[self._idx_partner]
     def connect(self, solution):
         self._f_partner = solution[self._n_partner].f
         self._F_partner = solution[self._n_partner].F
@@ -302,22 +302,22 @@ class Couple(Boundary):
         if model == model_partner:
             # take the prepared flux from the partner
             self._lock.wait()
-            F[0][mask] = self._F_partner[self._idx][mask]
+            F[0][mask] = self._F_partner[self._idx_partner][mask]
             self._lock.clear()
         else:
             # reconstruct a flux from the partner distribution function (2 cells)
-            idx, idx_partner = self._idx, bc[self._n_partner][self._idx]._idx
+            idx, idx_partner = bc[self._n_partner][self._idx_partner]._idx_partner, self._idx_partner
             f3, h3 = np.empty((3,) + F[0].shape), np.empty(3)
-            f3[2], h3[2] = self._f[idx_partner], delta_y(domains[self._n])[idx_partner]
-            f3[:2] = reconstruct(model_partner, model, self._f_partner[::(2*idx+1)][:2])
-            h3[:2] = delta_y(domains[self._n_partner])[::(2*idx+1)][:2]
+            f3[2], h3[2] = self._f[idx], delta_y(domains[self._n])[idx]
+            f3[:2] = reconstruct(model_partner, model, self._f_partner[::(2*idx+1)][-2:])
+            h3[:2] = delta_y(domains[self._n_partner])[::(2*idx+1)][-2:]
             calc_F(h3, f3, np.array([1]), F, slice(1), np.array([mask]))
     def first(self, h3, f3, f, mask):
         return self(f3[0], mask)
     def last(self, h3, f3, f, mask):
         return self(f3[2], mask)
     def update(self):
-        bc[self._n_partner][self._idx]._lock.set()
+        bc[self._n_partner][self._idx_partner]._lock.set()
 
 def create_bc():
     bc = []
@@ -422,8 +422,8 @@ domains = (
     Domain(fixed.L-args.width, args.width, models[args.model2], args.N2)
 )
 boundaries = (
-    [ ( Symmetry, {} ),  ( Couple, { 'n_partner': 1, 'idx': 0 }) ],
-    [ ( Couple, { 'n_partner': 0, 'idx': -1 }), ( Diffuse, {}) ]
+    [ ( Symmetry, {} ),  ( Couple, { 'n_partner': 1, 'idx_partner': 0 }) ],
+    [ ( Couple, { 'n_partner': 0, 'idx_partner': -1 }), ( Diffuse, {}) ]
 )
 bc = create_bc()
 
