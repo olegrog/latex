@@ -138,7 +138,10 @@ def plot_profiles(solution):
     plt.plot(Y, Vel, 'rs--', Y, -2*Tau, 'gs--')                 # k = 1
     plt.plot(Y, Y, 'r-.')                                       # k = 0
     plt.plot(Y, 0*Y + np.pi**-.5, 'g-.')                        # k = \infty
-    plt.plot(y, m.vel[:,0]/U, 'r*-', y, -m.tau[:,2]/U, 'g*-')   # present
+    plt.plot(y, m.vel[:,0]/U, 'r*-', label='velocity/U')
+    plt.plot(y, -m.tau[:,2]/U, 'g*-', label='share stress/U')
+    plt.plot(y, -m.qflow[:,0]/U/U, 'b*-', label='heat flow/U^2')
+    legend = plt.legend(loc='upper center')
     plt.show()
     plt.pause(1e-3)
 
