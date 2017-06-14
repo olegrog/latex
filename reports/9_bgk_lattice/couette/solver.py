@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import argparse, threading, logging
+import sys, argparse, threading, logging
 import numpy as np
 from functools import partial
 from collections import namedtuple
@@ -385,6 +385,8 @@ def solve_bgk():
                 % ( i, rho_disp, pxy_mean/U, pxy_disp/U, m.vel[-1,0]/U, m.temp[-1] )
             plot_profiles(solution)
     total_values(solution)
+    y, h, m = calc_macro(solution)
+    np.savetxt(sys.stdout, np.transpose((y, m.vel[:,0], m.tau[:,2], m.qflow[:,0])), fmt='%1.4e')
     #splot(domains[-1].model, solution[-1].f[-1])
     #splot(domains[0].model, solution[0].f[0])
     plt.ioff(); plt.show()
