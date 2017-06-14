@@ -221,7 +221,7 @@ def transport(domain, bc, solution, delta_t):
         f3[:2][m2], h3[:2] = f[-2:][m2], h[-2:]
         h3[2] = bc.last(h3, f3, f, m0)
         calc_F(h3, f3, np.array([1]), F, slice(-1, None), m1)   # last flux
-        bc.update()
+        bc.last_flux_is_calculated()
         calc_F(h, f, np.arange(1, N-1), F, slice(2, -1), mN)    # interior fluxes
         #check(F[2:][mask(sgn, N-1)]) # after calc2N
     def calc01(f, F, sgn, bc):
@@ -240,6 +240,10 @@ def transport(domain, bc, solution, delta_t):
     calc01(f[::-1], F[::-1], -1, bc[1])
     #check(f3)
     #check(F)
+    for b in bc:
+        b.all_fluxes_are_calculated()
+    for b in bc:
+        b.wait_for_update()
     f -= np.einsum('i,a,ai->ai', gamma, 1/h, F[1:] - F[:-1])
     check(f) # after transport
 
@@ -255,7 +259,11 @@ def bgk(domain, bc, solution, delta_t):
 class Boundary():
     def __init__(self, n):
         pass
-    def update(self):                           # synchronization before coupling
+    def last_flux_is_calculated(self):
+        pass
+    def all_fluxes_are_calculated(self):
+        pass
+    def wait_for_update(self):
         pass
     def last(self, h3, f3, f, mask):            # last ghost cell
         f3[2][mask] = (2*f[-1] - f[-2])[mask]   # extrapolation by default
@@ -287,7 +295,8 @@ class Couple(Boundary):
         self._n = n
         self._n_partner = n_partner
         self._idx_partner = idx_partner
-        self._lock = threading.Event()
+        self._lock_F = threading.Event()
+        self._lock_f = threading.Event()
     def __call__(self, f, mask):
         model, model_partner = domains[self._n].model, domains[self._n_partner].model
         f_partner = self._f_partner[self._idx_partner]
@@ -304,9 +313,9 @@ class Couple(Boundary):
         model, model_partner = domains[self._n].model, domains[self._n_partner].model
         if model == model_partner:
             # take the prepared flux from the partner
-            self._lock.wait()
+            self._lock_F.wait()
             F[0][mask] = self._F_partner[self._idx_partner][mask]
-            self._lock.clear()
+            self._lock_F.clear()
         else:
             # reconstruct a flux from the partner distribution function (2 cells)
             idx, idx_partner = bc[self._n_partner][self._idx_partner]._idx_partner, self._idx_partner
@@ -319,8 +328,12 @@ class Couple(Boundary):
         return self(f3[0], mask)
     def last(self, h3, f3, f, mask):
         return self(f3[2], mask)
-    def update(self):
-        bc[self._n_partner][self._idx_partner]._lock.set()
+    def last_flux_is_calculated(self):
+        bc[self._n_partner][self._idx_partner]._lock_F.set()
+    def all_fluxes_are_calculated(self):
+        bc[self._n_partner][self._idx_partner]._lock_f.set()
+    def wait_for_update(self):
+        self._lock_f.wait()
 
 def create_bc():
     bc = []
