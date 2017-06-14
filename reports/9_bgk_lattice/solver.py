@@ -12,7 +12,8 @@ parser.add_argument('-M', type=int, default=8, metavar='<int>', help='number of 
 parser.add_argument('-e', '--end', type=int, default=int(1e2), metavar='<int>', help='maximum total time')
 parser.add_argument('-w', '--width', type=str, default='1.2*kn', metavar='<expr>', help='width of the second domain')
 parser.add_argument('-s', '--step', type=float, default=1, metavar='<float>', help='reduce timestep in given times')
-parser.add_argument('-r', '--radius', type=float, default=4., metavar='<float>', help='radius of the velocity grid')
+parser.add_argument('-R', '--radius', type=float, default=4., metavar='<float>', help='radius of the velocity grid')
+parser.add_argument('-r', '--refinement', type=float, default=2., metavar='<float>', help='ratio of maximum and minumum cell width')
 parser.add_argument('-m1', '--model1', default='lbm', metavar='dvm|lbm', help='type of velocity model in the first domain')
 parser.add_argument('-m2', '--model2', default='dvm', metavar='dvm|lbm', help='type of velocity model in the second domain')
 parser.add_argument('-l', '--lattice', default='d3q19', metavar='d3q15|19|27', help='type of velocity lattice')
@@ -39,10 +40,11 @@ hodge = np.zeros((3,3,3))
 hodge[0, 1, 2] = hodge[1, 2, 0] = hodge[2, 0, 1] = 1
 e_x, e_y, e_z = np.eye(3)
 
-### Auxiliary functions
-cells = lambda domain: domain.y0 + domain.L*(np.arange(domain.N) + .5)/domain.N
-delta_y = lambda domain: domain.L/domain.N * np.ones(domain.N)
-half_M = lambda model: -np.sum(model.xi0()[...,1] * model.Maxw0(Macro(vel=args.U*e_x/2, temp=fixed.T_B)) * (model.xi0()[...,1] < 0))
+### Auxiliary functions (d = domain, m = model)
+delta_y0 = lambda d: d.L/d.N if d.q == 1 else d.L*(1-d.q)/(1-d.q**d.N)
+delta_y = lambda d: delta_y0(d) * d.q**np.arange(d.N)
+cells = lambda d: d.y0 + np.cumsum(delta_y(d) + np.roll(np.append(delta_y(d)[:-1], 0), 1))/2
+half_M = lambda m: -np.sum(m.xi0()[...,1] * m.Maxw0(Macro(vel=args.U*e_x/2, temp=fixed.T_B)) * (m.xi0()[...,1] < 0))
 
 ### DVM velocity grid
 def dvm_grid():
@@ -164,6 +166,7 @@ def grad13(model, macro):
     if not hasattr(macro.rho, '__len__'):
         macro = Macro(*[ np.array([m]) for m in macro._asdict().values() ])
     c = model.xi(macro.vel)
+    #### multiply by 2 due to tau*hodge contains only 3 nonzero elements
     H2 = lambda m: 2 * np.einsum('ail,aim,an,lmn,a->ai', c, c, m.tau, hodge, 1/m.rho)
     idx = 0 if len(macro.vel) == 1 else slice(None)
     return (model.Maxw(macro) * (1 + H2(macro)))[idx]
@@ -416,10 +419,10 @@ models = {
     'dvm': dvm_grid(),
     'lbm': lbm_grid()
 }
-Domain = namedtuple('Domain', 'y0 L model N')
+Domain = namedtuple('Domain', 'y0 L model N q')
 domains = (
-    Domain(0, fixed.L-args.width, models[args.model1], args.N1),
-    Domain(fixed.L-args.width, args.width, models[args.model2], args.N2)
+    Domain(0, fixed.L-args.width, models[args.model1], args.N1, 1.),
+    Domain(fixed.L-args.width, args.width, models[args.model2], args.N2, args.refinement**(-1./(args.N2-1)))
 )
 boundaries = (
     [ ( Symmetry, {} ),  ( Couple, { 'n_partner': 1, 'idx_partner': 0 }) ],
