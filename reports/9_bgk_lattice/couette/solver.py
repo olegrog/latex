@@ -215,7 +215,7 @@ def transport(domain, bc, solution, delta_t):
         lim = (args.order-1) * H * np.minimum(D(d1+d2, h1+h2), 2*np.minimum(D(d1, h1), D(d2, h2)))
         with np.errstate(divide='ignore', invalid='ignore'):
             F[Idx][mask] = (f[idx] + (1-g)*np.where(d1*d2 > 0, lim, 0)/2)[mask]
-    def calc2N(f, F, sgn, bc):
+    def calc2N(h, f, F, sgn, bc):
         logging.debug(' - calc2N %+d', sgn)
         m0, m1, m2, mN = _mask(sgn), mask(sgn, 1), mask(sgn, 2), mask(sgn, N-2)
         f3[:2][m2], h3[:2] = f[-2:][m2], h[-2:]
@@ -224,20 +224,20 @@ def transport(domain, bc, solution, delta_t):
         bc.last_flux_is_calculated()
         calc_F(h, f, np.arange(1, N-1), F, slice(2, -1), mN)    # interior fluxes
         #check(F[2:][mask(sgn, N-1)]) # after calc2N
-    def calc01(f, F, sgn, bc):
+    def calc01(h, f, F, sgn, bc):
         logging.debug(' - calc01 %+d', sgn)
         m0, m1, m2 = _mask(sgn), mask(sgn, 1), mask(sgn, 2)
         bc.flux(F, m0, calc_F)                                  # first flux
-        f3[1:3][m2], h3[1:3] = f[:2][m2], h[:2]
+        f3[1:][m2], h3[1:] = f[:2][m2], h[:2]
         h3[0] = bc.first(h3, f3, f, m0)
         calc_F(h3, f3, np.array([1]), F, slice(1, 2), m1)       # second flux
         #check(F[:2][m2]) # after calc01
     f, F, f3, h3 = solution.f, solution.F, solution.f3, np.empty(3)
     #F.fill(np.NaN); f3.fill(np.NaN);                            # for debug
-    calc2N(f, F, 1, bc[1])
-    calc2N(f[::-1], F[::-1], -1, bc[0])
-    calc01(f, F, 1, bc[0])
-    calc01(f[::-1], F[::-1], -1, bc[1])
+    calc2N(h, f, F, 1, bc[1])
+    calc2N(h[::-1], f[::-1], F[::-1], -1, bc[0])
+    calc01(h, f, F, 1, bc[0])
+    calc01(h[::-1], f[::-1], F[::-1], -1, bc[1])
     #check(f3)
     #check(F)
     for b in bc:
