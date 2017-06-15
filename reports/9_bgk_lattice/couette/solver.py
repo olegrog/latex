@@ -334,6 +334,7 @@ class Couple(Boundary):
         bc[self._n_partner][self._idx_partner]._lock_f.set()
     def wait_for_update(self):
         self._lock_f.wait()
+        self._lock_f.clear()
 
 def create_bc():
     bc = []
