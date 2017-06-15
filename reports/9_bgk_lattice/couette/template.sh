@@ -4,7 +4,7 @@ set term epslatex standalone size 4.5, 3 font 9 color dashed
 set out "<name>.tex"
 set key left top
 
-set xlabel '$x$' offset graph 0.5, 0.15
+set xlabel '$y$' offset graph 0.5, 0.15
 set colors classic
 
 set border 3

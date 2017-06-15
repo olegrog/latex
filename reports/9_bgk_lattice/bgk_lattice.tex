@@ -114,6 +114,42 @@ TVD-схема второго порядка \(\OO{\Delta{t}^2+\Delta{y}^2}\) д
 Решение задачи Куэтта для линеаризованного уравнения БГК сводится к одномерному интегральному уравнению,
 высокоточные решения которого представлены в~\cite{Luo2015, Luo2016}.
 
+\subsection{Discrete-velocity method}
+
+Equation~\eqref{eq:bgk} is solved by the second-order splitting scheme into the transport equation
+\begin{equation}\label{eq:split_transport}
+    \pder[f]{t} + \zeta_i\pder[f]{x_i} = 0,
+\end{equation}
+for which a finite-volume method with an explicit second-order TVD scheme is used,
+and the space-homogeneous BGK equation
+\begin{equation}\label{eq:homogeneous}
+    \pder[f]{t} = \nu (\Phi-f),
+\end{equation}
+which has the exact solution
+\begin{equation}\label{eq:exact_bgk}
+    f_t = \Phi + (f_0-\Phi)\exp(-\nu t).
+\end{equation}
+The three-dimensional velocity space is discretized by the uniform lattice confined with the sphere of radius \(\zeta_{\max}=4\).
+\(M=16\) nodes are placed along each axis. The total amount of nodes is equal to \(6528\).
+
+\section{Numerical example}
+
+The proposed hybrid method is tested on the linearized Couette-flow problem.
+Gas is placed between two infinite parallel plates at \(y=\pm1/2\) with constant temperature \(T=1\)
+and velocities \((v = \pm\Delta v/2, 0, 0)\).
+Complete diffuse reflection are assumed at the plates.
+The average density is equal to unity:
+\begin{equation}\label{eq:total_mass}
+    \int_{-1/2}^{1/2}\rho\dd{y} = 1.
+\end{equation}
+
+The physical space \(0<y<1/2\) is divided into \(N=40\) nonuniform cells refined near \(y=1/2\).
+The obtained results for \(k=0.1\) and \(\Delta v = 0.02\) are presented in Fig.*.
+The buffer layer is located at a distance of \(1.2\) mean free path from the plate.
+
+
+
+
 \printbibliography
 
 \end{document}
