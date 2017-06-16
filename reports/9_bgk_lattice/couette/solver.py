@@ -32,7 +32,7 @@ logging.basicConfig(level=log_level, format='(%(threadName)-10s) %(message)s')
 class fixed:
     T_B = 1             # temperature of the plates
     L = 0.5             # width of computational domain
-    sqr_a = 1.5         # sound velocity in LBM
+    sqr_a = .5          # sound velocity in LBM
 kn = args.kn
 args.width = min(eval(args.width), fixed.L/2)
 zeros, ones = np.zeros(3), np.ones(3)
@@ -72,17 +72,18 @@ def dvm_grid():
     ball = dvm_ball(1)
 
     return Model(
+        info = 'DVM: (%d)^3' % (2*args.M),
         xi0 = lambda v=zeros: _xi(v)[ball],
         Maxw0 = lambda macro: _Maxw(macro)[ball],
-        weights0 = lambda: np.ones_like(ball[0]) * delta_v**3,
+        weights0 = np.ones_like(ball[0]) * delta_v**3,
         xi = lambda v: xi(v)[(slice(None),) + ball],
         Maxw = lambda macro: Maxw(macro)[(slice(None),) + ball]
     )
 
-def lbm_d3(nodes, weights):
+def lbm_d3(stretch, nodes, weights, full=True):
     lattice = []
     def sort(item):
-        return 2*np.sum(item[0]) + np.sum(item[0]/2**np.arange(3.))
+        return 10*np.sum(item[0]) + np.sum(item[0]/10**np.arange(3.))
     def add_symm(i, node, lattice):
         if i < 3:
             s = np.ones(3); s[i] *= -1
@@ -93,31 +94,40 @@ def lbm_d3(nodes, weights):
                 add_symm(i+1, node, lattice)
         else:
             lattice += [ (node, weights[0]) ]
-    for node in nodes:
+    def add_cycle(node, lattice):
         _node = np.array(node)
         while True:
-            add_symm(0, _node*np.sqrt(fixed.sqr_a), lattice)
+            add_symm(0, _node*stretch*np.sqrt(fixed.sqr_a), lattice)
             _node = np.roll(_node, 1)
             if (_node == node).all():
                 break
+    for node in nodes:
+        add_cycle(node, lattice)
+        if len(set(node)) == 3 and full:
+            add_cycle(node[::-1], lattice)
         weights = np.roll(weights, -1)
     xi, w = np.transpose(sorted(lattice, key=sort))
     return Lattice(np.vstack(xi), np.hstack(w))
 
 def lbm_grid():
-    _xi_v = lambda v: np.einsum('il,l', lattices[args.lattice].xi, v)
-    _sqr = lambda v: np.einsum('l,l', v, v)
-    _weighted = lambda f: np.einsum('i,i->i', lattices[args.lattice].w, f)
     xi_v = lambda v: np.einsum('il,al', lattices[args.lattice].xi, v)
+    sqr_xi = np.einsum('il,il->i', lattices[args.lattice].xi, lattices[args.lattice].xi)
     sqr = lambda v: np.einsum('al,al,i->ai', v, v, lat)
-    weighted = lambda rho, f: np.einsum('a,i,ai->ai', rho, lattices[args.lattice].w, f)
+    weighted = lambda m, f: np.einsum('a,i,ai->ai', m.rho, lattices[args.lattice].w, f)
     lat = np.ones_like(lattices[args.lattice].w)
+    xi = lambda v: np.einsum('il,a', lattices[args.lattice].xi, np.ones(v.shape[0])) - np.einsum('i,al', lat, v)
+    a = fixed.sqr_a
+    T1 = lambda m: xi_v(m.vel)/a
+    T2 = lambda m: ( (xi_v(m.vel)/a)**2 - sqr(m.vel)/a + np.einsum('a,i', m.temp-1, sqr_xi/a-3) ) / 2
+    T3 = lambda m: xi_v(m.vel)/a*( (xi_v(m.vel)/a)**2 - 3*sqr(m.vel)/a + 3*np.einsum('a,i', m.temp-1, sqr_xi/a-5) ) / 6
+    Maxw = lambda m: weighted(m, 1 + T1(m) + T2(m) + T3(m))
     return Model(
-        xi0 = lambda v=zeros: lattices[args.lattice].xi - np.einsum('i,l', lat, v),
-        Maxw0 = lambda m: m.rho*_weighted(1 + 3/fixed.sqr_a*(_xi_v(m.vel) + 1.5/fixed.sqr_a*_xi_v(m.vel)**2 - .5*_sqr(m.vel))),
-        weights0 = lambda: lattices[args.lattice].w,
-        xi = lambda v: np.einsum('il,a', lattices[args.lattice].xi, np.ones(v.shape[0])) - np.einsum('i,al', lat, v),
-        Maxw = lambda m: weighted(m.rho, 1 + 3/fixed.sqr_a*(xi_v(m.vel) + 1.5/fixed.sqr_a*xi_v(m.vel)**2 - .5*sqr(m.vel)))
+        info = 'LBM: %s' % args.lattice,
+        xi0 = lambda vel=zeros: xi(np.array([vel]))[0],
+        Maxw0 = lambda macro: Maxw(Macro(*[ np.array([m]) for m in macro._asdict().values() ]))[0],
+        weights0 = lattices[args.lattice].w,
+        xi = xi,
+        Maxw = Maxw
     )
 
 def splot(model, f):
@@ -125,7 +135,7 @@ def splot(model, f):
     fig = plt.figure()
     ax = p3.Axes3D(fig)
     xi = model.xi0()
-    m = ( xi[:,2] <= (model.weights0()[0])**(1./3)/2 ) * ( xi[:,2] >= 0 ) 
+    m = ( xi[:,2] <= (model.weights0[0])**(1./3)/2 ) * ( xi[:,2] >= 0 )
     #ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.weights0())[m])
     ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.Maxw0(Macro()))[m])
     plt.show()
@@ -144,6 +154,10 @@ def plot_profiles(solution):
     plt.plot(y, -m.tau[:,2]/U, 'g*-', label='share stress/U')
     plt.plot(y, -m.qflow[:,0]/U/U, 'b*-', label='heat flow/U^2')
     legend = plt.legend(loc='upper center')
+    plt.title(domains[0].model.info, loc='left')
+    plt.title(domains[1].model.info, loc='right')
+    plt.title('Kn = %g' % args.kn)
+    plt.axvline(x=domains[1].y0, color='k')
     plt.show()
     plt.pause(1e-3)
 
@@ -166,10 +180,12 @@ def grad13(model, macro):
     if not hasattr(macro.rho, '__len__'):
         macro = Macro(*[ np.array([m]) for m in macro._asdict().values() ])
     c = model.xi(macro.vel)
+    sqr_c = np.einsum('ail,ail->ai', c, c)
     #### multiply by 2 due to tau*hodge contains only 3 nonzero elements
-    H2 = lambda m: 2 * np.einsum('ail,aim,an,lmn,a->ai', c, c, m.tau, hodge, 1/m.rho)
+    H2 = lambda m: 2 * np.einsum('ail,aim,an,lmn,a->ai', c, c, m.tau, hodge, 1/m.rho/m.temp**2)
+    H3 = lambda m: .8 * np.einsum('ail,al,ai,a->ai', c, m.qflow, np.einsum('ai,a->ai', sqr_c, 1/m.temp) - 2.5, 1/m.rho/m.temp**2)
     idx = 0 if len(macro.vel) == 1 else slice(None)
-    return (model.Maxw(macro) * (1 + H2(macro)))[idx]
+    return (model.Maxw(macro) * (1 + H2(macro) + H3(macro)))[idx]
     
 def reconstruct(old_model, new_model, f):
     macro = calc_macro0(old_model, f)
@@ -409,7 +425,7 @@ def tests():
             is_almost_equal(m, m0)
     o = lambda y: np.ones_like(y)
     delta = args.U
-    rho, vel, temp, tau = 1 + delta, delta*e_x, 1., delta*e_z
+    rho, vel, temp, tau, qflow = 1 + delta, delta*e_x, 1 + delta**2, delta*e_z, delta*e_x/2
     print 'Test #1: Maxwell distribution (rho=%g, vel_x=%g, temp=%g)' % (rho, vel[0], temp)
     macro = Macro(rho, vel, temp)
     for name, model in models.iteritems():
@@ -421,16 +437,41 @@ def tests():
     for name, model in models.iteritems():
         print '-- %s model:' % name
         check_macro(model, grad13(model, macro), macro)
+    print ''.join(['-' for i in range(50)])
+    print 'Test #3: Grad distribution (rho=%g, vel_x=%g, temp=%g, qflow_x=%g)' % (rho, vel[0], temp, qflow[0])
+    macro = Macro(rho, vel, temp, qflow=qflow)
+    for name, model in models.iteritems():
+        print '-- %s model:' % name
+        check_macro(model, grad13(model, macro), macro)
 
 Macro = namedtuple('Macro', 'rho vel temp tau qflow')
 Macro.__new__.__defaults__ = (1., zeros, 1., zeros, zeros)
 Lattice = namedtuple('Lattice', 'xi w')
+# some constants for non-space filling lattices
+q, Q = np.sqrt(15), np.sqrt(5)
+r, s, t = np.sqrt((15+q)/2), np.sqrt(6-q), np.sqrt(9+q)
+R, S = np.sqrt((5 + Q)/2), np.sqrt((5-Q)/2)
 lattices = {
-    'd3q15': lbm_d3([(0,0,0), (1,0,0), (1,1,1)], np.array([2, 1, .125])/9),
-    'd3q19': lbm_d3([(0,0,0), (1,0,0), (1,1,0)], np.array([3, 18, 36])**-1.),
-    'd3q27': lbm_d3([(0,0,0), (1,0,0), (1,1,0), (1,1,1)], np.array([8, 2, .5, .125])/27)
+    'd3q15': lbm_d3(np.sqrt(3), [(0,0,0), (1,0,0), (1,1,1)], np.array([2, 1, .125])/9),
+    'd3q19': lbm_d3(np.sqrt(3), [(0,0,0), (1,0,0), (1,1,0)], np.array([3, 18, 36])**-1.),
+    'd3q27': lbm_d3(np.sqrt(3), [(0,0,0), (1,0,0), (1,1,0), (1,1,1)], np.array([8, 2, .5, .125])/27),
+    # Shan, Yuan, Chen 2006
+    'd3q39': lbm_d3(np.sqrt(1.5), [(0,0,0), (1,0,0), (1,1,1), (2,0,0), (2,2,0), (3,0,0)], [1./12, 1./12, 1./27, 2./135, 1./432, 1./1620]),
+    # Nie, Shan, Chen 2008
+    'd3q121': lbm_d3(1.19697977039307435897239, [(0,0,0), (1,0,0), (1,1,1), (1,2,0), (2,2,0), (3,0,0), (2,3,0), (2,2,2), (1,3,0), (3,3,3)],
+        [ 0.03059162202948600642469, 0.09851595103726339186467, 0.02752500532563812386479, 0.00611102336683342432241, 0.00042818359368108406618,
+        0.00032474752708807381296, 0.00001431862411548029405, 0.00018102175157637423759, 0.00010683400245939109491, 0.00000069287508963860285 ]),
+    # Feuchter, Schleifenbaum 2016
+    'd3v15': lbm_d3(1.2247448713915890, [(0,0,0), (2,0,0), (1,1,1)], np.array([7, .5, 1])/18),
+    'd3v64': lbm_d3(0.69965342816864754, [(2,0,0), (1,1,1), (5,0,0), (3,3,3), (3,3,0), (3,1,1)],
+        [ 5.9646397884737016e-3, 8.0827437008387392e-2, 1.1345266793939999e-3, 9.5680047874015889e-4, 3.9787631334632013e-3, 1.0641080987258957e-2 ]),
+    'd3v96': lbm_d3(0.37787639086813054, [(1,1,1), (3,3,3), (3,1,1), (4,4,4), (7,1,1), (6,6,1)],
+        [ 1.2655649299880090e-3, 2.0050978770655310e-2, 2.7543347614356814e-2, 4.9712543563172566e-3, 3.6439016726158895e-3, 1.7168180273737716e-3 ]),
+    'off-d3q13': lbm_d3(1, [(0,0,0), (R,S,0)], [ 2./5, 1./20 ], full=False),
+    # Stroud 1971
+    'off-d3q27': lbm_d3(1, [(0,0,0), (r,0,0), (s,s,0), (t,t,t)], [ (720+8*q)/2205, (270-46*q)/15435, (162+41*q)/6174, (783-202*q)/24696])
 }
-Model = namedtuple('Model', 'xi0 Maxw0 weights0 xi Maxw')
+Model = namedtuple('Model', 'info xi0 Maxw0 weights0 xi Maxw')
 models = {
     'dvm': dvm_grid(),
     'lbm': lbm_grid()
@@ -454,8 +495,8 @@ class Solution():
         self.f3 = empty(domain.model, 3)                            # ghost + 2 cells
 
 print ''.join(['=' for i in range(50)])
-print 'DVM: xi_max = %g, grid=(%d)^3, total = %d' % (args.radius, 2*args.M, models['dvm'].xi0().size)
-print 'LBM: type = %s' % (args.lattice)
+print 'DVM: xi_max = %g, grid=(%d)^3, total = %d' % (args.radius, 2*args.M, models['dvm'].xi0().size/3)
+print 'LBM: type = %s, total = %d' % (args.lattice, models['lbm'].xi0().size/3)
 print 'Kn = %g, U = %g, cells = %d + %d' % (args.kn, args.U, args.N1, args.N2)
 print 'Model: (antisym)[ %s | %s ](diffuse), order = %d' % (args.model1, args.model2, args.order)
 print 'Width:  |<-- %.3f -->|<-- %.3f -->|' % (fixed.L-args.width, args.width)
