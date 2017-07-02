@@ -53,84 +53,20 @@
 
 \begin{document}
 
-\section{Решение одномерного уравнения БГК}
+\section{BGK equation}
 
-В безразмерных переменных кинетическое уравнение БГК
+The BGK equation take the following dimensionless form:
 \begin{equation}\label{eq:bgk}
-    \pder[f]{t} + \zeta_y\pder[f]{y} = \nu(M[f]-f), \quad \nu = \frac{\rho}k
+    \pder[f]{t} + \zeta_y\pder[f]{y} = \nu(M[f]-f), \quad \nu = \frac{\rho}k,
 \end{equation}
-где максвеллиан
+where Maxwellian
 \begin{equation}\label{eq:Maxwell}
     M[f] = \frac{\rho}{(\pi T)^{3/2}}\exp\left(-\frac{(\zeta_i - v_i)^2}T\right),
 \end{equation}
-число Кнудсена
+and the modified Knudsen number
 \begin{equation}\label{eq:Knudsen}
-    \Kn = \frac2{\sqrt\pi}k.
+    k = \frac{\sqrt\pi}2\Kn.
 \end{equation}
-
-Для численного решения~\eqref{eq:bgk} используется явно-неявная схема первого порядка
-\begin{equation}\label{eq:imex1}
-    f^{n+1} = f^n + \frac{\nu^{n+1}(M[f^{n+1}]-f^n) - \zeta_y\pder[f^{n}]{y}}{1+\nu^{n+1}\Delta{t}}\Delta{t},
-\end{equation}
-где \(M[f^{n+1}]\) и \(\nu^{n+1}\) вычисляется через \(\rho^{n+1}\), \(\zeta^{n+1}_i\) и \(T^{n+1}\) из
-\begin{equation}\label{eq:imex2}
-    \int\psi f^{n+1}\dzeta = \int\psi f^n\dzeta - \Delta{t}\int\zeta_y\pder[f^{n}]{y}\dzeta, \quad \psi = 1,\zeta_i,\zeta^2.
-\end{equation}
-Схема~\eqref{eq:imex1}--\eqref{eq:imex2} сохраняет устойчивость при \(k\to0\) (asymptotic preserving).
-Консервативная схема в физическом пространстве строится методом конечных объёмов
-\begin{equation}\label{eq:discrete_imex}
-    f^{n+1}_m = f^n_m + \frac{
-        \nu^{n+1}(M[f^{n+1}_m]-f^n_m) - \frac1{\Delta{y}}\left(F^n_{m+\frac12}-F^n_{m-\frac12}\right)
-    }{1+\nu^{n+1}_m\Delta{t}}\Delta{t},
-\end{equation}
-где
-\begin{equation}\label{eq:fluxes}
-    F_{m+\frac12} = \zeta_y\left( f_m + \frac{1-\gamma}2\Delta{f_m}\right) \quad(\zeta_y>0),
-    \quad \gamma = \frac{\zeta_y\Delta{t}}{\Delta{y}}.
-\end{equation}
-При \(\Delta{f_m} = 0\) достигается первый порядок точности.
-TVD-схема второго порядка \(\OO{\Delta{t}^2+\Delta{y}^2}\) для уравнения переноса
-может быть построена, например, с помощью MC-лимитера
-\begin{equation}\label{eq:MC_limiter}
-    \overline{\Delta{f_m}} = \frac12\min\left(
-        |\Delta f_{m+\frac12} + \Delta f_{m-\frac12}|, 4|\Delta f_{m+\frac12}|, 4|\Delta f_{m-\frac12}|
-    \right)\mathrm{sign}(\Delta f_{m+\frac12}),
-\end{equation}
-где \(\Delta f_{m+\frac12} = f_{m+1} - f_m\).
-
-\section{Плоское течение Куэтта}
-
-Рассмотрим газ между двумя параллельными пластинами со скоростями \(v_B = (\pm{U}/2,0,0)\),
-расположенными в \(y=\pm1/2\), тогда расчётная область \(y\in(0,1/2)\) с граничными условиями
-диффузного отражения в \(y=1/2\)
-\begin{equation}\label{eq:diffuse}
-    f(\zeta_x,\zeta_y,\zeta_z) = \frac2{\pi} \exp\left[-\left(\zeta_x-\frac{U}{2}\right)^2-\zeta_y^2-\zeta_z^2\right]
-        \int_{\zeta_{*y}>0}\zeta_{*y} f_* \dzeta_*, \quad \zeta_y<0
-\end{equation}
-и антисиммитричным условием в \(y=0\):
-\begin{equation}\label{eq:antisymmetry}
-    f(\zeta_x,\zeta_y,\zeta_z) = f(-\zeta_x,-\zeta_y,\zeta_z), \quad \zeta_y>0.
-\end{equation}
-Решение задачи Куэтта для линеаризованного уравнения БГК сводится к одномерному интегральному уравнению,
-высокоточные решения которого представлены в~\cite{Luo2015, Luo2016}.
-
-\subsection{Discrete-velocity method}
-
-Equation~\eqref{eq:bgk} is solved by the second-order splitting scheme into the transport equation
-\begin{equation}\label{eq:split_transport}
-    \pder[f]{t} + \zeta_i\pder[f]{x_i} = 0,
-\end{equation}
-for which a finite-volume method with an explicit second-order TVD scheme is used,
-and the space-homogeneous BGK equation
-\begin{equation}\label{eq:homogeneous}
-    \pder[f]{t} = \nu (\Phi-f),
-\end{equation}
-which has the exact solution
-\begin{equation}\label{eq:exact_bgk}
-    f_t = \Phi + (f_0-\Phi)\exp(-\nu t).
-\end{equation}
-The three-dimensional velocity space is discretized by the uniform lattice confined with the sphere of radius \(\zeta_{\max}=4\).
-\(M=16\) nodes are placed along each axis. The total amount of nodes is equal to \(2176\).
 
 \section{Numerical example}
 
@@ -147,8 +83,55 @@ The physical space \(0<y<1/2\) is divided into \(N=40\) nonuniform cells refined
 The obtained results for \(k=0.1\) and \(\Delta v = 0.02\) are presented in Fig.*.
 The buffer layer is located at a distance of \(1.2\) mean free path from the plate.
 
+The solution of the Couette-flow problem for the linearized BGK equation is reduced to one-dimensional integral equation,
+high-precision solutions of which are presented in~\cite{Luo2015, Luo2016}.
 
 
+\subsection{Discrete-velocity method}
+
+Equation~\eqref{eq:bgk} is solved by the second-order splitting scheme.
+The transport equation
+\begin{equation}\label{eq:split_transport}
+    \pder[f]{t} + \zeta_i\pder[f]{x_i} = 0,
+\end{equation}
+is solved within the finite-volume representation
+\begin{equation}\label{eq:finite_volume}
+    f^{n+1}_m = f^n_m - \frac{\Delta{t}}{\Delta{y}}\left(F^n_{m+\frac12}-F^n_{m-\frac12}\right),
+\end{equation}
+where fluxes
+\begin{equation}\label{eq:fluxes}
+    F_{m+\frac12} = \zeta_y\left( f_m + \frac{1-\gamma}2\Delta{f_m}\right) \quad(\zeta_y>0),
+    \quad \gamma = \frac{\zeta_y\Delta{t}}{\Delta{y}}.
+\end{equation}
+can be calculated by the second-order TVD scheme, e.g. with the MC limiter
+\begin{equation}\label{eq:MC_limiter}
+    \overline{\Delta{f_m}} = \frac12\min\left(
+        |\Delta f_{m+\frac12} + \Delta f_{m-\frac12}|, 4|\Delta f_{m+\frac12}|, 4|\Delta f_{m-\frac12}|
+    \right)\mathrm{sign}(\Delta f_{m+\frac12}),
+\end{equation}
+where \(\Delta f_{m+\frac12} = f_{m+1} - f_m\).
+The space-homogeneous BGK equation
+\begin{equation}\label{eq:homogeneous}
+    \pder[f]{t} = \nu (M[f]-f),
+\end{equation}
+has the exact solution
+\begin{equation}\label{eq:exact_bgk}
+    f(t) = M[f] + (f(t_0)-M[f])e^{-\nu (t-t_0)}.
+\end{equation}
+The three-dimensional velocity space is discretized by the uniform lattice confined with the sphere of radius \(\zeta_{\max}=4\).
+\(M=16\) nodes are placed along each axis. The total amount of nodes is equal to \(2176\).
+
+\subsection{Boundary conditions}
+
+The diffuse-reflection boundary conditions are used at \(y=1/2\)
+\begin{equation}\label{eq:diffuse}
+    f(\zeta_x,\zeta_y,\zeta_z) = \frac2{\pi} \exp\left[-\left(\zeta_x-\frac{U}{2}\right)^2-\zeta_y^2-\zeta_z^2\right]
+        \int_{\zeta_{*y}>0}\zeta_{*y} f_* \dzeta_*, \quad \zeta_y<0.
+\end{equation}
+The solution is antisymmetric at \(y=0\):
+\begin{equation}\label{eq:antisymmetry}
+    f(\zeta_x,\zeta_y,\zeta_z) = f(-\zeta_x,-\zeta_y,\zeta_z), \quad \zeta_y>0.
+\end{equation}
 
 \printbibliography
 
