@@ -89,6 +89,10 @@ high-precision solutions of which are presented in~\cite{Luo2015, Luo2016}.
 
 \subsection{Discrete-velocity method}
 
+The velocity space is discretized to the uniform grid at half-integer points
+\begin{equation}\label{eq:velocity_grid}
+    \zeta_i = h\left(k_i+\frac12\right), \quad k_i\in\mathbb{Z}^3.
+\end{equation}
 Equation~\eqref{eq:bgk} is solved by the second-order splitting scheme.
 The transport equation
 \begin{equation}\label{eq:split_transport}
