@@ -1,26 +1,27 @@
 #!/usr/bin/env python
-import sys, argparse, threading, logging
+import sys, argparse, threading, logging, traceback
 import numpy as np
 from functools import partial
 from collections import namedtuple
 import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description='Solver for the plane Couette-flow problem')
+parser.add_argument('-U', type=float, default=2e-2, metavar='<float>', help='difference in velocity of plates')
+parser.add_argument('-k', '--kn', type=float, default=2e-1/np.pi**.5, metavar='<float>', help='the Knudsen number')
 parser.add_argument('-N1', type=int, default=4, metavar='<int>', help='number of cells in the first domain')
 parser.add_argument('-N2', type=int, default=4, metavar='<int>', help='number of cells in the second domain')
 parser.add_argument('-M', type=int, default=8, metavar='<int>', help='number of points along each axis in the velocity space')
 parser.add_argument('-e', '--end', type=int, default=int(1e2), metavar='<int>', help='maximum total time')
 parser.add_argument('-w', '--width', type=str, default='1.2*kn', metavar='<expr>', help='width of the second domain')
-parser.add_argument('-s', '--step', type=float, default=1, metavar='<float>', help='reduce timestep in given times')
+parser.add_argument('-s', '--step', type=float, default=1.5, metavar='<float>', help='reduce timestep in given times')
 parser.add_argument('-R', '--radius', type=float, default=4., metavar='<float>', help='radius of the velocity grid')
 parser.add_argument('-r', '--refinement', type=float, default=2., metavar='<float>', help='ratio of maximum and minumum cell width')
 parser.add_argument('-m1', '--model1', default='lbm', metavar='dvm|lbm', help='type of velocity model in the first domain')
 parser.add_argument('-m2', '--model2', default='dvm', metavar='dvm|lbm', help='type of velocity model in the second domain')
 parser.add_argument('-l', '--lattice', default='d3q19', metavar='d3q15|19|27', help='type of velocity lattice')
-parser.add_argument('-o', '--order', type=int, default=2, metavar='1|2', help='order of approximation')
-parser.add_argument('-k', '--kn', type=float, default=2e-1/np.pi**.5, metavar='<float>', help='the Knudsen number')
+parser.add_argument('-i', '--limiter', default='mc', metavar='none|minmod|mc|superbee', help='type of limiter')
+parser.add_argument('-c', '--correction', default='poly', metavar='none|poly|entropy|lagrange', help='type of correction for construction of discrete Maxwellian')
 parser.add_argument('-p', '--plot', type=int, default=10, metavar='<int>', help='plot every <int> steps')
-parser.add_argument('-U', type=float, default=2e-2, metavar='<float>', help='difference in velocity of plates')
 parser.add_argument('-t', '--tests', action='store_true', help='run some tests instead')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
 args = parser.parse_args()
@@ -44,10 +45,62 @@ e_x, e_y, e_z = np.eye(3)
 delta_y0 = lambda d: d.L/d.N if d.q == 1 else d.L*(1-d.q)/(1-d.q**d.N)
 delta_y = lambda d: delta_y0(d) * d.q**np.arange(d.N)
 cells = lambda d: d.y0 + np.cumsum(delta_y(d) + np.roll(np.append(delta_y(d)[:-1], 0), 1))/2
-half_M = lambda m: -np.sum(m.xi0()[...,1] * m.Maxw0(Macro(vel=args.U*e_x/2, temp=fixed.T_B)) * (m.xi0()[...,1] < 0))
+half_M = lambda m: -np.sum(m.xi()[...,1] * m.Maxw(Macro(vel=args.U*e_x/2, temp=fixed.T_B)) * (m.xi()[...,1] < 0))
+_to_arr = lambda vel: vel if len(vel.shape) > 1 else np.array([vel])
+to_arr = lambda macro: macro if hasattr(macro.rho, '__len__') else Macro(*[ np.array([m]) for m in macro._asdict().values() ])
+_from_arr = lambda vel: slice(None) if len(vel.shape) > 1 else 0
+from_arr = lambda macro: slice(None) if hasattr(macro.rho, '__len__') else 0
 
 ### DVM velocity grid
+def poly_correct(f, macro, xi):
+    # see Aristov, Tcheremissine 1980
+    sqr_xi = np.einsum('il,il->i', xi, xi)
+    c = np.einsum('il,a->ail', xi, np.ones_like(macro.rho)) - np.einsum('i,al->ail', np.ones_like(sqr_xi), macro.vel)
+    sqr_c = np.einsum('ail,ail->ai', c, c)
+    m0 = np.einsum('ai->a', f)
+    m1_i = np.einsum('ai,il->al', f, xi)
+    m2 = np.einsum('ai,i->a', f, sqr_xi)
+    m2_ij = np.einsum('ai,il,im->alm', f, xi, xi)
+    m3_i = np.einsum('ai,i,il->al', f, sqr_xi, xi)
+    M2 = np.einsum('ai,ai->a', f, sqr_c)
+    M3_i = np.einsum('ai,ai,il->al', f, sqr_c, xi)
+    M4 = np.einsum('ai,ai,i->a', f, sqr_c, sqr_xi)
+    _ = lambda v: v.reshape((-1,1))
+    __ = lambda v: v.reshape((-1,3,1))
+    exact = np.einsum('a,al->al', macro.rho, np.hstack(( _(np.ones_like(macro.rho)), macro.vel, 1.5*_(macro.temp) )))
+    real = np.hstack(( _(m0), m1_i, _(M2) ))
+    A = np.hstack((
+        np.hstack(( _(m0), m1_i, _(m2) )).reshape((-1,1,5)),
+        np.dstack(( __(m1_i), m2_ij, __(m3_i) )),
+        np.hstack(( _(M2), M3_i, _(M4) )).reshape((-1,1,5))
+    ))
+    alpha = np.linalg.solve(A, exact - real)
+    psi = np.hstack(( _(np.ones_like(sqr_xi)), xi, _(sqr_xi) ))
+    return f * (1 + np.einsum('al,il->ai', alpha, psi))
+
+def entropy_correct(f):
+    # see Mieussens 2000
+    raise NotImplementedError()
+
+def lagrange_correct(f):
+    # see Gamba, Tharkabhushanam 2009
+    raise NotImplementedError()
+
 def dvm_grid():
+    correct = lambda func, macro: {
+        'none': lambda f, macro, xi: f,
+        'poly': poly_correct,
+        'entropy': entropy_correct,
+        'lagrange': lagrange_correct
+    }[args.correction](func(to_arr(macro)), to_arr(macro), xi0)[from_arr(macro)]
+
+    # 1d packing, symm=1 for antisymmetry, symm=-1 for specular reflection
+    def dvm_ball(symm):
+        _xi_y = _xi(zeros)[...,1]
+        p = np.where((_xi_y > 0)*(_sqr_xi(zeros) <= args.radius**2))
+        n = np.where((_xi_y < 0)*(_sqr_xi(zeros) <= args.radius**2))
+        return np.hstack((n[0], p[0][::symm])), np.hstack((n[1], p[1])), np.hstack((n[2], p[2]))
+
     idx, delta_v = lambda M: np.arange(2*M) - M + .5, args.radius / args.M
     _Xi, _I = delta_v * idx(args.M), np.ones(2*args.M)
     dom = lambda v: np.ones(v.shape[0])
@@ -57,29 +110,27 @@ def dvm_grid():
 
     _xi = lambda v: np.einsum('li,lj,lk->ijkl', _G(v, 0), _G(v, 1), _G(v, 2))
     _sqr_xi = lambda v: np.einsum('ijkl,ijkl->ijk', _xi(v), _xi(v))
-    _Maxw = lambda m: m.rho/(np.pi*m.temp)**1.5 * np.exp(-_sqr_xi(m.vel)/m.temp)*delta_v**3
+    _ball = dvm_ball(1)
+    xi0 = _xi(zeros)[_ball]
 
-    xi = lambda v: np.einsum('lai,laj,lak->aijkl', G(v, 0), G(v, 1), G(v, 2))
-    sqr_xi = lambda v: np.einsum('aijkl,aijkl->aijk', xi(v), xi(v))
-    Maxw = lambda m: np.einsum('a,aijk->aijk', m.rho/(np.pi*m.temp)**1.5*delta_v**3, np.exp(np.einsum('aijk,a->aijk', -sqr_xi(m.vel), 1./m.temp)))
+    xi = lambda v: np.einsum('lai,laj,lak->aijkl', G(v, 0), G(v, 1), G(v, 2))[(slice(None),) + _ball]
+    sqr_xi = lambda v: np.einsum('ail,ail->ai', xi(v), xi(v))
+    Maxw = lambda m: np.einsum('a,ai->ai', m.rho/(np.pi*m.temp)**1.5*delta_v**3, np.exp(np.einsum('ai,a->ai', -sqr_xi(m.vel), 1./m.temp)))
 
-    # 1d packing, symm=1 for antisymmetry, symm=-1 for specular reflection
-    def dvm_ball(symm):
-        _xi_y = _xi(zeros)[...,1]
-        p = np.where((_xi_y > 0)*(_sqr_xi(zeros) <= args.radius**2))
-        n = np.where((_xi_y < 0)*(_sqr_xi(zeros) <= args.radius**2))
-        return np.hstack((n[0], p[0][::symm])), np.hstack((n[1], p[1])), np.hstack((n[2], p[2]))
-    ball = dvm_ball(1)
+    ### multiply by 2 due to tau*hodge contains only 3 nonzero elements
+    G1 = lambda m: 2 * np.einsum('ail,aim,an,lmn,a->ai', xi(m.vel), xi(m.vel), m.tau, hodge, 1/m.rho/m.temp**2)
+    G2 = lambda m: .8 * np.einsum('ail,al,ai,a->ai', xi(m.vel), m.qflow, np.einsum('ai,a->ai', sqr_xi(m.vel), 1/m.temp) - 2.5, 1/m.rho/m.temp**2)
+    Grad13 = lambda m: Maxw(m) * (1 + G1(m) + G2(m))
 
     return Model(
         info = 'DVM: (%d)^3' % (2*args.M),
-        xi0 = lambda v=zeros: _xi(v)[ball],
-        Maxw0 = lambda macro: _Maxw(macro)[ball],
-        weights0 = np.ones_like(ball[0]) * delta_v**3,
-        xi = lambda v: xi(v)[(slice(None),) + ball],
-        Maxw = lambda macro: Maxw(macro)[(slice(None),) + ball]
+        weights = np.ones_like(_ball[0]) * delta_v**3,
+        xi = lambda vel=zeros: xi(_to_arr(vel))[_from_arr(vel)],
+        Maxw = lambda macro: correct(Maxw, macro),
+        Grad13 = lambda macro: correct(Grad13, macro)
     )
 
+### LBM velocity grid
 def lbm_d3(stretch, nodes, weights, full=True):
     lattice = []
     def sort(item):
@@ -110,34 +161,41 @@ def lbm_d3(stretch, nodes, weights, full=True):
     return Lattice(np.vstack(xi), np.hstack(w))
 
 def lbm_grid():
-    xi_v = lambda v: np.einsum('il,al', lattices[args.lattice].xi, v)
-    sqr_xi = np.einsum('il,il->i', lattices[args.lattice].xi, lattices[args.lattice].xi)
-    sqr = lambda v: np.einsum('al,al,i->ai', v, v, lat)
-    weighted = lambda m, f: np.einsum('a,i,ai->ai', m.rho, lattices[args.lattice].w, f)
-    lat = np.ones_like(lattices[args.lattice].w)
-    xi = lambda v: np.einsum('il,a', lattices[args.lattice].xi, np.ones(v.shape[0])) - np.einsum('i,al', lat, v)
+    _xi, _w = lattices[args.lattice].xi, lattices[args.lattice].w
+    xi_v = lambda v: np.einsum('il,al', _xi, v)
+    sqr_xi = np.einsum('il,il->i', _xi, _xi)
+    sqr = lambda v: np.einsum('al,al,i->ai', v, v, np.ones_like(_w))
+    weighted = lambda m, f: np.einsum('a,i,ai->ai', m.rho, _w, f)
+    xi = lambda v: np.einsum('il,a', _xi, np.ones(v.shape[0])) - np.einsum('i,al', np.ones_like(_w), v)
+
     a = fixed.sqr_a
     T1 = lambda m: xi_v(m.vel)/a
     T2 = lambda m: ( (xi_v(m.vel)/a)**2 - sqr(m.vel)/a + np.einsum('a,i', m.temp-1, sqr_xi/a-3) ) / 2
     T3 = lambda m: xi_v(m.vel)/a*( (xi_v(m.vel)/a)**2 - 3*sqr(m.vel)/a + 3*np.einsum('a,i', m.temp-1, sqr_xi/a-5) ) / 6
-    Maxw = lambda m: weighted(m, 1 + T1(m) + T2(m) + T3(m))
+    Hermite = lambda m: 1 + T1(m) + T2(m) + T3(m)
+    Maxw = lambda m: weighted(m, Hermite(m))
+    ### multiply by 2 due to tau*hodge contains only 3 nonzero elements
+    stress = lambda m: 2*np.einsum('il,im,an,lmn,a->ai', _xi, _xi, m.tau, hodge, 1/m.rho)
+    #heat_flow = lambda m: 2*np.einsum('il,i,al,a->ai', _xi, sqr_xi, m.qflow, 1/m.rho)
+    Grad13 = lambda m: weighted(m, Hermite(m) + stress(m))
+    correct = lambda func, macro: func(to_arr(macro))[from_arr(macro)]
+
     return Model(
         info = 'LBM: %s' % args.lattice,
-        xi0 = lambda vel=zeros: xi(np.array([vel]))[0],
-        Maxw0 = lambda macro: Maxw(Macro(*[ np.array([m]) for m in macro._asdict().values() ]))[0],
-        weights0 = lattices[args.lattice].w,
-        xi = xi,
-        Maxw = Maxw
+        weights = _w,
+        xi = lambda vel=zeros: xi(_to_arr(vel))[_from_arr(vel)],
+        Maxw = lambda macro: correct(Maxw, macro),
+        Grad13 = lambda macro: correct(Grad13, macro)
     )
 
 def splot(model, f):
     import mpl_toolkits.mplot3d.axes3d as p3
     fig = plt.figure()
     ax = p3.Axes3D(fig)
-    xi = model.xi0()
+    xi = model.xi()
     m = ( xi[:,2] <= (model.weights0[0])**(1./3)/2 ) * ( xi[:,2] >= 0 )
     #ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.weights0())[m])
-    ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.Maxw0(Macro()))[m])
+    ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.Maxw(Macro()))[m])
     plt.show()
 
 def plot_profiles(solution):
@@ -152,7 +210,7 @@ def plot_profiles(solution):
     plt.plot(Y, 0*Y + np.pi**-.5, 'g-.')                        # k = \infty
     plt.plot(y, m.vel[:,0]/U, 'r*-', label='velocity/U')
     plt.plot(y, -m.tau[:,2]/U, 'g*-', label='share stress/U')
-    plt.plot(y, -m.qflow[:,0]/U/U, 'b*-', label='heat flow/U^2')
+    plt.plot(y, -50*m.qflow[:,0]/U, 'b*-', label='50*heat flow/U')
     legend = plt.legend(loc='upper center')
     plt.title(domains[0].model.info, loc='left')
     plt.title(domains[1].model.info, loc='right')
@@ -161,11 +219,11 @@ def plot_profiles(solution):
     plt.show()
     plt.pause(1e-3)
 
-def calc_macro0(model, f):
-    f = [f] if len(f.shape) == 1 else f
+def calc_macro0(model, F):
+    f = _to_arr(F)
     #TODO: optimize using generators
     rho = np.einsum('ai->a', f)
-    vel = np.einsum('ai,il,a->al', f, model.xi0(), 1./rho)
+    vel = np.einsum('ai,il,a->al', f, model.xi(), 1./rho)
     c = model.xi(vel)
     sqr_c = np.einsum('ail,ail->ai', c, c)
     csqr_c = np.einsum('ai,ail->ail', sqr_c, c)
@@ -174,22 +232,11 @@ def calc_macro0(model, f):
     temp = 2./3*np.einsum('ai,ai,a->a', f, sqr_c, 1./rho)
     qflow = np.einsum('ai,ail->al', f, csqr_c)
     tau = 2*np.einsum('ai,ail->al', f, cc)
-    return Macro(rho, vel, temp, tau, qflow)
+    return Macro(*[ m[_from_arr(F)] for m in (rho, vel, temp, tau, qflow) ])
 
-def grad13(model, macro):
-    if not hasattr(macro.rho, '__len__'):
-        macro = Macro(*[ np.array([m]) for m in macro._asdict().values() ])
-    c = model.xi(macro.vel)
-    sqr_c = np.einsum('ail,ail->ai', c, c)
-    #### multiply by 2 due to tau*hodge contains only 3 nonzero elements
-    H2 = lambda m: 2 * np.einsum('ail,aim,an,lmn,a->ai', c, c, m.tau, hodge, 1/m.rho/m.temp**2)
-    H3 = lambda m: .8 * np.einsum('ail,al,ai,a->ai', c, m.qflow, np.einsum('ai,a->ai', sqr_c, 1/m.temp) - 2.5, 1/m.rho/m.temp**2)
-    idx = 0 if len(macro.vel) == 1 else slice(None)
-    return (model.Maxw(macro) * (1 + H2(macro) + H3(macro)))[idx]
-    
 def reconstruct(old_model, new_model, f):
     macro = calc_macro0(old_model, f)
-    return grad13(new_model, macro)
+    return new_model.Grad13(macro)
 
 def calc_macro(solution):
     y, h, rho, vel, temp, tau, qflow = [], [], [], [], [], [], []
@@ -211,13 +258,15 @@ def check(f):
         raise NameError("NaN has been found!")
     if np.sum(f<0) > 0:
         logging.error('Negative:')
+        print np.argwhere(f<0)
         print f[f<0]
         raise NameError("Negative value has been found!")
 
 # Second-order TVD scheme
 def transport(domain, bc, solution, delta_t):
+    np.seterr(all='raise') # for all transport threads
     logging.debug('Starting transfer')
-    N, xi_y, _xi_y = domain.N, domain.model.xi(np.zeros((domain.N, 3)))[...,1], domain.model.xi0()[...,1]
+    N, xi_y, _xi_y = domain.N, domain.model.xi(np.zeros((domain.N, 3)))[...,1], domain.model.xi()[...,1]
     gamma, h = _xi_y * delta_t,  delta_y(domain)
     mask, _mask = lambda sgn, N: sgn*xi_y[0:N] > 0, lambda sgn: sgn*_xi_y > 0
     def calc_F(h, f, idx, F, Idx, mask):
@@ -225,12 +274,15 @@ def transport(domain, bc, solution, delta_t):
         g = np.einsum('i,a', gamma, 1/h[idx])
         d1, d2 = f[idx+1] - f[idx], f[idx] - f[idx-1]
         h1, h2 = (h[idx+1] + h[idx])/2, (h[idx] + h[idx-1])/2
-        # MC limiter
         D = lambda d, h: np.einsum('ai,a->ai', np.abs(d), 1/h)
         H = np.einsum('a,ai->ai', h[idx], np.sign(d1))
-        lim = (args.order-1) * H * np.minimum(D(d1+d2, h1+h2), 2*np.minimum(D(d1, h1), D(d2, h2)))
-        with np.errstate(divide='ignore', invalid='ignore'):
-            F[Idx][mask] = (f[idx] + (1-g)*np.where(d1*d2 > 0, lim, 0)/2)[mask]
+        lim = {
+            'none': 0,
+            'minmod': np.minimum(D(d1, h1), D(d2, h2))[mask],
+            'mc': np.minimum(D(d1+d2, h1+h2), 2*np.minimum(D(d1, h1), D(d2, h2)))[mask],
+            'superbee': np.maximum(np.minimum(2*D(d1, h1), D(d2, h2)), np.minimum(D(d1, h1), 2*D(d2, h2)))[mask]
+        }[args.limiter]
+        F[Idx][mask] = f[idx][mask] + ((1-g)*H/2)[mask] * np.where(d1[mask]*d2[mask] > 0, lim, 0)
     def calc2N(h, f, F, sgn, bc):
         logging.debug(' - calc2N %+d', sgn)
         m0, m1, m2, mN = _mask(sgn), mask(sgn, 1), mask(sgn, 2), mask(sgn, N-2)
@@ -243,8 +295,9 @@ def transport(domain, bc, solution, delta_t):
     def calc01(h, f, F, sgn, bc):
         logging.debug(' - calc01 %+d', sgn)
         m0, m1, m2 = _mask(sgn), mask(sgn, 1), mask(sgn, 2)
-        bc.flux(F, m0, calc_F)                                  # first flux
-        f3[1:][m2], h3[1:] = f[:2][m2], h[:2]
+        f2, h2 = f[:2], h[:2]
+        bc.flux(h2, f2, F, m0, calc_F)                          # first flux
+        f3[1:][m2], h3[1:] = f2[m2], h2
         h3[0] = bc.first(h3, f3, f, m0)
         calc_F(h3, f3, np.array([1]), F, slice(1, 2), m1)       # second flux
         #check(F[:2][m2]) # after calc01
@@ -272,19 +325,25 @@ def bgk(domain, bc, solution, delta_t):
     check(solution.f) # after BGK
 
 # Boundary conditions
-class Boundary():
+class Boundary(object):
     def __init__(self, n):
         pass
+    def _new_f3(self, h2, f2, F):
+        return np.tile(f2[0],(3,1)), np.tile(h2[0], 3)
+    def _calc_flux(self, F, mask, calc_F, h3, f3):
+        calc_F(h3, f3, np.array([1]), F, slice(1), np.array([mask]))
     def last_flux_is_calculated(self):
         pass
     def all_fluxes_are_calculated(self):
         pass
     def wait_for_update(self):
         pass
+    def connect(self, solution):
+        pass
     def last(self, h3, f3, f, mask):            # last ghost cell
         f3[2][mask] = (2*f[-1] - f[-2])[mask]   # extrapolation by default
         return h3[0]
-    def flux(self, F, mask, calc_F):            # first flux
+    def flux(self, h2, f2, F, mask, calc_F):    # first flux
         self(F[0], F[0], mask)
     def first(self, h3, f3, f, mask):           # first ghost cell
         self(f3[0], f[0], mask)
@@ -293,6 +352,12 @@ class Boundary():
 class Symmetry(Boundary):
     def __call__(self, F, F0, mask):
         F[mask] = F0[::-1][mask]
+    def flux(self, h2, f2, F, mask, calc_F):
+        #return self(F[0], F[0], mask)           # uncomment to check mass conservation
+        f3, h3 = self._new_f3(h2, f2, F)
+        f3[:2] = f2[::-1,::-1]
+        h3[:2] = h2[::-1]
+        self._calc_flux(F, mask, calc_F, h3, f3)
     def last(self, h3, f3, f, mask):
         self(f3[2], f[-1], mask)
         return h3[1]
@@ -300,11 +365,11 @@ class Symmetry(Boundary):
 class Diffuse(Boundary):
     def __init__(self, n):
         self._model = domains[n].model
-        self._xi_y = self._model.xi0()[...,1]
+        self._xi_y = self._model.xi()[...,1]
         self._half_M = half_M(self._model)
     def __call__(self, F, F0, mask):
-        rho = np.sum((self._xi_y*F0)[::-1][mask])/self._half_M
-        F[mask] = self._model.Maxw0(Macro(rho, args.U*e_x/2, fixed.T_B))[mask]
+        rho = np.sum(self._xi_y[::-1][mask]*F0[::-1][mask])/self._half_M
+        F[mask] = self._model.Maxw(Macro(rho, args.U*e_x/2, fixed.T_B))[mask]
 
 class Couple(Boundary):
     def __init__(self, n, n_partner, idx_partner):
@@ -324,57 +389,57 @@ class Couple(Boundary):
     def connect(self, solution):
         self._f_partner = solution[self._n_partner].f
         self._F_partner = solution[self._n_partner].F
-        self._f = solution[self._n].f
-    def flux(self, F, mask, calc_F):
+    def flux(self, h2, f2, F, mask, calc_F):
         model, model_partner = domains[self._n].model, domains[self._n_partner].model
         if model == model_partner:
             # take the prepared flux from the partner
             self._lock_F.wait()
-            F[0][mask] = self._F_partner[self._idx_partner][mask]
             self._lock_F.clear()
+            F[0][mask] = self._F_partner[self._idx_partner][mask]
         else:
             # reconstruct a flux from the partner distribution function (2 cells)
-            idx, idx_partner = bc[self._n_partner][self._idx_partner]._idx_partner, self._idx_partner
-            f3, h3 = np.empty((3,) + F[0].shape), np.empty(3)
-            f3[2], h3[2] = self._f[idx], delta_y(domains[self._n])[idx]
-            f3[:2] = reconstruct(model_partner, model, self._f_partner[::(2*idx+1)][-2:])
-            h3[:2] = delta_y(domains[self._n_partner])[::(2*idx+1)][-2:]
-            calc_F(h3, f3, np.array([1]), F, slice(1), np.array([mask]))
+            f3, h3 = self._new_f3(h2, f2, F)
+            idx = 1 + 2*self._idx_partner # -1 or 1
+            f3[:2] = reconstruct(model_partner, model, self._f_partner[::-idx][-2:])
+            h3[:2] = delta_y(domains[self._n_partner])[::-idx][-2:]
+            self._calc_flux(F, mask, calc_F, h3, f3)
     def first(self, h3, f3, f, mask):
         return self(f3[0], mask)
     def last(self, h3, f3, f, mask):
         return self(f3[2], mask)
     def last_flux_is_calculated(self):
-        bc[self._n_partner][self._idx_partner]._lock_F.set()
+        bcs[self._n_partner][self._idx_partner]._lock_F.set()
     def all_fluxes_are_calculated(self):
-        bc[self._n_partner][self._idx_partner]._lock_f.set()
+        bcs[self._n_partner][self._idx_partner]._lock_f.set()
     def wait_for_update(self):
         self._lock_f.wait()
         self._lock_f.clear()
 
-def create_bc():
-    bc = []
-    for n, b in enumerate(boundaries):
-        boundary = []
-        for p in b:
-            kwargs = p[1]
+def create_bcs():
+    bcs = []
+    for n, boundary in enumerate(boundaries):
+        # for each domain
+        bc = []
+        for p in boundary:
+            # for each boundary of domain
+            constructor, kwargs = p
             kwargs['n'] = n
-            boundary.append(p[0](**kwargs))
-        bc.append(boundary)
-    return bc
+            bc.append(constructor(**kwargs))
+        bcs.append(bc)
+    return bcs
 
 def new_solution(initial):
     solution = [ Solution(d, initial) for d in domains ]
-    for b in bc:
-        for boundary in b:
-            if boundary.__class__ == Couple:
-                boundary.connect(solution)
+    for bc in bcs:
+        for b in bc:
+            b.connect(solution)
     return solution
 
 def run_threads(solution, operator, delta_t):
     threads = []
-    for d, s, b in zip(domains, solution, bc):
-        thread = threading.Thread(target=operator, args=(d, b, s, delta_t))
+    for d, s, b in zip(domains, solution, bcs):
+        thread = threading.Thread(target=operator, args=(d, b, s, delta_t),
+            name='%s for domain: y0=%.2f, N=%d' % (operator.__name__, d.y0, d.N))
         thread.start()
         threads.append(thread)
     for t in threads:
@@ -403,7 +468,9 @@ def solve_bgk():
             plot_profiles(solution)
     total_values(solution)
     y, h, m = calc_macro(solution)
-    np.savetxt(sys.stdout, np.transpose((y, m.vel[:,0], m.tau[:,2], m.qflow[:,0])), fmt='%1.4e')
+    names = ('y', 'vel_x', 'p_xy', 'q_x')
+    np.savetxt(sys.stdout, np.transpose((y, m.vel[:,0], m.tau[:,2], m.qflow[:,0])), fmt='%1.4e',
+        header='%10s'*len(names) % tuple(names))
     #splot(domains[-1].model, solution[-1].f[-1])
     #splot(domains[0].model, solution[0].f[0])
     plt.ioff(); plt.show()
@@ -413,9 +480,9 @@ def tests():
         assert np.sum(np.abs(a-b)) < 1e-5
     def print_sample(m, m0):
         s = lambda name: m._asdict()[name] - m0._asdict()[name]
-        v = lambda name, idx: m._asdict()[name][:,idx] - m0._asdict()[name][idx]
+        v = lambda name, idx: m._asdict()[name][idx] - m0._asdict()[name][idx]
         columns = ( 'rho', 'temp', 'vel_x', 'vel_y', 'p_xy', 'q_x', 'q_y' )
-        values = ( s('rho'), s('temp'), v('vel',0), v('vel',1), v('tau',2), v('qflow', 0), v('qflow', 1) )
+        values = ( s('rho'), s('temp'), v('vel', 0), v('vel', 1), v('tau', 2), v('qflow', 0), v('qflow', 1) )
         print 'Variable: ', ''.join(['%9s ' for i in range(len(columns))]) % columns
         print 'Deviation:', ''.join(['%+.2e ' for i in range(len(values))]) % values
     def check_macro(model, f, expected):
@@ -430,19 +497,19 @@ def tests():
     macro = Macro(rho, vel, temp)
     for name, model in models.iteritems():
         print '-- %s model:' % name
-        check_macro(model, model.Maxw0(macro), macro)
+        check_macro(model, model.Maxw(macro), macro)
     print ''.join(['-' for i in range(50)])
     print 'Test #2: Grad distribution (rho=%g, vel_x=%g, temp=%g, p_xy=%g)' % (rho, vel[0], temp, tau[2])
     macro = Macro(rho, vel, temp, tau)
     for name, model in models.iteritems():
         print '-- %s model:' % name
-        check_macro(model, grad13(model, macro), macro)
+        check_macro(model, model.Grad13(macro), macro)
     print ''.join(['-' for i in range(50)])
     print 'Test #3: Grad distribution (rho=%g, vel_x=%g, temp=%g, qflow_x=%g)' % (rho, vel[0], temp, qflow[0])
     macro = Macro(rho, vel, temp, qflow=qflow)
     for name, model in models.iteritems():
         print '-- %s model:' % name
-        check_macro(model, grad13(model, macro), macro)
+        check_macro(model, model.Grad13( macro), macro)
 
 Macro = namedtuple('Macro', 'rho vel temp tau qflow')
 Macro.__new__.__defaults__ = (1., zeros, 1., zeros, zeros)
@@ -471,7 +538,7 @@ lattices = {
     # Stroud 1971
     'off-d3q27': lbm_d3(1, [(0,0,0), (r,0,0), (s,s,0), (t,t,t)], [ (720+8*q)/2205, (270-46*q)/15435, (162+41*q)/6174, (783-202*q)/24696])
 }
-Model = namedtuple('Model', 'info xi0 Maxw0 weights0 xi Maxw')
+Model = namedtuple('Model', 'info weights xi Maxw Grad13')
 models = {
     'dvm': dvm_grid(),
     'lbm': lbm_grid()
@@ -485,20 +552,20 @@ boundaries = (
     [ ( Symmetry, {} ),  ( Couple, { 'n_partner': 1, 'idx_partner': 0 }) ],
     [ ( Couple, { 'n_partner': 0, 'idx_partner': -1 }), ( Diffuse, {}) ]
 )
-bc = create_bc()
+bcs = create_bcs()
 
-class Solution():
+class Solution(object):
     def __init__(self, domain, initial):
-        empty = lambda model, N: np.empty((N,) + model.Maxw0(Macro()).shape)
+        empty = lambda model, N: np.empty((N,) + model.Maxw(Macro()).shape)
         self.f = domain.model.Maxw(Macro(*initial(cells(domain))))  # distribution function
         self.F = empty(domain.model, domain.N + 1)                  # fluxes between cells
         self.f3 = empty(domain.model, 3)                            # ghost + 2 cells
 
 print ''.join(['=' for i in range(50)])
-print 'DVM: xi_max = %g, grid=(%d)^3, total = %d' % (args.radius, 2*args.M, models['dvm'].xi0().size/3)
-print 'LBM: type = %s, total = %d' % (args.lattice, models['lbm'].xi0().size/3)
+print 'DVM: xi_max = %g, grid=(%d)^3, total = %d' % (args.radius, 2*args.M, models['dvm'].xi().size/3)
+print 'LBM: type = %s, total = %d' % (args.lattice, models['lbm'].xi().size/3)
 print 'Kn = %g, U = %g, cells = %d + %d' % (args.kn, args.U, args.N1, args.N2)
-print 'Model: (antisym)[ %s | %s ](diffuse), order = %d' % (args.model1, args.model2, args.order)
+print 'Model: (antisym)[ %s | %s ](diffuse), limiter = %s' % (args.model1, args.model2, args.limiter)
 print 'Width:  |<-- %.3f -->|<-- %.3f -->|' % (fixed.L-args.width, args.width)
 print 'Delta_y:     | %.4f | %.4f |' % ((fixed.L-args.width)/args.N1, args.width/args.N2)
 print ''.join(['=' for i in range(50)])
