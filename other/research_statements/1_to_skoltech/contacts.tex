@@ -1,0 +1,92 @@
+%&pdflatex
+\documentclass[11pt,a4paper,english]{moderncv}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+\nopagenumbers{}
+\usepackage[scale=0.75]{geometry}
+
+\firstname{Oleg}
+\familyname{Rogozin}
+
+\newcommand{\cvreference}[5]{%i
+    \textbf{#1}\newline% Name
+    \ifthenelse{\equal{#2}{}}{}{\addresssymbol~#2\newline}%
+    \ifthenelse{\equal{#3}{}}{}{#3\newline}%
+    \ifthenelse{\equal{#4}{}}{}{\emailsymbol~\texttt{#4}\newline}%
+    \ifthenelse{\equal{#5}{}}{}{\phonesymbol~#5}}
+
+\begin{document}
+\maketitle
+
+The following list of contact information corresponds to the research and development experience
+presented in the curriculum vit\ae{}.
+
+\section{References}
+
+\subsection{Federal Research Center "Computer Science and Control" of Russian Academy of Sciences}
+
+\begin{cvcolumns}
+\cvcolumn{}{
+    \cvreference{Vladimir Aristov}
+        {Sector of Gas Kinetic Theory}
+        {Department of Mechanics}
+        {aristovvl@yandex.ru}
+        {+7(916)210-05-30}%
+}
+\cvcolumn{}{
+    \cvreference{Felix Tcheremissine}
+        {Sector of Gas Kinetic Theory}
+        {Department of Mechanics}
+        {felix.tcher@yandex.ru}
+        {+7(917)544-04-80}%
+}
+\end{cvcolumns}
+
+\subsection{National Research Centre "Kurchatov Institute"}
+
+\begin{cvcolumns}
+\cvcolumn{}{
+    \cvreference{Vladimir Dobretsov}
+        {}{}
+        {dvy@kiae.ru}
+        {+7(916)603-29-81}%
+}
+\cvcolumn{}{
+    \cvreference{Eygene Ryabinkin}
+        {}{}
+        {rea@grid.kiae.ru}
+        {+7(915)390-80-22}%
+}
+\end{cvcolumns}
+
+\subsection{iBinom}
+
+\begin{cvcolumns}
+\cvcolumn{}{
+    \cvreference{Andrey Afanasyev}
+        {}{}
+        {a@ibinom.com}
+        {+7(926)369-34-26}%
+}
+\cvcolumn{}{
+    \cvreference{Ignatiy Kolesnichenko}
+        {}{}
+        {i@ibinom.com}
+        {+7(903)166-51-64}%
+}
+\end{cvcolumns}
+
+\subsection{Moscow Institute of Physics and Technology}
+
+\begin{cvcolumns}
+\cvcolumn{}{
+    \cvreference{Kloss Yury}
+        {Chair of Modeling of Nuclear Processes and Technologies}
+        {Department of General and Applied Physics}
+        {kl@lokip.ru}
+        {+7(910)476-27-23}%
+}
+\end{cvcolumns}
+
+\end{document}

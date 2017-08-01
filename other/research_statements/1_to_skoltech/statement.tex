@@ -1,0 +1,117 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+\usepackage{amssymb, amsmath}
+\usepackage{csquotes}
+\usepackage[headings]{fullpage}
+\usepackage{fancyhdr}
+
+\setlength\headheight{13.6pt}
+\allowdisplaybreaks[3]
+
+\pagestyle{fancy}
+    \lhead{Research Statement}
+    \rhead{July 2017}
+    \chead{{\large{\bf Oleg Rogozin}}}
+    \lfoot{}
+    \rfoot{\bf \thepage}
+    \cfoot{}
+
+\usepackage[
+    pdfauthor={Oleg Rogozin},
+    pdftitle={Research Statement},
+    colorlinks,
+    pdftex,
+    unicode]{hyperref}
+
+\usepackage[
+    backend=biber,
+    style=verbose-trad3,
+    language=auto,
+    doi=false,
+    eprint=true,
+    giveninits]{biblatex}
+\bibliography{statement}
+
+\renewcommand\cite\footcite
+
+\begin{document}
+
+\section{Past research accomplishments}
+
+My CFD part of research mainly relates to the solution of the \emph{Kogan--Galkin--Friedlander} (KGF) equations~\cite{Kogan1976}.
+These equations correctly describe flows driven by large temperature variations.
+Due to some thermal-stress (non-Navier--Stokes) terms in the momentum equation,
+the KGF equations predicted a new type of gravity-free convection.
+I have adopted the widespread SIMPLE algorithm (for incompressible Navier--Stokes equations)
+to implement the finite-volume KGF solver,
+extensively used for the parametric numerical analysis of some slow nonisothermal flows~\cite{Rogozin2014}.
+
+The main part of my research devotes to the \emph{kinetic theory of gases} with special interest
+in the high-accuracy numerical analysis of the boundary-value problems on the basis of the Boltzmann equation.
+The major difficulty of the kinetic description is associated with sharp variations of the distribution function.
+The common \emph{DSMC method} is able to achieve the engineering accuracy in many cases,
+mainly due to the modern high-performance computing; however, its resolution capability is strongly
+limited by the inherited stochastic noise.
+I have extended the \emph{Tcheremissine's projection discrete-velocity method}~\cite{Tcheremissine1998, Tcheremissine2006}
+for nonuniform velocity grids to obtain high-accuracy solutions of
+some classical molecular gas dynamics problems~\cite{Rogozin2016, Rogozin2017}.
+Sone's asymptotic theory is actively employed to check the obtained accuracy for small Knudsen numbers~\cite{Sone2007}.
+
+My experience principally connected with \verb_C++_-based solvers;
+\verb+python+ is actively used for the data analysis.
+I also employ special third-party software for pre- and postprocessing,
+e.g. GMSH for mesh generation, ParaView for visualization.
+
+\section{Past software development accomplishments}
+
+Aforementioned problem-solving environments are designed and developed under my active participation.
+The \emph{Boltzmann equation solver} has been firstly implemented from scratch by the team of students~\cite{Rogozin2010}.
+C++11 with MPI are mainly used to achieve the high parallel performance.
+The cross-platform open-source code, which is based on the object-orienteering and template paradigms,
+is available on GitHub~\cite{github-kesolver}.
+The \emph{KGF equations solver} \verb+snitSimpleFoam+ and supplementary toolkit
+are developed within the CFD platform OpenFOAM.
+The open-source code is also available on GitHub~\cite{github-openfoam}.
+
+Additional software development experience was obtained in bio-informatics startup iBinom.
+It connected with industry-level coding standards, peer-reviewed code, unit testing and so on.
+
+\section{Research / software development interests}
+
+My current research closely coupled with numerical methods for multiscale simulation of rarefied gas flows.
+In collaboration with Prof. Vladimir Aristov and Dr. Oleg Ilyin\footnotemark, we develop approaches
+for \emph{fluid-kinetic coupling} of the Boltzmann equation and lattice Boltzmann equation.
+The former is able to describe the Knudsen layer correctly, the latter has a low computational cost.
+\footnotetext{
+    Federal Research Center "Computer Science and Control" of Russian Academy of Sciences, Moscow, Russia
+}
+
+In collaboration with Prof. Zhi-Hui Li\footnotemark, we develop the \emph{gas-kinetic schemes}.
+These \emph{asymptotic-preserving} schemes aimed to avoid low-Knudsen-number stiffness,
+but computationally efficient numerical schemes are proposed only for simplified model equations.
+\footnotetext{
+    Hypervelocity Aerodynamics Institute, China Aerodynamics Research and Development Center, Mianyang, China
+}
+
+My software development principles comprise extensive use of open-source frameworks and libraries,
+cutting-edge technologies, and particular high level of abstraction.
+All of them are partially inspired by sophisticated (but a little bit old-fashioned) CFD toolkit OpenFOAM.
+
+\section{Long-term career objectives}
+
+The fundamental challenge for the field of numerical methods in the kinetic theory (and many others) is
+development of a \emph{universal} computational efficient high-accuracy multiscale solver.
+Adaptive grids in the velocity space seem to be the only way to accomplish this objective.
+Some progress has been approached for 2D problems recently,
+but used algorithms are still far from optimal~\cite{Kolobov2013}.
+The Galerkin--Fourier methods have been reached its maturity by providing fast and robust techniques~\cite{Pareschi2006, Reese2013},
+while the promising wavelet-based methods are still in its infancy~\cite{Lemou2003, Tran2013}.
+Development of the 3D adaptive wavelet-based Boltzmann solver is very tempting but ambitious objective.
+Success in it, therefore, depends substantially on the proper splitting into intermediate stages.
+Experience in related CFD approach, being exciting in itself at the same time, is one of such important stages in my opinion.
+This is the primary motivation to deviate slightly from my main research area and submit the present application.
+
+\end{document}
