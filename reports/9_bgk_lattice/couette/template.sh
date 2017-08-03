@@ -18,15 +18,22 @@ set xrange [0:.5]
 set yrange [0:.5]
 
 U = 0.02
-our_width = 1
+our_width = 2
 our_point = 6
+exact_width = 1
 exact_point = 5
 exact_color = 0
 k = 40
+
+x_0 = <buffer>
+set arrow from x_0, graph 0 to x_0, graph 1 nohead dt 4 lc 0 lw 3
 
 plot \
     "<name>.txt" using 1:($2/U) title '$v_x/\Delta v$' w lp lw our_width pt our_point, \
     "<name>.txt" using 1:(-$3/U) title '$-p_{xy}/\Delta v$' w lp lw our_width pt our_point, \
     "<name>.txt" using 1:(-k*$4/U) title sprintf('$-%dq_x/\Delta v$', k) w lp lw our_width pt our_point, \
+    "k1e-1-my.txt" using 1:2 notitle w l lc exact_color lw exact_width, \
+    "k1e-1-my.txt" using 1:4 notitle w l lc exact_color lw exact_width, \
+    "k1e-1-my.txt" using 1:(k*($5)) notitle w l lc exact_color lw exact_width, \
     "k1e-1.txt" using 1:2 notitle w p pt exact_point lc exact_color, \
     "k1e-1.txt" using 1:(-2*$3) notitle w p pt exact_point lc exact_color

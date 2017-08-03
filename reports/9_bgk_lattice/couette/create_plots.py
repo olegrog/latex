@@ -9,7 +9,8 @@ args, unknown_args = parser.parse_known_args()
 
 for arg in unknown_args:
     assert arg.startswith('--')
-    vars(args)[opt] = value
+    opt, value = arg.split('=')
+    vars(args)[opt.strip('-')] = value
 
 out = '_%s%s' % (args.name, os.path.splitext(args.template)[1])
 with open(args.template, 'r') as infile:

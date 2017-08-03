@@ -39,6 +39,7 @@ args.width = min(eval(args.width), fixed.L/2)
 zeros, ones = np.zeros(3), np.ones(3)
 hodge = np.zeros((3,3,3))
 hodge[0, 1, 2] = hodge[1, 2, 0] = hodge[2, 0, 1] = 1
+hodge[0, 2, 1] = hodge[2, 1, 0] = hodge[1, 0, 2] = 1
 e_x, e_y, e_z = np.eye(3)
 
 ### Auxiliary functions (d = domain, m = model)
@@ -117,8 +118,7 @@ def dvm_grid():
     sqr_xi = lambda v: np.einsum('ail,ail->ai', xi(v), xi(v))
     Maxw = lambda m: np.einsum('a,ai->ai', m.rho/(np.pi*m.temp)**1.5*delta_v**3, np.exp(np.einsum('ai,a->ai', -sqr_xi(m.vel), 1./m.temp)))
 
-    ### multiply by 2 due to tau*hodge contains only 3 nonzero elements
-    G1 = lambda m: 2 * np.einsum('ail,aim,an,lmn,a->ai', xi(m.vel), xi(m.vel), m.tau, hodge, 1/m.rho/m.temp**2)
+    G1 = lambda m: np.einsum('ail,aim,an,lmn,a->ai', xi(m.vel), xi(m.vel), m.tau, hodge, 1/m.rho/m.temp**2)
     G2 = lambda m: .8 * np.einsum('ail,al,ai,a->ai', xi(m.vel), m.qflow, np.einsum('ai,a->ai', sqr_xi(m.vel), 1/m.temp) - 2.5, 1/m.rho/m.temp**2)
     Grad13 = lambda m: Maxw(m) * (1 + G1(m) + G2(m))
 
@@ -162,22 +162,21 @@ def lbm_d3(stretch, nodes, weights, full=True):
 
 def lbm_grid():
     _xi, _w = lattices[args.lattice].xi, lattices[args.lattice].w
-    xi_v = lambda v: np.einsum('il,al', _xi, v)
-    sqr_xi = np.einsum('il,il->i', _xi, _xi)
-    sqr = lambda v: np.einsum('al,al,i->ai', v, v, np.ones_like(_w))
-    weighted = lambda m, f: np.einsum('a,i,ai->ai', m.rho, _w, f)
+    a = fixed.sqr_a
+    xi_v = lambda v: np.einsum('il,al', _xi, v)/a
+    sqr_xi = np.einsum('il,il->i', _xi, _xi)/a
+    sqr = lambda v: np.einsum('al,al,i->ai', v, v, np.ones_like(_w))/a
+    weighted = lambda f: np.einsum('i,ai->ai', _w, f)
+    weighted_rho = lambda m, f: np.einsum('a,i,ai->ai', m.rho, _w, f)
     xi = lambda v: np.einsum('il,a', _xi, np.ones(v.shape[0])) - np.einsum('i,al', np.ones_like(_w), v)
 
-    a = fixed.sqr_a
-    T1 = lambda m: xi_v(m.vel)/a
-    T2 = lambda m: ( (xi_v(m.vel)/a)**2 - sqr(m.vel)/a + np.einsum('a,i', m.temp-1, sqr_xi/a-3) ) / 2
-    T3 = lambda m: xi_v(m.vel)/a*( (xi_v(m.vel)/a)**2 - 3*sqr(m.vel)/a + 3*np.einsum('a,i', m.temp-1, sqr_xi/a-5) ) / 6
-    Hermite = lambda m: 1 + T1(m) + T2(m) + T3(m)
-    Maxw = lambda m: weighted(m, Hermite(m))
-    ### multiply by 2 due to tau*hodge contains only 3 nonzero elements
-    stress = lambda m: 2*np.einsum('il,im,an,lmn,a->ai', _xi, _xi, m.tau, hodge, 1/m.rho)
-    #heat_flow = lambda m: 2*np.einsum('il,i,al,a->ai', _xi, sqr_xi, m.qflow, 1/m.rho)
-    Grad13 = lambda m: weighted(m, Hermite(m) + stress(m))
+    T1 = lambda m: xi_v(m.vel)
+    T2 = lambda m: ( (xi_v(m.vel))**2 - sqr(m.vel) + np.einsum('a,i', m.temp-1, sqr_xi-3) ) / 2
+    T3 = lambda m: xi_v(m.vel)*( xi_v(m.vel)**2 - 3*sqr(m.vel) + 3*np.einsum('a,i', m.temp-1, sqr_xi-5) ) / 6
+    Maxw = lambda m: weighted_rho(m, 1 + T1(m) + T2(m) + T3(m))
+    G2 = lambda m: np.einsum('il,im,an,lmn->ai', _xi, _xi, m.tau, hodge)
+    G3 = lambda m: xi_v(m.qflow) * (sqr_xi/5-1) + G2(m)*xi_v(m.vel) - 2*np.einsum('il,am,an,lmn->ai', _xi, m.vel, m.tau, hodge)
+    Grad13 = lambda m: Maxw(m) + weighted(G2(m) + G3(m))
     correct = lambda func, macro: func(to_arr(macro))[from_arr(macro)]
 
     return Model(
@@ -231,7 +230,7 @@ def calc_macro0(model, F):
     cc = np.einsum('ailm,lmn', cc_ij, hodge)
     temp = 2./3*np.einsum('ai,ai,a->a', f, sqr_c, 1./rho)
     qflow = np.einsum('ai,ail->al', f, csqr_c)
-    tau = 2*np.einsum('ai,ail->al', f, cc)
+    tau = np.einsum('ai,ail->al', f, cc)
     return Macro(*[ m[_from_arr(F)] for m in (rho, vel, temp, tau, qflow) ])
 
 def reconstruct(old_model, new_model, f):
@@ -509,7 +508,7 @@ def tests():
         for m, m0 in zip(computed._asdict().values(), expected._asdict().values()):
             is_almost_equal(m, m0)
     o = lambda y: np.ones_like(y)
-    delta = args.U
+    delta = args.U/2
     rho, vel, temp, tau, qflow = 1 + delta, delta*e_x, 1 + delta**2, delta*e_z, delta*e_x/2
     print 'Test #1: Maxwell distribution (rho=%g, vel_x=%g, temp=%g)' % (rho, vel[0], temp)
     macro = Macro(rho, vel, temp)
