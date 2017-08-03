@@ -22,6 +22,7 @@ pics:
 	cp ../../science/4_snitSimpleFoam/elliptic/U.pdf elliptic/
 	cp ../../science/4_snitSimpleFoam/moment/*.pdf elliptic/
 	cp ../../science/7_snit_flows/elliptic/*.pdf elliptic/
+	cp ../../science/7_snit_flows/profiles/*.pdf elliptic/
 
 clean:
 	rm -f $(PROJECT).{aux,toc,log,out,run.xml,bbl,bcf,blg,pdf,snm,nav}
