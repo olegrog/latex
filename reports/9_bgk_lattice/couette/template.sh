@@ -32,6 +32,7 @@ plot \
     "<name>.txt" using 1:($2/U) title '$v_x/\Delta v$' w lp lw our_width pt our_point, \
     "<name>.txt" using 1:(-$3/U) title '$-p_{xy}/\Delta v$' w lp lw our_width pt our_point, \
     "<name>.txt" using 1:(-k*$4/U) title sprintf('$-%dq_x/\Delta v$', k) w lp lw our_width pt our_point, \
+    1/0 title 'benchmark' w lp lc exact_color lw exact_width pt exact_point, \
     "k1e-1-my.txt" using 1:2 notitle w l lc exact_color lw exact_width, \
     "k1e-1-my.txt" using 1:4 notitle w l lc exact_color lw exact_width, \
     "k1e-1-my.txt" using 1:(k*($5)) notitle w l lc exact_color lw exact_width, \
