@@ -200,16 +200,18 @@ def splot(model, f):
 def plot_profiles(solution):
     plt.clf()
     y, h, m = calc_macro(solution)
-    U = args.U
+    U, factor = args.U, 40
     Y, Vel, Tau = np.loadtxt('k1e-1.txt').T
     plt.plot(Y, Vel, 'rD--', Y, -2*Tau, 'gD--')                 # k = 0.1
-    Y, Vel, Tau = np.loadtxt('k1e-0.txt').T
-    plt.plot(Y, Vel, 'rs--', Y, -2*Tau, 'gs--')                 # k = 1
-    plt.plot(Y, Y, 'r-.')                                       # k = 0
-    plt.plot(Y, 0*Y + np.pi**-.5, 'g-.')                        # k = \infty
+    Y, Vel, Vel2, Tau, Qflow = np.loadtxt('k1e-1-my.txt').T
+    plt.plot(Y, factor*Qflow, 'b--')
+    #Y, Vel, Tau = np.loadtxt('k1e-0.txt').T
+    #plt.plot(Y, Vel, 'rs--', Y, -2*Tau, 'gs--')                 # k = 1
+    #plt.plot(Y, Y, 'r-.')                                       # k = 0
+    #plt.plot(Y, 0*Y + np.pi**-.5, 'g-.')                        # k = \infty
     plt.plot(y, m.vel[:,0]/U, 'r*-', label='velocity/U')
     plt.plot(y, -m.tau[:,2]/U, 'g*-', label='share stress/U')
-    plt.plot(y, -50*m.qflow[:,0]/U, 'b*-', label='50*heat flow/U')
+    plt.plot(y, -factor*m.qflow[:,0]/U, 'b*-', label='%d*heat flow/U' % factor)
     legend = plt.legend(loc='upper center')
     plt.title(domains[0].model.info, loc='left')
     plt.title(domains[1].model.info, loc='right')
@@ -423,7 +425,8 @@ class Couple(Boundary):
                 xi_y_partner = model_partner.xi()[...,1]
                 corr = np.sum(xi_y_partner*self._F_partner[self._idx_partner]) - np.sum(xi_y*F)
                 logging.debug('Couple BC velocity correction: %g' % corr)
-                F *= 1 + 2*xi_y*corr
+                #F *= 1 + 2*xi_y*corr           # satisfactory correction for small Ma
+                F *= 1 + corr/xi_y/np.sum(F)    # correction for all Ma
     def last_flux_is_calculated(self):
         bcs[self._n_partner][self._idx_partner]._lock_F.set()
     def all_fluxes_are_calculated(self):
