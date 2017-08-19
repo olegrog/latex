@@ -55,17 +55,22 @@
 \begin{document}
 
 \frame{\titlepage}
+% Despite of acadEmic character of my report, I sincerely hope to bring some ideas into the main direction of this workshop.
 
 \begin{frame}
   \frametitle{Plan}
   \linespread{0.8}
   \tableofcontents
+  % I will present some high-accuracy numerical examples based on the direct solution of the BE
+  % and compare them with the asymptotic solutions.
 \end{frame}
+
+\section{Motivation}
 
 \begin{frame}
     \frametitle{Motivation}
     \begin{center}
-        The Couette-flow problem for BGK gas [from the Aristov's talk] \\
+        The \alert{linear} Couette-flow problem for BGK gas [Prof. Aristov's talk]
         Discrete-velocity solution on the \alert{uniform} grid with \(N=2176\) nodes
         \vspace{-10pt}
     	\includegraphics[width=.9\textwidth]{../../reports/9_bgk_lattice/couette/dvm2}
@@ -75,7 +80,8 @@
 \begin{frame}
     \frametitle{Motivation}
     \begin{center}
-        Close-up of the velocity profile in the Knudsen layer
+        Close-up of the velocity profile in the Knudsen layer\\
+        Discontinuity at the boundary and \(\xi_in_i=0\)
         \includegraphics[width=\textwidth, clip=true, trim = 250 100 15 30 mm]%
             {../../reports/9_bgk_lattice/couette/dvm2}
     \end{center}
@@ -83,21 +89,21 @@
 
 \begin{frame}
     \frametitle{Motivation}
-    \begin{center}\Large
+    \begin{center}\Large\bf
         How can we increase accuracy in the Knudsen layer?
     \end{center}
     \begin{itemize}
-        \item fluid-dynamic solution + Knudsen-layer correction
-        \begin{itemize}
-            \con small Knudsen numbers
-            \con smooth boundary
-            \pro computationally efficient
-        \end{itemize}
         \item grid refinement near discontinuity
         \begin{itemize}
             \con large computational cost
             \con \textit{ad hoc} grid
-            \pro arbitrary Knudsen numbers
+            \pro arbitrary \(\Kn\)
+        \end{itemize}
+        \item fluid-dynamic solution + Knudsen-layer correction (Kyoto group)
+        \begin{itemize}
+            \con small \(\Kn\)
+            \con smooth boundary
+            \pro computationally efficient
         \end{itemize}
         \item ...
     \end{itemize}
@@ -106,46 +112,63 @@
 \section{Numerical analysis}
 
 \begin{frame}
-    \frametitle{Numerical methods for the Boltzmann equation}
-    \begin{itemize}
-        \item DSMC
-        \begin{itemize}
-            \pro unbounded velocity space
-            \con low stochastic accuracy
+    \frametitle{Numerical methods for the nonlinear Boltzmann equation}
+    \begin{columns}
+		\column{.6\textwidth}
+		\begin{itemize}
+            \item DSMC
+            \begin{itemize}
+                \pro unbounded velocity space
+                \con low stochastic accuracy
+            \end{itemize}
+            \vspace{20pt}
+            \item \textbf{discrete-velocity}
+            \begin{itemize}
+                \pro conservative projection technique \newline [Tcheremissine 1998]
+                \pro second-order accuracy
+            \end{itemize}
+            \only<2>{\footnotesize\alert{[Morris, Varghese, Goldstein et al. 2012]}}
         \end{itemize}
-        \item Fourier--Galerkin
-        \begin{itemize}
-            \pro fast algorithm [Mouhot, Pareschi 2006]
-            \pro spectral accuracy
-            \con nonconservative
-            \con Gibbs phenomenon
+		\column{.6\textwidth}
+		\begin{itemize}
+            \item \textbf{discontinuous Galerkin} (polynomial, Laguerre, \dots)
+            \begin{itemize}
+                \pro high-order accuracy
+                \con complicated % many parameters should be tuned
+            \end{itemize}
+            \only<2>{\alert{[Ohwada 1993]}}
+            \vspace{20pt}
+            \item \textbf{Fourier--Galerkin}
+            \begin{itemize}
+                \pro fast algorithm \newline [Mouhot, Pareschi 2006]
+                \pro spectral accuracy
+                \con nonconservative
+                \con Gibbs phenomenon
+            \end{itemize}
+            \only<2>{
+                {\footnotesize\alert{[Heintz, Kowalczyk, Grzhibovskis 2008]}} \\
+                \alert{[Wu, Reese, Zhang 2014]}
+            }
         \end{itemize}
-        \item discrete-velocity
-        \begin{itemize}
-            \pro conservative projection technique [Tcheremissine 1998]
-            \item second-order mid-point approximation
-        \end{itemize}
-    \end{itemize}
+	\end{columns}
 \end{frame}
 
 \subsection{Method for solution of the Boltzmann equation}
 
 \begin{frame}
-    \frametitle{Operator splitting of the BE}
+    \frametitle{Outline of the method}
     \vspace{-5pt}
     \begin{equation}
         \pder[f]{t} + \xi_i\pder[f]{x_i} = J(f,f)
     \end{equation}
-    \pause\vspace{-10pt}
-    \begin{block}{Symmetric scheme}
+    \vspace{-10pt}
+    \begin{block}{Symmetric second-order splitting}
         \begin{equation}
             S_{A+B}^{\tau} = S_A^{\tau/2}S_B^{\tau}S_A^{\tau/2} + \OO{\tau^2}
         \end{equation}
-        \centering [Strang 1968; Bobylev, Ohwada 2001]
     \end{block}
-    \vspace{-10pt}
+    \pause
     \begin{columns}[T]
-        \pause
         \begin{column}{5cm}
             \begin{block}{Collisionless BE}
                 \begin{equation}
@@ -155,11 +178,10 @@
                 \begin{itemize}
                     \item finite-volume method
                     \item TVD scheme \(\OO{\tau^2, h^2}\)
-                    \item mesh generated with GMSH
+                    \item (un)structured grid
                 \end{itemize}
             \end{block}
         \end{column}
-        \pause
         \begin{column}{6.5cm}
             \begin{block}{Spatially homogeneous BE}
                 \begin{equation}
@@ -196,94 +218,102 @@
         \right) (f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\alpha}) \dxi\dxi_*
     \end{equation}\vspace{-30pt}
 
-    has the following discrete analogue:
+    has the following discrete analogue: % quantities with accents
     \begin{equation}\label{eq:discrete_symm_ci}
         \footnotesize
         \hat{J}_\gamma = \frac{\pi V_\Gamma^2}{\displaystyle\sum_{\nu\in\Nu} w_{\alpha}w_{\beta}}
-            \sum_{\nu\in\Nu} \left(
-                \delta_{\alpha\gamma} + \delta_{\beta\gamma} - \alert{\delta_{\alpha'\gamma}} - \alert{\delta_{\beta'\gamma}}
-            \right)\left(
-                \frac{w_{\alpha}w_{\beta}}{\alert{w_{\alpha'}w_{\beta'}}}
-                \alert{\hat{f}_{\alpha'}\hat{f}_{\beta'}} - \hat{f}_{\alpha}\hat{f}_{\beta}
-            \right)B_\nu.
+            \sum_{\nu\in\Nu} \bigg(
+                \delta_{\alpha\gamma} + \delta_{\beta\gamma} -
+                \xoverbrace{ \alert{\delta_{\alpha'\gamma}} - \alert{\delta_{\beta'\gamma}} }^\text{projection}
+            \bigg)\bigg(
+                \xoverbrace{ \frac{w_{\alpha}w_{\beta}}{\alert{w_{\alpha'}w_{\beta'}}}
+                \alert{\hat{f}_{\alpha'}\hat{f}_{\beta'}} }^\text{interpolation} - \hat{f}_{\alpha}\hat{f}_{\beta}
+            \bigg)B_\nu.
     \end{equation}\vspace{-10pt}
 \end{frame}
 
 \begin{frame}
     \frametitle{Conservative projection}
+    \centering{\Large\bf Why the method is called as "projection"?} % why, actually, ...
+    \vspace{10pt}
+
     Petrov--Galerkin projection method:
     \begin{equation}\label{eq:Petrov-Galerkin}
         \int \xoverbrace{ \psi_s(\bxi_\gamma) }^\text{test space} \bigg(
-            \delta(\bxi'-\bxi_\gamma) - \sum_{a\in\Lambda} r_{\lambda,a}
+            \alert{\delta(\bxi'-\bxi_\gamma)} - \sum_{a\in\Lambda} r_{\lambda,a}
             \xoverbrace{ \delta(\bxi_{\lambda+s_a}-\bxi_\gamma) }^\text{trial space}
         \bigg) \dxi_\gamma = 0.
     \end{equation}
     \begin{itemize}
-        \item \(r_{\lambda,a}\) are the projection weights (in space \(\mathcal{V}\))
-        \item \(\mathcal{S} = \Set{s_a}{a\in\Lambda}\) is the projection stencil \\(set of displacement rules)
-        \item \(\psi_0 = 1, \psi_i = \xi_i, \psi_4 = \xi_i^2\) are the collisional invariants
+        \item \(r_{\lambda,a}\) are the \emph{projection weights} (in space \(\mathcal{V}\))
+        \item \(\mathcal{S} = \Set{s_a}{a\in\Lambda, r_{\lambda,a}\neq0}\) is the \emph{projection stencil}
+            \\ (set of displacement rules)
+        \item \(\psi_0 = 1, \psi_i = \xi_i, \psi_4 = \xi_i^2\) are the \emph{collisional invariants}
+        \item the same holds for \(\alert{\delta(\bxi'_*-\bxi_\gamma)}\)
     \end{itemize}
 \end{frame}
 
 \begin{frame}
     \frametitle{Interpolation of the distribution function}
-    Kolmogorov mean:
+    As a general example, use the weighted Kolmogorov mean: % we have many freedom to define the interpolation procedure
     \begin{equation}\label{eq:Kolmogorov_mean}
         \begin{dcases}
-            \hat{f}_{\alpha'} = \phi^{-1}_f\left(\sum_{a\in\Lambda} q_{\lambda,a}
+            \alert{\hat{f}_{\alpha'}} = \phi^{-1}_f\left(\sum_{a\in\Lambda} q_{\lambda,a}
                 \phi_f\left(\hat{f}_{\lambda+s_a}\right)\right), \\
-            w_{\alpha'} = \phi^{-1}_w\left(\sum_{a\in\Lambda} p_{\lambda,a}
+            \alert{w_{\alpha'}} = \phi^{-1}_w\left(\sum_{a\in\Lambda} p_{\lambda,a}
                 \phi_w\left(w_{\lambda+s_a}\right)\right), \\
         \end{dcases}
     \end{equation}
-    If
+    If we take the geometric mean
     \begin{equation}\label{eq:geometric_mean}
        \phi_{f,w}(x) = \ln(x), \quad \phi_{f,w}^{-1}(x) = \exp(x), \quad p_{\lambda,a} = q_{\lambda,a} = r_{\lambda,a},
     \end{equation}
-    then
+    then \(\mathcal{H}\)-theorem holds and
     \begin{equation}\label{eq:strict_interpolation}
         \hat{J}_\gamma(\hat{f}_{M\gamma}, \hat{f}_{M\gamma}) = 0.
     \end{equation}
+    The same should hold for \(\alert{w_{\beta'}}\) and \(\alert{\hat{f}_{\beta'}}\).
 \end{frame}
 
 \begin{frame}
-    \frametitle{Cauchy Problem}
-    By integrating the BE along the time interval~\(\tau = t_{n+1} - t_n\), we have
-    \begin{equation}\label{eq:time_scheme}
-        \hat{f}_\gamma(t_{n+1}) = \hat{f}_\gamma(t_n) + \int_{t_n}^{t_{n+1}} \hat{J}(f_\gamma, f_\gamma) \dd{t},
-        \quad n\ge0.
+    \frametitle{Cauchy problem for the space-homogeneous BE}
+    Rewrite
+    \begin{equation}
+        \hat{J}_\gamma = \frac{\pi V_\Gamma^2}{\sum_{\nu\in\Nu} w_{\alpha}w_{\beta}}
+        \sum_{\nu\in\Nu} \left(
+            \delta_{\alpha\gamma} + \delta_{\beta\gamma} -
+            \delta_{\alpha'\gamma} - \delta_{\beta'\gamma}
+        \right)\big(\cdots\big)B_\nu
     \end{equation}
-    If we rewrite \(\hat{J}_{\gamma} = \sum_{j=1}^N \hat{\Delta}_{\gamma}^{n+(j-1)/N}\), where \(N=|\Nu|\) and
-    \begin{equation}\label{eq:discrete_short_ci}
-        \int_{(n+(j-1)/N)\tau}^{(n+j/N)\tau}\hat{J}_\gamma\dd{t} \approx
-            \frac{\tau}{N} \hat{\Delta}_{\gamma}^{n+(j-1)/N},
+    as
+    \begin{equation}
+        \hat{J}_{\gamma} = \sum_{j=1}^N \hat{\Delta}_{\gamma}^{n+(j-1)/N}, \quad N=|\Nu|.
     \end{equation}
-    \pause
-    then we have a second-order \(\hat{f}_\gamma^n = \hat{f}_\gamma(t_0) + \OO{\tau^2}\)
-    \begin{block}{scheme in fractional steps}
-        \vspace{-5pt}
-        \begin{equation}\label{eq:fractional_step_scheme}
-            \hat{f}_\gamma^{n+j/N} = \hat{f}_\gamma^{n+(j-1)/N} + \frac{\tau}{N}\hat{\Delta}_{\gamma}^{n+(j-1)/N}
-            \quad (j = 1,\dotsc,N).
-        \end{equation}
-        \vspace{-10pt}
-    \end{block}
+    Then we can build a conservative scheme in fractional steps
+    \begin{equation}\label{eq:fractional_step_scheme}
+        \hat{f}_\gamma^{n+j/N} = \hat{f}_\gamma^{n+(j-1)/N} + \frac{t_{n+1}-t_n}{N}\hat{\Delta}_{\gamma}^{n+(j-1)/N}
+        \quad (j = 1,\dotsc,N).
+    \end{equation}
+    \begin{itemize}
+        \item every \(\hat{\Delta}_{\gamma}^{n+(j-1)/N}\) contains \(2(1+|\mathcal{S}|)\) nonzero elements
+        \item every fractional step preserve mass, momentum, energy
+    \end{itemize}
 \end{frame}
 
 \begin{frame}
     \frametitle{Positivity of the distribution function}
-    To ensure positivity in practice, some cubature points can be excluded:
+    To ensure positivity in practice, some cubature points (say, \(\mathcal{M}\)) can be excluded:
     \begin{equation}\label{eq:discrete_short_ci_discarded}
-        \hat{J}_\gamma = \sum_{\nu\in\Nu\setminus\mathcal{M}} \hat{\Delta}_{\gamma\nu},
+        \hat{J}_\gamma = \sum_{\nu\in\Nu\alert{\setminus\mathcal{M}}} \hat{\Delta}_{\gamma\nu}.
     \end{equation}
-    where \(\mathcal{M}\) is a set of cubature points excluded from \(\Nu\).
-    \vspace{20pt}\pause
+    \vspace{10pt}
 
-    It is enough to maintain a smallness of
+    \(|\Nu|\) is adapted to control a smallness of the excluded-points contribution in each physical cell:
     \begin{equation}\label{eq:excluded_contribution}
         \frac{\sum_{\nu\in\mathcal{M}} \left| \hat{\Delta}_{\alpha\nu} \right|}
-            {\sum_{\nu\in\Nu\setminus\mathcal{M}} \left| \hat{\Delta}_{\alpha\nu} \right|}.
+            {\sum_{\nu\in\Nu\setminus\mathcal{M}} \left| \hat{\Delta}_{\alpha\nu} \right|} < \varepsilon.
     \end{equation}
+    Usually, \(\varepsilon \lesssim 10^{-5}\) for high-accuracy solution.
 \end{frame}
 
 \subsection{Examples of projection stencils}
@@ -297,7 +327,7 @@
                 - \delta_{\alpha'\gamma} - \delta_{\beta'\gamma}
             \right)\left( f_{\alpha'} f_{\beta'} - f_{\alpha} f_{\beta} \right)B_\nu.
     \end{equation}
-    \vspace{-20pt}\pause
+    \vspace{-20pt}
 
     Due to the symmetry of the grid, we need only two nodes:
     \begin{equation}\label{eq:uniform_projection}
@@ -311,7 +341,7 @@
         E_1 = \bxi_{\lambda}^2 + \bxi_{\mu}^2, \quad
         E_2 = \bxi_{\lambda+s}^2 + \bxi_{\mu-s}^2.
     \end{equation}
-    \vspace{-20pt}\pause
+    \vspace{-20pt}
 
     Note that \(0\leq r < 1\).
 \end{frame}
@@ -322,7 +352,7 @@
         \boldsymbol{\eta} = \bxi_{\alpha'} - \bxi_{\lambda}, \quad
         0 \leq \frac{\eta_i}{h^+_i} \leq \frac12, \quad
         -\frac12 \leq \frac{\eta_i}{h^-_i} \leq 0.
-    \end{equation}\pause
+    \end{equation}
 
     \emph{Compact 5-point scheme} is constructed on the following nodes
     \begin{equation}\label{eq:stencil_nodes_5}
@@ -338,7 +368,7 @@
         r_{\lambda,4} = \frac{\boldsymbol{\eta}\cdot(\boldsymbol{\eta} - \bh^+)}
             {\bh^-\cdot(\bh^- - \bh^+)}.
     \end{equation}
-    \vspace{-20pt}\pause
+    \vspace{-20pt}
 
     For the uniform grid, the following estimates hold
     \begin{equation}\label{eq:weights_ranges_5}
@@ -362,7 +392,6 @@
         r_{\lambda,0} = 1 - \sum_{j=1}^3 r_{\lambda,j} + r_{\lambda,-j}, \quad
         r_{\lambda,\pm i} = \pm\frac{\eta_i(\eta_i - h^\mp_i)}{h^\pm_i(h^+_i-h^-_i)}.
     \end{equation}
-    \pause
 
     For the uniform grid, the following estimates hold
     \begin{equation}\label{eq:weights_ranges_7}
@@ -377,7 +406,7 @@
 \subsection{Nonisothermal slow flows}
 
 \begin{frame}
-    \frametitle{The Hilbert expansion for slow flows}
+    \frametitle{Hilbert expansion for slow flows}
     The stationary Boltzmann equation in the presence of an external force
     \begin{equation}\label{eq:Boltzmann}
         \xi_i\pder[f]{x_i} + F_i\pder[f]{\xi_i} = \frac1k J(f,f).
@@ -423,12 +452,13 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Acting forces}
+    \frametitle{Acting forces \(\OO{k^2}\)}
     The force acting on the unit of mass of the gas is
     \begin{equation}\label{eq:gamma7_force}
         F_{i2} = \frac{\bar{\gamma}_7}{p_0^2}\pder[T_0]{x_i}\pder[T_0]{x_j}\left(\frac{u_{j1}}{\gamma_2\sqrt{T_0}}
             - \frac{1}4\pder[T_0]{x_j}\right).
     \end{equation}
+    It causes the \alert{nonlinear thermal-stress flow}.
     For a hard-sphere gas, \(\bar{\gamma}_7 = \gamma_3 - \gamma_7 = 1.758705\).
     \vspace{20pt}\pause
 
@@ -442,121 +472,24 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Boundary conditions}
-    For the diffuse reflection
-    \begin{gather}
-        T_0 = T_{B0}, \label{eq:bc_T0} \\
-        T_1 = T_{B1} + \alert{c_1} \frac{T_{B0}}{p_0}\pder[T_0]{x_j} n_j, \label{eq:bc_T1} \\
-        \left\{
-        \begin{aligned}
-            & u_{j1} (\delta_{ij}-n_in_j) =
-                \left(u_{Bj1} + \alert{b_2} \sqrt{T_{B0}} \pder[T_0]{x_j}\right) (\delta_{ij}-n_in_j), \\
-            & u_{j1} n_j = 0.
-        \end{aligned}
-        \right. \label{eq:bc_u1}
-    \end{gather}
+    \frametitle{Boundary conditions and Knudsen-layer correction}
+    Both are taken from the \alert{high-accuracy} solution of the 1D half-space problems.
+    \begin{itemize}
+        \item first order [Ohwada, Sone, Aoki 1989]
+        \item second order [Takata, Hattori 2015]
+    \end{itemize}
     \vspace{10pt}
+    \pause
 
-    [Ohwada, Sone, Aoki 1989; Takata, Hattori 2015]:
-    \begin{itemize}
-        \item \(c_1 = 2.40014\) is the thermal-jump coefficient
-        \item \(b_2 = 0.64642\) is the thermal-creep coefficient
-    \end{itemize}
-\end{frame}
+    The macroscopic variables \(h = h_0 + (h_1 + \alert{h_{K1}})k + \cdots\)
 
-\begin{frame}
-    \frametitle{First-order Knudsen-layer correction}
-    The macroscopic variables \(h = h_0 + (h_1 + h_{K1})k + \cdots\), where
-    \begin{gather}
-        T_{K1} = \frac{T_{B0}}{p_0}\left.\pder[T_0]{x_j}\right|_0 n_j
-            \alert{ \Theta_1 }\left(\eta\right), \label{eq:correction_T} \\
-        \rho_{K1} = \frac1{T_{B0}}\left.\pder[T_0]{x_j}\right|_0 n_j
-            \alert{ \Omega_1 }\left(\eta\right), \label{eq:correction_rho} \\
-        \left\{
-        \begin{aligned}
-            & u_{jK1} (\delta_{ij}-n_in_j) =
-                \sqrt{T_{B0}} \left.\pder[T_{B0}]{x_j}\right|_0
-                \alert{ Y_2 }\left(\eta\right) (\delta_{ij}-n_in_j), \\
-            & u_{jK1} n_j = 0.
-        \end{aligned}
-        \right. \label{eq:correction_u}
-    \end{gather}
-    \vspace{-20pt}
-    \begin{itemize}
-        \item \(\eta = \frac{p_0}{T_{B0}}(x_i-x_{Bi})\frac{n_i}k\) is the Knudsen-layer coordinate
-    \end{itemize}
-    [Maslova 1982; Bardos, Caflisch, Nicolaenko 1986]:
-    \begin{itemize}
-        \item \(\Theta_1, \Omega_1, Y_2 = \OO{\eta^{-\infty}}\)
-    \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Second-order Knudsen-layer correction}
-    \footnotesize
-    \begin{gather}
-        \begin{aligned}
-            \frac1{\sqrt{T_{B0}}}
-                \begin{bmatrix} (u_{jH2} - u_{Bj2}) \\ u_{jK2} \end{bmatrix}&\deltann{i}{j} = \\
-            &- \frac{\sqrt{T_{B0}}}{p_{H0}}\onwall{\pder[u_{jH1}]{x_k}} \deltann{i}{j}n_k
-                \begin{bmatrix} k_0 \\ Y_0(\eta) \end{bmatrix} \\
-            &- \frac{T_{B0}}{p_{H0}}\onwall{\pderder[T_{H0}]{x_j}{x_k}} \deltann{i}{j}n_k
-                \begin{bmatrix} a_4 \\ Y_{a4}(\eta) \end{bmatrix} \\
-            &- \bar\kappa\frac{T_{B0}}{p_{H0}}\onwall{\pder[T_{H0}]{x_j}} \deltann{i}{j}
-                \begin{bmatrix} a_5 \\ Y_{a5}(\eta) \end{bmatrix} \\
-            &- \kappa_{jk}\frac{T_{B0}}{p_{H0}}\onwall{\pder[T_{H0}]{x_k}} \deltann{i}{j}
-                \begin{bmatrix} a_6 \\ Y_{a6}(\eta) \end{bmatrix} \\
-            &- \pder[T_{B1}]{x_j} \deltann{i}{j}
-                \begin{bmatrix} K_1 \\ \frac12 Y_1(\eta) \end{bmatrix}.
-        \end{aligned}\label{eq:boundary_u2t}
-    \end{gather}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Second-order Knudsen-layer correction}
-    \footnotesize
-    \begin{gather}
-        \begin{multlined}
-            \frac1{\sqrt{T_{B0}}}
-                \begin{bmatrix} (u_{jH2} - u_{Bj2}) \\ u_{jK2} \end{bmatrix} n_j = \\
-            - \frac{T_{B0}}{p_{H0}}\left[ \onwall{\pderder[T_{H0}]{x_i}{x_j}}n_i n_j
-                + 2\bar\kappa\onwall{\pder[T_{H0}]{x_i}}n_i \right]
-                \begin{bmatrix} \frac12\int_0^\infty Y_1(\eta_0)\dd\eta_0 \\
-                    \frac12\int_\infty^{\eta} Y_1(\eta_0)\dd\eta_0 \end{bmatrix}.
-        \end{multlined}\label{eq:boundary_u2n}\\
-        \begin{multlined}
-            \frac{p_{H0}}{T_{B0}}
-                \begin{bmatrix} T_{H2} - T_{B2} \\ T_{K2} \\ T_{B0}^2\rho_{K2} \end{bmatrix} =
-            \onwall{\pder[T_{H1}]{x_j}} n_j
-                \begin{bmatrix} d_1 \\ \Theta_1(\eta) \\ p_{H0}\Omega_1(\eta) \end{bmatrix} \\
-            + \frac{T_{B0}}{p_{H0}}\onwall{\pderder[T_{H0}]{x_i}{x_j}} n_i n_j
-                \begin{bmatrix} d_3 \\ \Theta_3(\eta) \\ p_{H0}\Omega_3(\eta) \end{bmatrix}
-            + \bar\kappa\frac{T_{B0}}{p_{H0}}\onwall{\pder[T_{H0}]{x_i}} n_i
-                \begin{bmatrix} d_5 \\ \Theta_5(\eta) \\ p_{H0}\Omega_5(\eta) \end{bmatrix}.
-        \end{multlined}\label{eq:boundary_T2}
-    \end{gather}
+    Rigorous theorems [Maslova 1982; Bardos, Caflisch, Nicolaenko 1986]:
+    \begin{equation}
+        h_K = \OO{e^{-\lambda\eta}}, \quad \eta = \frac{p_0}{T_{B0}}(x_i-x_{Bi})\frac{n_i}k
+    \end{equation}
 \end{frame}
 
 \subsection{Plane Prandtl layer}
-
-\begin{frame}
-    \frametitle{Asymptotic analysis for \(\Ma = \OO{1}\)}
-   	\begin{columns}
-		\column{.55\textwidth}
-		\begin{center}
-		    \vspace{-27pt}
-			\includegraphics[width=\textwidth]{tikz/layers}
-		\end{center}
-		\column{.5\textwidth}
-		\vspace{-10pt}
-		\begin{itemize}
-			\item inviscid (Euler) region \[ \pder[f]{x_i}n_i = \OO{f} \]
-			\item viscous boundary layer \[ \sqrt{k}\pder[f]{x_i}n_i = \OO{f} \]
-			\item Knudsen layer \[ k\pder[f]{x_i}n_i = \OO{f} \]
-			\item Sone layer [Sone 1973] \[ \pder[f]{x_i}n_i \to \infty \]
-		\end{itemize}
-	\end{columns}
-\end{frame}
 
 \begin{frame}
     \frametitle{Hilbert expansion for a plane one-dimensional flow}
@@ -566,36 +499,15 @@
     \pause
     Navier--Stokes equations:
     \begin{gather}
-        \pder{y}\left( \sqrt{T_0}\pder[u_0]{y} \right) = 0, \\
-        \sqrt{T_0}\left( \pder[u_0]{y}\right)^2 + \frac{5\gamma_2}{4\gamma_1}\pder{y}\left(\sqrt{T_0}\pder[T_0]{y} \right) = 0.
+        \pder{y}\left( \sqrt{T_0}\pder[u_0]{y} \right) = \OO{\alert{k^2}}, \\
+        \sqrt{T_0}\left( \pder[u_0]{y}\right)^2 + \frac{5\gamma_2}
+            {4\gamma_1}\pder{y}\left(\sqrt{T_0}\pder[T_0]{y} \right) = \OO{\alert{k^2}}.
     \end{gather}
-    Boundary conditions:
+    Slip/jump boundary conditions:
     \begin{equation}
-        u_0 = u_{B0}, \quad T_0 = T_{B0}.
+        u = u_B + b_1\frac{T_0}{p_0} \pder[u_0]{y}k + \OO{\alert{k^2}}, \quad
+        T = T_B + c_1\frac{T_0}{p_0}\pder[T_H]{y}k + \OO{\alert{k^2}}.
     \end{equation}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Hilbert expansion for a plane one-dimensional flow}
-    The next-order equations:
-    \begin{gather}
-        \pder{y}\left( \sqrt{T_0}\pder[\alert{u_1}]{y} + \frac{\alert{T_1}}{2\sqrt{T_0}}\pder[u_0]{y} \right) = 0, \\
-        \begin{multlined}[][9cm]
-        \left( 2\sqrt{T_0}\pder[\alert{u_1}]{y} + \frac{\alert{T_1}}{2\sqrt{T_0}}\pder[u_0]{y} \right) \pder[u_0]{y} \\
-            + \frac{5\gamma_2}{4\gamma_1} \pder{y}\left( \sqrt{T_0}\pder[\alert{T_1}]{y}
-            + \frac{\alert{T_1}}{2\sqrt{T_0}}\pder[T_0]{y} \right) = 0.
-        \end{multlined}
-    \end{gather}
-    Boundary conditions:
-    \begin{equation}
-        u_1 = u_{B1} + b_1 \frac{T_0}{p_0} \pder[u_0]{y}, \quad
-        T_1 = T_{B1} + c_1 \frac{T_0}{p_0}.
-    \end{equation}
-
-    [Ohwada, Sone, Aoki 1989; Takata, Hattori 2015]:
-    \begin{itemize}
-        \item \(b_1 = 1.25395\) is the temperature-jump coefficient
-    \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -606,7 +518,7 @@
         \begin{multlined}[][9cm]
         \frac{3p_0}{2}\pder[p_2]{y}
             + \pder{y}\left[ \gamma_3 T_0 \pderdual[T_0]{y} + \bar{\gamma}_7\left(\pder[T_0]{y}\right)^2 \right] \\
-            + \alert{\pder{y}\left[ (\gamma_8-2\gamma_9)T_0\left(\pder[v_{x0}]{y}\right)^2 \right]} = 0, \label{eq:hilbert_p2}
+            + \pder{y}\left[ (\alert{\gamma_8-2\gamma_9})T_0\left(\pder[v_{x0}]{y}\right)^2 \right] = 0, \label{eq:hilbert_p2}
         \end{multlined}
     \end{gather}
     where
@@ -618,7 +530,7 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Heat flow}
+    \frametitle{Heat flux}
     \begin{equation}\label{eq:Hilbert_Qy}
         q_y = -\frac54\gamma_2\sqrt{T_0}\pder[T_0]{y}\alert{k} + \OO{\alert{k^3}}.
     \end{equation}
@@ -627,7 +539,7 @@
         q_x = \overbrace{\sum_a H_A\left(\frac{p_0}{T_0}\eta^{(a)}\right)\left(T_0\pder[u_0]{y}\right)_{y=y_B^{(a)}}\alert{k}}
             ^\text{Knudsen-layer part} \\
             + \underbrace{\frac{T_0}{p_0}\left(\frac{\gamma_3}2 T_0 \pderdual[u_0]{y}
-            + 4\gamma_{10} \pder[T_0]{y}\pder[u_0]{y}\right)\alert{k^2}}
+            + 4\alert{\gamma_{10}} \pder[T_0]{y}\pder[u_0]{y}\right)\alert{k^2}}
             _\text{fluid-dynamic part} + \OO{\alert{k^3}}, \label{eq:Hilbert_Qx}
     \end{multline}
 
@@ -640,13 +552,13 @@
     \frametitle{Stress tensor}
     \begin{gather}
         p_{xx} - p = -\frac12\mathcal{P}_\eta \alert{k}
-            + \left[-\mathcal{P}_T + 2(\gamma_8+\gamma_9)\mathcal{P}_u\right]\alert{k^2}
+            + \left[-\mathcal{P}_T + 2(\alert{\gamma_8+\gamma_9})\mathcal{P}_u\right]\alert{k^2}
             + \OO{\alert{k^3}}, \label{eq:Hilbert_Pxx}\\
         p_{yy} - p = \mathcal{P}_\eta \alert{k}
-            + \left[2\mathcal{P}_T + 2(\gamma_8-2\gamma_9)\mathcal{P}_u\right]\alert{k^2}
+            + \left[2\mathcal{P}_T + 2(\alert{\gamma_8-2\gamma_9})\mathcal{P}_u\right]\alert{k^2}
             + \OO{\alert{k^3}}, \label{eq:Hilbert_Pyy}\\
         p_{zz} - p = -\frac12\mathcal{P}_\eta \alert{k}
-            + \left[-\mathcal{P}_T + 2(\gamma_9-2\gamma_8)\mathcal{P}_u\right]\alert{k^2}
+            + \left[-\mathcal{P}_T + 2(\alert{\gamma_9-2\gamma_8})\mathcal{P}_u\right]\alert{k^2}
             + \OO{\alert{k^3}}, \label{eq:Hilbert_Pzz}
     \end{gather}
     where
@@ -743,51 +655,9 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Profiles of the shear stress}
-    \centering
-    \includegraphics[width=0.9\linewidth]{couette/Pxy}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Profiles of the longitudinal velocity}
-    \centering
-    \includegraphics[width=0.9\linewidth]{couette/vx}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Profiles of the temperature}
-    \centering
-    \includegraphics[width=0.9\linewidth]{couette/tau}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Profiles of the transverse heat flow}
-    \centering
-    \includegraphics[width=0.9\linewidth]{couette/qy}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Profiles of the longitudinal heat flow}
+    \frametitle{Profiles of the longitudinal heat flux}
     \centering
     \includegraphics[width=0.9\linewidth]{couette/qx}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Profiles of the pressure}
-    \centering
-    \includegraphics[width=0.9\linewidth]{couette/P}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Profiles of the stress tensor}
-    \centering
-    \includegraphics[width=0.9\linewidth]{couette/Pyy}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Profiles of the stress tensor}
-    \centering
-    \includegraphics[width=0.9\linewidth]{couette/Pxx}
 \end{frame}
 
 \begin{frame}
@@ -795,8 +665,6 @@
     \centering
     \includegraphics[width=0.9\linewidth]{couette/Pzz}
 \end{frame}
-
-%%% vs Kn
 
 \begin{frame}
     \frametitle{Shear stress vs \(\Kn\)}
@@ -806,55 +674,17 @@
     \hspace{-1.5cm}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Longitudinal velocity vs \(\Kn\)}
-    \vspace{-2pt}
-    \centering\hspace{-1.5cm}
-    \includegraphics[width=1.1\linewidth]{couette2/flow}
-    \hspace{-1.5cm}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Longitudinal heat flow vs \(\Kn\)}
-    \vspace{-2pt}
-    \centering\hspace{-1.5cm}
-    \includegraphics[width=1.1\linewidth]{couette2/qflow}
-    \hspace{-1.5cm}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Stress-tensor anisotropy vs \(\Kn\)}
-    \vspace{-2pt}
-    \centering\hspace{-1.5cm}
-    \includegraphics[width=1.1\linewidth]{couette2/pzz}
-    \hspace{-1.5cm}
-\end{frame}
-
 \subsection{Flow between elliptical cylinders}
 
 \begin{frame}
-    \frametitle{The velocity field in the continuum limit}
+    \frametitle{The velocity field for \(\Kn=0\)}
     \[ T_1 = 1, \quad T_2 = 5.\]
     \centering
     \hspace{-1cm}
     \includegraphics[width=1.1\linewidth]{elliptic/U}
     \hspace{-1cm}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Moment of the force in the continuum limit}
-    \begin{columns}
-        \column{.55\textwidth}
-        \begin{figure}
-            \includegraphics[width=\linewidth]{elliptic/moment-beta}
-            \caption{The total moment of forces}
-        \end{figure}
-        \column{.55\textwidth}
-        \begin{figure}
-            \includegraphics[width=\linewidth]{elliptic/profiles}
-            \caption{The profile of the specific moment}
-        \end{figure}
-    \end{columns}
+    A nonuniform grid can effective approximate hot and cold gas.\newline
+    [Aoki, Sone, Waniguchi 1998]: DSMC simulation for \(0.1 \leq \Kn \leq 5\).
 \end{frame}
 
 \begin{frame}
@@ -883,25 +713,13 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{The boundary profile for \(\Kn=0.02\) [Rogozin 2017]}
-    \vspace{-10pt}
-    \begin{figure}
-        \hspace{-.5cm}
-        \begin{overprint}
-            \onslide<1| handout:2>
-                \includegraphics[width=\linewidth]{elliptic/bottom_temp}
-                \vspace{-15pt}
-                \caption{Temperature on the bottom symmetry plane}
-            \onslide<2| handout:1>
-                \includegraphics[width=\linewidth]{elliptic/inner_vel}
-                \vspace{-15pt}
-                \caption{Tangential velocity on the inner cylinder}
-            \onslide<3| handout:0>
-                \includegraphics[width=\linewidth]{elliptic/left_vel}
-                \vspace{-15pt}
-                \caption{\(-v_y\) on the left symmetry plane}
-        \end{overprint}
-    \end{figure}
+    \frametitle{Some concluding remarks}
+    \begin{itemize}
+        \item High-accuracy solutions discover subtle physical effects.
+        \item It is worth to study the Knudsen layer carefully, especially physical kinetics in it.
+        \item Kogan--Galkin--Friedlander equations can describe the gravity-free thermal-stress convection.
+        \item All presented results are obtained on the personal computer.
+    \end{itemize}
 \end{frame}
 
 \begin{frame}
