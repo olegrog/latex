@@ -1,0 +1,39 @@
+#!/bin/bash -e
+
+proj=$(ls *.geo | sed 's/\..*//')
+kn=$(head -1 $proj.geo | egrep -o '[0-9\.e+-]+')
+
+join() {
+    local IFS=.
+    echo "$*"
+}
+
+run_app() {
+    local log=log.$(join $*)
+    if test ! -f $log; then
+        echo "Running $* at $(pwd)"
+        $* &> $log
+    else
+        echo "$(pwd)/$log is already exist!"
+    fi
+}
+
+integrate_patch() {
+    local macro=$1
+    local patch=$2
+    run_app patchIntegrate $macro $patch
+    grep 'over area' log.patchIntegrate.$macro.$patch | awk '{ print $11 }' | egrep -o '[0-9\.e\-]+' | awk '{ print $1*'$kn' }' > patch-$macro-$patch.txt
+}
+
+echo "Running out2foam.py"
+$HOME/kesolver/tools/out2foam.py $proj
+
+run_app correctBC
+run_app calcPressure
+run_app emptyFoam
+
+run_app correctBC -latestTime
+run_app foamToVTK -latestTime
+
+echo ok
+
