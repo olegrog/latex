@@ -47,7 +47,7 @@ delta_y0 = lambda d: d.L/d.N if d.q == 1 else d.L*(1-d.q)/(1-d.q**d.N)
 delta_y = lambda d: delta_y0(d) * d.q**np.arange(d.N)
 cells = lambda d: d.y0 + np.cumsum(delta_y(d) + np.roll(np.append(delta_y(d)[:-1], 0), 1))/2
 half_M = lambda m: -np.sum(m.xi()[...,1] * m.Maxw(Macro(vel=args.U*e_x/2, temp=fixed.T_B)) * (m.xi()[...,1] < 0))
-_to_arr = lambda vel: vel if len(vel.shape) > 1 else np.array([vel])
+_to_arr = lambda vel: np.atleast_2d(vel)
 to_arr = lambda macro: macro if hasattr(macro.rho, '__len__') else Macro(*[ np.array([m]) for m in macro._asdict().values() ])
 _from_arr = lambda vel: slice(None) if len(vel.shape) > 1 else 0
 from_arr = lambda macro: slice(None) if hasattr(macro.rho, '__len__') else 0

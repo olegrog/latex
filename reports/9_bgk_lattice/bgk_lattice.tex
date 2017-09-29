@@ -12,18 +12,18 @@
 \usepackage{pgfplots}
 
 \usepackage[
-    pdfauthor={Rogozin Oleg},
-    pdftitle={Fluid-kinetic coupling between LBE and BGK},
-    colorlinks, pdftex, unicode
+    pdfusetitle,
+    colorlinks,
+    unicode
 ]{hyperref}
 
 \usepackage[
     backend=biber,
     style=gost-numeric,
+    sorting=none,
     autolang=other,
     maxbibnames=99, minbibnames=99,
     natbib=true,
-    sorting=ydnt,
     url=false,
     eprint=true,
     pagetracker,
@@ -36,8 +36,8 @@
 %\theoremstyle{remark}
 \newtheorem*{remark}{Remark}
 
-\title{Стыковка моделей LB и BGK}
-\author{Олег Рогозин}
+\title{Fluid-kinetic scheme based on the coupling of discrete-velocity models}
+\author{Oleg Rogozin}
 
 \newcommand{\Kn}{\mathrm{Kn}}
 \newcommand{\dd}{\mathrm{d}}
@@ -52,23 +52,51 @@
 \newcommand{\OO}[1]{O(#1)}
 
 \begin{document}
+\maketitle
+\tableofcontents
 
-\section{BGK equation}
+\section{Basic equations}
 
-The BGK equation take the following dimensionless form:
-\begin{equation}\label{eq:bgk}
-    \pder[f]{t} + \zeta_y\pder[f]{y} = \nu(M[f]-f), \quad \nu = \frac{\rho}k,
+Let \(L\), \(T^{(0)}\), and \(p^{(0)}\) be, respectively, the reference length, temperature, and pressure.
+Then the macroscopic variables have the following form:
+\(TT^{(0)}\) is the temperature, \(p_{ij}p^{(0)}\) is the stress tensor, \(\rho p^{(0)}/RT^{(0)}\) is the density,
+\(v_i(2RT^{(0)})^{1/2}\) is the velocity, \(q_ip^{(0)}(2RT^{(0)})^{1/2}\) is the heat-flow vector,
+and \(f(2p^{(0)})/(2RT^{(0)})^{5/2}\) is the distribution function
+in space \((tL/(2RT^{(0)})^{1/2}, x_iL, \zeta_i(2RT^{(0)})^{1/2})\).
+The specific gas constant \(R = k_B/m\), where \(k_B\) is the Boltzmann constant and \(m\) is the molar mass.
+For this nondimensional notation,
+\begin{equation}\label{eq:bgkw}
+    \pder[f]{t} + \zeta_i\pder[f]{x_i} = \frac{\rho}k(f_e-f)
 \end{equation}
-where Maxwellian
-\begin{equation}\label{eq:Maxwell}
-    M[f] = \frac{\rho}{(\pi T)^{3/2}}\exp\left(-\frac{(\zeta_i - v_i)^2}T\right),
+is the BGKW equation~\cite{Krook1954, Welander1954}.
+The equilibrium function is a local Maxwellian
+\begin{equation}\label{eq:Maxwellian}
+    f_e = \frac{\rho}{(\pi T)^{3/2}}\exp\left(-\frac{(\zeta_i - v_i)^2}T\right),
 \end{equation}
-and the modified Knudsen number
-\begin{equation}\label{eq:Knudsen}
-    k = \frac{\sqrt\pi}2\Kn.
+and the Knudsen number can be expressed through the reference gas viscosity \(\mu^{(0)}\):
+\begin{equation}\label{eq:Knudsen_number}
+    k = \frac{\sqrt\pi}2\Kn = \mu^{(0)} \frac{\sqrt{2RT^{(0)}}}{p^{(0)}L}.
 \end{equation}
 
-\section{Numerical example}
+\section{Numerical method}
+
+\subsection{Discrete-velocity models}
+% uniform + correction
+% lattices see at Gatignol
+
+\subsection{Conservative scheme}
+% simple explicit scheme for demonstration
+% split, fvm, exact
+
+\subsection{Coupling algorithm}
+% \emph{conservative}
+
+\section{Results and discussions}
+
+\subsection{Couette-flow problem}
+%\subsection{Heat-transfer problem}
+% Numerical example -- Couette-flow problem
+% different U, large U and transverse heat flow
 
 The proposed hybrid method is tested on the linearized Couette-flow problem.
 Gas is placed between two infinite parallel plates at \(y=\pm1/2\) with constant temperature \(T=1\)
@@ -93,7 +121,7 @@ The velocity space is discretized to the uniform grid at half-integer points
 \begin{equation}\label{eq:velocity_grid}
     \zeta_i = h\left(k_i+\frac12\right), \quad k_i\in\mathbb{Z}^3.
 \end{equation}
-Equation~\eqref{eq:bgk} is solved by the second-order splitting scheme.
+Equation~\eqref{eq:bgkw} is solved by the second-order splitting scheme.
 The transport equation
 \begin{equation}\label{eq:split_transport}
     \pder[f]{t} + \zeta_i\pder[f]{x_i} = 0,
@@ -116,11 +144,11 @@ can be calculated by the second-order TVD scheme, e.g. with the MC limiter
 where \(\Delta f_{m+\frac12} = f_{m+1} - f_m\).
 The space-homogeneous BGK equation
 \begin{equation}\label{eq:homogeneous}
-    \pder[f]{t} = \nu (M[f]-f),
+    \pder[f]{t} = \frac{\rho}k (M[f]-f),
 \end{equation}
 has the exact solution
 \begin{equation}\label{eq:exact_bgk}
-    f(t) = M[f] + (f(t_0)-M[f])e^{-\nu (t-t_0)}.
+    f(t) = M[f] + (f(t_0)-M[f])\exp\left(-\frac{\rho}k (t-t_0)\right).
 \end{equation}
 The three-dimensional velocity space is discretized by the uniform lattice confined with the sphere of radius \(\zeta_{\max}=4\).
 \(M=16\) nodes are placed along each axis. The total amount of nodes is equal to \(2176\).
@@ -136,6 +164,10 @@ The solution is antisymmetric at \(y=0\):
 \begin{equation}\label{eq:antisymmetry}
     f(\zeta_x,\zeta_y,\zeta_z) = f(-\zeta_x,-\zeta_y,\zeta_z), \quad \zeta_y>0.
 \end{equation}
+
+\appendix
+
+\section{Benchmark solution of the linearized BGKW equation}
 
 \printbibliography
 
