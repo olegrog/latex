@@ -36,7 +36,7 @@ parser.add_argument('--lrad', type=float, default=0.1, metavar='value', help='ra
 parser.add_argument('--lcmax', type=vec, default='0,0', metavar='vector', help='coordinates of maximum')
 parser.add_argument('--lcmin', type=vec, default='0,0', metavar='vector', help='coordinates of minimum')
 args = parser.parse_args()
-grayscale = True
+grayscale = False
 
 a1 = 1.5
 a0 = 0.3
@@ -189,8 +189,9 @@ plt.streamplot(xi, yi, U, V,
     density=0.9,
     minlength=.2,
     arrowstyle='->',
-    linewidth=lw,
-    **kwargs)
+    linewidth=lw)
+#    ,
+#    **kwargs)
 
 ### Draw additional objects
 ax = plt.axes()

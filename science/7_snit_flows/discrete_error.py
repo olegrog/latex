@@ -15,9 +15,9 @@ parser.add_argument('--rtype', default='uniform', metavar='value', help='type of
 parser.add_argument('--ytype', default='uniform', metavar='value', help='type of the grid along y-axis')
 parser.add_argument('--rmin', type=float, default=1, metavar='value', help='minimal size of the cell on the radius')
 parser.add_argument('--ymin', type=float, default=1, metavar='value', help='minimal size of the cell along y-axis')
-parser.add_argument('--radius', type=float, default=4, metavar='value', help='radius of the grid')
-parser.add_argument('--temp-ratio', type=float, default=2, metavar='value', help='temperature ratio')
-parser.add_argument('--velocity', type=float, default=1e-3, metavar='value', help='reference velocity')
+parser.add_argument('-R', '--radius', type=float, default=4., metavar='value', help='radius of the grid')
+parser.add_argument('-T', '--temp-ratio', type=float, default=2., metavar='value', help='temperature ratio')
+parser.add_argument('-U', '--velocity', type=float, default=1e-3, metavar='value', help='reference velocity')
 args = parser.parse_args()
 
 Rho, Temp, Speed = 1., 1., np.zeros(3)
