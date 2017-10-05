@@ -15,14 +15,15 @@ parser.add_argument('--rtype', default='uniform', metavar='value', help='type of
 parser.add_argument('--ytype', default='uniform', metavar='value', help='type of the grid along y-axis')
 parser.add_argument('--rmin', type=float, default=1, metavar='value', help='minimal size of the cell on the radius')
 parser.add_argument('--ymin', type=float, default=1, metavar='value', help='minimal size of the cell along y-axis')
-parser.add_argument('-R', '--radius', type=float, default=4., metavar='value', help='radius of the grid')
+parser.add_argument('--rcut', type=float, default=4., metavar='value', help='radius of the grid on the radius')
+parser.add_argument('--ycut', type=float, default=4., metavar='value', help='radius of the grid along y-axis')
 parser.add_argument('-T', '--temp-ratio', type=float, default=2., metavar='value', help='temperature ratio')
 parser.add_argument('-U', '--velocity', type=float, default=1e-3, metavar='value', help='reference velocity')
+parser.add_argument('-p', '--plot', action='store_true', help='plot r,y-grid')
 args = parser.parse_args()
 
 Rho, Temp, Speed = 1., 1., np.zeros(3)
 Qflow, Tau = np.array([0.1, 0.2, 0.]), np.array([0., 0., 0.05])
-cut_r, cut_y = args.radius, args.radius
 
 zeros, ones = np.zeros_like(Speed), np.ones_like(Speed)
 hodge = np.zeros((3,3,3))
@@ -76,8 +77,8 @@ idx = lambda N: np.arange(2*N) - N + .5
 
 ### Create grid
 
-H_r, Xi_r = grids[args.rtype].i2h(args.rmin, cut_r, args.rN), grids[args.rtype].i2xi(args.rmin, cut_r, args.rN)
-H_y, Xi_y = grids[args.ytype].i2h(args.ymin, cut_y, args.yN), grids[args.ytype].i2xi(args.ymin, cut_y, args.yN)
+H_r, Xi_r = grids[args.rtype].i2h(args.rmin, args.rcut, args.rN), grids[args.rtype].i2xi(args.rmin, args.rcut, args.rN)
+H_y, Xi_y = grids[args.ytype].i2h(args.ymin, args.ycut, args.yN), grids[args.ytype].i2xi(args.ymin, args.ycut, args.yN)
 E_r, E_y = np.ones_like(Xi_r), np.ones_like(Xi_y)
 
 dxi = np.einsum('i,j,k', H_r, H_y, H_r)
@@ -85,7 +86,7 @@ xi = lambda v=zeros: np.einsum('li,lj,lk->ijkl', (Xi_r-v[0], E_r, E_r), (E_y, Xi
 sqr_xi = lambda v=zeros,s=ones: np.linalg.norm(np.einsum('ijkl,l->ijkl', xi(v), s), axis=3)**2
 Maxwell = lambda vel, temp, rho=Rho: rho/(np.pi*temp)**1.5 * np.exp(-sqr_xi(vel)/temp)*dxi
 
-radii = np.array([cut_r, cut_y, cut_r])
+radii = np.array([args.rcut, args.ycut, args.rcut])
 ball = sqr_xi(zeros, 1./radii) <= 1
 
 print_grid = False
@@ -94,7 +95,7 @@ if print_grid:
     print "--- y:", H_y, Xi_y
 
 sizes = lambda H: (H.min(), H.max(), H.max()/H.min())
-print "cut_r = %g, cut_y = %g, min_r = %g, min_y = %g" % (cut_r, cut_y, args.rmin, args.ymin)
+print "cut_r = %g, cut_y = %g, min_r = %g, min_y = %g" % (args.rcut, args.ycut, args.rmin, args.ymin)
 print "Cell size (r): min = %.4g, max = %.4g, ratio = %.3g" % sizes(H_r)
 print "Cell size (y): min = %.4g, max = %.4g, ratio = %.3g" % sizes(H_y)
 total = lambda X, cut: np.sum(np.abs(X) <= cut)/2
@@ -127,6 +128,19 @@ def calc_macro(f):
     qflow = np.einsum('ijk,ijkl', f, csqr_c)
     tau = 2*np.einsum('ijk,ijkl', f, cc)
     return rho, temp, speed, qflow, tau
+
+def plot_grid():
+    import pylab as py
+    X, Y = Xi_r[args.rN:], Xi_y[args.yN:]
+    py.plot(X, 0*X, 'ro', 0*Y, Y, 'ro')
+    py.axes().set_xlabel('xi_r')
+    py.axes().set_ylabel('xi_y')
+    py.axes().xaxis.grid(color='gray', linestyle='dashed')
+    py.axes().yaxis.grid(color='gray', linestyle='dashed')
+    py.axes().set_xticks(np.cumsum(H_r[args.rN:]))
+    py.axes().set_yticks(np.cumsum(H_y[args.yN:]))
+    py.gca().set_aspect('equal', adjustable='box')
+    py.show()
 
 def test_1(Temp, Speed):
     P = Rho * Temp
@@ -188,6 +202,8 @@ def test_3():
 
 with np.errstate(divide='ignore', invalid='ignore'):
     Speed[0] = args.velocity
+    if args.plot:
+        plot_grid()
     test_1(Temp*(args.temp_ratio-1), Speed)
     test_1(Temp, Speed)
     test_1(Temp*args.temp_ratio, Speed)
