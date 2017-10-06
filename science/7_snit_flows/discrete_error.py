@@ -47,8 +47,12 @@ grids = {
         i2xi = lambda q, cut, N: hermite(cut, N)[1]
     ),
     'quadratic': Grid(
-        i2h =  lambda q, cut, N: quadratic(q, cut, N)[0],
-        i2xi = lambda q, cut, N: quadratic(q, cut, N)[1]
+        i2h =  lambda q, cut, N: polynomic(q, cut, N, 2)[0],
+        i2xi = lambda q, cut, N: polynomic(q, cut, N, 2)[1]
+    ),
+    'cubic': Grid(
+        i2h =  lambda q, cut, N: polynomic(q, cut, N, 3)[0],
+        i2xi = lambda q, cut, N: polynomic(q, cut, N, 3)[1]
     )
 }
 
@@ -60,8 +64,7 @@ def hermite(cut, N):
     H_h *= C
     return H_h, H_xi
 
-def quadratic(q, cut, N):
-    p=2
+def polynomic(q, cut, N, p):
     if cut-N*q < 0:
        raise NameError('q = %g is too big' % q) 
     A = (cut-N*q) / np.sum(np.arange(N)**p)
@@ -88,11 +91,6 @@ Maxwell = lambda vel, temp, rho=Rho: rho/(np.pi*temp)**1.5 * np.exp(-sqr_xi(vel)
 
 radii = np.array([args.rcut, args.ycut, args.rcut])
 ball = sqr_xi(zeros, 1./radii) <= 1
-
-print_grid = False
-if print_grid:
-    print "--- r:", H_r, Xi_r
-    print "--- y:", H_y, Xi_y
 
 sizes = lambda H: (H.min(), H.max(), H.max()/H.min())
 print "cut_r = %g, cut_y = %g, min_r = %g, min_y = %g" % (args.rcut, args.ycut, args.rmin, args.ymin)
@@ -132,7 +130,10 @@ def calc_macro(f):
 def plot_grid():
     import pylab as py
     X, Y = Xi_r[args.rN:], Xi_y[args.yN:]
-    py.plot(X, 0*X, 'ro', 0*Y, Y, 'ro')
+    py.plot(xi()[...,0][ball], xi()[...,1][ball], 'ro')
+    t = np.linspace(0, np.pi/2, 100)
+    py.plot(args.rcut*np.cos(t), args.ycut*np.sin(t), 'k-')
+    py.xlim(0, args.rcut); py.ylim(0, args.ycut)
     py.axes().set_xlabel('xi_r')
     py.axes().set_ylabel('xi_y')
     py.axes().xaxis.grid(color='gray', linestyle='dashed')
