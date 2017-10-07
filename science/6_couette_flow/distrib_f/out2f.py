@@ -130,7 +130,7 @@ print >> sys.stderr, "zmin = %.3f, zmax = %.3f, round = %.3f" % \
 ax.set_xlim(-cut2, cut2)
 ax.set_ylim(-cut2, cut2)
 levels = np.linspace(0, zmax, 21)
-cset = ax.contourf(grid_x, grid_y, grid_z, zdir='z', cmap=py.cm.jet, levels=levels)
+cset = ax.contourf(grid_x, grid_y, grid_z, zdir='z', cmap=py.cm.get_cmap('coolwarm'), levels=levels)
 cbar = py.colorbar(cset, ticks=levels[::4], drawedges=False)
 cbar.solids.set_edgecolor("face")
 ax.set_xlabel(r'$\xi_%s$' % our[0])

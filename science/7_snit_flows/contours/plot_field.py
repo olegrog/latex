@@ -41,7 +41,7 @@ parser.add_argument('--lmin', type=float, default=0, metavar='value', help='a sh
 parser.add_argument('--grid', type=int, default=200, metavar='value', help='a number of points along each axis')
 args = parser.parse_args()
 uniform_grid = True
-grayscale = True
+grayscale = False
 
 ### Read data from VTK-file
 reader = {
@@ -145,21 +145,12 @@ clabels = py.clabel(CS, levels,
 ### Add a streamplot for the vector field
 # NB: py.streamplot relies on evenly grid
 if len(F.shape) > 1:
-    lw = 1 #5*Fi/Fi.max()
-    kwargs = {}
-    if grayscale:
-        kwargs['color'] = 'k'
-    else:
-        kwargs = {
-            'color': Fi/Fi.max(),
-            'cmap': py.cm.get_cmap('autumn')
-        }
     py.streamplot(xi, yi, Ui, Vi,
         density=0.89,
         minlength=.2,
         arrowstyle='->',
-        linewidth=lw,
-        **kwargs)
+        color='k',
+        linewidth=1)
 
 py.text(-.05, .4, r'$\displaystyle %s$' % args.latex)
 py.xlabel(r'$x$', labelpad=-5)

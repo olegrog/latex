@@ -22,7 +22,7 @@ options = $(call vtk_file,$1,$2) \
 
 xlabel = $(if $(filter left, $1),y,$(if $(filter bottom, $1),x,'\varphi'))
 ylabel = $(if $(filter left bottom, $1),'T-T_\mathrm{HCE}','T-T_B')
-xcoord = $(if $(filter left bottom, $1),0.31,0.28)
+xcoord = $(if $(filter left bottom, $1),0.5,0.4)
 
 %.pdf: %.tex 
 	pdflatex $< > /dev/null
@@ -52,7 +52,7 @@ _%_temp.sh: create_plots.py template.sh $$(addprefix %-, $(addsuffix .txt, $(SOL
 
 _%_vel.sh: create_plots.py template.sh $$(addprefix %-, $(addsuffix .txt, $(SOLVERS)))
 	./$< $(word 2,$^) --name=$*_vel --patch=$* --column=3 --lmargin=5 \
-		--ylabel='\frac{v_it_i}{k}' --xlabel=$(call xlabel,$*) --xcoord=0.28 --ytics=0.01
+		--ylabel='\frac{v_it_i}{k}' --xlabel=$(call xlabel,$*) --xcoord=0.46 --ytics=0.01
 
 clean:
 	rm -f $(FIGURES) rm *.{eps,log,tex}

@@ -1,13 +1,14 @@
 #!/usr/bin/env gnuplot
 
 set term epslatex standalone size 4.5, 3 font 9 color dashed
+set colors classic
 set out "shear.tex"
 set key right bottom maxrows 5 width -10
 set sample 101
 
 set xlabel '$\mathrm{Kn}$' offset graph 0.5, 0.14
 set ylabel '$\displaystyle \int_0^\frac12 \frac{P_{xy}}{\Delta v}\mathrm{d}y + \frac{P_{N\!Sxy}^*k}{\Delta{v}+2\sqrt\pi P_{N\!Sxy}^*k}$' \
-    offset graph 0.42, 0.45 rotate by 0
+    offset graph 1.31, 0.45 rotate by 0
 
 set border 3
 set xtics nomirror
@@ -52,34 +53,34 @@ f_asym(x) = x < 0.15 ? x : 1/0
 filter2(x,c) = x < c ? x : 1/0
 
 set macros
-dummy = "NaN title ' ' lt -3"
+dummy = "NaN title ' ' lc -3"
 
 plot \
-    "bkw.txt" using (filter($1/k)/gamma1):(base(filter($1)/gamma1,$2)) title "BKW" w l lw 3 lt 1 lc 5, \
-    base(k*x, asym_bkw(k*f_asym(x)*gamma1)) notitle w l lw 3 lt 1 lc 5, \
-    "sone.txt" using ($1/k):(base($1,-$2/2)) title "Sone et al." w lp lw 3 lt 1 lc 0 pt 3 ps 1.5, \
-    base(k*x,asym_hs(k*f_asym(x))) notitle lw 3 lt 1 lc 0, \
-    NaN title "Projection method"    w lp lw 2 lt 1 lc 1 pt 6, \
-    NaN title "DSMC"             w lp lw 2 lt 1 lc 2 pt 4, \
-    NaN title "Asymptotic"       w l lw 2 lt 1 lc 3, \
-    NaN title "$\\Delta v\\to0$" w l lw 2 lt 1 lc 0, \
-    NaN title "$\\Delta v=0.1$"  w l lw 2 lt 2 lc 0, \
-    NaN title "$\\Delta v=1$"    w l lw 2 lt 3 lc 0, \
-    NaN title "$\\Delta v=2$"    w l lw 2 lt 4 lc 0, \
-    NaN title "$\\Delta v=5$"    w l lw 2 lt 5 lc 0, \
+    "bkw.txt" using (filter($1/k)/gamma1):(base(filter($1)/gamma1,$2)) title "BGK" w l lw 3 dt 1 lc 5, \
+    base(k*x, asym_bkw(k*f_asym(x)*gamma1)) notitle w l lw 3 dt 1 lc 5, \
+    "sone.txt" using ($1/k):(base($1,-$2/2)) title "Sone et al." w lp lw 3 dt 1 lc 0 pt 3 ps 1.5, \
+    base(k*x,asym_hs(k*f_asym(x))) notitle lw 3 dt 1 lc 0, \
+    NaN title "Projection method"    w lp lw 2 dt 1 lc 1 pt 6, \
+    NaN title "DSMC"             w lp lw 2 dt 1 lc 2 pt 4, \
+    NaN title "Asymptotic"       w l lw 2 dt 1 lc 3, \
+    NaN title "$\\Delta v\\to0$" w l lw 2 dt 1 lc 0, \
+    NaN title "$\\Delta v=0.1$"  w l lw 2 dt 6 lc 0, \
+    NaN title "$\\Delta v=1$"    w l lw 2 dt 2 lc 0, \
+    NaN title "$\\Delta v=2$"    w l lw 2 dt 3 lc 0, \
+    NaN title "$\\Delta v=5$"    w l lw 2 dt 4 lc 0, \
     @dummy, @dummy, @dummy, @dummy, @dummy, \
-    "asym-0.1.txt" using (filter2($1,0.50)):(base2($1*k,$2,Pxy0)) notitle w l lw 2 lt 2 lc 3, \
-    "asym-1.0.txt" using (filter2($1,0.18)):(base2($1*k,$2,Pxy1)) notitle w l lw 2 lt 3 lc 3, \
-    "asym-2.0.txt" using (filter2($1,0.12)):(base2($1*k,$2,Pxy2)) notitle w l lw 2 lt 4 lc 3, \
-    "asym-5.0.txt" using (filter2($1,0.06)):(base2($1*k,$2,Pxy5)) notitle w l lw 2 lt 5 lc 3, \
-    "data-0.1.txt" using 1:(base2($1*k,$2,Pxy0)) notitle w lp lw 2 lt 2 pt 6 lc 1, \
-    "data-1.0.txt" using 1:(base2($1*k,$2,Pxy1)) notitle w lp lw 2 lt 3 pt 6 lc 1, \
-    "data-2.0.txt" using 1:(base2($1*k,$2,Pxy2)) notitle w lp lw 2 lt 4 pt 6 lc 1, \
-    "data-5.0.txt" using 1:(base2($1*k,$2,Pxy5)) notitle w lp lw 2 lt 5 pt 6 lc 1, \
-    "dsmc-0.1.txt" using 1:(base3($1*k,$2,Pxy0)) notitle w lp lw 2 lt 2 pt 4 lc 2, \
-    "dsmc-1.0.txt" using 1:(base3($1*k,$2,Pxy1)) notitle w lp lw 2 lt 3 pt 4 lc 2, \
-    "dsmc-2.0.txt" using 1:(base3($1*k,$2,Pxy2)) notitle w lp lw 2 lt 4 pt 4 lc 2, \
-    "dsmc-5.0.txt" using 1:(base3($1*k,$2,Pxy5)) notitle w lp lw 2 lt 5 pt 4 lc 2
+    "asym-0.1.txt" using (filter2($1,0.50)):(base2($1*k,$2,Pxy0)) notitle w l lw 2 dt 6 lc 3, \
+    "asym-1.0.txt" using (filter2($1,0.18)):(base2($1*k,$2,Pxy1)) notitle w l lw 2 dt 2 lc 3, \
+    "asym-2.0.txt" using (filter2($1,0.12)):(base2($1*k,$2,Pxy2)) notitle w l lw 2 dt 3 lc 3, \
+    "asym-5.0.txt" using (filter2($1,0.06)):(base2($1*k,$2,Pxy5)) notitle w l lw 2 dt 4 lc 3, \
+    "data-0.1.txt" using 1:(base2($1*k,$2,Pxy0)) notitle w lp lw 2 dt 6 pt 6 lc 1, \
+    "data-1.0.txt" using 1:(base2($1*k,$2,Pxy1)) notitle w lp lw 2 dt 2 pt 6 lc 1, \
+    "data-2.0.txt" using 1:(base2($1*k,$2,Pxy2)) notitle w lp lw 2 dt 3 pt 6 lc 1, \
+    "data-5.0.txt" using 1:(base2($1*k,$2,Pxy5)) notitle w lp lw 2 dt 4 pt 6 lc 1, \
+    "dsmc-0.1.txt" using 1:(base3($1*k,$2,Pxy0)) notitle w lp lw 2 dt 6 pt 4 lc 2, \
+    "dsmc-1.0.txt" using 1:(base3($1*k,$2,Pxy1)) notitle w lp lw 2 dt 2 pt 4 lc 2, \
+    "dsmc-2.0.txt" using 1:(base3($1*k,$2,Pxy2)) notitle w lp lw 2 dt 3 pt 4 lc 2, \
+    "dsmc-5.0.txt" using 1:(base3($1*k,$2,Pxy5)) notitle w lp lw 2 dt 4 pt 4 lc 2
 
 #    @dummy, @dummy, @dummy, @dummy, @dummy, \
-#    base(filter(k*x, 0.1),fluid(k*x)) title "Navier--Stokes" lt 1 lc 0 lw 2 , \
+#    base(filter(k*x, 0.1),fluid(k*x)) title "Navier--Stokes" dt 1 lc 0 lw 2 , \

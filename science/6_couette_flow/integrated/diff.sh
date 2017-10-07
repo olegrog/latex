@@ -1,8 +1,10 @@
 #!/usr/bin/env gnuplot
 
 set term epslatex standalone size 4.5, 3 font 9 color dashed
+set colors classic
 set out "diff.tex"
 set key left bottom maxrows 3 width 0
+set format y "%g"
 
 set xlabel '$\mathrm{Kn}$' offset graph 0.5, 0.14
 
@@ -24,21 +26,21 @@ set label "$\\mathrm{Kn}^2$" at 3.5e-2, 5e-3
 set label "$\\mathrm{Kn}^3$" at 9e-2, 5e-3
 
 plot \
-    NaN title "$P_{xy}$" w l lw 3 lt 1 lc 1, \
-    NaN title "$v_x$"    w l lw 3 lt 1 lc 2, \
-    NaN title "$\\tau$"  w l lw 3 lt 1 lc 3, \
+    NaN title "$P_{xy}$" w l lw 3 dt 1 lc 1, \
+    NaN title "$v_x$"    w l lw 3 dt 1 lc 2, \
+    NaN title "$\\tau$"  w l lw 3 dt 1 lc 3, \
     @dummy, \
-    NaN title "$\\Delta v=0.1$" w l lw 3 lt 2 lc 0, \
-    NaN title "$\\Delta v=2$"   w l lw 3 lt 4 lc 0, \
+    NaN title "$\\Delta v=0.1$" w l lw 3 dt 6 lc 0, \
+    NaN title "$\\Delta v=2$"   w l lw 3 dt 3 lc 0, \
     x**2 notitle lw 2 lc 0, x**3 notitle lw 2 lc 0, \
-    "_diff1-0.1.txt" using 1:2 notitle w l lw 3 lt 2 lc 1, \
-    "_diff1-2.0.txt" using 1:2 notitle w l lw 3 lt 4 lc 1, \
-    "_diff2-0.1.txt" using 1:2 notitle w lp lw 3 lt 2 lc 1 pt 6, \
-    "_diff2-2.0.txt" using 1:2 notitle w lp lw 3 lt 4 lc 1 pt 6, \
-    "_diff1-0.1.txt" using 1:3 notitle w l lw 3 lt 2 lc 2, \
-    "_diff1-2.0.txt" using 1:3 notitle w l lw 3 lt 4 lc 2, \
-    "_diff2-0.1.txt" using 1:3 notitle w lp lw 3 lt 2 lc 2 pt 6, \
-    "_diff2-2.0.txt" using 1:3 notitle w lp lw 3 lt 4 lc 2 pt 6, \
-    "_diff1-2.0.txt" using 1:9 notitle w l lw 3 lt 4 lc 3, \
-    "_diff2-2.0.txt" using 1:9 notitle w lp lw 3 lt 4 lc 3 pt 6
+    "_diff1-0.1.txt" using 1:2 notitle w l lw 3 dt 6 lc 1, \
+    "_diff1-2.0.txt" using 1:2 notitle w l lw 3 dt 3 lc 1, \
+    "_diff2-0.1.txt" using 1:2 notitle w lp lw 3 dt 6 lc 1 pt 6, \
+    "_diff2-2.0.txt" using 1:2 notitle w lp lw 3 dt 3 lc 1 pt 6, \
+    "_diff1-0.1.txt" using 1:3 notitle w l lw 3 dt 6 lc 2, \
+    "_diff1-2.0.txt" using 1:3 notitle w l lw 3 dt 3 lc 2, \
+    "_diff2-0.1.txt" using 1:3 notitle w lp lw 3 dt 6 lc 2 pt 6, \
+    "_diff2-2.0.txt" using 1:3 notitle w lp lw 3 dt 3 lc 2 pt 6, \
+    "_diff1-2.0.txt" using 1:9 notitle w l lw 3 dt 3 lc 3, \
+    "_diff2-2.0.txt" using 1:9 notitle w lp lw 3 dt 3 lc 3 pt 6
 

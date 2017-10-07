@@ -61,20 +61,17 @@ def get_levels(maxU):
     lmin, laux = 0, []
     lmax = min((int(maxU/factor*10) + 1.)*factor/10, args.lmax)
     lsteps = int(round(10*lmax/factor))
+    old_lsteps = lsteps
     if lsteps >= args.lsteps_max and lsteps < 2*args.lsteps_max:
-        old_lsteps = lsteps
         lsteps = int(round(lsteps/2.))
         lmax *= 2.*lsteps/old_lsteps
     if lsteps >= 2*args.lsteps_max and lsteps < 5*args.lsteps_max:
-        old_lsteps = lsteps
         lsteps = int(round(lsteps/5.))
         lmax *= 5.*lsteps/old_lsteps
     if lsteps >= 5*args.lsteps_max and lsteps < 10*args.lsteps_max:
-        old_lsteps = lsteps
         lsteps = int(round(lsteps/10.))
         lmax *= 10.*lsteps/old_lsteps
     if lsteps >= 10*args.lsteps_max and lsteps < 20*args.lsteps_max:
-        old_lsteps = lsteps
         lsteps = int(round(lsteps/20.))
         lmax *= 20.*lsteps/old_lsteps
     return lmin, lmax, lsteps
@@ -128,7 +125,8 @@ print '%s: max(magU) = %g, lmin = %g, lmax = %g, lsteps = %g' % \
 
 ### Refine triangulation and data
 refiner = tri.UniformTriRefiner(triang)
-refi_triang, refi_magU = refiner.refine_field(magU, subdiv=args.refine)
+tri_interp = tri.CubicTriInterpolator(triang, magU, kind='geom')
+refi_triang, refi_magU = refiner.refine_field(magU, subdiv=args.refine, triinterpolator=tri_interp)
 
 ### Calculate label positions along a line from min to max
 xmin, xmax = min(X), max(X)
@@ -148,7 +146,9 @@ labelpos = tuple(map(tuple, np.vstack((lx,ly)).T))
 linewidth, fontsize = .5, 6
 
 ### Plot detailed contours
-levels = np.linspace(lmin, lmax, 1 + lsteps*2)
+refi_magU = np.maximum(refi_magU, lmin)
+dl, ds = ((lmax-lmin)/lsteps/2,1) if np.max(magU) > lmax else (0,0)
+levels = np.linspace(lmin, lmax + dl, 1 + 2*lsteps + ds)
 if grayscale:
     plt.tricontour(refi_triang, refi_magU, levels=levels, colors='lightgray', linewidths=0.05)
 else:
@@ -169,29 +169,20 @@ clabels = plt.clabel(CS, levels,
 
 ### Draw a streamplot
 # NB: plt.streamplot relies on evenly grid => create it!
-N, method = 50, 'cubic'
+N, method = 50, 'linear' #'cubic'
 xi = np.linspace(xmin, xmax, (xmax-xmin)*N)
 yi = np.linspace(ymin, ymax, (ymax-ymin)*N)
 U = griddata((X, Y), U, (xi[None,:], yi[:,None]), method=method)
 V = griddata((X, Y), V, (xi[None,:], yi[:,None]), method=method)
 
-magU = np.sqrt(U*U+V*V)
-lw = 1 #5*magU/magU.max()
-kwargs = {}
-if grayscale:
-    kwargs['color'] = 'k'
-else:
-    kwargs = {
-        'color': magU/magU.max(),
-        'cmap': cm.get_cmap('autumn')
-    }
+max_magU = max(magU)
+magU = np.nan_to_num(np.sqrt(U*U+V*V))
 plt.streamplot(xi, yi, U, V,
     density=0.9,
     minlength=.2,
     arrowstyle='->',
-    linewidth=lw)
-#    ,
-#    **kwargs)
+    color='k',
+    linewidth=1)
 
 ### Draw additional objects
 ax = plt.axes()
@@ -206,8 +197,8 @@ ax.text(.15, .4, r'$T_0$', zorder=50)
 ax.text(1., .8, r'$T_1$')
 ax.set_xlim(0, a1+.05)
 ax.set_ylim(0, 1+.05)
-ax.text(a1/2, -.09, r'$x$')
-ax.text(-.09, .85, r'$y$')
+ax.text(a1+.025, .025, r'$x$')
+ax.text(.025, 1.025, r'$y$')
 
 plt.tick_params(axis='both', direction='out',)
 plt.savefig(args.pdffile, bbox_inches='tight', transparent=True)
