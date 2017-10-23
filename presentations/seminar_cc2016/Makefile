@@ -13,7 +13,7 @@ pics:
 	cp ../../science/6_couette_flow/distrib_f/kn*pdf couette/
 	cp ../../science/6_couette_flow/profiles/*.pdf couette/
 	cp ../../science/6_couette_flow/integrated/*.pdf couette2/
-	cp ../../science/7_snit_flows/tikz/snit_flows.pdf snit_flows/geometry.pdf
+	cp ../../science/7_snit_flows/tikz/sone_bobylev.pdf snit_flows/geometry.pdf
 	cp ../../science/7_snit_flows/contours/*.pdf snit_flows/
 	cp ../../science/7_snit_flows/vs_kn/*.pdf snit_flows/
 	cp ../../science/4_snitSimpleFoam/noncoaxial/*.pdf noncoaxial/
