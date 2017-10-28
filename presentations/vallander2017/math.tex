@@ -66,19 +66,23 @@
 
 \begin{frame}
     \frametitle{Функция распределения}
-    Microscopic description % минимальные предположения
+    Microscopic description (identical particles with Hamiltonian):
     \begin{equation*}
-        f(t,x,\xi): \mathbb{R}_+\times\Omega\times\mathbb{R}^N\mapsto\mathbb{R}_+
-        \quad (\Omega\subset\mathbb{R}^N),
+        H(x,\xi) = \frac12 \sum_{i=1}^{N}|\xi_i|^2 + \sum_{i\ne j} U(x_i - x_j).
+    \end{equation*}
+    Mesoscopic description: % минимальные предположения
+    \begin{equation*}
+        f(t,x,\xi): \mathbb{R}_+\times\Omega\times\mathbb{R}^d\mapsto\mathbb{R}_+
+        \quad (\Omega\subset\mathbb{R}^d),
     \end{equation*}
     \begin{equation*}
-        f(t,\cdot,\cdot) \in L^1_\loc(\Omega; L^1(\mathbb{R}^N)).
+        f(t,\cdot,\cdot) \in L^1_\loc(\Omega; L^1(\mathbb{R}^d)).
     \end{equation*}
-    Macroscopic quantities % часто более гладкие, чем ФР
+    Macroscopic quantities: % часто более гладкие, чем ФР
     \begin{gather*}
-        \rho = \int_{\mathbb{R}^N} f\dxi, \\
-        v = \frac1\rho\int_{\mathbb{R}^N} \xi f\dxi, \\
-        T = \frac1{N\rho}\int_{\mathbb{R}^N} \left(|\xi|^2 - |v|^2\right) f\dxi.
+        \rho = \int_{\mathbb{R}^d} f\dxi, \\
+        v = \frac1\rho\int_{\mathbb{R}^d} \xi f\dxi, \\
+        T = \frac1{d\rho}\int_{\mathbb{R}^d} \left(|\xi|^2 - |v|^2\right) f\dxi.
     \end{gather*}
 \end{frame}
 
@@ -94,11 +98,11 @@
     \end{itemize}
 
     \begin{gather*}
-        Q(f,f)(t,x,\xi) \eqdef \int_{\mathbb{R}^N}\dxi_* \int_{S^{N-1}} \dd\sigma
+        Q(f,f)(t,x,\xi) \eqdef \int_{\mathbb{R}^d}\dxi_* \int_{S^{d-1}} \dd\sigma
         \overbrace{B(\xi-\xi_*,\sigma)}^\text{collisional kernel}
         \Big( \overbrace{f'f'_*}^\text{gain} - \overbrace{ff_*}^\text{loss} \Big), \\
         \xi' = \dfrac{\xi+\xi_*}2 + \dfrac{|\xi-\xi_*|}2\sigma, \quad
-        \xi'_* = \dfrac{\xi+\xi_*}2 + \dfrac{|\xi-\xi_*|}2\sigma.
+        \xi'_* = \dfrac{\xi+\xi_*}2 - \dfrac{|\xi-\xi_*|}2\sigma.
     \end{gather*}
 
 \end{frame}
@@ -107,16 +111,16 @@
     \frametitle{Симметрии и H-теорема Больцмана}
     Weak formulation:
     \begin{equation*}
-        \int_{\mathbb{R}^N} Q(f,f)\phi = \frac14 \int_{\mathbb{R}^N} Q(f,f) (\phi + \phi_* - \phi' - \phi'_*).
+        \int_{\mathbb{R}^d} Q(f,f)\phi = \frac14 \int_{\mathbb{R}^d} Q(f,f) (\phi + \phi_* - \phi' - \phi'_*).
     \end{equation*}
     \pause
     Lyapunov functional or H-functional or negative entropy:
     \begin{equation*}
-        H(f) \eqdef \int_{\Omega\times\mathbb{R}^N} f\log{f} \xrightarrow{t\to\infty} \min.
+        H(f) \eqdef \int_{\Omega\times\mathbb{R}^d} f\log{f} \xrightarrow{t\to\infty} \min.
     \end{equation*}
     Entropy production functional:
     \begin{equation*}
-        D(f) \eqdef -\int_{\mathbb{R}^N} Q\log{f} = \frac14\int_{\mathbb{R}^{2N}\times S^{N-1}}
+        D(f) \eqdef -\int_{\mathbb{R}^d} Q\log{f} = \frac14\int_{\mathbb{R}^{2d}\times S^{d-1}}
         B\left( f'f'_* - ff_* \right) \log\frac{f'f'_*}{ff_*} \geq 0.
     \end{equation*}
     H-theorem:
@@ -128,31 +132,34 @@
 \begin{frame}
     \frametitle{Классификация столкновительных ядер}
     \begin{gather*}
-        U(r)\sim r^{1-s} \:\implies\: \sin^{N-1}\theta B(|\xi-\xi_*|,\cos\theta) \sim |\xi-\xi_*|^\gamma \theta^{-1-\nu}, \\
+        U(r)\sim r^{1-s} \:\implies\: \sin^{d-1}\theta B(|\xi-\xi_*|,\cos\theta) \sim |\xi-\xi_*|^\gamma \theta^{-1-\nu}, \\
         \quad \gamma = \dfrac{s-5}{s-1}\in[-3,1), \quad \nu = \dfrac2{s-1}\in(0,2].
     \end{gather*}
     \begin{itemize}
-        \item hard spheres: \(s=+\infty,\quad\gamma=1,\quad\nu=0 \quad\implies\quad B=|z|\)
+        \item hard spheres: \(s=+\infty,\quad\gamma=1,\quad\nu=0 \quad\implies\quad B=|\bxi-\bxi_*|\)
         \item hard potentials: \(\gamma>0\)
-        \item Maxwell: \(s=5,\quad\gamma=0,\quad\nu=\frac12\), \quad \Cite[1984]{Bobylev}
+        \item Maxwell: \(s=5,\quad\gamma=0,\quad\nu=\frac12\), \quad \Cite[1984]{Bobylev}\\
+            {\footnotesize Бобылев Александр Васильевич (род. 1947, ИПМ им. Келдыша)}
         \item soft potentials: \(\gamma<0\)
         \item Coulomb: \(s=2,\quad\gamma=-3,\quad\nu=2\) \(\:\longrightarrow\:\) Landau equation,\\
-            \Cite[1990]{Arsen'ev, Buryak}, \Cite[1998]{Villani}
+            \Cite[1990]{Arsen'ev, Buryak}, \Cite[1998]{Villani} \\
+            {\footnotesize Арсеньев Алексей Алексеевич (1938--2013, МГУ)}
     \end{itemize}
 \end{frame}
 
 \begin{frame}
     \frametitle{Вывод из уравнения Лиувилля}
-    Boltzmann--Grad (low-density) limit: \[ nr^{N-1}=\OO{1}, \quad n\to\infty \]\vspace{-20pt}
+    Boltzmann--Grad (low-density) limit: \[ Nr^{d-1}=\OO{1}, \quad N\to\infty \]\vspace{-20pt}
     \begin{itemize}
         \item \Cite[1958]{Grad}: correct limiting procedure for HS
         \item \Cite[1972]{Cercignani}: rigorous formulation (need \(\exists!\) theorems)
         \item \Cite[1975]{Lanford}: rigorous result for short times and HS
         \item \Cite[1986]{Illner, Pulvirenti}:\\ full result for rare cloud of gas expanding in the vacuum
-        \item \Cite[1990]{Petrina, Gerasimenko}:\\ first estimates on pathological trajectories\\
-        {\footnotesize Петрина Дмитрий Яковлевич (1934--2006)}
-        \item \Cite[2013]{G\'{a}llagher, Saint-Raymond, Texier}:\\ recollisions, smooth positive hard cutoff potentials
-        \item \Cite[2016]{Bodineau, Gallangher, Saint-Raymond}:\\ Brownian motion limit for \(t\ll\ln\ln N\)
+        \item \Cite[1990]{Petrina, Gerasimenko}: first explicit estimates\\
+            {\footnotesize Петрина Дмитрий Яковлевич (1934--2006)}
+        \item \Cite[2013]{Gallagher, Saint-Raymond, Texier}:\\ recollisions, smooth positive hard cutoff potentials
+        \item \Cite[2015]{Bodineau, Gallangher, Saint-Raymond}:\\ linear Boltzmann for \(t\ll\ln\ln N\)
+        \item \Cite[2016]{...}: linearized Boltzmann for 2D and \(t\ll\sqrt[4]{\ln\ln N}\)
     \end{itemize}
 %    We call pathological a trajectory such that
 %        1) there exists a collision involving more than two particles
@@ -168,7 +175,7 @@
 \begin{frame}
     \frametitle{Теория жёстких усечённых потенциалов}
     \Cite[1958]{Grad}: Grad's angular cutoff = short-range assumption
-    \[ \int_{S^{N-1}} b\dd\sigma = |S^{N-2}|\int_0^\pi b(\cos\theta) \sin^{N-2}\theta\dd\theta < \infty \]
+    \[ \int_{S^{d-1}} b\dd\sigma = |S^{d-2}|\int_0^\pi b(\cos\theta) \sin^{d-2}\theta\dd\theta < \infty \]
     Existence and uniqueness of \(\pder[f]{t} = Q(f,f)\) in \(L^1\) for \(\pder{t}\int|\xi|^2f=0\): \vspace{-20pt}
     \begin{itemize}
         \item \Cite[1933]{Carleman}, \Cite[1962]{Povzner}: hard spheres \\
@@ -176,7 +183,7 @@
         \item \Cite[1955]{Morgenstern}: Maxwellian molecules
         \item \Cite[1972]{Arkeryd}: hard potentials
         \item \Cite[1999]{Mischler, Wennberg}: optimal result (\(f_0\in L^1_2\), \sout{\(L\log{L}\)})\!\!\!\!\!\!\!\!\!\!
-        \[ L^1_q \eqdef \Set{f}{\int_{\mathbb{R}^N} f(1+|\xi|^q) < +\infty}. \]
+        \[ L^1_q \eqdef \Set{f}{\int_{\mathbb{R}^d} f(1+|\xi|^q) < +\infty}. \]
         \item \Cite[1999]{Wennberg}: nonuniqueness result (increasing energy)
     \end{itemize}
 \end{frame}
@@ -185,7 +192,7 @@
     \frametitle{Теория жёстких усечённых потенциалов}
     \begin{itemize}
         \item \Cite[1999]{Mischler, Wennberg}: moment bounds
-        \[ \forall q\geq2: \sup_{t\geq t_0>0} \int_{\mathbb{R}^N} f_t (1+|\xi|^q) \]
+        \[ \forall q\geq2: \sup_{t\geq t_0>0} \int_{\mathbb{R}^d} f_t (1+|\xi|^q) \]
         \item \Cite[1997]{Pulvirenti, Wennberg}: Maxwellian lower bound
         \[ \forall t_0>0, \exists K_0,A_0>0: f_{t>0}(\xi) \geq K_0\exp\left( -A_0 |\xi|^2\right) \]
         \item \Cite[2009]{Gamba, Panferov, Villani}: Maxwellian upper bound \!\!\!\!\!
@@ -206,29 +213,29 @@
         \[ (\phi + \phi_* - \phi' - \phi'_*) \sim |z|^2 \]
         \item \Cite[1999]{Villani}: H-solutions (\(-4<\gamma<-2\))
         \begin{gather*}
-            D(f) \geq \int_{\mathbb{R}^{2N}\times S^{N-1}} B(|z|, \sigma) \left(\sqrt{f'f'_*} - \sqrt{ff_*}\right)^2, \\
-            \left| \int_{\mathbb{R}^N} Q(f,f)\phi \right| \leq \frac12
+            D(f) \geq \int_{\mathbb{R}^{2d}\times S^{d-1}} B(|z|, \sigma) \left(\sqrt{f'f'_*} - \sqrt{ff_*}\right)^2, \\
+            \left| \int_{\mathbb{R}^d} Q(f,f)\phi \right| \leq \frac12
             \sqrt{ D(f) \int Bff_* (\phi + \phi_* - \phi' - \phi'_*)^2 }
         \end{gather*}
         \item Bad estimates on moments:
-        \[ \forall q>2: \quad\int_{\mathbb{R}^N} f_t |\xi|^q < C(1+t) \]
+        \[ \forall q>2: \quad\int_{\mathbb{R}^d} f_t |\xi|^q < C(1+t) \]
     \end{itemize}
 \end{frame}
 
 \begin{frame}
     \frametitle{Теория неусечённых потенциалов}
     Nonintegrable angular singularity due to grazing collisions (\(\theta\to0\)):
-    \[ \int_0^\pi b(\cos\theta)\sin^{N-2}\theta\dd\theta = +\infty \]
+    \[ \int_0^\pi b(\cos\theta)\sin^{d-2}\theta\dd\theta = +\infty \]
     \vspace{-20pt}
     \begin{itemize}
         \item \Cite[2000]{Alexandre, Desvillettes, Villani, Wennberg}:
         \begin{gather*}
             \text{collisional} \:\longrightarrow\: \text{diffusive--collisional} \\
-            D(g,f) \eqdef -\int_{\mathbb{R}^N} Q(g,f)\log{f} \geq C_1\|\sqrt{f}\|^2_{H^\frac\nu2} - C_2\|f\|_{L^1_2}\|g\|_{L^1_2}, \\
+            D(g,f) \eqdef -\int_{\mathbb{R}^d} Q(g,f)\log{f} \geq C_1\|\sqrt{f}\|^2_{H^\frac\nu2} - C_2\|f\|_{L^1_2}\|g\|_{L^1_2}, \\
             \implies Q \sim -(-\Delta)^\frac\nu2 % fractional Laplace operator
         \end{gather*}
         \item \Cite[2004]{Desvillettes, Wennberg}: Schwartz space \(\mathscr{S}\)
-        \[ f \in L^\infty\left([t_0>0,+\infty); \mathscr{S}(\mathbb{R}^N)\right) \]
+        \[ f \in L^\infty\left([t_0>0,+\infty); \mathscr{S}(\mathbb{R}^d)\right) \]
         \item \Cite[2009]{Desvillettes, Mouhot}: uniqueness
         \[ \forall\nu\in(0,2): \quad\exists! f_t\in W_q^{1,1} \]
     \end{itemize}
@@ -243,12 +250,13 @@
         \|h_0\|<\alpha_1 \implies \|h_t\|<\alpha_2 e^{-\mu t}  \] \vspace{-10pt}
     \begin{itemize}
         \item \Cite[1964]{Grad}: local (\(t\in(0,T]\)) for hard cutoff
-        \item \Cite[1974]{Ukai}, \Cite[1975]{Maslova, Firsov}: global (\(t\in(0,+\infty)\))
+        \item \Cite[1974]{Ukai}, \Cite[1975]{Maslova, Firsov}: global (\(t\in(0,+\infty)\))\\
+            {\footnotesize М\'{а}слова Нина Борисовна (1939--1993)}
         \item \Cite[1980]{Caflisch}: extension for weak solutions (\(\gamma>-2\))
         \item \Cite[2003]{Guo}: extension for H-solutions (\(\gamma>-3\))
         \item \Cite[2008]{Strain, Guo}: exponential decay of smooth \(h\) for soft
-        \item \Cite[2011]{Gressman, Strain}: extension for non-cutoff in \(\mathbb{T}^N\)
-        \item \Cite[2011]{Alexandre, Morimoto, Ukai, Xu, Yang}: in \(\mathbb{R}^N\)
+        \item \Cite[2011]{Gressman, Strain}: extension for non-cutoff in \(\mathbb{T}^d\)
+        \item \Cite[2011]{Alexandre, Morimoto, Ukai, Xu, Yang}: in \(\mathbb{R}^d\)
         \begin{gather*}
             h_t = \OO{e^{-\lambda t}} \quad\text{for}\quad \gamma+\nu \geq0, \\
             h_t =\OO{t^{-\infty}} \quad\text{for}\quad \gamma+\nu <0.
@@ -262,12 +270,12 @@
     % macroscopic observables enjoy some smoothness properties even when the distribution function itself does not
     \begin{equation*}
         f\in L^2_{t,x,\xi}, Q\in L^2_{t,x}(H_\xi^s) \implies
-            \forall\phi\in C^\infty: \int_{\mathbb{R}^N} f\phi\in H_{t,x}^{\frac1{2(1+s)}}
+            \forall\phi\in C^\infty: \int_{\mathbb{R}^d} f\phi\in H_{t,x}^{\frac1{2(1+s)}}
     \end{equation*}
     \begin{itemize}
         \item \Cite[1984]{Agoshkov}: first compactness result \\
             {\footnotesize Агошков Валерий Иванович (р. 1946, ИВМ)}
-        \item \Cite[1985]{Golse, Perthame, Sentis}:\\compact in \(L_\mathrm{loc}^p(\mathbb{R}^N)\) for \(p\in(1,\infty)\)
+        \item \Cite[1985]{Golse, Perthame, Sentis}:\\compact in \(L_\mathrm{loc}^p(\mathbb{R}^d)\) for \(p\in(1,\infty)\)
         \item \Cite[1988]{..., Lions}: bound in some Sobolev space
         \item \Cite[1998]{Lions}: optimal Sobolev space
         \item \Cite[2002]{Golse, Saint-Raymond}: extension to \(L^1\) case
@@ -481,6 +489,14 @@
     \[ u_t + uu_x = \underbrace{\epsilon u_{xx}}_\text{viscosity}
         - \underbrace{K\epsilon^2u_{xxx}}_\text{capillarity},
         \quad \overset{?}{\underset{\epsilon\to0}{\longrightarrow}}\quad u_t + uu_x = 0  \]
+\end{frame}
+
+\begin{frame}
+    \frametitle{Заключение}
+    \begin{itemize}
+        \item Неосвещённые вопросы: распространение молекулярного хаоса, краевые задачи, \dots
+        \item За исследования разреженного газа можно получить только математическую премию.
+    \end{itemize}
 \end{frame}
 
 \end{document}

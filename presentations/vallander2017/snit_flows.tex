@@ -11,6 +11,9 @@
 \usepackage[normalem]{ulem} % for sout
 \usepackage{comment}
 
+\usepackage{tikz}
+\usepackage{pgfplots}
+
 \title{Численный анализ медленных неизотермических течений слаборазреженного газа}
 \author{Рогозин Олег Анатольевич}
 \institute{
@@ -322,6 +325,123 @@
             \includegraphics[width=\linewidth]{noncoaxial/forces-close}
         \end{figure}
     \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Электростатическая аналогия}
+    \footnotesize
+    Линейная задача:
+    \begin{equation*}
+        \pderdual[\phi]{x_i} = 0, \quad
+        e_a \eqdef \oint_{S_a} \pder[\phi]{x_i}n_i\dd{S} = C_{ab} \phi_b, \quad % В силу линейности
+        U \eqdef \int \left(\pder[\phi]{x_i}\right)^2\dd{V} = C_{ab} \phi_a \phi_b.
+    \end{equation*}
+    Вариация функционала в переменной области:
+    \begin{equation*}
+        \delta \int \Phi \dd{V} = \int \left[
+            \left( \Phi_\phi - \pder[\Phi_{\phi_i}]{x_i} \right) \delta\phi +
+            \pder{x_i}\left( \pder[\Phi_{\phi_i}]{x_i} \delta\phi \right) +
+            \pder{x_i}\left( \Phi \delta x_i \right)
+        \right]\dd{V}.
+    \end{equation*}
+    Сила, действующая на проводник \(a\)
+    \begin{equation*}
+        F^a_i \eqdef \oint_{S_a} \left(\pder[\phi]{x_j}\right)^2 n_i\dd{S} = \pder[C_{ab}]{r^a_i} \phi_a \phi_b.
+    \end{equation*}
+    Для двух тел
+    \begin{equation*}
+        e_2 = -e_1 \eqdef e = C\Delta\phi \eqdef C(\phi_2 - \phi_1) \quad\implies\quad
+        F_i = \left(\frac{\delta U}{\delta r_i}\right)_\phi = \pder[C]{r_i}(\Delta\phi)^2.
+    \end{equation*}
+    Для цилиндров и сфер:
+    \begin{equation*}
+        C_\mathrm{cyl} \propto \frac1{\theta}, \quad
+        C_\mathrm{sph} \propto  \sum_{n=1}^\infty \frac{R_1 R_2 \sinh\theta} {R_2\sinh n\theta - R_1\sinh (n-1)\theta},
+        \quad \cosh\theta = \frac{R_1^2 + R_2^2 - d^2}{2 R_1 R_2}.
+    \end{equation*}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Электростатическая аналогия}
+    \footnotesize
+    Нелинейная задача (пренебрегая вязкостью):
+    \begin{gather*}
+        \pder{x_i}\left( \Gamma_2 \pder[T]{x_i} \right) = 0, \quad
+        \pderdual{x_i}\left( p + \frac{\Gamma_7}{2}\left(\pder[T]{x_j}\right)^2 \right) =
+        \pderder{x_i}{x_j}\left( \Gamma_7\pder[T]{x_i}\pder[T]{x_j} \right), \\
+        \pder{x_i}\left.\left( p + \frac{\Gamma_7}{2}\left(\pder[T]{x_j}\right)^2 \right)n_i\right|_S =
+        \pder{x_j}\left.\left( \Gamma_7\pder[T]{x_i}\pder[T]{x_j} \right)n_i\right|_S.
+    \end{gather*}
+    Транспортные коэффициенты для степенных потенциалов:
+    \begin{equation*}\label{eq:gammas}
+        \Gamma_2 = \gamma_2 T^s, \quad \Gamma_7 = \gamma_7 T^{2s-1}.
+    \end{equation*}
+    Тогда при \(\int p\dd{V} = 0\)
+    \begin{gather*}
+        e_a \eqdef T_a^s \oint_{S_a} \pder[T]{x_i}n_i\dd{S} = C'_{ab} T_b^{1+s}, \quad \sum_a e_a = 0, \\
+        U \eqdef \int \left[ \frac{\Gamma_7}2\left(\pder[T]{x_i}\right)^2 - p \right]\dd{V} =
+        \gamma_7 \sum_a T_a^{2s} \oint_{S_a} \pder[T]{x_i}n_i\dd{S} = C_{ab} T_a^s T_b^{1+s}, \\
+        F^a_i \eqdef \oint_{S_a} \left( \frac{\Gamma_7}{2}\left(\pder[T]{x_j}\right)^2 - p \right) n_i\dd{S}, \quad
+        \alert{F_i \propto \left( T_2^s - T_1^s \right)\left( T_2^{1+s} - T_1^{1+s} \right)}. % \quad (s\neq0,-1).
+    \end{gather*}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Электростатическая аналогия}
+    \centering
+    Зависимость силы притяжения двух тел \(F\) от разности температур \(\tau=T_2-T_1\) при \(T_1=1\).
+    \begin{figure}[ht]
+        \footnotesize\centering
+        \begin{subfigure}[b]{0.49\textwidth}
+            \centering
+            \hspace{-1.4cm}
+            \begin{tikzpicture}
+                \begin{loglogaxis}[width=1.2\linewidth,
+                    xlabel=\(\tau\), ylabel=\(F\)]
+                    \addplot gnuplot [raw gnuplot, mark=none, color=blue, thick]{
+                        set logscale xy;
+                        set xrange [1e-2:1e3];
+                        plot ((x+1)**.5-1)*((x+1)**1.5-1);
+                    };
+                    \addplot gnuplot [raw gnuplot, mark=none, color=black, very thin, dashed]{
+                        set xrange [1e0:1e3];
+                        plot x**2;
+                    };
+                    \addplot gnuplot [raw gnuplot, mark=none, color=black, very thin, dashed]{
+                        set xrange [1e-2:1e+2];
+                        plot 3./4*x**2;
+                    };
+                \end{loglogaxis}
+            \end{tikzpicture}
+            \caption{газ твёрдых сфер (\(s=1/2\)).
+                \(\frac34\tau^2\),~\(\tau\to0\) и \(\tau^2\),~\(\tau\to\infty\)}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.49\textwidth}
+            \centering
+            \begin{tikzpicture}
+                \begin{loglogaxis}[width=1.2\linewidth,
+                    xlabel=\(\tau\), ylabel=\(F\)]
+                    \addplot gnuplot [raw gnuplot, mark=none, color=blue, thick]{
+                        set logscale xy;
+                        set xrange [1e-2:1e3];
+                        plot ((x+1)**1-1)*((x+1)**2-1);
+                    };
+                    \addplot gnuplot [raw gnuplot, mark=none, color=black, very thin, dashed]{
+                        set samples 2;
+                        set xrange [1e0:1e3];
+                        plot x**3;
+                    };
+                    \addplot gnuplot [raw gnuplot, mark=none, color=black, very thin, dashed]{
+                        set samples 2;
+                        set xrange [1e-2:1e+1];
+                        plot 2*x**2;
+                    };
+                \end{loglogaxis}
+            \end{tikzpicture}
+            \caption{максвелловский газ (\(s=1\)).
+                \(2\tau^2\),~\(\tau\to0\) и \(\tau^3\),~\(\tau\to\infty\)}
+        \end{subfigure}
+    \end{figure}
 \end{frame}
 
 \section{Течение между эллиптическими цилиндрами}
