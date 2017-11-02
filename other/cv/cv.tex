@@ -13,10 +13,11 @@
 \firstname{Oleg}
 \familyname{Rogozin}
 \title{}
-\address{Ul. Raspletina 21, kv. 176}{123060 \Moscow, Russia}
+%\address{ul. Raspletina 21, kv. 176}{123060 \Moscow, Russia}
 \mobile{+7~(916)~660~09~52}
 %\email{o.a.rogozin@gmail.com}
-\email{oleg.rogozin@phystech.edu}
+\renewcommand{\emaillink}[1]{#1}
+\email{o.rogozin@skoltech.ru\makenewline\emailsymbol{}oleg.rogozin@phystech.edu}
 \extrainfo{17 November 1987}
 \photo[64pt][0.4pt]{photo}
 
@@ -44,12 +45,29 @@
     eprint=true,
     doi=true,
     pagetracker,
+    defernumbers=true,
     firstinits]{biblatex}
-\bibliography{cv}
+\bibliography{main, other}
 
+\DeclareSourcemap{
+  \maps[datatype=bibtex, overwrite]{
+    \map{
+      \perdatasource{main.bib}
+      \step[fieldset=keywords, fieldvalue=primary, append]
+    }
+    \map{
+      \perdatasource{other.bib}
+      \step[fieldset=keywords, fieldvalue=secondary, append]
+    }
+  }
+}
+
+\newcommand{\Skoltech}{Skolkovo Institute of Science and Technology}
 \newcommand{\Mipt}{Moscow Institute of Physics and Technology}
 \newcommand{\Kurchatov}{National Research Centre "Kurchatov Institute"}
 \newcommand{\Fic}{Federal Research Center "Computer Science and Control" of Russian Academy of Sciences}
+\newcommand{\Atom}{Atomstroi}
+\newcommand{\Stal}{Elektrostal}
 \newcommand{\Dolgopa}{Dolgoprudny}
 \newcommand{\Moscow}{Moscow}
 
@@ -59,21 +77,34 @@
 \section{Experience}
 
 \subsection{Research}
-\cventry{2017--now}{Postdoctoral Research}{\Fic}{\Moscow}{}{
+\cventry{2017--now}{Postdoctoral Research}{\Skoltech}{\Moscow}{}{
 \begin{itemize}
-    \item Numerical methods and algorithms for fluid-kinetic coupling
-    \item Hybrid schemes for the lattice-Boltzmann and discrete-velocity methods
+    \item Multiscale modeling and simulation of physical processes of selective laser melting
+        using parallel adaptive wavelet-based numerical methodologies
 \end{itemize}
 }
-\cventry{2009--2015}{Doctoral Research}{\Mipt}{\Dolgopa}{}{
-    \begin{itemize}
-    \item Development of the problem solving environment for high performance computing
-    \item Computer simulation of the kinetic and fluid-dynamic-type equations
-    \item Design and implementation of numerical methods for molecular gas dynamics
-    \end{itemize}
+\cventry{2017--now}{Postdoctoral Research}{\Fic}{\Moscow}{}{
+\begin{itemize}
+    \item Simulation of hypervelocity flows on the basis of the Boltzmann equation
+    \item Numerical methods and algorithms for fluid-kinetic coupling
+\end{itemize}
+}
+\cventry{2015--2017}{Doctoral Research}{\Atom}{\Stal}{}{
+\begin{itemize}
+    \item Numerical and asymptotic analysis of rarefied gas flows driven by large temperature variations
+    \item High-accuracy solutions of the nonlinear Couette-flow problem on the basis of the Boltzmann equation
+    \item Extension of the conservative projection discrete-velocity method of evaluation for nonuniform velocity lattices
+\end{itemize}
+}
+\cventry{2009--2014}{Doctoral Research}{\Mipt}{\Dolgopa}{}{
+\begin{itemize}
+    \item Design and development of the problem solving environment for high-performance computing
+    \item Development of numerical methods and algorithms for kinetic and fluid-dynamic-type equations
+    \item Computer simulation of the some classical problems of molecular gas dynamics
+\end{itemize}
 }
 
-\subsection{Vocational}
+\subsection{Industrial}
 \cventry{2013--2015}{Software Developer}{iBinom}{\Moscow}{}{
 \begin{itemize}
     \item Server-side development based on NodeJS and Amazon Web Services
@@ -138,20 +169,20 @@ Numerical and asymptotic analysis of some classical problems of molecular gas dy
 \section{Interests}
 \cvitem{Sport}{Cross-country skiing, triathlon}
 
-\section{Invited speaker at}
+\section{Invited speaker}
 \begin{itemize}
     \item 2nd International Workshop on Aerodynamics in Various Flow Regimes
 \end{itemize}
 
-\section{Reviewer at}
+\section{Reviewer}
 \begin{itemize}
     \item Physics of Fluids
     \item Science Bulletin
 \end{itemize}
 
-\newpage
-\renewcommand{\refname}{Publications}
+%\newpage
 \nocite{*}
-\printbibliography
+\printbibliography[title=Main Publications, keyword=primary, resetnumbers=true]
+\printbibliography[title=Other Publications, keyword=secondary, resetnumbers=true]
 
 \end{document}

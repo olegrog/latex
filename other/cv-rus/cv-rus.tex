@@ -16,7 +16,7 @@
 \firstname{Олег}
 \familyname{Рогозин}
 \title{}
-\address{ул. Расплетина, д. 21, кв. 176}{123060 Москва, Россия}
+%\address{ул. Расплетина, д. 21, кв. 176}{123060 Москва, Россия}
 \mobile{+7~(916)~660~09~52}
 \email{oleg.rogozin@phystech.edu}
 \extrainfo{17 ноября 1987}
@@ -40,11 +40,27 @@
     url=false,
     eprint=false,
     pagetracker,
+    defernumbers=true,
     firstinits]{biblatex}
-\bibliography{cv-rus}
+\bibliography{main, other}
 
+\DeclareSourcemap{
+  \maps[datatype=bibtex, overwrite]{
+    \map{
+      \perdatasource{main.bib}
+      \step[fieldset=keywords, fieldvalue=primary, append]
+    }
+    \map{
+      \perdatasource{other.bib}
+      \step[fieldset=keywords, fieldvalue=secondary, append]
+    }
+  }
+}
+
+\newcommand{\Skoltech}{Сколковский институт науки и технологий}
 \newcommand{\Mipt}{Московский физико-технический институт}
 \newcommand{\Kurchatov}{Hациональный исследовательский центр <<Курчатовский Институт>>}
+\newcommand{\Fic}{Федеральный исследовательский центр <<Информатика и управление>> Российской академии наук}
 \newcommand{\Dolgopa}{Долгопрудный}
 \newcommand{\Moscow}{Москва}
 
@@ -54,16 +70,28 @@
 \section{Опыт}
 
 \subsection{Исследовательский}
-\cventry{2009--2016}{Диссертационное исследование}{\Mipt}{\Dolgopa}{}{
-    \begin{itemize}
+\cventry{2017--н.в.}{Научное исследование}{\Skoltech}{\Moscow}{}{
+\begin{itemize}
+    \item Многомасштабное моделирование и симуляция физических процессов селективного лазерного плавления
+        с использованием адаптивных численных методов на основе вейвлетного преобразования для многопроцессорных систем.
+\end{itemize}
+}
+\cventry{2017--н.в.}{Научное исследование}{\Fic}{\Moscow}{}{
+\begin{itemize}
+    \item Численные алгоритмы континуально-кинетического сращивания для решётчатых уравнений Больцмана
+        и методов дискретных скоростей
+\end{itemize}
+}
+\cventry{2009--2015}{Диссертационное исследование}{\Mipt}{\Dolgopa}{}{
+\begin{itemize}
     \item Разработка проблемно-моделирующей среды для высокопроизводительных вычислений
     \item Развитие и реализация численных методов для молекулярной газовой динамики
     \item Численный анализ на основе кинетических и гидродинамических уравнений
-    \end{itemize}
+\end{itemize}
 }
 
-\subsection{Профессиональный}
-\cventry{2013--сейчас}{Инженер-программист}{ООО <<Атомстрой>>}{\Moscow}{}{
+\subsection{Индустриальный}
+\cventry{2013--2017}{Инженер-программист}{ООО <<Атомстрой>>}{\Moscow}{}{
 \begin{itemize}
     \item Поддержка и обслуживание программного обеспечения
 \end{itemize}
@@ -127,8 +155,8 @@
 \cvitem{Параллельные технологии}{MPI, OpenMP, Hadoop}
 \cvitem{Сети}{Ethernet, InfiniBand}
 
-\renewcommand{\refname}{Публикации}
 \nocite{*}
-\printbibliography
+\printbibliography[title=Основные публикации, keyword=primary, resetnumbers=true]
+\printbibliography[title=Другие публикации, keyword=secondary, resetnumbers=true]
 
 \end{document}
