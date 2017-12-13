@@ -1,0 +1,128 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{fullpage}
+
+\title{\texttt{user\_case} functions}
+\date{\today}
+\author{Oleg Rogozin, Oleg Vasilyev}
+
+%%% General commands
+\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\dder}[2][]{\frac{\delta#1}{\delta#2}}
+\newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
+%\newcommand{\pder}[2][]{\partial_{#2}{#1}}
+%\newcommand{\pderdual}[2][]{\Delta{#1}}
+\newcommand{\LL}{\mathcal{L}}
+\newcommand{\FF}{\mathcal{F}}
+\newcommand{\bx}{\mathbf x}
+\newcommand{\diag}{^\mathrm{diag}}
+\newcommand{\pert}[1]{\delta#1}
+\newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
+\newcommand{\eqdef}{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\tiny\sffamily def}}}{=}}}
+
+%%% Special commands
+\newcommand{\matr}[4]{\begin{pmatrix} #1 & #2\\#3 & #4\end{pmatrix}}
+\newcommand{\vect}[2]{\begin{pmatrix} #1\\#2\end{pmatrix}}
+\newcommand{\func}[4]{\texttt{user\_#1\(_{#3}\)(\(#2\))}\(\eqdef\displaystyle#4\)}
+
+\theoremstyle{definition}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+\newtheorem{exercise}{Exercise}
+
+\begin{document}
+
+\maketitle
+
+Consider a Cauchy problem for the set of equations:
+\begin{equation}\label{eq:problem}
+    \pder[u_i]{t} = \FF_i, \quad
+    u_i(t,\bx): \mathbb{R}_+\times\mathbb{R}^d\mapsto\mathbb{R}^N \quad (i=1,\dots,N),
+\end{equation}
+where \(\Set{\FF_i}{i=1,\dots,N}\) is the set of differential operators (nonlinear in general).
+\(\FF_i\) is called the \emph{RHS} (\emph{right hand side}).
+\(\pert{\FF_i}\) is the \emph{perturbation} of the RHS.
+\begin{example}
+Perturbation can be expressed in terms of functional derivative:
+\begin{itemize}
+    \item if \(\FF_i\) is linear, i.e., \(\FF_i = \LL_{ij}u_j\), then
+        \(\pert{\FF_i} = \LL_{ij}\pert{u}_j\);
+    \item if \(\FF_i = \LL_{ij}(u_k)u_j\), then
+        \(\pert{\FF_i} = \left( \pder[\LL_{ik}]{u_j}u_k + \LL_{ij} \right)\pert{u}_j\);
+    \item if \(\FF = \FF(u, \pder[u]{\bx})\), then
+        \(\pert{\FF} = \pert{u}\left(\pder[\FF]{u} - \pder{\bx}\pder[\FF]{\pder[u]{\bx}}\right)\).
+\end{itemize}
+\end{example}
+Next, with a help of superscript indexes, we introduce a matrix representation
+\begin{equation}\label{eq:matrix_representation}
+       \FF_i(\bx^n) = A_{ij}^{nm}u_j(\bx^m)
+\end{equation}
+based on the discretization of \(\bx\) space with the set of points \(\Set{\bx^n}{n\in\mathbb{Z}^d}\).
+Then, for the variable \(u_i\) at the point \(\bx^n\),
+\begin{equation}\label{eq:diagonal_term}
+     \FF_i\diag(\bx^n) \eqdef \left( A_{ij}^{nm} \right)_{j=i}^{m=n}
+\end{equation}
+is the \emph{diagonal term} of the discrete operator.
+
+In general, we need to calculate the following functions:
+\begin{itemize}
+    \item \func{rhs}{u_j}{i}{ \FF_i(u_j, \nabla{u_j}) },
+    \item \func{Drhs}{\pert{u_j},u_k}{i}{ \pert{\FF_i} },
+    \item \func{Drhs\_diag}{u_k}{i}{ \left( \dder[\FF_i]{u_j} \right)_{j=i}\diag},
+\end{itemize}
+where \(\nabla{u_i}\) corresponds to the arbitrary derivatives of \(u_i\).
+\begin{example}
+    For \(\FF = u\), they are \[ 
+        u, \quad \pert{u}, \quad 1.
+    \]
+\end{example}
+\begin{example}
+    For \(\FF = \pderdual[u]{x_i}\), they are \[ 
+        \pderdual[u]{x_i}, \quad \pderdual[\pert{u}]{x_i}, \quad \left( \pderdual{x_i} \right)\diag.
+    \]
+\end{example}
+\begin{example}
+    For \(\FF = u\pder[u]{x}\), they are \[ 
+        u\pder[u]{x}, \quad \pert{u}\pder[u]{x} + u\pder[\pert{u}]{x},
+        \quad \pder[u]{x} + u \left( \pder{x}\right)\diag.
+    \]
+\end{example}
+\begin{example}
+    For \(\FF = \frac12\pder[u^2]{x}\), they are \[ 
+        \frac12\pder[u^2]{x}, \quad \pder[u\pert{u}]{x}, \quad u\left(\pder{x}\right)\diag.
+    \]
+\end{example}
+\begin{remark}
+    When we calculate diagonal term of the perturbation,
+    differential operators should be considered as matrix operations.
+    For example, \(\left(\pder{x}\right)\diag f(u) = f(u)\left(\pder{x}\right)\diag\).
+\end{remark}
+\begin{example}
+    For \(\FF = \frac12\left(\pder[u]{x}\right)^2\), they are \[ 
+        \frac12\left(\pder[u]{x}\right)^2, \quad \pder[u]{x}\pder[\pert{u}]{x},
+        \quad \pder[u]{x}\left(\pder{x}\right)\diag.
+    \]
+\end{example}
+\begin{example}
+    For \(\FF_i = \matr1102\vect{u_1}{u_2}\), they are \[
+        \vect{u_1+u_2}{2u_2}, \quad
+        \vect{\pert{u_1}+\pert{u_2}}{2\pert{u_2}}, \quad
+        \vect{1}{2}.
+    \]
+\end{example}
+
+\begin{exercise}
+    Calculate the desired functions for \[
+        \pder[u]{t} = u\left(\pder[u]{x} + \pder[v]{x}\right), \quad
+        \pder[v]{t} = \pder{x}(vu) + \nu\left(\pderdual[u]{x}+\pderdual[v]{y}\right).
+    \] 
+\end{exercise}
+
+\begin{exercise}
+    Calculate the desired functions for \[
+        \pder[u]{t} = \left(\pder[u^2]{x} + \pder[uv]{y}\right), \quad
+        \pder[v]{t} = \pder{x}(uv) + v \pder[v]{y} + \nu\left(\pderdual[u]{x}+\pderdual[v]{y}\right).
+    \] 
+\end{exercise}
+\end{document}
