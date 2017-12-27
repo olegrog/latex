@@ -21,7 +21,9 @@ parser.add_argument('-m2', '--model2', default='dvm', metavar='dvm|lbm', help='t
 parser.add_argument('-l', '--lattice', default='d3q19', metavar='d3q15|19|27', help='type of velocity lattice')
 parser.add_argument('-i', '--limiter', default='mc', metavar='none|minmod|mc|superbee', help='type of limiter')
 parser.add_argument('-c', '--correction', default='poly', metavar='none|poly|entropy|lagrange', help='type of correction for construction of discrete Maxwellian')
+parser.add_argument('-n', '--norm', default='L2', metavar='L1|L2|Linf', help='norm for distance between solutions')
 parser.add_argument('-p', '--plot', type=int, default=10, metavar='<int>', help='plot every <int> steps')
+parser.add_argument('--plot-norms', action='store_true', help='plot profiles of the norms instead')
 parser.add_argument('-t', '--tests', action='store_true', help='run some tests instead')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
 args = parser.parse_args()
@@ -201,22 +203,35 @@ def plot_profiles(solution):
     plt.clf()
     y, h, m = calc_macro(solution)
     U, factor = args.U, 40
-    Y, Vel, Tau = np.loadtxt('k1e-1.txt').T
-    plt.plot(Y, Vel, 'rD--', Y, -2*Tau, 'gD--')                 # k = 0.1
-    Y, Vel, Vel2, Tau, Qflow = np.loadtxt('k1e-1-my.txt').T
-    plt.plot(Y, factor*Qflow, 'b--')
-    #Y, Vel, Tau = np.loadtxt('k1e-0.txt').T
-    #plt.plot(Y, Vel, 'rs--', Y, -2*Tau, 'gs--')                 # k = 1
-    #plt.plot(Y, Y, 'r-.')                                       # k = 0
-    #plt.plot(Y, 0*Y + np.pi**-.5, 'g-.')                        # k = \infty
-    plt.plot(y, m.vel[:,0]/U, 'r*-', label='velocity/U')
-    plt.plot(y, -m.tau[:,2]/U, 'g*-', label='share stress/U')
-    plt.plot(y, -factor*m.qflow[:,0]/U, 'b*-', label='%d*heat flow/U' % factor)
-    legend = plt.legend(loc='upper center')
     plt.title(domains[0].model.info, loc='left')
     plt.title(domains[1].model.info, loc='right')
-    plt.title('Kn = %g' % args.kn)
+    plt.title('Kn = %g, U = %g' % (args.kn, args.U))
     plt.axvline(x=domains[1].y0, color='k')
+    if args.plot_norms:
+        for name in norms.keys():
+            y, norm = calc_norm(solution, name)
+            plt.plot(y, norm, '*-', label=name)
+        plt.plot(y, -m.qflow[:,0], 'b*-', label='heat flow')
+        plt.semilogy()
+        plt.legend()
+    else:
+        Y, Vel, Tau = np.loadtxt('k1e-1.txt').T
+        plt.plot(Y, Vel, 'rD--', Y, -2*Tau, 'gD--')                 # k = 0.1
+        Y, Vel, Vel2, Tau, Qflow = np.loadtxt('k1e-1-my.txt').T
+        plt.plot(Y, factor*Qflow, 'b--')
+        #Y, Vel, Tau = np.loadtxt('k1e-0.txt').T
+        #plt.plot(Y, Vel, 'rs--', Y, -2*Tau, 'gs--')                 # k = 1
+        #plt.plot(Y, Y, 'r-.')                                       # k = 0
+        #plt.plot(Y, 0*Y + np.pi**-.5, 'g-.')                        # k = \infty
+        plt.plot(y, m.vel[:,0]/U, 'r*-', label='velocity/U')
+        plt.plot(y, -m.tau[:,2]/U, 'g*-', label='share stress/U')
+        plt.plot(y, -factor*m.qflow[:,0]/U, 'b*-', label='%d*heat flow/U' % factor)
+        y, norm = calc_norm(solution, args.norm)
+        factor = -int(factor*m.qflow[-1,0]/U/norm[-1])
+        plt.plot(y, norm*factor, 'k*-', label='%g*%s' % (factor, args.norm))
+        legend = plt.legend(loc='upper center')
+    plt.xlim(0, .5)
+    plt.grid()
     plt.show()
     plt.pause(1e-3)
 
@@ -235,6 +250,11 @@ def calc_macro0(model, F):
     tau = np.einsum('ai,ail->al', f, cc)
     return Macro(*[ m[_from_arr(F)] for m in (rho, vel, temp, tau, qflow) ])
 
+def calc_moment0(model, F, n):
+    f = _to_arr(F)
+    xi = np.sqrt(np.einsum('il,il->i', model.xi(), model.xi()))
+    return np.einsum('ai,i->a', f, xi**n)
+
 def reconstruct(old_model, new_model, f):
     macro = calc_macro0(old_model, f)
     return new_model.Grad13(macro)
@@ -249,6 +269,24 @@ def calc_macro(solution):
     s = lambda m: np.hstack(m)
     v = lambda m: np.vstack(m)
     return s(y), s(h), Macro(s(rho), v(vel), s(temp), v(tau), v(qflow))
+
+def calc_norm(solution, norm):
+    y, result = [], []
+    for d, s in zip(domains, solution):
+        y += [ cells(d) ]
+        macro = calc_macro0(d.model, s.f)
+        maxw, grad13 = d.model.Maxw(macro), d.model.Grad13(macro)
+        result += [ norms[norm](s.f, grad13)/norms[norm](s.f, 0) ]
+    s = lambda m: np.hstack(m)
+    return s(y), s(result)
+
+def calc_moment(solution, n):
+    y, result = [], []
+    for d, s in zip(domains, solution):
+        y += [ cells(d) ]
+        result += [ calc_moment0(d.model, s.f, n) ]
+    s = lambda m: np.hstack(m)
+    return s(y), s(result)
 
 def total_values(domains):
     y, h, macro = calc_macro(domains)
@@ -529,7 +567,7 @@ def tests():
     macro = Macro(rho, vel, temp, qflow=qflow)
     for name, model in models.iteritems():
         print '-- %s model:' % name
-        check_macro(model, model.Grad13( macro), macro)
+        check_macro(model, model.Grad13(macro), macro)
 
 Macro = namedtuple('Macro', 'rho vel temp tau qflow')
 Macro.__new__.__defaults__ = (1., zeros, 1., zeros, zeros)
@@ -573,6 +611,11 @@ boundaries = (
     [ ( Couple, { 'n_partner': 0, 'idx_partner': -1 }), ( Diffuse, {}) ]
 )
 bcs = create_bcs()
+norms = {
+    'L1': lambda f,g: np.einsum('ai->a', np.abs(f-g))/f[0].size,
+    'L2': lambda f,g: np.sqrt(np.einsum('ai->a', (f-g)**2)/f[0].size),
+    'Linf': lambda f,g: np.max(np.abs(f-g), axis=1)
+}
 
 class Solution(object):
     def __init__(self, domain, initial):
