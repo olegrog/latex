@@ -3,7 +3,6 @@ import sys, argparse, threading, logging, traceback
 import numpy as np
 from functools import partial
 from collections import namedtuple
-import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description='Solver for the plane Couette-flow problem')
 parser.add_argument('-U', type=float, default=2e-2, metavar='<float>', help='difference in velocity of plates')
@@ -27,6 +26,9 @@ parser.add_argument('--plot-norms', action='store_true', help='plot profiles of 
 parser.add_argument('-t', '--tests', action='store_true', help='run some tests instead')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
 args = parser.parse_args()
+
+if args.plot:
+    import matplotlib.pyplot as plt
 
 log_level = logging.DEBUG if args.verbose else logging.INFO
 logging.basicConfig(level=log_level, format='(%(threadName)-10s) %(message)s')
@@ -509,15 +511,16 @@ def solve_bgk():
     y, h, m0 = calc_macro(solution)
     delta_t = min(h)/args.radius/args.step
     total_values(solution)
-    plt.ion()
-    plot_profiles(solution)
+    if args.plot:
+        plt.ion()
+        plot_profiles(solution)
     for i in xrange(args.end):
         # Symmetry second-order splitting
         run_threads(solution, transport, delta_t)
         run_threads(solution, bgk, 2*delta_t)
         run_threads(solution, transport, delta_t)
         [ check(s.f) for s in solution ]
-        if not i % args.plot:
+        if args.plot and not i % args.plot:
             y, h, m = calc_macro(solution)
             rho_disp, pxy_mean = sum(h*(m.rho-m0.rho)**2), np.sum(h*m.tau[:,2])
             pxy_disp = sum(h*(m.tau[:,2]-pxy_mean)**2)
@@ -531,7 +534,8 @@ def solve_bgk():
         header='%10s'*len(names) % tuple(names))
     #splot(domains[-1].model, solution[-1].f[-1])
     #splot(domains[0].model, solution[0].f[0])
-    plt.ioff(); plt.show()
+    if args.plot:
+        plt.ioff(); plt.show()
 
 def tests():
     def is_almost_equal(a, b):
