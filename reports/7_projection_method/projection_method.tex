@@ -206,7 +206,7 @@
 Имеющийся произвол в определении операторов \(\Phi^{(n)}_{\alpha\beta\gamma}(\bomega)\) и \(\Psi^{(n)}_{\alpha\beta\gamma}(\bomega)\)
 может быть использован для построения консервативной численной схемы.
 Для этого достаточно использовать линейные формы вида
-\begin{equation}\label{conservative_scheme}
+\begin{equation}\label{eq:conservative_scheme}
     \Phi^{(n)}_{\alpha\beta\gamma} = \sum_{i=1}^N r_{\lambda^{(n)}_i} \delta_{\lambda^{(n)}_i\gamma}, \quad
     \Psi^{(n)}_{\alpha\beta\gamma} = \sum_{i=1}^N r_{\mu^{(n)}_i} \delta_{\mu^{(n)}_i\gamma},
 \end{equation}
@@ -215,13 +215,13 @@
 а коэффициенты \(r_{\lambda^{(n)}_i}\) и \(r_{\mu^{(n)}_i}\) выбираются так, чтобы сумма в~\eqref{eq:L2n_Boltzmann_sum}
 не изменяла столкновительные инварианты для любых \(\gamma\).
 Такая же форма для логарифмов \(F^{(n)}_{\alpha\beta}\) и \(G^{(n)}_{\alpha\beta}\),
-\begin{equation}\label{htheorem_scheme}
+\begin{equation}\label{eq:htheorem_scheme}
     \ln F^{(n)}_{\alpha\beta} = \sum_{i=1}^N r_{\lambda^{(n)}_i} \ln f^{(n)}_{\lambda^{(n)}_i}, \quad
     \ln G^{(n)}_{\alpha\beta} = \sum_{i=1}^N r_{\mu^{(n)}_i} \ln f^{(n)}_{\mu^{(n)}_i},
 \end{equation}
 обеспечивает справедливость дискретного аналога H-теоремы.
 Наконец, в качестве \(B^{(n)}_{\alpha\beta}\) может быть выбрана проекция на \(L^2_n(\mathbb{R}^6)\), т.\,е.
-\begin{equation}\label{B_projection}
+\begin{equation}\label{eq:B_projection}
     B^{(n)}_{\alpha\beta}(\bomega) = \int_{\mathbb{R}^3\times\mathbb{R}^3} B(\bzeta,\bzeta_*,\bomega)
         \delta^{(n)}_\alpha(\bzeta) \delta^{(n)}_\beta(\bzeta_*) \dzeta\dzeta_*.
 \end{equation}
@@ -256,13 +256,13 @@
         B_{\alpha\beta}(\bomega).
 \end{multline}
 В отличие от пространства \(L^2_n\) разложение~\eqref{eq:deltas_expansion} содержит дискретный набор значений \(\phi(\bzeta_\gamma)\),
-а не функционалы от \(\phi(\bzeta)\). Таким образом, по сравнению с~\eqref{B_projection} вычисление \(B_{\alpha\beta}\)
+а не функционалы от \(\phi(\bzeta)\). Таким образом, по сравнению с~\eqref{eq:B_projection} вычисление \(B_{\alpha\beta}\)
 не требует интегрирования:
 \begin{equation}\label{B_exact}
     B_{\alpha\beta}(\bomega) = B(\bzeta_\alpha,\bzeta_\beta,\bomega).
 \end{equation}
 Существенно упрощается частный вид предельных (с точки зрения последовательности \(\{L^2_n\}\))
-аппроксимаций~\eqref{eq:Phi_abc}--\eqref{eq:G_ab} при~\eqref{conservative_scheme} и~\eqref{htheorem_scheme}:
+аппроксимаций~\eqref{eq:Phi_abc}--\eqref{eq:G_ab} при~\eqref{eq:conservative_scheme} и~\eqref{eq:htheorem_scheme}:
 \begin{gather}
     \delta(\bzeta'-\bzeta_\gamma) = \sum_{i=1}^N r_{\lambda_i} \delta(\bzeta_{\lambda_i}-\bzeta_\gamma), \quad
     \delta(\bzeta'_*-\bzeta_\gamma) = \sum_{i=1}^N r_{\mu_i}\delta(\bzeta_{\mu_i}-\bzeta_\gamma), \label{eq:deltas_conservative}\\
