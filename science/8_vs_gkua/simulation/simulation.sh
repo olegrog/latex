@@ -4,7 +4,7 @@ num=4
 
 ./param.py $num
 
-proj=$(ls *.geo | sed 's/\..*//')
+proj=$(ls *.geo | head -1 | sed 's/\..*//' | sed 's/-.*//')
 cases=$(ls | grep '^[0-9]')
 dir=$(pwd)
 
@@ -12,12 +12,19 @@ if test $# -gt 0; then
     cases=$@
 fi
 
+attach_velocity_grid() {
+    mv $proj.kei $proj.kei~
+    ../../../tools/attach_vs.py $proj.kei~ $proj.kei
+    rm $proj.kei~
+}
+
 for c in $cases; do
     cd "$dir/$c"
     [ -f log.kes ] && continue
     [ -f log.kes~ ] && continue
     date
     echo "Simulate for $c..."
+    attach_velocity_grid
     if test -f ../m$c.txt; then
         mkdir result
         cp ../m$c.txt result/m0.txt
@@ -35,6 +42,9 @@ for c in $cases; do
     time mpirun -np $num ../../../src/kes-mpi $proj.kei > log.kes 2>&1
     #echo "$c is done" | mail -s 'Amazon EC2' o.a.rogozin@gmail.com
 done
+
+wait
+cd $dir && ./retrieve.sh
 
 exit 0
 

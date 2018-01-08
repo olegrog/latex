@@ -2,7 +2,7 @@
 
 proj=$(ls *.geo | head -1 | sed 's/\..*//')
 
-cases=$(ls | grep '^[0-9]' | sort -n)
+cases="$(ls | grep '^[0-9]' | sort -n) $(ls | grep '.*_[0-9]' | sort -n)"
 if test $# -gt 0; then
     cases=$@
 fi
@@ -21,4 +21,4 @@ for d in $cases; do
     )
 done
 
-make -j8 && open pics/*.pdf
+#make -j8 && open pics/*.pdf

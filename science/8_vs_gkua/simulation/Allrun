@@ -18,22 +18,38 @@ run_app() {
     fi
 }
 
-integrate_patch() {
-    local macro=$1
-    local patch=$2
-    run_app patchIntegrate $macro $patch
-    grep 'over area' log.patchIntegrate.$macro.$patch | awk '{ print $11 }' | egrep -o '[0-9\.e\-]+' | awk '{ print $1*'$kn' }' > patch-$macro-$patch.txt
+change_field() {
+    file=$1
+    bc=$2
+    old=$file.old
+    mv $file $old
+    awk '
+BEGIN {
+    type=0
+}
+{
+    if ($1 == "outer" || $1 == "inner") type=1;
+    if ($1 == "type" && type) {
+        print "        type            '$bc';";
+        type = 0;
+    } else print;
+}' $old > $file
 }
 
 echo "Running out2foam.py"
-$HOME/kesolver/tools/out2foam.py $proj
+$HOME/kesolver/tools/out2foam.py $proj --kn=$kn
+cat ../controlDict >> system/controlDict
 
 run_app correctBC
 run_app calcPressure
 run_app emptyFoam
 
-run_app correctBC -latestTime
-run_app foamToVTK -latestTime
+#last=$(foamListTimes | tail -1)
+#change_field $last/TMean extrapolatedGradient
+#change_field $last/UMean extrapolatedSlipGradient #slip
+#run_app correctBC -latestTime
+#run_app foamToVTK -latestTime
+#run_app foamToTecplot360 -latestTime
 
 echo ok
 

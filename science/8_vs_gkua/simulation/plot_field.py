@@ -5,7 +5,6 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import tri, cm, pyplot as plt
 from matplotlib.patches import Circle
-from datetime import datetime
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from vtk.util.numpy_support import vtk_to_numpy
 from scipy.interpolate import griddata
@@ -25,10 +24,9 @@ parser = argparse.ArgumentParser(description='2D contour plots of scalar and vec
 parser.add_argument('vtkfile', help='an input VTK file')
 parser.add_argument('pdffile', help='an output PDF file')
 parser.add_argument('field', help='a name of the VTK field')
-parser.add_argument('--latex', default='\\frac{v_i}{k}', metavar='latex', help='a LaTeX formula of the field')
+parser.add_argument('--latex', default='\\mathrm{Ma}', metavar='latex', help='a LaTeX formula of the field')
 parser.add_argument('--factor', default='1', metavar='expression', help='a multiplier for the field')
 parser.add_argument('--refine', type=int, default='2', metavar='value', help='each triangle is divided into 4**n child triangles')
-parser.add_argument('--kn', type=float, default=1, metavar='value', help='a Knudsen number for transform (x,y)-coords')
 parser.add_argument('--lmax', type=float, default=1e6, metavar='value', help='maximum contour level')
 parser.add_argument('--lsteps-max', type=int, default=10, metavar='value', help='maximum number of contour levels')
 parser.add_argument('--lpow', type=float, default=1, metavar='value', help='a power for the levels arrangement')
@@ -36,6 +34,9 @@ parser.add_argument('--lrad', type=float, default=0.1, metavar='value', help='ra
 parser.add_argument('--lcmax', type=vec, default='0,0', metavar='vector', help='coordinates of maximum')
 parser.add_argument('--lcmin', type=vec, default='0,0', metavar='vector', help='coordinates of minimum')
 parser.add_argument('--show', action='store_true', help='if label points are shown')
+parser.add_argument('--draw-mesh', action='store_true', help='if mesh is drawn')
+parser.add_argument('--white-clab', action='store_true', help='if clabels is placed in the white box')
+parser.add_argument('--export-dat', action='store_true', help='export to Tecplot dat-file instead of plotting')
 args = parser.parse_args()
 grayscale = False
 
@@ -54,7 +55,7 @@ def get_triangles(reader):
 
 def get_points(reader):
     vtk_array = reader.GetOutput().GetPoints().GetData()
-    numpy_array = vtk_to_numpy(vtk_array) * args.kn
+    numpy_array = vtk_to_numpy(vtk_array)
     return numpy_array[:,0], numpy_array[:,1], numpy_array[:,2]
 
 def get_levels(maxU):
@@ -105,7 +106,7 @@ reader.Update()
 
 ### Create a plane cut with triangulation
 plane = vtk.vtkPlane()
-plane.SetOrigin(reader.GetOutput().GetCenter())
+plane.SetOrigin(0, 0, 1e-13) 
 plane.SetNormal(0, 0, 1)
 planeCut = vtk.vtkCutter()
 planeCut.SetInputConnection(reader.GetOutputPort())
@@ -128,7 +129,9 @@ print '%s: max(magU) = %g, lmin = %g, lmax = %g, lsteps = %g' % \
 
 ### Refine triangulation and data
 refiner = tri.UniformTriRefiner(triang)
-refi_triang, refi_magU = refiner.refine_field(magU, subdiv=args.refine)
+# default kind='min_E' does not work for bad quality triangles
+tri_interp = tri.CubicTriInterpolator(triang, magU, kind='geom')
+refi_triang, refi_magU = refiner.refine_field(magU, subdiv=args.refine, triinterpolator=tri_interp)
 
 ### Calculate label positions along a line from min to max
 xmin, xmax = min(X), max(X)
@@ -142,10 +145,10 @@ lsteps_ = int(max(refi_magU[area_max])/lmax*lsteps)
 lx = Xmin + np.sign(Xmax-Xmin)*np.linspace(0, abs(Xmax-Xmin)**(1./args.lpow), 1 + lsteps_)**args.lpow
 ly = Ymin + np.sign(Ymax-Ymin)*np.linspace(0, abs(Ymax-Ymin)**(1./args.lpow), 1 + lsteps_)**args.lpow
 if args.show:
-    plt.plot(lx, ly, '*', zorder=100)
+    plt.plot(lx, ly, '*', ms=3, zorder=100)
 lx, ly = (lx[1:] + lx[:-1])/2, (ly[1:] + ly[:-1])/2
 if args.show:
-    plt.plot(lx, ly, 'D', zorder=100)
+    plt.plot(lx, ly, 'D', ms=3, zorder=100)
 labelpos = tuple(map(tuple, np.vstack((lx,ly)).T))
 linewidth, fontsize = .5, 6
 
@@ -160,6 +163,10 @@ else:
 ### Plot black contours with labels
 levels = np.linspace(lmin, lmax, 1 + lsteps)
 CS = plt.tricontour(refi_triang, refi_magU, levels=levels, colors='k', linewidths=.3)
+if args.draw_mesh:
+    plt.triplot(refi_triang, lw=0.05, color='gray')
+    plt.triplot(triang, lw=0.1, color='k')
+
 clabels = plt.clabel(CS, levels,
     inline=True,
     use_clabeltext=True,
@@ -167,8 +174,9 @@ clabels = plt.clabel(CS, levels,
     manual=labelpos,
     fontsize=5, #6
     zorder=50)
-#[ txt.set_backgroundcolor('white') for txt in clabels ]
-#[ txt.set_bbox(dict(facecolor='white', edgecolor='none', pad=0.5)) for txt in clabels ]
+if args.white_clab:
+    [ txt.set_backgroundcolor('white') for txt in clabels ]
+    [ txt.set_bbox(dict(facecolor='white', edgecolor='none', pad=0.5)) for txt in clabels ]
 
 ### Draw a streamplot
 # NB: plt.streamplot relies on evenly grid => create it!
@@ -205,6 +213,7 @@ plt.setp(ax,
 
 ax.set_xlim(-geom.R-.5, geom.R+.05)
 ax.set_ylim(0, geom.R+.05)
+ax.text(geom.R-.5, geom.R-.5, r'$\displaystyle %s$' % args.latex)
 
 plt.tick_params(axis='both', direction='out',)
 plt.savefig(args.pdffile, bbox_inches='tight', transparent=True)

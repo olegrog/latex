@@ -1,17 +1,17 @@
 #!/bin/bash -e
 
 serv=mvs
+home=/nethome/aristov
 proj=$(ls *.geo | head -1 | sed 's/\..*//')
 dir=${PWD#$HOME/}
 [ $# -eq 0 ] && { echo "Usage: ./$(basename $0) <case>"; exit 1; }
 case=$1
+[ $# -eq 2 ] && dir=${dir/\//$2/}
+echo $dir
 
-mkdir $case
-scp $serv:$dir/$case/$proj.{geo,kei,msh} $case/
+mkdir -p $case/result
 
-mkdir $case/result
-for f in $(ssh $serv ls -t $dir/$case/result | head -5); do
-    scp $serv:$dir/$case/result/$f $case/result
-done
+rsync -avz $serv:$home/$dir/$case/$proj.{geo,kei,msh,kep} $case/
+rsync -avz --exclude=*.bin $serv:$home/$dir/$case/result/ $case/result/
 
 

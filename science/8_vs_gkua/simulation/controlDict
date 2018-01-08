@@ -1,0 +1,55 @@
+functions
+{
+    fieldAverage
+    {
+        enabled             true;
+        writeControl        timeStep;
+        type                fieldAverage;
+        functionObjectLibs  ( "libfieldFunctionObjects.dylib" );
+        fields
+        (
+            rho
+            {
+                window              10.0;
+                base                iteration;
+                prime2Mean          on;
+                mean                on;
+            }
+            Ma
+            {
+                window              10.0;
+                base                iteration;
+                prime2Mean          on;
+                mean                on;
+            }
+            U
+            {
+                window              10.0;
+                base                iteration;
+                prime2Mean          on;
+                mean                on;
+            }
+            T
+            {
+                window              10.0;
+                base                iteration;
+                prime2Mean          on;
+                mean                on;
+            }
+            p
+            {
+                window              10.0;
+                base                iteration;
+                prime2Mean          on;
+                mean                on;
+            }
+            ExcludedPoints
+            {
+                window              50.0;
+                base                iteration;
+                prime2Mean          on;
+                mean                on;
+            }
+        );
+    }
+}

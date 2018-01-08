@@ -1,4 +1,4 @@
 #!/bin/bash
 
-rm -rf [0-9]* system constant VTK
-rm -f log.correctBC* log.emptyFoam* log.calcPressure* log.foamToVTK*
+rm -rf [0-9]* system constant VTK Tecplot360
+rm -f log.correctBC* log.emptyFoam* log.calcPressure* log.foamTo* log.gmshToFoam* log.transformPoints*

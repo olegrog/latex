@@ -1,0 +1,58 @@
+{
+    "boundary_conditions": {
+        "symmetry": {
+            "type": "mirror",
+            "axis": 1
+        },
+        "body": {
+            "type": "diffusion",
+            "T": "_Tb_",
+            "u": "(0. 0. 0.)"
+        },
+        "free": {
+            "type": "maxwell",
+            "T": "1.",
+            "n": "1.",
+            "u": "(_U_ 0. 0.)"
+        }
+    },
+    "curnt_limit": 0.4,
+    "gas": {
+        "volume": "Tight",
+        "nonuniform": "( hermite )",
+        "q": "( 0 )",
+        "N_R": "( 10 )",
+        "cut": 10.606601717798213,
+        "v": "(_halfU_ 0. 0.)",
+        "rad": 0,
+        "symmetry": "Cartesian",
+        "type": "Rect"
+    },
+    "initial_conditions": {
+        "internal": {
+            "type": "maxwell",
+            "T": "1.",
+            "n": "1.",
+            "u": "(_U_ 0. 0.)"
+        }
+    },
+    "integral": {
+        "enable": true,
+        "order": 1,
+        "section": "VHS",
+        "ds": "1.",
+        "omega": 0.81,
+        "power": 50000
+    },
+    "num_steps": 10001,
+    "printer": {
+        "dir": "1/",
+        "file": "m%d.txt",
+        "savemacro": 200,
+        "savefunc": false,
+        "savefuncfilename": "f%d.bin"
+    },
+    "transfer": {
+        "order": 2
+    }
+}
