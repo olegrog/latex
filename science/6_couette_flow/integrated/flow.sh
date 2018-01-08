@@ -3,7 +3,7 @@
 set term epslatex standalone size 4.5, 3 font 9 color dashed
 set colors classic
 set out "flow.tex"
-set key center bottom maxrows 6 width -10
+set key center bottom maxrows 6 width -7
 
 set xlabel '$\mathrm{Kn}$' offset graph 0.5, 0.14
 set ylabel '$\displaystyle\int_0^\frac12 \frac{v_x}{\Delta v} \mathrm{d}y - \frac{v_{N\!Sx}^*}{\Delta v}\frac1{1-2k_0k}$' \
@@ -48,7 +48,7 @@ plot \
     "asym-bkw.txt" using (f_asym($1)/gamma1):(base(f_asym($1*k)/gamma1,$2)) notitle w l lw 3 dt 1 lc 5, \
     "sone.txt" using ($1/k):(base($1,$3/2)) title "Sone et al." w lp lw 3 dt 1 lc 0 pt 3 ps 1.5, \
     "asym-hs.txt" using (f_asym($1)):(base(f_asym($1*k),$2)) notitle w l lw 3 dt 1 lc 0, \
-    NaN title "Projection method"    w lp lw 2 dt 1 lc 1 pt 6, \
+    NaN title "Projection DVM"    w lp lw 2 dt 1 lc 1 pt 6, \
     NaN title "DSMC"             w lp lw 2 dt 1 lc 2 pt 4, \
     NaN title "Asymptotic"       w l lw 2 dt 1 lc 3, \
     NaN title "$\\Delta v\\to0$" w l lw 2 dt 1 lc 0, \

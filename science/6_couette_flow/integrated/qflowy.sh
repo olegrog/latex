@@ -3,7 +3,7 @@
 set term epslatex standalone size 4.5, 3 font 9 color dashed
 set colors classic
 set out "qflowy.tex"
-set key center bottom maxrows 3 width -10
+set key center bottom maxrows 3 width -7
 
 set xlabel '$\mathrm{Kn}$' offset graph 0.5, 0.14
 set ylabel '$\displaystyle\int_0^\frac12 \frac{q_y\mathrm{d}y}{(\Delta v)^2}$' \
@@ -39,7 +39,7 @@ set macros
 dummy = "NaN title ' ' lt -3"
 
 plot \
-    NaN title "Projection method"    w lp lw 2 dt 1 lc 1 pt 6, \
+    NaN title "Projection DVM"    w lp lw 2 dt 1 lc 1 pt 6, \
     NaN title "DSMC"             w lp lw 2 dt 1 lc 2 pt 4, \
     NaN title "Asymptotic"       w l lw 2 dt 1 lc 3, \
     NaN title "$\\Delta v=1$"    w l lw 2 dt 2 lc 0, \

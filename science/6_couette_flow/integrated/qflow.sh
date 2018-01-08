@@ -3,7 +3,7 @@
 set term epslatex standalone size 4.5, 3 font 9 color dashed
 set colors classic
 set out "qflow.tex"
-set key center bottom maxrows 6 width -10
+set key center bottom maxrows 6 width -7
 set format y "%g"
 
 set xlabel '$\mathrm{Kn}$' offset graph 0.5, 0.14
@@ -37,7 +37,7 @@ plot \
     "asym-bkw.txt" using (f_asym($1)/gamma2):(-$3) notitle w l lw 3 dt 1 lc 5, \
     "sone.txt" using ($1/k):($4/2) title "Sone et al." w lp lw 3 dt 1 lc 0 pt 3 ps 1.5, \
     "asym-hs.txt" using (f_asym($1)):(-$3) notitle w l lw 3 dt 1 lc 0, \
-    NaN title "Projection method"    w lp lw 2 dt 1 lc 1 pt 6, \
+    NaN title "Projection DVM"    w lp lw 2 dt 1 lc 1 pt 6, \
     NaN title "DSMC"             w lp lw 2 dt 1 lc 2 pt 4, \
     NaN title "Asymptotic"       w l lw 2 dt 1 lc 3, \
     NaN title "$\\Delta v\\to0$" w l lw 2 dt 1 lc 0, \

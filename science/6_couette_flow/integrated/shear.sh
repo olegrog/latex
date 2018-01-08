@@ -3,7 +3,7 @@
 set term epslatex standalone size 4.5, 3 font 9 color dashed
 set colors classic
 set out "shear.tex"
-set key right bottom maxrows 5 width -10
+set key right bottom maxrows 5 width -7
 set sample 101
 
 set xlabel '$\mathrm{Kn}$' offset graph 0.5, 0.14
@@ -60,7 +60,7 @@ plot \
     base(k*x, asym_bkw(k*f_asym(x)*gamma1)) notitle w l lw 3 dt 1 lc 5, \
     "sone.txt" using ($1/k):(base($1,-$2/2)) title "Sone et al." w lp lw 3 dt 1 lc 0 pt 3 ps 1.5, \
     base(k*x,asym_hs(k*f_asym(x))) notitle lw 3 dt 1 lc 0, \
-    NaN title "Projection method"    w lp lw 2 dt 1 lc 1 pt 6, \
+    NaN title "Projection DVM"    w lp lw 2 dt 1 lc 1 pt 6, \
     NaN title "DSMC"             w lp lw 2 dt 1 lc 2 pt 4, \
     NaN title "Asymptotic"       w l lw 2 dt 1 lc 3, \
     NaN title "$\\Delta v\\to0$" w l lw 2 dt 1 lc 0, \

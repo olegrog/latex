@@ -3,9 +3,10 @@
 set term epslatex standalone size 4,3 font 11 color dashed
 set out "error.tex"
 set key left bottom
+set colors classic
 
-set xlabel '$R_\Omega$' offset graph 0.48,0.17
-set ylabel '$\varepsilon$' offset graph 0.28,0.5 rotate by 0
+set xlabel '$N_R$' offset graph 0.48,0.17
+set ylabel '$\varepsilon$' offset graph 0.25,0.5 rotate by 0
 
 set border 3
 set xtics nomirror
@@ -14,6 +15,7 @@ set ytics nomirror
 set lmargin 5
 set bmargin 2
 set logscale xy
+set xtics add (16, 26, 40)
 #set grid
 
 set xrange [9:45]
