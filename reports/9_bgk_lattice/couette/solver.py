@@ -529,9 +529,14 @@ def solve_bgk():
             plot_profiles(solution)
     total_values(solution)
     y, h, m = calc_macro(solution)
-    names = ('y', 'vel_x', 'p_xy', 'q_x')
-    np.savetxt(sys.stdout, np.transpose((y, m.vel[:,0], m.tau[:,2], m.qflow[:,0])), fmt='%1.4e',
-        header='%10s'*len(names) % tuple(names))
+    if args.plot_norms:
+        names = norms.keys()
+        result = [ calc_norm(solution, name)[1] for name in norms.keys() ]
+    else:
+        names = [ 'vel_x', 'p_xy', 'q_x' ]
+        result = [ m.vel[:,0], m.tau[:,2], m.qflow[:,0] ]
+    np.savetxt(sys.stdout, np.transpose([y] + result), fmt='%1.4e',
+        header='%10s'*(len(names) + 1) % tuple(['y'] + names))
     #splot(domains[-1].model, solution[-1].f[-1])
     #splot(domains[0].model, solution[0].f[0])
     if args.plot:

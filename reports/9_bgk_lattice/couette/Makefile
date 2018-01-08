@@ -12,6 +12,9 @@ all: $(FIGURES)
 %.tex: _%.sh
 	./$<
 
+_norms-%.sh: create_plots.py template-norms.sh norms-%.txt
+	./$< $(word 2,$^) --name=norms-$* --buffer=$(call buffer,$*)
+
 _%.sh: create_plots.py template.sh %.txt
 	./$< $(word 2,$^) --name=$* --buffer=$(call buffer,$*)
 
