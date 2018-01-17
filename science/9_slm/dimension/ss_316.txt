@@ -1,0 +1,18 @@
+### Based on "Mills - Recommended values for alloys - 2002"
+# quantity              value   dimension       temperature
+solid-density           7950    kg/m**3         20degC
+solid-density           7449    kg/m**3         1025degC
+liquid-density          6881    kg/m**3         1450degC
+liquid-density          6804    kg/m**3         1550degC
+solid-conductivity      15.5    W/m/delta_degC  100degC
+solid-conductivity      30.9    W/m/delta_degC  1200degC
+liquid-conductivity     28.5    W/m/delta_degC  1450degC
+liquid-conductivity     29.5    W/m/delta_degC  1500degC
+solid-heat_capacity     470     J/kg/delta_degC 25degC
+solid-heat_capacity     660     J/kg/delta_degC 1000degC
+liquid-heat_capacity    830     J/kg/delta_degC 1450degC
+liquid-heat_capacity    830     J/kg/delta_degC 1600degC
+solidus                 1360    degC
+liquidus                1410    degC
+fusion_heat             260     J/g
+thermal_expansion       16e-6   1/delta_degC  25degC

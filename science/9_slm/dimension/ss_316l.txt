@@ -1,0 +1,10 @@
+# quantity          value   dimension       temperature
+density             7.985   g/cm**3
+conductivity        16.2    W/m/delta_degC  100degC
+conductivity        21.4    W/m/delta_degC  500degC
+solidus             1371    degC
+liquidus            1399    degC
+heat_capacity       450     J/kg/delta_degC 25degC
+heat_capacity       790     J/kg/delta_degC 1400degC
+fusion_heat         260     J/g
+thermal_expansion   16e-6   1/delta_degC

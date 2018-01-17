@@ -1,7 +1,0 @@
-density             7.985   g/cm**3
-conductivity100     16.2    W/m/delta_degC
-conductivity500     21.4    W/m/delta_degC
-solidus             1371    degC
-liquidus            1399    degC
-heat_capacity       500     J/kg/delta_degC
-thermal_expansion   16e-6   1/delta_degC
