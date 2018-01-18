@@ -8,15 +8,17 @@
 \author{Oleg Rogozin, Oleg Vasilyev}
 
 %%% General commands
-\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
-\newcommand{\dder}[2][]{\frac{\delta#1}{\delta#2}}
+\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}      % partial derivative
+\newcommand{\dder}[2][]{\Delta_{#2}#1}                      % discrete derivative
+\newcommand{\vder}[2][]{\frac{\delta#1}{\delta#2}}          % variational derivative
 \newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
+\newcommand{\dderdual}[2][]{\Delta^2_{#2^2}#1}
 %\newcommand{\pder}[2][]{\partial_{#2}{#1}}
 %\newcommand{\pderdual}[2][]{\Delta{#1}}
 \newcommand{\LL}{\mathcal{L}}
 \newcommand{\FF}{\mathcal{F}}
 \newcommand{\bx}{\mathbf x}
-\newcommand{\diag}{^\mathrm{diag}}
+\newcommand{\diag}[1]{\left(#1\right)^\mathrm{diag}}
 \newcommand{\pert}[1]{\delta#1}
 \newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
 \newcommand{\eqdef}{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\tiny\sffamily def}}}{=}}}
@@ -54,54 +56,62 @@ Perturbation can be expressed in terms of functional derivative:
         \(\pert{\FF} = \pert{u}\left(\pder[\FF]{u} - \pder{\bx}\pder[\FF]{\pder[u]{\bx}}\right)\).
 \end{itemize}
 \end{example}
-Next, with a help of superscript indexes, we introduce a matrix representation
+Next, we introduce the discretization of the \(\bx\) space with the set of points \(\Set{\bx^n}{n\in\mathbb{Z}^d}\).
+Let \(u_j^n\) and \(\FF_i^n\) be approximations of the solution and RHS, respectively, at the point \(\bx^n\).
+The \emph{discrete RHS} can be represented as a matrix product
 \begin{equation}\label{eq:matrix_representation}
-       \FF_i(\bx^n) = A_{ij}^{nm}u_j(\bx^m)
+       \FF_i^n = A_{ij}^{nm}u_j^m,
 \end{equation}
-based on the discretization of \(\bx\) space with the set of points \(\Set{\bx^n}{n\in\mathbb{Z}^d}\).
-Then, for the variable \(u_i\) at the point \(\bx^n\),
+then
 \begin{equation}\label{eq:diagonal_term}
-     \FF_i\diag(\bx^n) \eqdef \left( A_{ij}^{nm} \right)_{j=i}^{m=n}
+     \diag{\FF_i^n} \eqdef \left( A_{ij}^{nm} \right)_{j=i}^{m=n}
 \end{equation}
 is the \emph{diagonal term} of the discrete operator.
+Let \(\dder{x_i}\) denotes the discrete approximation of the partial derivative \(\pder{x_i}\).
+\begin{example}
+    For the forward difference approximation
+    \[ \dder[u^n]{x} = \frac{u^n-u^{n-1}}{h}, \quad \diag{\dder[u^n]{x}} = \frac1h. \]
+    For the central difference approximation
+    \[ \dderdual[u^n]{x} = \frac{u^{n-1}-2u^n-u^{n+1}}{h}, \quad \diag{\dder[u^n]{x}} = -\frac2h. \]
+\end{example}
 
 In general, we need to calculate the following functions:
 \begin{itemize}
-    \item \func{rhs}{u_j}{i}{ \FF_i(u_j, \nabla{u_j}) },
-    \item \func{Drhs}{\pert{u_j},u_k}{i}{ \pert{\FF_i} },
-    \item \func{Drhs\_diag}{u_k}{i}{ \left( \dder[\FF_i]{u_j} \right)_{j=i}\diag},
+    \item \func{rhs}{u_j^n}{i}{ \FF_i^n },
+    \item \func{Drhs}{\pert{u_j^n},u_k^n}{i}{ \pert{\FF_i^n} },
+    \item \func{Drhs\_diag}{u_k^n}{i}{ \diag{\vder[\FF_i^n]{u_j}}_{j=i}}.
 \end{itemize}
-where \(\nabla{u_i}\) corresponds to the arbitrary derivatives of \(u_i\).
+Hereafter, we omit all superscript indices that correspond to the physical space.
 \begin{example}
-    For \(\FF = u\), they are \[ 
+    For \(\FF = u\), they are \[
         u, \quad \pert{u}, \quad 1.
     \]
 \end{example}
 \begin{example}
-    For \(\FF = \pderdual[u]{x_i}\), they are \[ 
-        \pderdual[u]{x_i}, \quad \pderdual[\pert{u}]{x_i}, \quad \left( \pderdual{x_i} \right)\diag.
+    For \(\FF = \pderdual[u]{x_i}\), they are \[
+        \dderdual[u]{x_i}, \quad \dderdual[\pert{u}]{x_i}, \quad \diag{\dderdual{x_i}}.
     \]
 \end{example}
 \begin{example}
-    For \(\FF = u\pder[u]{x}\), they are \[ 
-        u\pder[u]{x}, \quad \pert{u}\pder[u]{x} + u\pder[\pert{u}]{x},
-        \quad \pder[u]{x} + u \left( \pder{x}\right)\diag.
+    For \(\FF = u\pder[u]{x}\), they are \[
+        u\dder[u]{x}, \quad \pert{u}\dder[u]{x} + u\dder[\pert{u}]{x},
+        \quad \dder[u]{x} + u \diag{\dder{x}}.
     \]
 \end{example}
 \begin{example}
-    For \(\FF = \frac12\pder[u^2]{x}\), they are \[ 
-        \frac12\pder[u^2]{x}, \quad \pder[u\pert{u}]{x}, \quad u\left(\pder{x}\right)\diag.
+    For \(\FF = \frac12\pder[u^2]{x}\), they are \[
+        \frac12\dder[u^2]{x}, \quad \dder[u\pert{u}]{x}, \quad u\diag{\dder{x}}.
     \]
 \end{example}
 \begin{remark}
     When we calculate diagonal term of the perturbation,
     differential operators should be considered as matrix operations.
-    For example, \(\left(\pder{x}\right)\diag f(u) = f(u)\left(\pder{x}\right)\diag\).
+    For example, \(\diag{\dder{x}} f(u) = f(u)\diag{\dder{x}}\).
 \end{remark}
 \begin{example}
-    For \(\FF = \frac12\left(\pder[u]{x}\right)^2\), they are \[ 
-        \frac12\left(\pder[u]{x}\right)^2, \quad \pder[u]{x}\pder[\pert{u}]{x},
-        \quad \pder[u]{x}\left(\pder{x}\right)\diag.
+    For \(\FF = \frac12\left(\pder[u]{x}\right)^2\), they are \[
+        \frac12\left(\dder[u]{x}\right)^2, \quad \dder[u]{x}\dder[\pert{u}]{x},
+        \quad \dder[u]{x}\diag{\dder{x}}.
     \]
 \end{example}
 \begin{example}
@@ -116,13 +126,13 @@ where \(\nabla{u_i}\) corresponds to the arbitrary derivatives of \(u_i\).
     Calculate the desired functions for \[
         \pder[u]{t} = u\left(\pder[u]{x} + \pder[v]{x}\right), \quad
         \pder[v]{t} = \pder{x}(vu) + \nu\left(\pderdual[u]{x}+\pderdual[v]{y}\right).
-    \] 
+    \]
 \end{exercise}
 
 \begin{exercise}
     Calculate the desired functions for \[
         \pder[u]{t} = \left(\pder[u^2]{x} + \pder[uv]{y}\right), \quad
         \pder[v]{t} = \pder{x}(uv) + v \pder[v]{y} + \nu\left(\pderdual[u]{x}+\pderdual[v]{y}\right).
-    \] 
+    \]
 \end{exercise}
 \end{document}
