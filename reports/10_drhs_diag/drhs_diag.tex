@@ -18,7 +18,6 @@
 \newcommand{\FF}{\mathcal{F}}
 \newcommand{\bx}{\mathbf x}
 \newcommand{\diag}[1]{\left(#1\right)^\mathrm{diag}}
-\newcommand{\diagA}[1]{\left(#1\right)^{m=n}}
 \newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
 \newcommand{\eqdef}{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\tiny\sffamily def}}}{=}}}
 
@@ -45,13 +44,14 @@ Consider a Cauchy problem for the set of equations:
 where \(\Set{\FF_i}{i=1,\dots,N}\) is the set of differential operators (nonlinear in general).
 \(\FF_i\) is called the \emph{RHS} (\emph{right hand side}).
 \(\pert{\FF_i}\) is the \emph{perturbation} of the RHS.
+Hereafter, summation over repeated indexes (the Einstein notation) is not assumed.
 \begin{example}
 Perturbation can be expressed in terms of functional derivative:
 \begin{itemize}
-    \item if \(\FF_i\) is linear, i.e., \(\FF_i = \LL_{ij}u_j\), then
-        \(\pert{\FF_i} = \LL_{ij}\pert{u}_j\);
-    \item if \(\FF_i = \LL_{ij}(u_k)u_j\), then
-        \(\pert{\FF_i} = \left( \pder[\LL_{ij}]{u_k}u_j + \LL_{ij} \right)\pert{u}_j\);
+    \item if \(\FF_i\) is linear, i.e., \(\FF_i = \sum_j\LL_{ij}u_j\), then
+        \(\pert{\FF_i} = \sum_j\LL_{ij}\pert{u}_j\);
+    \item if \(\FF_i = \sum_j\LL_{ij}(u_k)u_j\), then
+        \(\pert{\FF_i} = \sum_j\left( \sum_k\pder[\LL_{ik}]{u_j}u_k + \LL_{ij} \right)\pert{u}_j\);
     \item if \(\FF = \FF(u, \pder[u]{\bx})\), then
         \(\pert{\FF} = \pert{u}\left(\pder[\FF]{u} - \pder{\bx}\pder[\FF]{\pder[u]{\bx}}\right)\).
 \end{itemize}
@@ -60,27 +60,28 @@ Next, we introduce the discretization of the \(\bx\) space with the set of point
 Let \(u_j^n\) and \(\FF_i^n\) be approximations of the solution and RHS, respectively, at the point \(\bx^n\).
 The \emph{discrete RHS} and its perturbation can be represented in the matrix form:
 \begin{equation}\label{eq:matrix_representation}
-    \FF_i^n = A_{ij}^{nm}u_j^m + b_i^n, \quad \pert{\FF_i^n} = B_{ij}^{nm}\pert{u_j^m},
+    \FF_i^n = \sum_{j,m}A_{ij}^{nm}u_j^m + b_i^n,
+    \quad \pert{\FF_i^n} = \sum_{j,m}B_{ij}^{nm}\pert{u_j^m},
     %\quad B_{ij}^{nm} = A_{ij}^{nm} + \vder[A_{ij}^{nm}]{u_k^l}u_k^l,
 \end{equation}
 then
 \begin{equation}\label{eq:diagonal_term}
-     \diag{\FF_i^n} \eqdef \left( A_{ij}^{nm} \right)_{j=i}^{m=n}, \quad
-     \diag{\pert{\FF_i^n}} \eqdef \left( B_{ij}^{nm} \right)_{j=i}^{m=n}
+     \diag{\FF_i^n} \eqdef A_{ii}^{nn}, \quad
+     \diag{\pert{\FF_i^n}} \eqdef B_{ii}^{nn}
 \end{equation}
 are the \emph{diagonal terms} of the corresponding discrete operators.
 Let \(\dder{x_i}^{mn}\) and \(\dder{x_i,x_j}^{mn}\) denote the discrete approximation
 of the partial derivatives \(\pder{x_i}\) and \(\pderder{x_i}{x_j}\), respectively.
 For simplicity, let
 \begin{equation}\label{eq:dder}
-     \dder{x_i}u^n\eqdef\dder{x_i}^{mn}u^m, \quad \dder{x_i,x_j}u^n\eqdef\dder{x_i,x_j}^{mn}u^m.
+     \dder{x_i}u^n\eqdef\sum_m\dder{x_i}^{mn}u^m, \quad \dder{x_i,x_j}\sum_mu^n\eqdef\dder{x_i,x_j}^{mn}u^m.
 \end{equation}
 \begin{example}
     For the forward difference approximation
-    \[ \dder{x}u^n = \frac{u^n-u^{n-1}}{h}, \quad \diag{\dder{x}u^n} = \diagA{\dder{x}^{mn}} = \frac1h\diagA{\delta^{mn}}, \]
+    \[ \dder{x}u^n = \frac{u^n-u^{n-1}}{h}, \quad \diag{\dder{x}u^n} = \dder{x}^{nn} = \frac1h\delta^{nn}, \]
     where \(\delta^{mn}\) is the Kronecker delta.
     For the central difference approximation
-    \[ \dder{x,x}u^n = \frac{u^{n-1}-2u^n-u^{n+1}}{h}, \quad \diag{\dder{x,x}u^n} = -\frac2h\diagA{\delta^{mn}}. \]
+    \[ \dder{x,x}u^n = \frac{u^{n-1}-2u^n-u^{n+1}}{h}, \quad \diag{\dder{x,x}u^n} = -\frac2h\delta^{nn}. \]
 \end{example}
 In general, we need to calculate the following functions:
 \begin{itemize}
@@ -90,64 +91,64 @@ In general, we need to calculate the following functions:
 \end{itemize}
 Some discrete operators can be calculated using the following functions:
 \begin{itemize}
-    \item \funcDiff{fast}{u^n}{\dder{x_i}u^n, (\dder{x_i,x_j}u^n)_{j=i}},
-    \item \funcDiff{diag}{}{\diagA{\dder{x_i}^{mn}}, \diagA{\dder{x_i,x_j}^{mn}}_{j=i}}.
+    \item \funcDiff{fast}{u^n}{\dder{x_i}u^n, \dder{x_i,x_i}u^n},
+    \item \funcDiff{diag}{}{\dder{x_i}^{nn}, \dder{x_i,x_i}^{nn}}.
 \end{itemize}
 \begin{example}
     For \(\FF = u\), \[
-        \FF^n = u^n, \quad \pert{\FF^n} = \pert{u^n}, \quad \diag{\pert{\FF^n}} = \diagA{\delta^{mn}}.
+        \FF^n = u^n, \quad \pert{\FF^n} = \pert{u^n}, \quad \diag{\pert{\FF^n}} = \delta^{nn}.
     \]
 \end{example}
 \begin{example}
-    For \(\FF = \pderdual[u]{x_i}\), \[
-        \FF^n = \dder{x_i,x_i}u^n, \quad
-        \pert{\FF^n} = \dder{x_i,x_i}\pert{u^n}, \quad
-        \diag{\pert{\FF^n}} = \diagA{\dder{x_i,x_i}^{mn}}.
+    For \(\FF = \sum_i\pderdual[u]{x_i}\), \[
+        \FF^n = \sum_i\dder{x_i,x_i}u^n, \quad
+        \pert{\FF^n} = \sum_i\dder{x_i,x_i}\pert{u^n}, \quad
+        \diag{\pert{\FF^n}} = \sum_i\dder{x_i,x_i}^{nn}.
     \]
 \end{example}
 \begin{example}
     For \(\FF = u\pder[u]{x}\), \[
         \begin{gathered}
-        \FF^n = \diagA{u^m\dder{x}u^n}, \quad
-        \pert{\FF^n} = \diagA{\pert{u^m}\dder{x}u^n} + \diagA{u^m\dder{x}\pert{u^n}}, \\
-        \diag{\pert{\FF^n}} = \dder{x}u^n + \diagA{u^m\diagA{\dder{x}^{mn}}}.
+        \FF^n = u^n\dder{x}u^n, \quad
+        \pert{\FF^n} = \pert{u^n}\dder{x}u^n + u^n\dder{x}\pert{u^n}, \\
+        \diag{\pert{\FF^n}} = \dder{x}u^n + u^n\dder{x}^{nn}.
         \end{gathered}
     \]
 \end{example}
 \begin{example}
     For \(\FF = \frac12\pder[u^2]{x}\), \[
-        \FF^n = \frac12\dder{x}\diagA{u^mu^n}, \quad
-        \pert{\FF^n} = \dder{x}\diagA{u^m\pert{u^n}}, \quad
+        \FF^n = \frac12\dder{x}(u^n)^2, \quad
+        \pert{\FF^n} = \dder{x}u^n\pert{u^n}, \quad
         \diag{\pert{\FF^n}} = \dder{x}u^n.
     \]
 \end{example}
 \begin{remark}
-    Despite \(u\pder[u]{x} = \frac12\pder[u^2]{x}\), \(\diagA{u^m\dder{x}u^n} \neq \frac12\dder{x}\diagA{u^mu^n}\).
+    Despite \(u\pder[u]{x} = \frac12\pder[u^2]{x}\), \(u^n\dder{x}u^n \neq \frac12\dder{x}(u^n)^2\).
     The latter formulation corresponds to the conservative scheme.
 \end{remark}
 
 \begin{example}
     For \(\FF = \frac12\left(\pder[u]{x}\right)^2\), \[
-        \FF^n = \frac12\diagA{\dder{x}u^m\dder{x}u^n}, \quad
-        \pert{\FF^n} = \diagA{\dder{x}u^m\dder{x}\pert{u^n}}, \quad
-        \diag{\pert{\FF^n}} = \diagA{\dder{x}u^m\diagA{\dder{x}^{mn}}}.
+        \FF^n = \frac12\left(\dder{x}u^n\right)^2, \quad
+        \pert{\FF^n} = \dder{x}u^n\dder{x}\pert{u^n}, \quad
+        \diag{\pert{\FF^n}} = \dder{x}u^n\dder{x}^{nn}.
     \]
 \end{example}
 \begin{example}
     For \(\FF_i = \matr1102\vect{u_1}{u_2}\), \[
         \FF_i^n = \vect{u_1^n+u_2^n}{2u_2^n}, \quad
         \pert{\FF_i^n} = \vect{\pert{u_1^n}+\pert{u_2^n}}{2\pert{u_2^n}}, \quad
-        \diag{\pert{\FF_i^n}} = \vect{1}{2}\diagA{\delta^{mn}}.
+        \diag{\pert{\FF_i^n}} = \vect{1}{2}\delta^{nn}.
     \]
 \end{example}
 \begin{example}
     For \(\FF = \pder{x}\left( k(x)\pder[u]{x} \right)\), \[
-        \FF^n = \dder{x}\diagA{k(x^m)\dder{x}u^n}, \quad
-        \pert{\FF^n} = \dder{x}\diagA{k(x^m)\dder{x}\pert{u^n}}, \quad
-        \diag{\pert{\FF^n}} = \dder{x}\diagA{k(x^m)\diagA{\dder{x}^{mn}}}.
+        \FF^n = \dder{x}\left(k(x^n)\dder{x}u^n\right), \quad
+        \pert{\FF^n} = \dder{x}\left(k(x^n)\dder{x}\pert{u^n}\right), \quad
+        \diag{\pert{\FF^n}} = \dder{x}(k(x^n)\dder{x}^{nn}).
     \]
     If we suppose that \(k(x)\) is slowly varying function, then \[
-        \diag{\pert{\FF^n}} \approx \diagA{k(x^m)\diagA{\dder{x,x}^{mn}}},
+        \diag{\pert{\FF^n}} \approx k(x^n)\dder{x,x}^{nn},
     \]
     otherwise the diagonal term depends on the form of \(\dder{x}^{mn}\).
 \end{example}
