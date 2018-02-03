@@ -8,7 +8,8 @@ parser = argparse.ArgumentParser(description='Solver for the plane Couette-flow 
 parser.add_argument('-a', '--alloy', type=str, default='ss_316.txt', metavar='<file>', help='powder characteristics')
 parser.add_argument('-b', '--bed', type=str, default='yadroitsev10.txt', metavar='<file>', help='test bed characteristics')
 parser.add_argument('-m', '--material', type=str, default='solid', metavar='<solid|liquid>', help='reference material')
-parser.add_argument('-t', '--temp', type=str, default='bed.bulk_temperature', metavar='<expression>', help='reference temperature')
+parser.add_argument('-z', '--zero-temp', type=str, default='bed.bulk_temperature', metavar='<expression>', help='zero temperature')
+parser.add_argument('-u', '--unit-temp', type=str, default='(alloy.solidus+alloy.liquidus)/2', metavar='<expression>', help='reference temperature')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
 args = parser.parse_args()
 
@@ -24,7 +25,7 @@ def load_data(system, filename):
                 continue
             words = line.split()
             #print ' #words', words
-            name, quantity = words[0], ureg.Quantity(float(words[1]), words[2])
+            name, quantity = words[0], ureg.Quantity(float(words[1]), words[2]).to_base_units()
             subnames = name.split('-')
             if len(subnames) > 1:
                 name = subnames[1]
@@ -44,7 +45,7 @@ def load_data(system, filename):
     return dict2nt(system, quantities)
 
 def calc_derivatives(quantities, temp):
-    new, temp = {}, temp.to_base_units()
+    new = {}
     for name, quant in quantities._asdict().items():
         if type(quant) == dict:
             if len(quant) > 1:
@@ -71,7 +72,15 @@ def to_dimensionless(quant, basis, dimensional=False):
 ureg = pint.UnitRegistry(auto_reduce_dimensions=True, autoconvert_offset_to_baseunit=True)
 alloy = load_data('alloy', args.alloy)
 bed = load_data('bed', args.bed)
-alloy = calc_derivatives(alloy, eval(args.temp))
+alloy = calc_derivatives(alloy, eval(args.zero_temp))
+derived = dict2nt('derived', {
+    'unit_temperature': eval(args.unit_temp) - eval(args.zero_temp),
+    'total_time': bed.track_length/bed.scanning_speed,
+    'fusion_capacity': alloy.fusion_heat/(alloy.liquidus-alloy.solidus),
+    'solidus': alloy.solidus - eval(args.zero_temp),
+    'liquidus': alloy.liquidus - eval(args.zero_temp),
+    'delta_fusion': alloy.liquidus - alloy.solidus,
+})
 
 basis1 = [  # for diffusive time scale
     ( alloy, 'density' ),
@@ -83,18 +92,15 @@ basis2 = [  # for absolute temperatures
     ( alloy, 'heat_capacity' ),
     ( alloy, 'conductivity' ),
     ( bed, 'beam_radius' ),
-    ( bed, 'bulk_temperature' ),
+    ( derived, 'unit_temperature' ),
 ]
 basis3 = [  # for derivatives
     ( alloy, 'density' ),
     ( alloy, 'heat_capacity' ),
     ( alloy, 'conductivity' ),
-    ( bed, 'bulk_temperature' ),
+    ( derived, 'unit_temperature' ),
 ]
 
-derived = dict2nt('derived', {
-    'total_time': bed.track_length/bed.scanning_speed
-})
 get_derivatives1 = lambda system: map(lambda q: (system, der_name(q), basis3),
         filter(lambda q: der_name(q) in system._asdict(), system._asdict().keys()))
 dimensionless = [
@@ -102,12 +108,16 @@ dimensionless = [
     ( bed, 'laser_power', basis2 ),
     ( bed, 'layer_thickness', basis2 ),
     ( bed, 'track_length', basis2 ),
-    ( alloy, 'liquidus', basis2 ),
-    ( alloy, 'solidus', basis2 ),
+    ( bed, 'convection_transfer', basis1),
     ( alloy, 'fusion_heat', basis2),
-] + [ ( derived, d, basis1 ) for d in derived._asdict() ] + get_derivatives1(alloy)
+    ( derived, 'liquidus', basis2 ),
+    ( derived, 'solidus', basis2 ),
+    ( derived, 'delta_fusion', basis2 ),
+    ( derived, 'fusion_capacity', basis1 ),
+    ( derived, 'total_time', basis1 ),
+] + get_derivatives1(alloy)
 
-get_derivatives2 = lambda system: map(lambda q: (q + '({})'.format(args.temp), system._asdict()[q], [(system, q)]),
+get_derivatives2 = lambda system: map(lambda q: (q + '({})'.format(args.zero_temp), system._asdict()[q], [(system, q)]),
         filter(lambda q: der_name(q) in system._asdict(), system._asdict().keys()))
 dimensional = [
     ( 'time', 'second', basis1 ),

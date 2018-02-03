@@ -15,4 +15,5 @@ liquid-heat_capacity    830     J/kg/delta_degC 1600degC
 solidus                 1360    degC
 liquidus                1410    degC
 fusion_heat             260     J/g
-thermal_expansion       16e-6   1/delta_degC  25degC
+thermal_expansion       16e-6   1/delta_degC    25degC
+solid-absorbtivity      0.36    dimensionless
