@@ -10,104 +10,159 @@
 \author{Oleg Rogozin}
 
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\dder}[2][]{\Delta_{#2}#1}
 \newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
-\newcommand{\idx}[2][]{#1_{\mathrm{#2}}}
+
+\newcommand{\pert}[1]{\delta#1}
+\newcommand{\diag}[1]{\left(#1\right)^\mathrm{diag}}
+
+\newcommand{\fusion}[1]{{#1}_\mathrm{fus}}
 
 \begin{document}
 \maketitle
 
-\section{Heat-conduction equation}
+\section{Formulation of the problem}
 
-Temperature \(T\) of metal powder is governed by the heat-conduction equation
+The temperature \(T\) (\si{K}) of metal powder is governed by the heat-conduction equation
 \begin{equation}\label{eq:heat_conduction}
-	\pder[\rho(\phi,T) h(T)]{t} = \pder{x_i}\left(k(\phi,T)\pder[T]{x_i}\right),
+	\rho\pder[h(T)]{t} = \pder{x_i}\left(k(\psi,T)\pder[T]{x_i}\right),
 \end{equation}
-where \(\rho\) is the density (\si{kg/m^3}), \(h\) is the specific enthalpy (\si{J/m^3}),
-\(k\) is the thermal conductivity (\si{J/m/K/s}), \(\psi\) is the porosity.
-Let
-\begin{equation}\label{eq:porosity}
-	\rho = \rho_0(1-\psi), \quad k = k_0(1-\psi)
+where \(x_i\) are the physical coordinates (\si{m}), \(t\) is the time (\si{s}),
+\(\rho\) is the density (\si{kg/m^3}), \(h\) is the specific enthalpy (\si{J/m^3}),
+\(k\) is the thermal conductivity (\si{W/m/K}), \(\psi\) is the porosity. Let
+\begin{equation}\label{eq:porosity_variables}
+	\rho = \rho_0(1-\psi_0), \quad k = k_0(T)(1-\psi),
 \end{equation}
-where \(\rho_0(T)\) and \(k_0(T)\) is the density and thermal conductivity
-of the bulk material.
-To study melting process as well, write the  enthalpy in the following form:
-\begin{equation}\label{eq:enthalpy}
-	h = c_p(T)T + \Delta\idx[h]{fus}\phi(T),
-\end{equation}
-where \(c_p\) is the specific heat capacity (\si{J/kg/K}),
-\(\Delta\idx[h]{fus}\) is the specific enthalpy of fusion (\si{J/kg}),
-\(\phi\) is the liquid fraction (\(0 \leq \phi \leq 1\)).
-\(\phi=0\) and \(\phi=1\) corresponds to the solid and liquid states, respectively.
+where \(\rho_0\) and \(k_0\) is the density and thermal conductivity of the bulk material, respectively,
+\(\psi_0\) is the initial porosity.
 
+The initial condition is \(T=T_0\) at \(t=0\).
 Consider the following physical domain:
 \begin{equation}
-	0 < x_1 < L, \quad -H/2 < x_2 < H/2, \quad 0 < x_3 < H.
+	-H/2 < x_1 < L-H/2, \quad -H/2 < x_2 < H/2, \quad 0 < x_3 < H.
 \end{equation}
-Boundary conditions at \(x_3=0\):
+The boundary condition at \(x_3=0\) is expressed as
 \begin{equation}\label{eq:bc}
-	k\pder[T]{x_3} = \frac{AP}{\pi R^2}\exp\left(-\frac{(x_1-H/2-Ut)^2 + x_2^2}{R^2}\right),
+	k\pder[T]{x_3} = \frac{AP}{\pi R^2}\exp\left(-\frac{(x_1-Ut)^2 + x_2^2}{R^2}\right) - \alpha(T-T_0),
 \end{equation}
 otherwise \(T = T_0\).
-\(A\) is the absorptivity, \(P\) is the laser power (\si{J/s}), \(U\) is the scanning speed (\si{m/s}),
-\(R\) is the radius of the laser beam (\si{m}).
-The initial condition is \(T=T_0\).
+\(A\) is the absorptivity, \(P\) is the laser power (\si{W}), \(U\) is the scanning speed (\si{m/s}),
+\(R\) is the radius of the laser beam (\si{m}), \(\alpha\) is the convective heat transfer coefficient (\si{W/m^2/K}).
+
+To incorporate the melting process into the model, write the enthalpy and porosity in the following form:
+\begin{gather}
+	h = c_p(T)(T-T_0) + \fusion{h}\phi(h), \label{eq:enthalpy} \\
+	\psi(t) = \psi_0\min_{0\leq\tau\leq t}\left( 1-\phi(h(\tau)) \right), \label{eq:porosity}
+\end{gather}
+where \(c_p\) is the specific heat capacity (\si{J/kg/K}),
+\(\fusion{h}\) is the specific enthalpy of fusion (\si{J/kg}),
+\(\phi\) is the liquid fraction (\(0 \leq \phi \leq 1\)), which is monotonic function of \(h\).
+Assume that \[ \phi(h\leq h_S) = 0, \quad \phi(h\geq h_L) = 1,\]
+where \(h_S = h(T_S)\) and \(h_L = h(T_L)\).
+\(T_S\) and \(T_L\) are the solidus and liquidus temperatures, respectively.
+
+
+\subsection{Dimensionless expressions}
 
 Introduce the following dimensionless variables:
 \begin{equation}\label{eq:dimensionless}
     \begin{aligned}
         x_i &= \hat{x_i}R, & L &= \hat{L}R, & H &= \hat{H}R, \\
-        t &= \hat{t}t_0, & U &= \hat{U}R/t_0, & T &= (\hat{T}+1)T_0, \\
-        h &= \hat{h}c_p(T_0)T_0, & P &= \hat{P} k(T_0)T_0R,
+        t &= \hat{t}t_0, & U &= \hat{U}R/t_0, & T - T_0 &= \hat{T}(\fusion{T}-T_0), \\
+        h &= \hat{h}c_p(T_0)(\fusion{T}-T_0), & P &= \hat{P} k(T_0)(\fusion{T}-T_0)R, & \alpha &= \hat{\alpha}k(T_0)/R,
     \end{aligned}
 \end{equation}
-where \(t_0=\rho(T_0) c_p(T_0) R^2/k(T_0)\) is the diffusive time scale at \(T=T_0\).
+where \(t_0=\rho_0 c_p(T_0) R^2/k(T_0)\) is the diffusive time scale at \(T=T_0\),
+\(\fusion{T}=(T_S+T_L)/2\) is the mean fusion temperature.
 Also denote
 \begin{equation}
-    \hat{\rho}(\hat{T}) = \frac{\rho(T)}{\rho(T_0)}, \quad
     \hat{c}_p(\hat{T}) = \frac{c_p(T)}{c_p(T_0)}, \quad
     \hat{k}(\hat{T}) = \frac{k(T)}{k(T_0)}, \quad
-    \hat{\phi}(\hat{T}) = \phi(T).
+    \hat{\phi}(\hat{h}) = \phi(h), \quad
+    \hat{\psi}(\hat{h}) = \psi(h).
 \end{equation}
 
 Let the dependence on temperature be linear:
 \begin{gather}
-	\hat{\rho} = 1 + \hat{\rho}'\hat{T}, \quad
 	\hat{c}_p = 1 + \hat{c}_p'\hat{T}, \quad
 	\hat{k} = 1 + \hat{k}'\hat{T}, \\
 	\hat{\phi} = \begin{cases}
-        0 & \quad \hat{T} \leq \hat{T}_S, \\
-        \frac{\hat{T}-\hat{T}_S}{\hat{T}_L-\hat{T}_S} & \quad \hat{T}_S < \hat{T} < \hat{T}_L, \\
-        1 & \quad \hat{T}_L \leq \hat{T},
+        0 & \quad \hat{h} \leq \hat{h}_S, \\
+        \frac{\hat{h}-\hat{h}_S}{\hat{h}_L-\hat{h}_S} & \quad \hat{h}_S < \hat{h} < \hat{h}_L, \\
+        1 & \quad \hat{h}_L \leq \hat{h}.
     \end{cases}
 \end{gather}
-where \(\hat{T}_S\) and \(\hat{T}_L\) are the solidus and liquidus temperatures, respectively.
 Therefore,
-\begin{equation}\label{eq:heat_conduction2}
-	\pder{\hat{t}}\left[\left(1 + \hat{\rho}'\hat{T}\right)
-	    \left(\hat{T} + \hat{c}_p'\hat{T}^2 + \Delta\idx[\hat{h}]{fus}\hat{\phi}(\hat{T})\right)\right]
-	    = \pder{\hat{x}_i}\left(\left(1 + \hat{k}'\hat{T}\right)\pder[\hat{T}]{\hat{x}_i}\right)
+\begin{equation}\label{eq:heat_conduction_hats}
+	\pder[\hat{h}]{\hat{t}} = \pder{\hat{x}_i}\left(
+	    \frac{1 - \hat{\psi}}{1 - \psi_0}
+	    \frac{1 + \hat{k}'\hat{T}}{1 + 2\hat{c}_p'\hat{T}}
+	    \pder[\hat{h}_*]{\hat{x}_i}
+	\right)
 \end{equation}
-is the dimensionless heat-conduction equation.
+is the dimensionless form of the heat-conduction equation for \(\hat{h}\),
+where \(\hat{h}_* = \hat{h} - \fusion{\hat{h}}\hat{\phi}\) and
+\begin{equation}\label{eq:temperature}
+	\hat{T} = \frac{\sqrt{1+4\hat{c}_p'\hat{h}_*}-1}{2\hat{c}_p'}
+\end{equation}
+when \(\hat{c}_p'>0\) and \(\hat{T} = \hat{h}_*\) when \(\hat{c}_p'=0\).
+\begin{equation}\label{eq:bc_hats}
+	\left( \hat{\alpha} + \frac{1 - \hat{\psi}}{1 - \psi_0}\left(1 + \hat{k}'\hat{T}\right)\pder{\hat{x}_3}\right)\hat{T}
+	    = \frac{A\hat{P}}{\pi}\exp\left(-(\hat{x}_1-\hat{U}\hat{t})^2 - \hat{x}_2^2\right)
+\end{equation}
+is the boundary conditions at \(\hat{x}_3=0\).
+\(\hat{h} = 0\) is the initial condition and boundary condition for other faces.
 
-\begin{comment}
-C = C_1 + (C_2-C_1)\frac{T-T_1}{T_2-T_1}
-C_0 = C(T=T_0)
-C = C_0 + (C_2-C_0)\frac{\hat{T}-1}{\hat{T_2}-1}
+\section{Numerical methods}
 
-[pV] = [Fs] = J
-[k] = J/m/K/s
-[c] = J/kg/K
-[\rho c] = J/K/m^3
-[H] = J/kg
-[h] = J/m^3 = [H\rho]
+For~\eqref{eq:heat_conduction_hats}, we can write
+\begin{gather}
+    F = \dder{\hat{x}_i}\left(
+        \frac{1 - \hat{\psi}}{1 - \psi_0}
+	    \frac{1 + \hat{k}'\hat{T}}{1 + 2\hat{c}_p'\hat{T}}
+	    \dder[\hat{h}_*]{\hat{x}_i}
+	\right), \\
+    \pert{F} = \dder{\hat{x}_i}\left[ \frac{1 - \hat{\psi}}{1 - \psi_0} \left(
+	    \frac{(\hat{k}' - 2\hat{c}_p')\pert{\hat{h}_*}}{(1 + 2\hat{c}_p'\hat{T})^3}
+	     \dder[\hat{h}_*]{\hat{x}_i}
+	    +
+	    \frac{1 + \hat{k}'\hat{T}}{1 + 2\hat{c}_p'\hat{T}}
+	    \dder[\pert{\hat{h}_*}]{\hat{x}_i}
+	\right)\right], \\
+    \diag{\pert{F}} \approx \frac{1 - \hat{\psi}}{1 - \psi_0} \left(
+	    \frac{\hat{k}' - 2\hat{c}_p'}{(1 + 2\hat{c}_p'\hat{T})^3} \dder[\hat{h}_*]{\hat{x}_i} \diag{\dder{\hat{x}_i}}
+	    +
+	    \frac{1 + \hat{k}'\hat{T}}{1 + 2\hat{c}_p'\hat{T}}
+	    \diag{\dder{\hat{x}_i}^2}
+	\right) \diag{\pert{\hat{h}_*}}.
+\end{gather}
+where
+\begin{gather}
+    \pert{\hat{h}_*} = \pert{\hat{h}} - \fusion{\hat{h}}\pert{\hat\phi}, \quad
+    \diag{\hat{h}_*} = \diag{\pert{\hat{h}_*}} = 1 - \fusion{\hat{h}}\diag{\pert{\hat\phi}}, \\
+	\pert{\hat{\phi}} = \begin{cases}
+        0 & \quad \hat{h} \leq \hat{h}_S, \quad \hat{h}_L \leq \hat{h}, \\
+        \pert{\hat{h}}/(\hat{h}_L-\hat{h}_S) & \quad \hat{h}_S < \hat{h} < \hat{h}_L, \\
+    \end{cases} \label{eq:pert_phi_h}\\
+	\diag{\pert{\hat{\phi}}} = \begin{cases}
+        0 & \quad \hat{h} \leq \hat{h}_S, \quad \hat{h}_L \leq \hat{h}, \\
+        1/(\hat{h}_L-\hat{h}_S) & \quad \hat{h}_S < \hat{h} < \hat{h}_L. \\
+    \end{cases} \label{eq:pert_phi_h_diag}
+\end{gather}
 
-
-\pder[h]{t} = \pder{x_i}\left(k\pder[T]{x_i}\right)
-J/m^3/s = K/m^2 [k]
-[k] = J/m/K/s
-[kT/L] = [P/L^2]
-[P] = [kTL]
-\end{comment}
+Nonlinear dependence~\eqref{eq:temperature} can be linearized; therefore, we have the following linear boundary condition at \(z=0\):
+\begin{equation}\label{eq:bc_linearized}
+	\left( \hat{\alpha} + \frac{1 - \hat{\psi}^n}{1 - \psi_0}\left(1 + \hat{k}'\hat{T}^n\right)\pder{\hat{x}_3}\right)
+	    \left( \hat{T}^n + \frac{\hat{h}_*^{n+1} - \hat{h}_*^n}{1+2\hat{c}_p'\hat{T}^n} \right)
+	    = \frac{A\hat{P}}{\pi}\exp\left(-(\hat{x}_1-\hat{U}\hat{t}^n)^2 - \hat{x}_2^2\right),
+\end{equation}
+where superscripts \(n\) and \(n+1\) correspond to the previous and current iterations, respectively.
 
 \end{document}
+
+0 = T + c'T^2 + phi - h
+T = (-1+\sqrt{1+4c'(h-phi)})/2c'
+\psi = \psi_0 -- \phi=0
+\psi = 0      -- \phi=1
+\psi = \psi_0 - \phi\psi_0
 

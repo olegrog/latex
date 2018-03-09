@@ -79,7 +79,7 @@ derived = dict2nt('derived', {
     'fusion_capacity': alloy.fusion_heat/(alloy.liquidus-alloy.solidus),
     'solidus': alloy.solidus - eval(args.zero_temp),
     'liquidus': alloy.liquidus - eval(args.zero_temp),
-    'delta_fusion': alloy.liquidus - alloy.solidus,
+    'fusion_delta': alloy.liquidus - alloy.solidus,
 })
 
 basis1 = [  # for diffusive time scale
@@ -112,7 +112,7 @@ dimensionless = [
     ( alloy, 'fusion_heat', basis2),
     ( derived, 'liquidus', basis2 ),
     ( derived, 'solidus', basis2 ),
-    ( derived, 'delta_fusion', basis2 ),
+    ( derived, 'fusion_delta', basis2 ),
     ( derived, 'fusion_capacity', basis1 ),
     ( derived, 'total_time', basis1 ),
 ] + get_derivatives1(alloy)
