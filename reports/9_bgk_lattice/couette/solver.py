@@ -56,41 +56,58 @@ to_arr = lambda macro: macro if hasattr(macro.rho, '__len__') else Macro(*[ np.a
 _from_arr = lambda vel: slice(None) if len(vel.shape) > 1 else 0
 from_arr = lambda macro: slice(None) if hasattr(macro.rho, '__len__') else 0
 
-### DVM velocity grid
-def poly_correct(f, macro, xi):
-    # see Aristov, Tcheremissine 1980
-    sqr_xi = np.einsum('il,il->i', xi, xi)
-    c = np.einsum('il,a->ail', xi, np.ones_like(macro.rho)) - np.einsum('i,al->ail', np.ones_like(sqr_xi), macro.vel)
-    sqr_c = np.einsum('ail,ail->ai', c, c)
-    m0 = np.einsum('ai->a', f)
-    m1_i = np.einsum('ai,il->al', f, xi)
-    m2 = np.einsum('ai,i->a', f, sqr_xi)
-    m2_ij = np.einsum('ai,il,im->alm', f, xi, xi)
-    m3_i = np.einsum('ai,i,il->al', f, sqr_xi, xi)
-    M2 = np.einsum('ai,ai->a', f, sqr_c)
-    M3_i = np.einsum('ai,ai,il->al', f, sqr_c, xi)
-    M4 = np.einsum('ai,ai,i->a', f, sqr_c, sqr_xi)
+def poly_correction(moments, energy_moments, delta, xi):
+    m0, m1_i, m2, m2_ij, m3_i, m4 = moments()
+    M2, M3_i, M4 = energy_moments()
     _ = lambda v: v.reshape((-1,1))
     __ = lambda v: v.reshape((-1,3,1))
-    exact = np.einsum('a,al->al', macro.rho, np.hstack(( _(np.ones_like(macro.rho)), macro.vel, 1.5*_(macro.temp) )))
-    real = np.hstack(( _(m0), m1_i, _(M2) ))
     A = np.hstack((
         np.hstack(( _(m0), m1_i, _(m2) )).reshape((-1,1,5)),
         np.dstack(( __(m1_i), m2_ij, __(m3_i) )),
         np.hstack(( _(M2), M3_i, _(M4) )).reshape((-1,1,5))
     ))
-    alpha = np.linalg.solve(A, exact - real)
+    alpha = np.linalg.solve(A, delta)
+    sqr_xi = np.einsum('il,il->i', xi, xi)
     psi = np.hstack(( _(np.ones_like(sqr_xi)), xi, _(sqr_xi) ))
-    return f * (1 + np.einsum('al,il->ai', alpha, psi))
+    return np.einsum('al,il->ai', alpha, psi)
 
-def entropy_correct(f):
+def poly_correct_moments(model, F, mask, M0, M1_i, M2):
+    m0, m1_i, m2, m2_ij, m3_i, m4 = calc_first_moments0(model, F, mask, all=True)
+    _ = lambda v: v.reshape((-1,1))
+    return poly_correction(
+        lambda: (m0, m1_i, m2, m2_ij, m3_i, m4),
+        lambda: (m2, m3_i, m4),
+        np.hstack(( _(M0), M1_i, _(M2) )),
+        model.xi()[mask,:]
+    )[_from_arr(F)]
+
+def poly_correct(f, macro, xi):
+    # see Aristov, Tcheremissine 1980
+    m0, m1_i, m2, m2_ij, m3_i, m4 = calc_first_moments0(None, f, all=True, xi=xi)
+    sqr_xi = np.einsum('il,il->i', xi, xi)
+    c = np.einsum('il,a->ail', xi, np.ones_like(macro.rho)) - np.einsum('i,al->ail', np.ones_like(sqr_xi), macro.vel)
+    sqr_c = np.einsum('ail,ail->ai', c, c)
+    M2 = np.einsum('ai,ai->a', f, sqr_c)
+    M3_i = np.einsum('ai,ai,il->al', f, sqr_c, xi)
+    M4 = np.einsum('ai,ai,i->a', f, sqr_c, sqr_xi)
+    _ = lambda v: v.reshape((-1,1))
+    exact = np.einsum('a,al->al', macro.rho, np.hstack(( _(np.ones_like(macro.rho)), macro.vel, 1.5*_(macro.temp) )))
+    real = np.hstack(( _(m0), m1_i, _(M2) ))
+    return f * (1 + poly_correction(
+        lambda: (m0, m1_i, m2, m2_ij, m3_i, m4),
+        lambda: (M2, M3_i, M4),
+        exact - real, xi
+    ))
+
+def entropy_correct(f, macro, xi):
     # see Mieussens 2000
     raise NotImplementedError()
 
-def lagrange_correct(f):
+def lagrange_correct(f, macro, xi):
     # see Gamba, Tharkabhushanam 2009
     raise NotImplementedError()
 
+### DVM velocity grid
 def dvm_grid():
     correct = lambda func, macro: {
         'none': lambda f, macro, xi: f,
@@ -257,6 +274,21 @@ def calc_moment0(model, F, n):
     xi = np.sqrt(np.einsum('il,il->i', model.xi(), model.xi()))
     return np.einsum('ai,i->a', f, xi**n)
 
+def calc_first_moments0(model, F, mask=slice(None), all=False, xi=None):
+    f = _to_arr(F)[:,mask]
+    if xi is None:
+        xi = model.xi()[mask,:]
+    sqr_xi = np.einsum('il,il->i', xi, xi)
+    m0 = np.einsum('ai->a', f)
+    m1_i = np.einsum('ai,il->al', f, xi)
+    m2 = np.einsum('ai,i->a', f, sqr_xi)
+    if not all:
+        return m0, m1_i, m2
+    m2_ij = np.einsum('ai,il,im->alm', f, xi, xi)
+    m3_i = np.einsum('ai,i,il->al', f, sqr_xi, xi)
+    m4 = np.einsum('ai,i,i->a', f, sqr_xi, sqr_xi)
+    return m0, m1_i, m2, m2_ij, m3_i, m4
+
 def reconstruct(old_model, new_model, f):
     macro = calc_macro0(old_model, f)
     return new_model.Grad13(macro)
@@ -293,6 +325,8 @@ def calc_moment(solution, n):
 def total_values(domains):
     y, h, macro = calc_macro(domains)
     print 'Total mass =', 2*sum(h*macro.rho)
+    print 'Total momentum =', np.einsum('a,al', h*macro.rho, macro.vel)
+    print 'Total energy =', 2*sum(h*macro.rho*(1.5*macro.temp + np.einsum('al,al->a', macro.vel, macro.vel)))
 
 def check(f):
     if np.sum(np.isnan(f)) > 0:
@@ -463,10 +497,10 @@ class Couple(Boundary):
             # conservative correction of the reconstructed flux
             if self._idx_partner:               # correct for both domains
                 xi_y_partner = model_partner.xi()[...,1]
-                corr = np.sum(xi_y_partner*self._F_partner[self._idx_partner]) - np.sum(xi_y*F)
-                logging.debug('Couple BC velocity correction: %g' % corr)
-                #F *= 1 + 2*xi_y*corr           # satisfactory correction for small Ma
-                F *= 1 + corr/xi_y/np.sum(F)    # correction for all Ma
+                m0, m1_i, m2 = calc_first_moments0(model_partner, xi_y_partner*self._F_partner[self._idx_partner])
+                M0, M1_i, M2 = calc_first_moments0(model, xi_y*F)
+                logging.debug('Couple BC velocity correction: mass %g, momentum %g, energy %g' % ((m0-M0)[0], (m1_i-M1_i)[0,0], (m2-M2)[0]))
+                F[mask] *= 1 + poly_correct_moments(model, xi_y*F, mask, m0-M0, m1_i-M1_i, m2-M2)
     def last_flux_is_calculated(self):
         bcs[self._n_partner][self._idx_partner]._lock_F.set()
     def all_fluxes_are_calculated(self):
