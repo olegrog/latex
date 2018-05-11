@@ -148,10 +148,16 @@ Some discrete operators can be calculated using the following functions:
         \diag{\pert{\FF^n}} = \dder{x}(k(x^n)\dder{x}^{nn}).
     \]
     If we suppose that \(k(x)\) is slowly varying function, then \[
-        \diag{\pert{\FF^n}} \approx k(x^n)\dder{x,x}^{nn},
+        \diag{\pert{\FF^n}} \approx k(x^n)(\dder{x}^2)^{nn},
     \]
     otherwise the diagonal term depends on the form of \(\dder{x}^{mn}\).
 \end{example}
+\begin{remark}
+    Note that in general \[
+        (\dder{x}^2)^{nm} \neq \dder{x,x}^{nm};
+    \]
+    therefore, their diagonals are also not equal.
+\end{remark}
 
 \begin{exercise}
     Calculate the desired functions for \[
