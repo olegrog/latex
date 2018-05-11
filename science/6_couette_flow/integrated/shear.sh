@@ -7,8 +7,8 @@ set key right bottom maxrows 5 width -7
 set sample 101
 
 set xlabel '$\mathrm{Kn}$' offset graph 0.5, 0.14
-set ylabel '$\displaystyle \int_0^\frac12 \frac{P_{xy}}{\Delta v}\mathrm{d}y + \frac{P_{N\!Sxy}^*k}{\Delta{v}+2\sqrt\pi P_{N\!Sxy}^*k}$' \
-    offset graph 1.31, 0.45 rotate by 0
+set ylabel '$\displaystyle \frac{P_{xy}}{\Delta v} + \frac{\sqrt\pi P_{N\!Sxy}^*\mathrm{Kn}}{\Delta{v}+\pi P_{N\!Sxy}^*\mathrm{Kn}}$' \
+    offset graph 1.15, 0.45 rotate by 0
 
 set border 3
 set xtics nomirror
@@ -21,7 +21,7 @@ set xzeroaxis
 
 set xrange [0.007:150]
 #set yrange [1e-3:1.5e-1]
-set yrange [-0.015:0.015]
+set yrange [-0.03:0.03]
 
 gamma1 = 1.270042427
 k0_hs = -1.2540
@@ -32,15 +32,15 @@ Pxy1 = -6.48827e-01
 Pxy2 = -6.88298e-01
 Pxy5 = -9.13379e-01
 
-free = -0.5/sqrt(pi)
+free = -1./sqrt(pi)
 fluid(x) = -gamma1/2*x
 asym_hs(x) = x < 3 ? -gamma1*x/(1-2*k0_hs*x) : 1/0
 asym_bkw(x) = x < 3 ? -x/(1-2*k0_bkw*x) : 1/0
 near_free(x) = free * x/(x+k)
 
-base(x,y) = -fluid(x)/(1-2*sqrt(pi)*fluid(x)) + y/2
-base2(x,y,f) = -f*x/(1-2*sqrt(pi)*f*x) + y
-base3(x,y,f) = -f*x/(1-2*sqrt(pi)*f*x) + y/2
+base(x,y) = -2*fluid(x)/(1-2*sqrt(pi)*fluid(x)) + y
+base2(x,y,f) = -2*f*x/(1-2*sqrt(pi)*f*x) + 2*y
+base3(x,y,f) = -2*f*x/(1-2*sqrt(pi)*f*x) + y
 #base(x,y) = free*x/(1+x) - y/2
 #base2(x,y,f) = free*x/(1+x) - y
 #base3(x,y,f) = free*x/(1+x) - y/2
