@@ -23,6 +23,9 @@ parser.add_argument('-c', '--correction', default='poly', metavar='none|poly|ent
 parser.add_argument('-n', '--norm', default='L2', metavar='L1|L2|Linf', help='norm for distance between solutions')
 parser.add_argument('-p', '--plot', type=int, default=10, metavar='<int>', help='plot every <int> steps')
 parser.add_argument('--plot-norms', action='store_true', help='plot profiles of the norms instead')
+parser.add_argument('--plot-ns', action='store_true', help='plot profiles for Navier--Stokes--Fourier equations')
+parser.add_argument('--qflow-factor', type=float, default=40, metavar='<float>', help='plot <float>*qflow instead of qflow')
+parser.add_argument('--epsilon', type=float, default=1e-5, metavar='<float>', help='maximum error in test mode')
 parser.add_argument('-t', '--tests', action='store_true', help='run some tests instead')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
 args = parser.parse_args()
@@ -35,16 +38,18 @@ logging.basicConfig(level=log_level, format='(%(threadName)-10s) %(message)s')
 
 ### Constants
 class fixed:
+    D = 3               # dimension of velocity space
     T_B = 1             # temperature of the plates
     L = 0.5             # width of computational domain
     sqr_a = .5          # sound velocity in LBM
-kn = args.kn
+
+kn, modified_kn = args.kn, np.pi**.5*args.kn/2  # we need 'kn' to calculate width
 args.width = min(eval(args.width), fixed.L/2)
-zeros, ones = np.zeros(3), np.ones(3)
+zeros, ones = np.zeros(fixed.D), np.ones(fixed.D)
 hodge = np.zeros((3,3,3))
 hodge[0, 1, 2] = hodge[1, 2, 0] = hodge[2, 0, 1] = 1
 hodge[0, 2, 1] = hodge[2, 1, 0] = hodge[1, 0, 2] = 1
-e_x, e_y, e_z = np.eye(3)
+e_x, e_y, e_z = np.eye(fixed.D)
 
 ### Auxiliary functions (d = domain, m = model)
 delta_y0 = lambda d: d.L/d.N if d.q == 1 else d.L*(1-d.q)/(1-d.q**d.N)
@@ -60,11 +65,11 @@ def poly_correction(moments, energy_moments, delta, xi):
     m0, m1_i, m2, m2_ij, m3_i, m4 = moments()
     M2, M3_i, M4 = energy_moments()
     _ = lambda v: v.reshape((-1,1))
-    __ = lambda v: v.reshape((-1,3,1))
+    __ = lambda v: v.reshape((-1,fixed.D,1))
     A = np.hstack((
-        np.hstack(( _(m0), m1_i, _(m2) )).reshape((-1,1,5)),
+        np.hstack(( _(m0), m1_i, _(m2) )).reshape((-1,1,2+fixed.D)),
         np.dstack(( __(m1_i), m2_ij, __(m3_i) )),
-        np.hstack(( _(M2), M3_i, _(M4) )).reshape((-1,1,5))
+        np.hstack(( _(M2), M3_i, _(M4) )).reshape((-1,1,2+fixed.D))
     ))
     alpha = np.linalg.solve(A, delta)
     sqr_xi = np.einsum('il,il->i', xi, xi)
@@ -91,7 +96,7 @@ def poly_correct(f, macro, xi):
     M3_i = np.einsum('ai,ai,il->al', f, sqr_c, xi)
     M4 = np.einsum('ai,ai,i->a', f, sqr_c, sqr_xi)
     _ = lambda v: v.reshape((-1,1))
-    exact = np.einsum('a,al->al', macro.rho, np.hstack(( _(np.ones_like(macro.rho)), macro.vel, 1.5*_(macro.temp) )))
+    exact = np.einsum('a,al->al', macro.rho, np.hstack(( _(np.ones_like(macro.rho)), macro.vel, fixed.D*_(macro.temp)/2. )))
     real = np.hstack(( _(m0), m1_i, _(M2) ))
     return f * (1 + poly_correction(
         lambda: (m0, m1_i, m2, m2_ij, m3_i, m4),
@@ -123,7 +128,7 @@ def dvm_grid():
         n = np.where((_xi_y < 0)*(_sqr_xi(zeros) <= args.radius**2))
         return np.hstack((n[0], p[0][::symm])), np.hstack((n[1], p[1])), np.hstack((n[2], p[2]))
 
-    idx, delta_v = lambda M: np.arange(2*M) - M + .5, args.radius / args.M
+    idx, delta_v, D = lambda M: np.arange(2*M) - M + .5, args.radius / args.M, fixed.D
     _Xi, _I = delta_v * idx(args.M), np.ones(2*args.M)
     dom = lambda v: np.ones(v.shape[0])
     I = lambda v: np.ones((v.shape[0], 2*args.M))
@@ -137,10 +142,10 @@ def dvm_grid():
 
     xi = lambda v: np.einsum('lai,laj,lak->aijkl', G(v, 0), G(v, 1), G(v, 2))[(slice(None),) + _ball]
     sqr_xi = lambda v: np.einsum('ail,ail->ai', xi(v), xi(v))
-    Maxw = lambda m: np.einsum('a,ai->ai', m.rho/(np.pi*m.temp)**1.5*delta_v**3, np.exp(np.einsum('ai,a->ai', -sqr_xi(m.vel), 1./m.temp)))
+    Maxw = lambda m: np.einsum('a,ai->ai', m.rho*(delta_v/np.sqrt(np.pi*m.temp))**D, np.exp(np.einsum('ai,a->ai', -sqr_xi(m.vel), 1./m.temp)))
 
     G1 = lambda m: np.einsum('ail,aim,an,lmn,a->ai', xi(m.vel), xi(m.vel), m.tau, hodge, 1/m.rho/m.temp**2)
-    G2 = lambda m: .8 * np.einsum('ail,al,ai,a->ai', xi(m.vel), m.qflow, np.einsum('ai,a->ai', sqr_xi(m.vel), 1/m.temp) - 2.5, 1/m.rho/m.temp**2)
+    G2 = lambda m: .8 * np.einsum('ail,al,ai,a->ai', xi(m.vel), m.qflow, np.einsum('ai,a->ai', sqr_xi(m.vel), 1/m.temp) - (D+2.)/2, 1/m.rho/m.temp**2)
     Grad13 = lambda m: Maxw(m) * (1 + G1(m) + G2(m))
 
     return Model(
@@ -152,13 +157,13 @@ def dvm_grid():
     )
 
 ### LBM velocity grid
-def lbm_d3(stretch, nodes, weights, full=True):
+def lbm_d3(order, stretch, nodes, weights, full=True):
     lattice = []
     def sort(item):
-        return 10*np.sum(item[0]) + np.sum(item[0]/10**np.arange(3.))
+        return 10*np.sum(item[0]) + np.sum(item[0]/10**np.arange(fixed.D))
     def add_symm(i, node, lattice):
         if i < 3:
-            s = np.ones(3); s[i] *= -1
+            s = np.ones(fixed.D); s[i] *= -1
             if node[i]:
                 add_symm(i+1, node, lattice)
                 add_symm(i+1, s*node, lattice)
@@ -175,25 +180,26 @@ def lbm_d3(stretch, nodes, weights, full=True):
                 break
     for node in nodes:
         add_cycle(node, lattice)
-        if len(set(node)) == 3 and full:
+        if len(set(node)) == fixed.D and full:
             add_cycle(node[::-1], lattice)
         weights = np.roll(weights, -1)
     xi, w = np.transpose(sorted(lattice, key=sort))
-    return Lattice(np.vstack(xi), np.hstack(w))
+    return Lattice(np.vstack(xi), np.hstack(w), order)
 
 def lbm_grid():
-    _xi, _w = lattices[args.lattice].xi, lattices[args.lattice].w
-    a = fixed.sqr_a
+    _xi, _w, order = lattices[args.lattice].xi, lattices[args.lattice].w, lattices[args.lattice].order
+    a, D = fixed.sqr_a, fixed.D
     xi_v = lambda v: np.einsum('il,al', _xi, v)/a
     sqr_xi = np.einsum('il,il->i', _xi, _xi)/a
     sqr = lambda v: np.einsum('al,al,i->ai', v, v, np.ones_like(_w))/a
     weighted = lambda f: np.einsum('i,ai->ai', _w, f)
     weighted_rho = lambda m, f: np.einsum('a,i,ai->ai', m.rho, _w, f)
     xi = lambda v: np.einsum('il,a', _xi, np.ones(v.shape[0])) - np.einsum('i,al', np.ones_like(_w), v)
+    Tn = lambda n: 1./np.math.factorial(n) * np.heaviside(order-2*n, 1)
 
-    T1 = lambda m: xi_v(m.vel)
-    T2 = lambda m: ( (xi_v(m.vel))**2 - sqr(m.vel) + np.einsum('a,i', m.temp-1, sqr_xi-3) ) / 2
-    T3 = lambda m: xi_v(m.vel)*( xi_v(m.vel)**2 - 3*sqr(m.vel) + 3*np.einsum('a,i', m.temp-1, sqr_xi-5) ) / 6
+    T1 = lambda m: xi_v(m.vel) * Tn(1)
+    T2 = lambda m: ( (xi_v(m.vel))**2 - sqr(m.vel) + np.einsum('a,i', m.temp-1, sqr_xi-D) ) * Tn(2)
+    T3 = lambda m: xi_v(m.vel)*( xi_v(m.vel)**2 - 3*sqr(m.vel) + 3*np.einsum('a,i', m.temp-1, sqr_xi-D-2) ) * Tn(3)
     Maxw = lambda m: weighted_rho(m, 1 + T1(m) + T2(m) + T3(m))
     G2 = lambda m: np.einsum('il,im,an,lmn->ai', _xi, _xi, m.tau, hodge)
     G3 = lambda m: xi_v(m.qflow) * (sqr_xi/5-1) + G2(m)*xi_v(m.vel) - 2*np.einsum('il,am,an,lmn->ai', _xi, m.vel, m.tau, hodge)
@@ -221,7 +227,7 @@ def splot(model, f):
 def plot_profiles(solution):
     plt.clf()
     y, h, m = calc_macro(solution)
-    U, factor = args.U, 40
+    U, factor = args.U, args.qflow_factor
     plt.title(domains[0].model.info, loc='left')
     plt.title(domains[1].model.info, loc='right')
     plt.title('Kn = %g, U = %g' % (args.kn, args.U))
@@ -244,10 +250,17 @@ def plot_profiles(solution):
         #plt.plot(Y, 0*Y + np.pi**-.5, 'g-.')                        # k = \infty
         plt.plot(y, m.vel[:,0]/U, 'r*-', label='velocity/U')
         plt.plot(y, -m.tau[:,2]/U, 'g*-', label='share stress/U')
-        plt.plot(y, -factor*m.qflow[:,0]/U, 'b*-', label='%d*heat flow/U' % factor)
+        plt.plot(y, -factor*m.qflow[:,0]/U, 'b*-', label='%g*qflow_x/U' % factor)
+        plt.plot(y, (m.temp-1)/U**2, 'y', label='(temp-1)/U^2')
+        plt.plot(y, m.qflow[:,1]/U**2/modified_kn, 'c', label='qflow_y/U^2/k')
         y, norm = calc_norm(solution, args.norm)
         factor = -int(factor*m.qflow[-1,0]/U/norm[-1])
         plt.plot(y, norm*factor, 'k*-', label='%g*%s' % (factor, args.norm))
+        if args.plot_ns:
+            plt.plot(Y, Y, 'r:')
+            plt.plot(Y, modified_kn+Y*0, 'g:')
+            plt.plot(Y, .1-.4*Y**2, 'y:')
+            plt.plot(Y, .8*Y, 'c:')
         legend = plt.legend(loc='upper center')
     plt.xlim(0, .5)
     plt.grid()
@@ -264,7 +277,7 @@ def calc_macro0(model, F):
     csqr_c = np.einsum('ai,ail->ail', sqr_c, c)
     cc_ij = np.einsum('ail,aim->ailm', c, c)
     cc = np.einsum('ailm,lmn', cc_ij, hodge)
-    temp = 2./3*np.einsum('ai,ai,a->a', f, sqr_c, 1./rho)
+    temp = np.einsum('ai,ai,a->a', f, sqr_c, 2./rho)/fixed.D
     qflow = np.einsum('ai,ail->al', f, csqr_c)
     tau = np.einsum('ai,ail->al', f, cc)
     return Macro(*[ m[_from_arr(F)] for m in (rho, vel, temp, tau, qflow) ])
@@ -325,13 +338,15 @@ def calc_moment(solution, n):
 def total_values(domains):
     y, h, macro = calc_macro(domains)
     print 'Total mass =', 2*sum(h*macro.rho)
-    print 'Total momentum =', np.einsum('a,al', h*macro.rho, macro.vel)
-    print 'Total energy =', 2*sum(h*macro.rho*(1.5*macro.temp + np.einsum('al,al->a', macro.vel, macro.vel)))
+    print 'Total half momentum =', np.einsum('a,al', h*macro.rho, macro.vel)
+    print 'Total energy =', 2*sum(h*macro.rho*(fixed.D*macro.temp/2 + np.einsum('al,al->a', macro.vel, macro.vel)))
 
-def check(f):
+def check(f, flux=False):
     if np.sum(np.isnan(f)) > 0:
+        logging.error('NaN:')
+        print f
         raise NameError("NaN has been found!")
-    if np.sum(f<0) > 0:
+    if np.sum(f<0) > 0 and not flux:
         logging.error('Negative:')
         print np.argwhere(f<0)
         print f[f<0]
@@ -341,11 +356,11 @@ def check(f):
 def transport(domain, bc, solution, delta_t):
     np.seterr(all='raise') # for all transport threads
     logging.debug('Starting transfer')
-    N, xi_y, _xi_y = domain.N, domain.model.xi(np.zeros((domain.N, 3)))[...,1], domain.model.xi()[...,1]
+    N, xi_y, _xi_y = domain.N, domain.model.xi(np.zeros((domain.N, fixed.D)))[...,1], domain.model.xi()[...,1]
     gamma, h = _xi_y * delta_t,  delta_y(domain)
     mask, _mask = lambda sgn, N: sgn*xi_y[0:N] > 0, lambda sgn: sgn*_xi_y > 0
     def calc_F(h, f, idx, F, Idx, mask):
-        logging.debug('  - calc_F')
+        logging.debug(' - calc_F')
         g = np.einsum('i,a', gamma, 1/h[idx])[mask]
         d1, d2 = f[idx+1] - f[idx], f[idx] - f[idx-1]
         h1, h2 = (h[idx+1] + h[idx])/2, (h[idx] + h[idx-1])/2
@@ -366,7 +381,7 @@ def transport(domain, bc, solution, delta_t):
         calc_F(h3, f3, np.array([1]), F, slice(-1, None), m1)   # last flux
         bc.last_flux_is_calculated()
         calc_F(h, f, np.arange(1, N-1), F, slice(2, -1), mN)    # interior fluxes
-        #check(F[2:][mask(sgn, N-1)]) # after calc2N
+        check(F[2:][mask(sgn, N-1)], flux=True) # after calc2N
     def calc01(h, f, F, sgn, bc):
         logging.debug(' - calc01 %+d', sgn)
         m0, m1, m2 = _mask(sgn), mask(sgn, 1), mask(sgn, 2)
@@ -375,15 +390,15 @@ def transport(domain, bc, solution, delta_t):
         f3[1:][m2], h3[1:] = f2[m2], h2
         h3[0] = bc.first_cell(h3, f3, f, m0)
         calc_F(h3, f3, np.array([1]), F, slice(1, 2), m1)       # second flux
-        #check(F[:2][m2]) # after calc01
+        check(F[:2][m2], flux=True) # after calc01
     f, F, f3, h3 = solution.f, solution.F, solution.f3, np.empty(3)
     #F.fill(np.NaN); f3.fill(np.NaN);                            # for debug
     calc2N(h, f, F, 1, bc[1])
     calc2N(h[::-1], f[::-1], F[::-1], -1, bc[0])
     calc01(h, f, F, 1, bc[0])
     calc01(h[::-1], f[::-1], F[::-1], -1, bc[1])
-    #check(f3)
-    #check(F)
+    check(f3, flux=True)
+    check(F, flux=True)
     for b in bc:
         b.all_fluxes_are_calculated()
     for b in bc:
@@ -397,7 +412,7 @@ def transport(domain, bc, solution, delta_t):
 def bgk(domain, bc, solution, delta_t):
     logging.debug('Starting BGK')
     macro = calc_macro0(domain.model, solution.f)
-    nu = lambda rho: 2/(np.pi**.5*args.kn) * rho
+    nu = lambda rho: rho / modified_kn
     M = domain.model.Maxw(macro)
     solution.f[:] = np.einsum('ai,a->ai', solution.f - M, np.exp(-delta_t*nu(macro.rho))) + M
     check(solution.f) # after BGK
@@ -577,15 +592,18 @@ def solve_bgk():
         plt.ioff(); plt.show()
 
 def tests():
+    fmt_float, fmt_str = '%+.2e', '%9s'
+    dev2str = lambda x: fmt_str % '0' if np.fabs(x) < 1e1*np.finfo(float).eps else fmt_float % x
     def is_almost_equal(a, b):
-        assert np.sum(np.abs(a-b)) < 1e-5
+        if args.epsilon:
+            assert np.sum(np.abs(a-b)) < args.epsilon
     def print_sample(m, m0):
         s = lambda name: m._asdict()[name] - m0._asdict()[name]
         v = lambda name, idx: m._asdict()[name][idx] - m0._asdict()[name][idx]
         columns = ( 'rho', 'temp', 'vel_x', 'vel_y', 'p_xy', 'q_x', 'q_y' )
         values = ( s('rho'), s('temp'), v('vel', 0), v('vel', 1), v('tau', 2), v('qflow', 0), v('qflow', 1) )
-        print 'Variable: ', ''.join(['%9s ' for i in range(len(columns))]) % columns
-        print 'Deviation:', ''.join(['%+.2e ' for i in range(len(values))]) % values
+        print 'Variable: ', ''.join([fmt_str + ' ' for i in range(len(columns))]) % columns
+        print 'Deviation:', ''.join([fmt_str + ' ' for i in range(len(values))]) % tuple(map(dev2str, values))
     def check_macro(model, f, expected):
         computed = calc_macro0(model, f)
         print_sample(computed, expected)
@@ -614,7 +632,7 @@ def tests():
 
 Macro = namedtuple('Macro', 'rho vel temp tau qflow')
 Macro.__new__.__defaults__ = (1., zeros, 1., zeros, zeros)
-Lattice = namedtuple('Lattice', 'xi w')
+Lattice = namedtuple('Lattice', 'xi w order')
 # some constants for non-space filling lattices
 q, Q = np.sqrt(15), np.sqrt(5)
 r, s, t = np.sqrt((15+q)/2), np.sqrt(6-q), np.sqrt(9+q)
