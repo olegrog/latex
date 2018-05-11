@@ -16,9 +16,9 @@ inner = .8*N_R;
 delta = Round(N_theta/8);
 
 q_r = Exp(Log(refine_r*R/r*12)/N_R);
-p_r = Exp(Log(refine_r*R/r/4)/N_R);
-q_c = Exp(Log(refine_c)/N_theta);
-Printf("q_r = %f, q_c = %f", q_r, q_c);
+q_R = Exp(Log(refine_c)/N_theta);
+q_sw = Exp(Log(refine_c)/N_theta);
+Printf("q_r = %f, q_R = %f, delta = %.0f", q_r, q_R, delta);
 Printf("total cells = %.0f", (inner+outer)*N_theta);
 
 Point(1) = {0, 0, 0};
@@ -50,14 +50,15 @@ Line Loop(2) = {6, 11, 3, 4, 13, 5};
 Plane Surface(1) = {1};
 Plane Surface(2) = {2};
 
-Transfinite Line {1, -2} = N_theta+1;
-Transfinite Line {3, -4} = N_theta+1 Using Progression q_c;
-Transfinite Line {-6} = N_theta-delta+1 Using Progression q_c;
-Transfinite Line {5} = N_theta+delta+1 Using Progression q_c;
-Transfinite Line {12} = inner+1 Using Bump 0.1;
-Transfinite Line {-13} = outer+1 Using Progression q_r;
-Transfinite Line {11} = outer+1 Using Progression Exp(Log(refine_r*R/r/10)/N_R);
-Transfinite Line {-10} = inner+1 Using Progression Exp(Log(refine_r*R/r/5)/N_R);
+Transfinite Line {1, -2} = N_theta+1;                                               // inner back+front
+Transfinite Line {3} = N_theta-delta*0+1 Using Progression q_R;                     // outer back
+Transfinite Line {-4} = N_theta+delta*0+1 Using Progression q_R;                    // outer front
+Transfinite Line {-6} = N_theta-delta+1 Using Progression q_sw;                     // sw back
+Transfinite Line {5} = N_theta+delta+1 Using Progression q_sw;                      // sw front
+Transfinite Line {12} = inner+1 Using Bump 0.2;                                     // sw--inner front
+Transfinite Line {-13} = outer+1 Using Progression q_r;                             // sw--outer front
+Transfinite Line {11} = outer+1 Using Progression Exp(Log(refine_r*R/r/10)/N_R);    // sw--outer back
+Transfinite Line {-10} = inner+1 Using Progression Exp(Log(refine_r*R/r/5)/N_R);    // sw--inner back
 Transfinite Surface {1} = {2, 14, 12, 6};
 Transfinite Surface {2} = {14, 4, 7, 12};
 Recombine Surface {1, 2};

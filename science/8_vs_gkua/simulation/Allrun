@@ -36,9 +36,13 @@ BEGIN {
 }' $old > $file
 }
 
+window=10.0
+[[ $# > 0 ]] && window=$1
+echo "Window for averaging: $window"
+
 echo "Running out2foam.py"
 $HOME/kesolver/tools/out2foam.py $proj --kn=$kn
-cat ../controlDict >> system/controlDict
+cat ../controlDict | sed 's/\( *window *\)[0-9\.]*;/\1'$window';/' >> system/controlDict
 
 run_app correctBC
 run_app calcPressure
@@ -49,7 +53,8 @@ run_app emptyFoam
 #change_field $last/UMean extrapolatedSlipGradient #slip
 #run_app correctBC -latestTime
 #run_app foamToVTK -latestTime
-#run_app foamToTecplot360 -latestTime
+
+run_app foamToTecplot360 -latestTime
 
 echo ok
 

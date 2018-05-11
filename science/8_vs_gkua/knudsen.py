@@ -33,12 +33,12 @@ nu = lambda T: np.sqrt(2*kB*T*NA/gas.mm)
 
 # parameters of problem
 L, m = 0.178, 2.5
-H = np.array([ 105.0011178e+3, 90.00174149e+3])
-T = np.array([ 208.835, 186.867 ])
-p = np.array([ 0.0144771, 0.183593 ])
-Kn = np.array([ 1.8903, 1.3338e-1 ])
-Re = np.array([ 1.0489, 2.6862e+1 ])
-Ma = np.array([ 1.330, 2.403 ])
+H = np.array([ 105.0011178e+3, 90.00174149e+3, 70.00208638e+3 ])
+T = np.array([ 208.835, 186.867, 219.575 ])
+p = np.array([ 0.0144771, 0.183593, 5.2180613 ])
+Kn = np.array([ 1.8903, 1.3338e-1, 5.5130E-03 ])
+Re = np.array([ 1.0489, 2.6862e+1, 8.2006E+02 ])
+Ma = np.array([ 1.330, 2.403, 3.032 ])
 
 print "mass of %s: " % args.gas, gas.m, gas.mm/NA
 

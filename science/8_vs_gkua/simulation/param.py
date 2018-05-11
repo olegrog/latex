@@ -9,11 +9,11 @@ num = 4 if len(sys.argv) == 1 else int(sys.argv[1])
 H = [ 30, 50, 70, 90, 105 ]
 Kn = [ 2.48e-5, 4.4460e-4, 5.5130e-3, 0.13338, 1.8903 ]
 Ma = [ 2.278, 3.190, 3.032, 2.403, 1.33 ]
-Cut = [ -1, -1, 8,5, 7.5, 6.5 ]
+Cut = [ -1, -1, 8.5, 7.5, 6.5 ]
 idx = 2
 H, Kn, Ma, Cut = [H[idx]], [Kn[idx]], [Ma[idx]], [Cut[idx]]
 
-base_korob, base_endtime = 50e3, 6e3   # crude: 5e1, 1e4   fine: 2e2, 5e2
+base_korob, base_endtime = 50e3, 10e3   # crude: 5e1, 1e4   fine: 2e2, 5e2
 rad, macro = 8, 100                     # crude: 8, 50      fine: 20, 50
 
 korob = lambda kn: base_korob #*rad**2
@@ -40,6 +40,8 @@ for h, kn, ma, cut in zip(H, Kn, Ma, Cut):
     T_B, U = 1 + ma**2/3, ma*(5./3)**.5
     with open(name + '.kep', 'r') as f:
         data = json.load(f)
+    if not 'volume' in data['gas']: # for uniform grid
+        cut = cut - 2
     data['printer']['dir']                      = 'result/'
     data['printer']['savemacro']                = int(endtime(kn)/macro)
     data['printer']['savefuncfreq']             = int(endtime(kn)/macro)*macro

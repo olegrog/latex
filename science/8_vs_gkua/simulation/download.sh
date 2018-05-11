@@ -2,7 +2,7 @@
 
 serv=mvs
 home=/nethome/aristov
-proj=$(ls *.geo | head -1 | sed 's/\..*//')
+proj=$(ls *.geo | head -1 | sed 's/\..*//' | sed 's/-.*//')
 dir=${PWD#$HOME/}
 [ $# -eq 0 ] && { echo "Usage: ./$(basename $0) <case>"; exit 1; }
 case=$1
