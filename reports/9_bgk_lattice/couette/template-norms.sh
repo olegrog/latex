@@ -27,7 +27,7 @@ exact_point = 5
 exact_color = 0
 
 x_0 = <buffer>
-set arrow from x_0, graph 0 to x_0, graph 1 nohead dt 4 lc 0 lw 3
+if (<hybrid>) set arrow from x_0, graph 0 to x_0, graph 1 nohead dt 4 lc 0 lw 3
 
 plot \
     "<name>.txt" using 1:2 title '$L^\infty$' w lp lw our_width pt our_point, \
