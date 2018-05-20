@@ -144,13 +144,13 @@ def dvm_grid():
     sqr_xi = lambda v: np.einsum('ail,ail->ai', xi(v), xi(v))
     Maxw = lambda m: np.einsum('a,ai->ai', m.rho*(delta_v/np.sqrt(np.pi*m.temp))**D, np.exp(np.einsum('ai,a->ai', -sqr_xi(m.vel), 1./m.temp)))
 
-    G1 = lambda m: np.einsum('ail,aim,an,lmn,a->ai', xi(m.vel), xi(m.vel), m.tau, hodge, 1/m.rho/m.temp**2)
-    G2 = lambda m: .8 * np.einsum('ail,al,ai,a->ai', xi(m.vel), m.qflow, np.einsum('ai,a->ai', sqr_xi(m.vel), 1/m.temp) - (D+2.)/2, 1/m.rho/m.temp**2)
-    Grad13 = lambda m: Maxw(m) * (1 + G1(m) + G2(m))
+    G_tau = lambda m: np.einsum('ail,aim,an,lmn,a->ai', xi(m.vel), xi(m.vel), m.tau, hodge, 1/m.rho/m.temp**2)
+    G_qflow = lambda m: 4 * np.einsum('ail,al,ai,a->ai', xi(m.vel), m.qflow, np.einsum('ai,a->ai', sqr_xi(m.vel), 1/m.temp/(D+2)) - .5, 1/m.rho/m.temp**2)
+    Grad13 = lambda m: Maxw(m) * (1 + G_tau(m) + G_qflow(m))
 
     return Model(
-        info = 'DVM: (%d)^3' % (2*args.M),
-        weights = np.ones_like(_ball[0]) * delta_v**3,
+        info = 'DVM: (%d)^%d' % (2*args.M, fixed.D),
+        weights = np.ones_like(_ball[0]) * delta_v**D,
         xi = lambda vel=zeros: xi(_to_arr(vel))[_from_arr(vel)],
         Maxw = lambda macro: correct(Maxw, macro),
         Grad13 = lambda macro: correct(Grad13, macro)
@@ -162,7 +162,7 @@ def lbm_d3(order, stretch, nodes, weights, full=True):
     def sort(item):
         return 10*np.sum(item[0]) + np.sum(item[0]/10**np.arange(fixed.D))
     def add_symm(i, node, lattice):
-        if i < 3:
+        if i < fixed.D:
             s = np.ones(fixed.D); s[i] *= -1
             if node[i]:
                 add_symm(i+1, node, lattice)
@@ -201,8 +201,8 @@ def lbm_grid():
     T2 = lambda m: ( (xi_v(m.vel))**2 - sqr(m.vel) + np.einsum('a,i', m.temp-1, sqr_xi-D) ) * Tn(2)
     T3 = lambda m: xi_v(m.vel)*( xi_v(m.vel)**2 - 3*sqr(m.vel) + 3*np.einsum('a,i', m.temp-1, sqr_xi-D-2) ) * Tn(3)
     Maxw = lambda m: weighted_rho(m, 1 + T1(m) + T2(m) + T3(m))
-    G2 = lambda m: np.einsum('il,im,an,lmn->ai', _xi, _xi, m.tau, hodge)
-    G3 = lambda m: xi_v(m.qflow) * (sqr_xi/5-1) + G2(m)*xi_v(m.vel) - 2*np.einsum('il,am,an,lmn->ai', _xi, m.vel, m.tau, hodge)
+    G2 = lambda m: np.einsum('il,im,an,lmn->ai', _xi, _xi, m.tau, hodge)/a * Tn(2)
+    G3 = lambda m: xi_v(m.qflow) * (sqr_xi/5-1) + G2(m)*xi_v(m.vel) - np.einsum('il,am,an,lmn->ai', _xi, m.vel, m.tau, hodge)/a
     Grad13 = lambda m: Maxw(m) + weighted(G2(m) + G3(m))
     correct = lambda func, macro: func(to_arr(macro))[from_arr(macro)]
 
@@ -718,8 +718,8 @@ class Solution(object):
         self.f3 = empty(domain.model, 3)                            # ghost + 2 cells
 
 print ''.join(['=' for i in range(50)])
-print 'DVM: xi_max = %g, grid=(%d)^3, total = %d' % (args.radius, 2*args.M, models['dvm'].xi().size/3)
-print 'LBM: type = %s, total = %d' % (args.lattice, models['lbm'].xi().size/3)
+print 'DVM: xi_max = %g, grid=(%d)^%d, total = %d' % (args.radius, 2*args.M, fixed.D, models['dvm'].xi().size/fixed.D)
+print 'LBM: type = %s, total = %d' % (args.lattice, models['lbm'].xi().size/fixed.D)
 print 'Kn = %g, U = %g, cells = %d + %d' % (args.kn, args.U, args.N1, args.N2)
 print 'Model: (antisym)[ %s | %s ](diffuse), limiter = %s' % (args.model1, args.model2, args.limiter)
 print 'Width:  |<-- %.3f -->|<-- %.3f -->|' % (fixed.L-args.width, args.width)
