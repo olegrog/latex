@@ -5,8 +5,9 @@ import numpy as np
 from collections import namedtuple
 
 parser = argparse.ArgumentParser(description='Solver for the plane Couette-flow problem')
-parser.add_argument('-a', '--alloy', type=str, default='ss_316.txt', metavar='<file>', help='powder characteristics')
-parser.add_argument('-b', '--bed', type=str, default='yadroitsev10.txt', metavar='<file>', help='test bed characteristics')
+parser.add_argument('-a', '--alloy', type=str, default='ss_316.txt', metavar='<file>', help='powder properties')
+parser.add_argument('-b', '--bed', type=str, default='yadroitsev10.txt', metavar='<file>', help='test bed properties')
+parser.add_argument('-c', '--const', type=str, default='constants.txt', metavar='<file>', help='physical constants')
 parser.add_argument('-m', '--material', type=str, default='solid', metavar='<solid|liquid>', help='reference material')
 parser.add_argument('-z', '--zero-temp', type=str, default='bed.bulk_temperature', metavar='<expression>', help='zero temperature')
 parser.add_argument('-u', '--unit-temp', type=str, default='(alloy.solidus+alloy.liquidus)/2', metavar='<expression>', help='reference temperature')
@@ -72,14 +73,18 @@ def to_dimensionless(quant, basis, dimensional=False):
 ureg = pint.UnitRegistry(auto_reduce_dimensions=True, autoconvert_offset_to_baseunit=True)
 alloy = load_data('alloy', args.alloy)
 bed = load_data('bed', args.bed)
+const = load_data('const', args.const)
+
 alloy = calc_derivatives(alloy, eval(args.zero_temp))
 derived = dict2nt('derived', {
     'unit_temperature': eval(args.unit_temp) - eval(args.zero_temp),
     'total_time': bed.track_length/bed.scanning_speed,
-    'fusion_capacity': alloy.fusion_heat/(alloy.liquidus-alloy.solidus),
+    'fusion_capacity': alloy.fusion_heat/(alloy.liquidus - alloy.solidus),
+    'abs_temperature': eval(args.zero_temp),
     'solidus': alloy.solidus - eval(args.zero_temp),
     'liquidus': alloy.liquidus - eval(args.zero_temp),
     'fusion_delta': alloy.liquidus - alloy.solidus,
+    'radiation_transfer': const.stefan_boltzmann,
 })
 
 basis1 = [  # for diffusive time scale
@@ -101,7 +106,7 @@ basis3 = [  # for derivatives
     ( derived, 'unit_temperature' ),
 ]
 
-get_derivatives1 = lambda system: map(lambda q: (system, der_name(q), basis3),
+get_derivatives = lambda system: map(lambda q: (system, der_name(q), basis3),
         filter(lambda q: der_name(q) in system._asdict(), system._asdict().keys()))
 dimensionless = [
     ( bed, 'scanning_speed', basis1 ),
@@ -115,13 +120,15 @@ dimensionless = [
     ( derived, 'fusion_delta', basis2 ),
     ( derived, 'fusion_capacity', basis1 ),
     ( derived, 'total_time', basis1 ),
-] + get_derivatives1(alloy)
+    ( derived, 'radiation_transfer', basis2 ),
+    ( derived, 'abs_temperature', basis2 ),
+] + get_derivatives(alloy)
 
-get_derivatives2 = lambda system: map(lambda q: (q + '({})'.format(args.zero_temp), system._asdict()[q], [(system, q)]),
+get_references = lambda system: map(lambda q: (q + '({})'.format(args.zero_temp), system._asdict()[q], [(system, q)]),
         filter(lambda q: der_name(q) in system._asdict(), system._asdict().keys()))
 dimensional = [
     ( 'time', 'second', basis1 ),
-] + get_derivatives2(alloy)
+] + get_references(alloy)
 
 print 'Dimension units:'
 for name, unit, basis in dimensional:

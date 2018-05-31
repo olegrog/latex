@@ -1,140 +1,179 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
-\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools, amssymb, amsthm}
 \usepackage{fullpage}
 \usepackage{comment}
 \usepackage{siunitx}
 
-\title{Selective Laser Melting}
+\usepackage[
+    pdfusetitle,
+    colorlinks
+]{hyperref}
+
+\title{Modeling and simulation of the SLM process}
 \date{\today}
 \author{Oleg Rogozin}
 
-\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+% general
 \newcommand{\dder}[2][]{\Delta_{#2}#1}
+\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
 \newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
-
+\newcommand{\pderder}[3][]{\frac{\partial^2#1}{\partial#2\partial#3}}
+\newcommand{\Pder}[2][]{\partial#1/\partial#2}
+\newcommand{\Pderdual}[2][]{\partial^2#1/\partial#2^2}
+\newcommand{\Pderder}[3][]{\partial^2#1/\partial#2\partial#3}
+\DeclarePairedDelimiter\autobracket()       % mathtools are needed
+\newcommand{\br}[1]{\autobracket*{#1}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\OO}[1]{O(#1)}
 \newcommand{\pert}[1]{\delta#1}
 \newcommand{\diag}[1]{\left(#1\right)^\mathrm{diag}}
 
-\newcommand{\fusion}[1]{{#1}_\mathrm{fus}}
+% topic-specific
+\newcommand{\fusion}[1]{{#1}^\mathrm{fus}}
 
 \begin{document}
 \maketitle
+\tableofcontents
 
 \section{Formulation of the problem}
 
-The temperature \(T\) (\si{K}) of metal powder is governed by the heat-conduction equation
+%%% The first law of thermodynamics
+The conservation of energy for a substance at rest is described by the \(D\)-dimensional heat-conduction equation
 \begin{equation}\label{eq:heat_conduction}
-	\rho\pder[h(T)]{t} = \pder{x_i}\left(k(\psi,T)\pder[T]{x_i}\right),
+	\rho\pder[h(T)]{t} = \pder{x_i}\br{ k(\psi,T)\pder[T]{x_i} },
 \end{equation}
 where \(x_i\) are the physical coordinates (\si{m}), \(t\) is the time (\si{s}),
-\(\rho\) is the density (\si{kg/m^3}), \(h\) is the specific enthalpy (\si{J/m^3}),
-\(k\) is the thermal conductivity (\si{W/m/K}), \(\psi\) is the porosity. Let
+\(\rho\) is the density (\si{kg/m}\(^D\)), \(h\) is the specific enthalpy (\si{J/kg}),
+\(T\) is the temperature (\si{\K}), \(k\) is the thermal conductivity (\si{W/Km}\(^{D-2}\)),
+\(\psi\) is the porosity. Let
 \begin{equation}\label{eq:porosity_variables}
 	\rho = \rho_0(1-\psi_0), \quad k = k_0(T)(1-\psi),
 \end{equation}
 where \(\rho_0\) and \(k_0\) is the density and thermal conductivity of the bulk material, respectively,
 \(\psi_0\) is the initial porosity.
 
-The initial condition is \(T=T_0\) at \(t=0\).
-Consider the following physical domain:
-\begin{equation}
-	-H/2 < x_1 < L-H/2, \quad -H/2 < x_2 < H/2, \quad 0 < x_3 < H.
+%%% Introduce a liquid fraction
+To incorporate the fusion process into the model, let the enthalpy depends on the temperature as follows:
+\begin{equation}\label{eq:enthalpy}
+	h = \int_{T_0}^T c_p(\xi)\dd\xi + \fusion{h}\phi(h),
 \end{equation}
-The boundary condition at \(x_3=0\) is expressed as
-\begin{equation}\label{eq:bc}
-	k\pder[T]{x_3} = \frac{AP}{\pi R^2}\exp\left(-\frac{(x_1-Ut)^2 + x_2^2}{R^2}\right) - \alpha(T-T_0),
-\end{equation}
-otherwise \(T = T_0\).
-\(A\) is the absorptivity, \(P\) is the laser power (\si{W}), \(U\) is the scanning speed (\si{m/s}),
-\(R\) is the radius of the laser beam (\si{m}), \(\alpha\) is the convective heat transfer coefficient (\si{W/m^2/K}).
-
-To incorporate the melting process into the model, write the enthalpy and porosity in the following form:
-\begin{gather}
-	h = c_p(T)(T-T_0) + \fusion{h}\phi(h), \label{eq:enthalpy} \\
-	\psi(t) = \psi_0\min_{0\leq\tau\leq t}\left( 1-\phi(h(\tau)) \right), \label{eq:porosity}
-\end{gather}
-where \(c_p\) is the specific heat capacity (\si{J/kg/K}),
-\(\fusion{h}\) is the specific enthalpy of fusion (\si{J/kg}),
+where \(c_p\) is the specific heat capacity (\si{J/kgK}), \(\fusion{h}\) is the specific enthalpy of fusion (\si{J/kg}),
 \(\phi\) is the liquid fraction (\(0 \leq \phi \leq 1\)), which is monotonic function of \(h\).
-Assume that \[ \phi(h\leq h_S) = 0, \quad \phi(h\geq h_L) = 1,\]
+Assume that
+\begin{equation}\label{eq:liquid_fraction}
+	\phi(h<h_S) = \OO{\br{h_S-h}^{-\infty}}, \quad \phi(h>h_L) = \OO{\br{h-h_L}^{-\infty}},
+\end{equation}
 where \(h_S = h(T_S)\) and \(h_L = h(T_L)\).
 \(T_S\) and \(T_L\) are the solidus and liquidus temperatures, respectively.
+Substituting~\eqref{eq:porosity_variables} and~\eqref{eq:enthalpy} into~\eqref{eq:heat_conduction}, we obtain
+\begin{equation}\label{eq:heat_conduction2}
+	\rho_0\pder[h]{t} = \pder{x_i}\br{ \frac{1-\psi}{1-\psi_0} \frac{k_0(T)}{c_p(T)}\pder[h_*]{x_i} },
+\end{equation}
+where \(h_* = h - \fusion{h}\phi\) is introduced for convenience.
 
+%%% Change in thermophysical properties resulting from fusion process
+The phase transition results in an abrupt change in the thermophysical properties \(f=c_p,k_0\) of the material;
+therefore, they can be expressed as
+\begin{equation}\label{eq:fusion_change}
+	f = f_S(T) + \br{ f_L(T) - f_S(T)}\phi,
+\end{equation}
+where \(f_S\) and \(f_L\) correspond to solid and liquid properties.
+The porosity change is irreversible in time:
+\begin{equation}\label{eq:porosity}
+	\psi(t) = \psi_0\min_{0\leq\tau\leq t}\br{ 1-\phi(h(\tau)) }.
+\end{equation}
+
+%%% Initial and boundary conditions
+Consider a half-space problem \(x_D<0\) with the following boundary condition at \(x_D=0\):
+\begin{equation}\label{eq:bc}
+	k(\psi,T)\pder[T]{x_D} = \frac{A(\psi)P}{(\pi R^2)^{(D-1)/2}}\exp\br{ -\frac{(x_i-x_{Bi}(t))^2}{R^2} }
+	    - \alpha(T-T_0) - \epsilon\sigma T^{D+1},
+\end{equation}
+where \(A\) is the absorptivity, \(P\) is the laser power (\si{W}), \(R\) is the radius of the laser beam (\si{m}),
+\(x_{Bi}\) are the coordinates of its center (\si{m}), \(\alpha\) is the convective heat transfer coefficient (\si{W/Km}\(^{D-1}\)),
+\(\epsilon\) is the emissivity, \(\sigma\) is the Stefan--Boltzmann constant (\si{W/K}\(^{D+1}\)\si{m}\(^{D-1}\)).
+The initial condition is \(T=T_0\) at \(t=0\).
 
 \subsection{Dimensionless expressions}
 
 Introduce the following dimensionless variables:
 \begin{equation}\label{eq:dimensionless}
     \begin{aligned}
-        x_i &= \hat{x_i}R, & L &= \hat{L}R, & H &= \hat{H}R, \\
-        t &= \hat{t}t_0, & U &= \hat{U}R/t_0, & T - T_0 &= \hat{T}(\fusion{T}-T_0), \\
-        h &= \hat{h}c_p(T_0)(\fusion{T}-T_0), & P &= \hat{P} k(T_0)(\fusion{T}-T_0)R, & \alpha &= \hat{\alpha}k(T_0)/R,
+        x_i &= \hat{x}_iR, & t &= \hat{t}t_0, & h &= \hat{h}c_p(T_0)\Delta{T}, & T - T_0 &= \hat{T}\Delta{T}, \\
+        P &= \hat{P} k_0(T_0)\Delta{T}R^{D-2}, & \alpha &= \hat{\alpha}\frac{k_0(T_0)}R, &
+            \sigma &= \hat{\sigma}\frac{k_0(T_0)}{R\Delta{T}^3}, & T_0 &= \hat{T}_0\Delta{T}, \\
     \end{aligned}
 \end{equation}
-where \(t_0=\rho_0 c_p(T_0) R^2/k(T_0)\) is the diffusive time scale at \(T=T_0\),
-\(\fusion{T}=(T_S+T_L)/2\) is the mean fusion temperature.
-Also denote
+where \(t_0 = \rho_0 c_p(T_0) R^2/k_0(T_0)\) is the diffusive time scale at \(T=T_0\),
+\(\Delta{T} = (T_S+T_L)/2 - T_0\) is the unit temperature.
+If \(|\Pder[x_{Bi}]{t}|\) is of order \(U_0\), where \(U_0\) is the reference scanning speed (\si{m/s}),
+then \(R/U_0\) is the convective time scale. Also denote
 \begin{equation}
     \hat{c}_p(\hat{T}) = \frac{c_p(T)}{c_p(T_0)}, \quad
-    \hat{k}(\hat{T}) = \frac{k(T)}{k(T_0)}, \quad
+    \hat{k}_0(\hat{T}) = \frac{k_0(T)}{k_0(T_0)}, \quad
     \hat{\phi}(\hat{h}) = \phi(h), \quad
     \hat{\psi}(\hat{h}) = \psi(h).
 \end{equation}
-
-Let the dependence on temperature be linear:
+Then~\eqref{eq:enthalpy},~\eqref{eq:heat_conduction2}, and~\eqref{eq:bc} take the following nondimensional form:
 \begin{gather}
-	\hat{c}_p = 1 + \hat{c}_p'\hat{T}, \quad
-	\hat{k} = 1 + \hat{k}'\hat{T}, \\
+	\hat{h}_* \equiv \hat{h} - \fusion{\hat{h}}\hat{\phi} = \int_0^{\hat{T}} \hat{c}_p(\xi)\dd\xi, \label{eq:enthalpy_hats} \\
+	\pder[\hat{h}]{\hat{t}} = \pder{\hat{x}_i}\br{
+	    \frac{1-\hat{\psi}}{1-\psi_0}
+	    \frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})}\pder[\hat{h}_*]{\hat{x}_i}
+	}, \label{eq:heat_conduction_hats} \\
+	\br{1 - \hat{\psi}} \frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})}\pder[\hat{h}_*]{\hat{x}_D} +
+	    \hat{\alpha}\hat{T} + \epsilon\hat{\sigma} \br{ \hat{T} + \hat{T}_0 }^4 =
+	    \frac{A(\psi)\hat{P}}{\pi^{(D-1)/2}}\exp\br{ -\br{ \hat{x}_i-\hat{x}_{Bi}(t) }^2 }. \label{eq:bc_hats}
+\end{gather}
+The initial condition is \(\hat{h} = 0\).
+
+\section{Liquid fraction models}
+
+\subsection{Piecewise approximation}
+
+Let the dependence on temperature be linear, i.e.,
+\begin{gather}
+	\hat{f} = 1 + \hat{f}'_S\hat{T} + \left[
+	    \fusion{\hat{f}} + \br{ \hat{f}'_L - \hat{f}'_S }\br{ \hat{T}-1 }
+	\right], \\
 	\hat{\phi} = \begin{cases}
         0 & \quad \hat{h} \leq \hat{h}_S, \\
         \frac{\hat{h}-\hat{h}_S}{\hat{h}_L-\hat{h}_S} & \quad \hat{h}_S < \hat{h} < \hat{h}_L, \\
-        1 & \quad \hat{h}_L \leq \hat{h}.
+        1 & \quad \hat{h}_L \leq \hat{h},
     \end{cases}
 \end{gather}
-Therefore,
-\begin{equation}\label{eq:heat_conduction_hats}
-	\pder[\hat{h}]{\hat{t}} = \pder{\hat{x}_i}\left(
-	    \frac{1 - \hat{\psi}}{1 - \psi_0}
-	    \frac{1 + \hat{k}'\hat{T}}{1 + 2\hat{c}_p'\hat{T}}
-	    \pder[\hat{h}_*]{\hat{x}_i}
-	\right)
-\end{equation}
-is the dimensionless form of the heat-conduction equation for \(\hat{h}\),
-where \(\hat{h}_* = \hat{h} - \fusion{\hat{h}}\hat{\phi}\) and
+where \(\fusion{\hat{f}}\) is the property jump at the phase transition.
+
+If \(\hat{c}'_{pL} = \hat{c}'_{pS} = \hat{c}'_p\) and \(\fusion{\hat{c}_{p}} = 0\),
+then~\eqref{eq:enthalpy_hats} can be rewritten as
 \begin{equation}\label{eq:temperature}
-	\hat{T} = \frac{\sqrt{1+4\hat{c}_p'\hat{h}_*}-1}{2\hat{c}_p'}
+	\hat{T} = \frac{\sqrt{1+2\hat{c}_p'\hat{h}_*}-1}{\hat{c}_p'},
 \end{equation}
 when \(\hat{c}_p'>0\) and \(\hat{T} = \hat{h}_*\) when \(\hat{c}_p'=0\).
-\begin{equation}\label{eq:bc_hats}
-	\left( \hat{\alpha} + \frac{1 - \hat{\psi}}{1 - \psi_0}\left(1 + \hat{k}'\hat{T}\right)\pder{\hat{x}_3}\right)\hat{T}
-	    = \frac{A\hat{P}}{\pi}\exp\left(-(\hat{x}_1-\hat{U}\hat{t})^2 - \hat{x}_2^2\right)
-\end{equation}
-is the boundary conditions at \(\hat{x}_3=0\).
-\(\hat{h} = 0\) is the initial condition and boundary condition for other faces.
 
 \section{Numerical methods}
 
 For~\eqref{eq:heat_conduction_hats}, we can write
 \begin{gather}
-    F = \dder{\hat{x}_i}\left(
+    F = \dder{\hat{x}_i}\br{
         \frac{1 - \hat{\psi}}{1 - \psi_0}
 	    \frac{1 + \hat{k}'\hat{T}}{1 + 2\hat{c}_p'\hat{T}}
 	    \dder[\hat{h}_*]{\hat{x}_i}
-	\right), \\
-    \pert{F} = \dder{\hat{x}_i}\left[ \frac{1 - \hat{\psi}}{1 - \psi_0} \left(
+	}, \\
+    \pert{F} = \dder{\hat{x}_i}\left[ \frac{1 - \hat{\psi}}{1 - \psi_0} \br{
 	    \frac{(\hat{k}' - 2\hat{c}_p')\pert{\hat{h}_*}}{(1 + 2\hat{c}_p'\hat{T})^3}
 	     \dder[\hat{h}_*]{\hat{x}_i}
 	    +
 	    \frac{1 + \hat{k}'\hat{T}}{1 + 2\hat{c}_p'\hat{T}}
 	    \dder[\pert{\hat{h}_*}]{\hat{x}_i}
-	\right)\right], \\
-    \diag{\pert{F}} \approx \frac{1 - \hat{\psi}}{1 - \psi_0} \left(
+	}\right], \\
+    \diag{\pert{F}} \approx \frac{1 - \hat{\psi}}{1 - \psi_0} \br{
 	    \frac{\hat{k}' - 2\hat{c}_p'}{(1 + 2\hat{c}_p'\hat{T})^3} \dder[\hat{h}_*]{\hat{x}_i} \diag{\dder{\hat{x}_i}}
 	    +
 	    \frac{1 + \hat{k}'\hat{T}}{1 + 2\hat{c}_p'\hat{T}}
 	    \diag{\dder{\hat{x}_i}^2}
-	\right) \diag{\pert{\hat{h}_*}}.
+	}\diag{\pert{\hat{h}_*}}.
 \end{gather}
 where
 \begin{gather}
@@ -152,9 +191,9 @@ where
 
 Nonlinear dependence~\eqref{eq:temperature} can be linearized; therefore, we have the following linear boundary condition at \(z=0\):
 \begin{equation}\label{eq:bc_linearized}
-	\left( \hat{\alpha} + \frac{1 - \hat{\psi}^n}{1 - \psi_0}\left(1 + \hat{k}'\hat{T}^n\right)\pder{\hat{x}_3}\right)
-	    \left( \hat{T}^n + \frac{\hat{h}_* - \hat{h}_*^n}{1+2\hat{c}_p'\hat{T}^n} \right)
-	    = \frac{A\hat{P}}{\pi}\exp\left(-(\hat{x}_1-\hat{U}\hat{t}^n)^2 - \hat{x}_2^2\right),
+	\br{ \hat{\alpha} + \frac{1 - \hat{\psi}^n}{1 - \psi_0}\br{ 1 + \hat{k}'\hat{T}^n }\pder{\hat{x}_3} }
+	    \br{ \hat{T}^n + \frac{\hat{h}_* - \hat{h}_*^n}{1+2\hat{c}_p'\hat{T}^n} }
+	    = \frac{A\hat{P}}{\pi}\exp\br{ -(\hat{x}_1-\hat{U}\hat{t}^n)^2 - \hat{x}_2^2 },
 \end{equation}
 where superscripts \(n\) and \(n+1\) correspond to the previous and current iterations, respectively.
 
