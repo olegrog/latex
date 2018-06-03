@@ -15,16 +15,18 @@
 \author{Oleg Rogozin}
 
 % general
-\newcommand{\dder}[2][]{\Delta_{#2}#1}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\der}[2][]{\frac{\dd#1}{\dd#2}}
+\newcommand{\Der}[2][]{\dd#1/\dd#2}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
 \newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
 \newcommand{\pderder}[3][]{\frac{\partial^2#1}{\partial#2\partial#3}}
 \newcommand{\Pder}[2][]{\partial#1/\partial#2}
 \newcommand{\Pderdual}[2][]{\partial^2#1/\partial#2^2}
 \newcommand{\Pderder}[3][]{\partial^2#1/\partial#2\partial#3}
+\newcommand{\dder}[2][]{\Delta_{#2}#1}
 \DeclarePairedDelimiter\autobracket()       % mathtools are needed
 \newcommand{\br}[1]{\autobracket*{#1}}
-\newcommand{\dd}{\mathrm{d}}
 \newcommand{\OO}[1]{O(#1)}
 \newcommand{\pert}[1]{\delta#1}
 \newcommand{\diag}[1]{\left(#1\right)^\mathrm{diag}}
@@ -109,7 +111,7 @@ where \(t_0 = \rho_0 c_p(T_0) R^2/k_0(T_0)\) is the diffusive time scale at \(T=
 \(\Delta{T} = (T_S+T_L)/2 - T_0\) is the unit temperature.
 If \(|\Pder[x_{Bi}]{t}|\) is of order \(U_0\), where \(U_0\) is the reference scanning speed (\si{m/s}),
 then \(R/U_0\) is the convective time scale. Also denote
-\begin{equation}
+\begin{equation}\label{eq:dimensionless2}
     \hat{c}_p(\hat{T}) = \frac{c_p(T)}{c_p(T_0)}, \quad
     \hat{k}_0(\hat{T}) = \frac{k_0(T)}{k_0(T_0)}, \quad
     \hat{\phi}(\hat{h}) = \phi(h), \quad
@@ -128,31 +130,103 @@ Then~\eqref{eq:enthalpy},~\eqref{eq:heat_conduction2}, and~\eqref{eq:bc} take th
 \end{gather}
 The initial condition is \(\hat{h} = 0\).
 
-\section{Liquid fraction models}
+\section{Numerical methods}
 
-\subsection{Piecewise approximation}
-
-Let the dependence on temperature be linear, i.e.,
-\begin{gather}
+For usual materials, the required thermophysical properties can be reasonably approximated by a three-parameter model
+\begin{equation}\label{eq:thermophysical_model}
 	\hat{f} = 1 + \hat{f}'_S\hat{T} + \left[
 	    \fusion{\hat{f}} + \br{ \hat{f}'_L - \hat{f}'_S }\br{ \hat{T}-1 }
-	\right], \\
-	\hat{\phi} = \begin{cases}
-        0 & \quad \hat{h} \leq \hat{h}_S, \\
-        \frac{\hat{h}-\hat{h}_S}{\hat{h}_L-\hat{h}_S} & \quad \hat{h}_S < \hat{h} < \hat{h}_L, \\
-        1 & \quad \hat{h}_L \leq \hat{h},
-    \end{cases}
-\end{gather}
-where \(\fusion{\hat{f}}\) is the property jump at the phase transition.
+	\right]\hat{\phi}
+\end{equation}
+where \(\hat{f}'_{S,L}\) are the corresponding constant first temperature derivatives far from fusion process,
+\(\fusion{\hat{f}}\) is the property jump at the phase transition.
 
+% TODO: supplement the proposed model by a figure.
+
+\subsection{Liquid fraction models}
+
+%%% Piecewise
+The simplest \(\mathcal{C}^0\) model for \(\hat{\phi}(\hat{h})\) can be constructed as a piecewise approximation
+\begin{equation}\label{eq:lf_piecewise}
+	\hat{\phi} = \begin{cases}
+        0,                                             & \hat{h} \leq \hat{h}_S, \\
+        \frac{\hat{h}-\hat{h}_S}{\hat{h}_L-\hat{h}_S}, & \hat{h}_S < \hat{h} < \hat{h}_L, \\
+        1,                                             & \hat{h}_L \leq \hat{h}.
+    \end{cases}
+\end{equation}
+Except \(\fusion{\hat{h}}\), \(\delta\fusion{\hat{T}} = \hat{T}_L - \hat{T}_S\)
+is the only parameter of the fusion process  used in~\eqref{eq:lf_piecewise}.
+Employing cubic splines near \(h_S\) and \(h_L\) yields more realistic two-parameter \(\mathcal{C}^1\) model:
+\begin{equation}\label{eq:lf_splines}
+	\dots
+\end{equation}
+
+\subsection{Temperature evaluation}
+
+\begin{table}
+    \centering
+    \caption{Piecewise quantities for~\eqref{eq:temp_crude}}
+    \label{table:temp_params}
+    \begin{tabular}{c|cccc}
+        \hline\\[-1em]
+        \(\hat{h}\)                         & \(\hat{c}'_p\)    & \(\hat{c}_{p0}\)  & \(\hat{T}^\dag\) & \(\hat{h}^\dag\) \\[0.3em]
+        \hline\\[-1em]
+        \(\hat{h} \leq \hat{h}_S\)          & \(\hat{c}'_{pS}\) & \(1\)             & \(0\)            & \(0\)            \\[0.3em]
+        \(\hat{h}_S < \hat{h} < \hat{h}_L\) & \(a\)             & \(b\)             & \(\hat{T}_S\)    & \(\hat{h}_1\)    \\[0.3em]
+        \(\hat{h}_L \leq \hat{h}\)          & \(\hat{c}'_{pL}\) & \(\hat{c}_{pL0}\) & \(\hat{T}_L\)    & \(\hat{h}_2\)    \\[0.3em]
+        \hline
+    \end{tabular}
+\end{table}
+
+For arbitrary \(\hat{\phi}(\hat{h})\), solution of~\eqref{eq:enthalpy_hats} is not straightforward.
+However, the temperature is included in~\eqref{eq:heat_conduction_hats} only through thermophysical properties
+and, therefore, can be evaluated quite roughly.
+Direct dependence of boundary conditions~\eqref{eq:bc_hats} on temperature is also weak.
+An acceptable accuracy can be achieved if the heat capacity is assumed
+to depend on temperature linearly during a fusion process, i.e.,
+\begin{equation}\label{eq:cp_crude}
+	\hat{c}_p = \begin{cases}
+        1 + \hat{c}'_{pS}\hat{T},             & \quad \hat{h} \leq \hat{h}_S, \\
+        b + a\hat{T},                         & \quad \hat{h}_S < \hat{h} < \hat{h}_L, \\
+        \hat{c}_{pL0} + \hat{c}'_{pL}\hat{T}, & \quad \hat{h}_L \leq \hat{h},
+    \end{cases}
+\end{equation}
+where
+\begin{equation*}
+	\hat{c}_{pL0} = 1 + \fusion{\hat{c}_p} + \hat{c}'_{pS} - \hat{c}'_{pL}, \quad
+	a = \frac{\hat{c}'_{pS} + \hat{c}'_{pL}}2 + \frac{\fusion{\hat{c}_p}}{\delta\fusion{\hat{T}}}, \quad
+	b = 1 + \hat{T}_S\br{ \hat{c}'_{pS} - a }.
+\end{equation*}
+Then, the temperature is calculated as a root of the quadratic equation
+\begin{equation}\label{eq:temp_crude}
+	\hat{T} = \hat{T}^\dag + \frac{\sqrt{\hat{c}_{p0}^2 + 2\hat{c}_p'(\hat{h}_* - \hat{h}^\dag) } - \hat{c}_{p0}}{\hat{c}'_p},
+\end{equation}
+with the piecewise quantities defined in Tab.~\ref{table:temp_params}. Finally,
+\begin{equation}\label{eq:enthalpy_crude}
+	\hat{h}_S = \fusion{\hat{h}}\hat{\phi}_S + \hat{h}_1, \quad \hat{h}_L = \fusion{\hat{h}}\hat{\phi}_L + \hat{h}_1 + \hat{h}_2,
+\end{equation}
+where \(\hat{\phi}_{S,L} = \hat{\phi}(\hat{h}(\hat{T}_{S,L}))\) and
+\begin{equation*}
+	\hat{h}_1 = \hat{T}_S\br{ 1 + \frac{\hat{c}'_{pS}}2\hat{T}_S }, \quad
+	\hat{h}_2 = \delta\fusion{\hat{T}}\br{ b + \frac{a}2\delta\fusion{\hat{T}} }.
+\end{equation*}
+
+%%% Smoothness of c_p
+Note that \(\Der[\hat{c}_p]{\hat{h}}\in\mathcal{C}^1\)
+only if \(\hat{\phi}(\hat{h})\in\mathcal{C}^1\) and \(\hat{c}_p\in\mathcal{C}^0\).
+Therefore, using \(\mathcal{C}^1\) model~\eqref{eq:lf_splines} to calculate \(\hat{c}_p(\hat{T})\)
+and \(\mathcal{C}^0\) model~\eqref{eq:cp_crude} to calculate \(\hat{T}\)
+ensure that \(\Der[\hat{c}_p]{\hat{h}}\in\mathcal{C}^1\).
+
+%%% Simple case
 If \(\hat{c}'_{pL} = \hat{c}'_{pS} = \hat{c}'_p\) and \(\fusion{\hat{c}_{p}} = 0\),
-then~\eqref{eq:enthalpy_hats} can be rewritten as
+then~\eqref{eq:temp_crude} can be rewritten as
 \begin{equation}\label{eq:temperature}
-	\hat{T} = \frac{\sqrt{1+2\hat{c}_p'\hat{h}_*}-1}{\hat{c}_p'},
+	\hat{T} = \frac{\sqrt{1+2\hat{c}_p'\hat{h}_*}-1}{\hat{c}_p'}
 \end{equation}
 when \(\hat{c}_p'>0\) and \(\hat{T} = \hat{h}_*\) when \(\hat{c}_p'=0\).
 
-\section{Numerical methods}
+\begin{comment}
 
 For~\eqref{eq:heat_conduction_hats}, we can write
 \begin{gather}
@@ -196,6 +270,8 @@ Nonlinear dependence~\eqref{eq:temperature} can be linearized; therefore, we hav
 	    = \frac{A\hat{P}}{\pi}\exp\br{ -(\hat{x}_1-\hat{U}\hat{t}^n)^2 - \hat{x}_2^2 },
 \end{equation}
 where superscripts \(n\) and \(n+1\) correspond to the previous and current iterations, respectively.
+
+\end{comment}
 
 \end{document}
 
