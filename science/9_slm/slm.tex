@@ -61,13 +61,8 @@ To incorporate the fusion process into the model, let the enthalpy depends on th
 	h = \int_{T_0}^T c_p(\xi)\dd\xi + \fusion{h}\phi(h),
 \end{equation}
 where \(c_p\) is the specific heat capacity (\si{J/kgK}), \(\fusion{h}\) is the specific enthalpy of fusion (\si{J/kg}),
-\(\phi\) is the liquid fraction (\(0 \leq \phi \leq 1\)), which is monotonic function of \(h\).
-Assume that
-\begin{equation}\label{eq:liquid_fraction}
-	\phi(h<h_S) = \OO{\br{h_S-h}^{-\infty}}, \quad \phi(h>h_L) = \OO{\br{h-h_L}^{-\infty}},
-\end{equation}
-where \(h_S = h(T_S)\) and \(h_L = h(T_L)\).
-\(T_S\) and \(T_L\) are the solidus and liquidus temperatures, respectively.
+\(\phi\) is the liquid fraction (\(0 \leq \phi \leq 1\)).
+\(\phi=0\) and \(\phi=1\) corresponds to the solid and liquid states, respectively.
 Substituting~\eqref{eq:porosity_variables} and~\eqref{eq:enthalpy} into~\eqref{eq:heat_conduction}, we obtain
 \begin{equation}\label{eq:heat_conduction2}
 	\rho_0\pder[h]{t} = \pder{x_i}\br{ \frac{1-\psi}{1-\psi_0} \frac{k_0(T)}{c_p(T)}\pder[h_*]{x_i} },
@@ -104,7 +99,7 @@ Introduce the following dimensionless variables:
     \begin{aligned}
         x_i &= \hat{x}_iR, & t &= \hat{t}t_0, & h &= \hat{h}c_p(T_0)\Delta{T}, & T - T_0 &= \hat{T}\Delta{T}, \\
         P &= \hat{P} k_0(T_0)\Delta{T}R^{D-2}, & \alpha &= \hat{\alpha}\frac{k_0(T_0)}R, &
-            \sigma &= \hat{\sigma}\frac{k_0(T_0)}{R\Delta{T}^3}, & T_0 &= \hat{T}_0\Delta{T}, \\
+            \sigma &= \hat{\sigma}\frac{k_0(T_0)}{R\Delta{T}^D}, & T_0 &= \hat{T}_0\Delta{T}, \\
     \end{aligned}
 \end{equation}
 where \(t_0 = \rho_0 c_p(T_0) R^2/k_0(T_0)\) is the diffusive time scale at \(T=T_0\),
@@ -125,27 +120,36 @@ Then~\eqref{eq:enthalpy},~\eqref{eq:heat_conduction2}, and~\eqref{eq:bc} take th
 	    \frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})}\pder[\hat{h}_*]{\hat{x}_i}
 	}, \label{eq:heat_conduction_hats} \\
 	\br{1 - \hat{\psi}} \frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})}\pder[\hat{h}_*]{\hat{x}_D} +
-	    \hat{\alpha}\hat{T} + \epsilon\hat{\sigma} \br{ \hat{T} + \hat{T}_0 }^4 =
+	    \hat{\alpha}\hat{T} + \epsilon\hat{\sigma} \br{ \hat{T} + \hat{T}_0 }^{D+1} =
 	    \frac{A(\psi)\hat{P}}{\pi^{(D-1)/2}}\exp\br{ -\br{ \hat{x}_i-\hat{x}_{Bi}(t) }^2 }. \label{eq:bc_hats}
 \end{gather}
 The initial condition is \(\hat{h} = 0\).
 
-\section{Numerical methods}
+\subsection{Thermophysical properties}
 
-For usual materials, the required thermophysical properties can be reasonably approximated by a three-parameter model
+For conventional materials, the required thermophysical properties can be reasonably approximated by the three-parameter model
 \begin{equation}\label{eq:thermophysical_model}
 	\hat{f} = 1 + \hat{f}'_S\hat{T} + \left[
 	    \fusion{\hat{f}} + \br{ \hat{f}'_L - \hat{f}'_S }\br{ \hat{T}-1 }
-	\right]\hat{\phi}
+	\right]\hat{\phi},
 \end{equation}
 where \(\hat{f}'_{S,L}\) are the corresponding constant first temperature derivatives far from fusion process,
 \(\fusion{\hat{f}}\) is the property jump at the phase transition.
 
 % TODO: supplement the proposed model by a figure.
 
-\subsection{Liquid fraction models}
+\section{Liquid fraction models}
 
-%%% Piecewise
+Impose the following physical requirements upon \(\hat\phi(\hat{h})\):
+\begin{gather}
+    0 \leq \der[\hat\phi]{\hat{h}} \leq \left.\der[\hat\phi]{\hat{h}}\right|_{\hat{h}=\hat{h}(1)} =
+        \frac1{\hat{h}_L-\hat{h}_S}, \label{eq:lf_monotonic}\\
+	\phi(\hat{h}<\hat{h}_S) = \OO{(\hat{h}_S-\hat{h})^{-\infty}}, \quad
+	    \phi(\hat{h}>\hat{h}_L) = \OO{(\hat{h}-\hat{h}_L)^{-\infty}}, \label{eq:lf_exp_decay}
+\end{gather}
+where \(\hat{h}_S = \hat{h}(\hat{T}_S)\) and \(\hat{h}_L = \hat{h}(\hat{T}_L)\).
+\(\hat{T}_S\) and \(\hat{T}_L\) are the solidus and liquidus temperatures, respectively.
+
 The simplest \(\mathcal{C}^0\) model for \(\hat{\phi}(\hat{h})\) can be constructed as a piecewise approximation
 \begin{equation}\label{eq:lf_piecewise}
 	\hat{\phi} = \begin{cases}
@@ -156,14 +160,22 @@ The simplest \(\mathcal{C}^0\) model for \(\hat{\phi}(\hat{h})\) can be construc
 \end{equation}
 Except \(\fusion{\hat{h}}\), \(\delta\fusion{\hat{T}} = \hat{T}_L - \hat{T}_S\)
 is the only parameter of the fusion process  used in~\eqref{eq:lf_piecewise}.
-Employing cubic splines near \(h_S\) and \(h_L\) yields more realistic two-parameter \(\mathcal{C}^1\) model:
+Employing cubic splines near \(h_S\) and \(h_L\) yields the more realistic two-parameter \(\mathcal{C}^1\) model:
 \begin{equation}\label{eq:lf_splines}
 	\dots
 \end{equation}
 
-\subsection{Temperature evaluation}
+\section{Temperature evaluation}
 
-\begin{table}
+For arbitrary \(\hat{\phi}(\hat{h})\), solution of~\eqref{eq:enthalpy_hats} is not straightforward.
+However, the temperature is included in~\eqref{eq:heat_conduction_hats} only through thermophysical properties
+and, therefore, can be evaluated quite roughly.
+Direct dependence of boundary conditions~\eqref{eq:bc_hats} on temperature is also weak.
+Several approaches can be proposed to find a simplified approximation of \(\hat{T}(\hat{h})\).
+
+\subsection{\(\mathcal{C}^1\) approximation}
+
+\begin{table}[ht]
     \centering
     \caption{Piecewise quantities for~\eqref{eq:temp_crude}}
     \label{table:temp_params}
@@ -178,10 +190,6 @@ Employing cubic splines near \(h_S\) and \(h_L\) yields more realistic two-param
     \end{tabular}
 \end{table}
 
-For arbitrary \(\hat{\phi}(\hat{h})\), solution of~\eqref{eq:enthalpy_hats} is not straightforward.
-However, the temperature is included in~\eqref{eq:heat_conduction_hats} only through thermophysical properties
-and, therefore, can be evaluated quite roughly.
-Direct dependence of boundary conditions~\eqref{eq:bc_hats} on temperature is also weak.
 An acceptable accuracy can be achieved if the heat capacity is assumed
 to depend on temperature linearly during a fusion process, i.e.,
 \begin{equation}\label{eq:cp_crude}
@@ -197,12 +205,13 @@ where
 	a = \frac{\hat{c}'_{pS} + \hat{c}'_{pL}}2 + \frac{\fusion{\hat{c}_p}}{\delta\fusion{\hat{T}}}, \quad
 	b = 1 + \hat{T}_S\br{ \hat{c}'_{pS} - a }.
 \end{equation*}
-Then, the temperature is calculated as a root of the quadratic equation
+Substituting~\eqref{eq:cp_crude} into~\eqref{eq:enthalpy_hats},
+we obtain that the temperature is calculated as a root of the quadratic equation
 \begin{equation}\label{eq:temp_crude}
 	\hat{T} = \hat{T}^\dag + \frac{\sqrt{\hat{c}_{p0}^2 + 2\hat{c}_p'(\hat{h}_* - \hat{h}^\dag) } - \hat{c}_{p0}}{\hat{c}'_p},
 \end{equation}
 with the piecewise quantities defined in Tab.~\ref{table:temp_params}. Finally,
-\begin{equation}\label{eq:enthalpy_crude}
+\begin{equation}\label{eq:enthalpySL_crude}
 	\hat{h}_S = \fusion{\hat{h}}\hat{\phi}_S + \hat{h}_1, \quad \hat{h}_L = \fusion{\hat{h}}\hat{\phi}_L + \hat{h}_1 + \hat{h}_2,
 \end{equation}
 where \(\hat{\phi}_{S,L} = \hat{\phi}(\hat{h}(\hat{T}_{S,L}))\) and
@@ -214,17 +223,38 @@ where \(\hat{\phi}_{S,L} = \hat{\phi}(\hat{h}(\hat{T}_{S,L}))\) and
 %%% Smoothness of c_p
 Note that \(\Der[\hat{c}_p]{\hat{h}}\in\mathcal{C}^1\)
 only if \(\hat{\phi}(\hat{h})\in\mathcal{C}^1\) and \(\hat{c}_p\in\mathcal{C}^0\).
-Therefore, using \(\mathcal{C}^1\) model~\eqref{eq:lf_splines} to calculate \(\hat{c}_p(\hat{T})\)
-and \(\mathcal{C}^0\) model~\eqref{eq:cp_crude} to calculate \(\hat{T}\)
+Therefore, using \(\mathcal{C}^1\) model~\eqref{eq:lf_splines} for calculating \(\hat{c}_p(\hat{T})\)
+and \(\mathcal{C}^0\) model~\eqref{eq:cp_crude} for calculating \(\hat{T}\)
 ensure that \(\Der[\hat{c}_p]{\hat{h}}\in\mathcal{C}^1\).
 
 %%% Simple case
 If \(\hat{c}'_{pL} = \hat{c}'_{pS} = \hat{c}'_p\) and \(\fusion{\hat{c}_{p}} = 0\),
 then~\eqref{eq:temp_crude} can be rewritten as
-\begin{equation}\label{eq:temperature}
+\begin{equation}\label{eq:temp_crude2}
 	\hat{T} = \frac{\sqrt{1+2\hat{c}_p'\hat{h}_*}-1}{\hat{c}_p'}
 \end{equation}
 when \(\hat{c}_p'>0\) and \(\hat{T} = \hat{h}_*\) when \(\hat{c}_p'=0\).
+
+\subsection{\(\hat\phi\)-based approximation}
+
+Another way is to use~\eqref{eq:fusion_change} for \(f=h\) with the five-parameter model:
+\begin{equation}\label{eq:enthalpy_phi}
+	\hat{h} = \hat{h}'_S\hat{T} + \frac{\hat{h}''_S}2\hat{T}^2 + \left[
+	    \fusion{\hat{h}} + \br{ \hat{h}'_L - \hat{h}'_S }\br{ \hat{T}-1 } +
+	    \frac{\hat{h}''_L - \hat{h}''_S}2\br{ \hat{T}^2-1 }
+	\right]\hat{\phi},
+\end{equation}
+where
+\begin{equation}\label{eq:enthalpy_phi_params}
+	\hat{h}'_S = 1, \quad \hat{h}'_L = \fusion{\hat{c}}_p + \hat{c}'_{pS} - \hat{c}'_{pL}, \quad
+	\hat{h}''_S = \hat{c}'_{pS}, \quad \hat{h}''_S = \hat{c}'_{pL}
+\end{equation}
+should be fulfilled for~\eqref{eq:enthalpy_phi} to be consistent with \(\hat{c}_p(\hat{T})\)
+defined as~\eqref{eq:thermophysical_model}. Then,
+\begin{equation}\label{eq:temp_phi}
+	\hat{T} = \frac{\sqrt{\hat{h}'^2 + 2\hat{h}''\hat{h}_*}-\hat{h}'}{\hat{h}''},
+\end{equation}
+where \(\hat{h}^{\prime,\prime\prime} = \hat{h}_S^{\prime,\prime\prime} (1-\hat\phi) + \hat{h}_L^{\prime,\prime\prime}\hat\phi\).
 
 \begin{comment}
 
