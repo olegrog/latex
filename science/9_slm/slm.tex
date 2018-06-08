@@ -2,8 +2,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage{mathtools, amssymb, amsthm}
 \usepackage{fullpage}
+\usepackage{physics}
+\usepackage{siunitx}
 \usepackage{comment}
-\usepackage{siunitx, physics}
 
 \usepackage[
     pdfusetitle,
@@ -128,11 +129,17 @@ Impose the following physical requirements upon \(\hat\phi(\hat{h})\):
 \begin{gather}
     0 \leq \dv{\hat\phi}{\hat{h}} \leq \eval{\dv{\hat\phi}{\hat{h}}}_{\hat{h}=\hat{h}(1)} =
         \frac1{\hat{h}_L-\hat{h}_S}, \label{eq:lf_monotonic}\\
-	\phi(\hat{h}<\hat{h}_S) = \order{(\hat{h}_S-\hat{h})^{-\infty}}, \quad
-	    \phi(\hat{h}>\hat{h}_L) = \order{(\hat{h}-\hat{h}_L)^{-\infty}}, \label{eq:lf_exp_decay}
+    \hat\phi\qty(\hat{h}(1) - \hat{h}) = 1 - \hat\phi(\hat{h}) \quad \qty(\hat{h}\geq\hat{h}(1)), \label{eq:lf_symmetric}\\
+    \begin{cases}
+	\phi(\hat{h}) = \order{(\hat{h}_S-\hat{h})^{-\infty}} \quad \qty(\hat{h} < \hat{h}_S), \\
+	    \phi(\hat{h}) = \order{(\hat{h}-\hat{h}_L)^{-\infty}} \quad \qty(\hat{h} > \hat{h}_L),
+	\end{cases}\label{eq:lf_exp_decay}
 \end{gather}
 where \(\hat{h}_S = \hat{h}(\hat{T}_S)\) and \(\hat{h}_L = \hat{h}(\hat{T}_L)\).
 \(\hat{T}_S\) and \(\hat{T}_L\) are the solidus and liquidus temperatures, respectively.
+Inequalities~\eqref{eq:lf_monotonic} are the monotonic condition and boundedness of the fusion rate,
+\eqref{eq:lf_symmetric} is the symmetric property,
+and~\eqref{eq:lf_exp_decay} describes an exponential decay of \(\hat\phi(\hat{h})\) outside the fusion range.
 
 The simplest \(\mathcal{C}^0\) model for \(\hat{\phi}(\hat{h})\) can be constructed as a piecewise approximation
 \begin{equation}\label{eq:lf_piecewise}
@@ -244,52 +251,56 @@ where \(\hat{h}^{\prime,\prime\prime} = \hat{h}_S^{\prime,\prime\prime} (1-\hat\
 
 \subsection{Perturbation and its diagonal part}
 
-For~\eqref{eq:heat_conduction_hats}, we can write
+With~\eqref{eq:heat_conduction_hats},~\eqref{eq:thermophysical_model},~\eqref{eq:temp_phi},
+and arbitrary \(\hat{\phi}(\hat{h})\), we can employ the following expressions for numerical simulation:
 \begin{gather}
     F = \dder{\hat{x}_i}\qty(
         \frac{1 - \hat{\psi}}{1 - \psi_0}
-	    \frac{1 + \hat{k}'\hat{T}}{1 + 2\hat{c}_p'\hat{T}}
+	    \frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})}
 	    \dder[\hat{h}_*]{\hat{x}_i}
 	), \\
     \var{F} = \dder{\hat{x}_i}\qty[ \frac{1 - \hat{\psi}}{1 - \psi_0} \qty(
-	    \frac{(\hat{k}' - 2\hat{c}_p')\var{\hat{h}_*}}{(1 + 2\hat{c}_p'\hat{T})^3}
-	     \dder[\hat{h}_*]{\hat{x}_i}
+	    \dv{\hat{h}_*}(\frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})})\var{\hat{h}_*}\dder[\hat{h}_*]{\hat{x}_i}
 	    +
-	    \frac{1 + \hat{k}'\hat{T}}{1 + 2\hat{c}_p'\hat{T}}
+	    \frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})}
 	    \dder[\var{\hat{h}_*}]{\hat{x}_i}
 	)], \\
-    \diag{\var{F}} \approx \frac{1 - \hat{\psi}}{1 - \psi_0} \qty(
-	    \frac{\hat{k}' - 2\hat{c}_p'}{(1 + 2\hat{c}_p'\hat{T})^3} \dder[\hat{h}_*]{\hat{x}_i} \diag{\dder{\hat{x}_i}}
+    \diag{\var{F}} = \frac{1 - \hat{\psi}}{1 - \psi_0} \qty(
+	    \dv{\hat{h}_*}(\frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})})\dder[\hat{h}_*]{\hat{x}_i} \diag{\dder{\hat{x}_i}}
 	    +
-	    \frac{1 + \hat{k}'\hat{T}}{1 + 2\hat{c}_p'\hat{T}}
+	    \frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})}
 	    \diag{\dder{\hat{x}_i}^2}
 	)\diag{\var{\hat{h}_*}}.
 \end{gather}
 where
-\begin{gather}
-    \var{\hat{h}_*} = \var{\hat{h}} - \fusion{\hat{h}}\var{\hat\phi}, \quad
-    \diag{\hat{h}_*} = \diag{\var{\hat{h}_*}} = 1 - \fusion{\hat{h}}\diag{\var{\hat\phi}}, \\
-	\var{\hat{\phi}} = \begin{cases}
-        0 & \quad \hat{h} \leq \hat{h}_S, \quad \hat{h}_L \leq \hat{h}, \\
-        \var{\hat{h}}/(\hat{h}_L-\hat{h}_S) & \quad \hat{h}_S < \hat{h} < \hat{h}_L, \\
-    \end{cases} \label{eq:pert_phi_h}\\
-	\diag{\var{\hat{\phi}}} = \begin{cases}
-        0 & \quad \hat{h} \leq \hat{h}_S, \quad \hat{h}_L \leq \hat{h}, \\
-        1/(\hat{h}_L-\hat{h}_S) & \quad \hat{h}_S < \hat{h} < \hat{h}_L. \\
-    \end{cases} \label{eq:pert_phi_h_diag}
-\end{gather}
+\begin{equation}
+    \var{\hat{h}_*} = \qty(1 - \fusion{\hat{h}}\hat\phi')\var{\hat{h}}, \quad
+    \diag{\hat{h}_*} = \diag{\var{\hat{h}_*}} = 1 - \fusion{\hat{h}}\hat\phi'(\hat{h}).
+\end{equation}
 
 \subsection{Boundary conditions}
 
-Nonlinear dependence~\eqref{eq:temp_phi} can be linearized; therefore, we have the following linear boundary condition at \(z=0\):
-\begin{equation}\label{eq:bc_linearized}
-	\qty( \hat{\alpha} + \frac{1 - \hat{\psi}^n}{1 - \psi_0}\qty( 1 + \hat{k}'\hat{T}^n )\pdv{\hat{x}_D} )
-	    \qty( \hat{T}^n + \frac{\hat{h}_* - \hat{h}_*^n}{1+2\hat{c}_p'\hat{T}^n} )
-	    = \frac{A\hat{P}}{\pi}\exp\qty( -(\hat{x}_1-\hat{U}\hat{t}^n)^2 - \hat{x}_2^2 ),
-\end{equation}
-where superscripts \(n\) and \(n+1\) correspond to the previous and current iterations, respectively.
+Nonlinear dependence~\eqref{eq:temp_phi} can be linearized; therefore, we have the following linear boundary condition at \(x_D=0\):
+\begin{multline}\label{eq:bc_linearized}
+	\qty[
+	    \qty(1 - \hat{\psi}^n) \frac{\hat{k}_0(\hat{T}^n)}{\hat{c}_p(\hat{T}^n)}
+	    \qty(1-\fusion{\hat{h}}\hat\phi'(\hat{h}^n))\pdv{\hat{x}_D} +
+	    \dv{\hat{T}^n}{\hat{h}}\qty(
+	        \hat{\alpha}\hat{T}^n + \epsilon\hat{\sigma}(D+1)\qty(\hat{T}^n + \hat{T}_0)^D)
+	]h = \\ \frac{A(\psi^n)\hat{P}}{\pi^{(D-1)/2}}\exp\qty( -\qty(\hat{x}_i-\hat{x}_{Bi}^n)^2 ) -
+        \hat{\alpha}\hat{T}^n - \epsilon\hat{\sigma}\qty(\hat{T}^n + \hat{T}_0)^{D+1}.
+\end{multline}
+where superscript \(n\) corresponds to values calculated at the previous time step.
 
-%\end{comment}
+\subsection{Liquid fraction models}
+
+For the piecewise approximation~\eqref{eq:lf_piecewise},
+\begin{equation}
+	\fdv{\hat{\phi}}{\hat{h}} = \diag{\var{\hat{\phi}}} = \begin{cases}
+        0 & \quad \hat{h} \leq \hat{h}_S, \quad \hat{h}_L \leq \hat{h}, \\
+        1/(\hat{h}_L-\hat{h}_S) & \quad \hat{h}_S < \hat{h} < \hat{h}_L. \\
+    \end{cases} \label{eq:pert_phi_h_diag}
+\end{equation}
 
 \end{document}
 
