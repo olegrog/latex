@@ -1,14 +1,26 @@
 \documentclass[]{elsarticle} %review
-
-\usepackage{lineno}
-\usepackage{hyperref}
-\usepackage{amsmath}
 \usepackage[english]{babel}
+
+%%% functional packages
+\usepackage{amssymb, mathtools, amsthm, mathrsfs}
+\usepackage{subcaption}
 \usepackage{graphicx}
+\graphicspath{{pics/}}
+
+%%% configuration packages
 \usepackage{fullpage}
+\usepackage{indentfirst}
+%\usepackage{comment}
 
 \usepackage{xcolor}
+\newcommand{\todo}[1]{\textcolor{olive}{#1}}
+
+\usepackage{lineno}
 \modulolinenumbers[5]
+
+\usepackage[
+    colorlinks,
+]{hyperref}
 
 \journal{Journal of \LaTeX\ Templates}
 
@@ -44,6 +56,7 @@
 \bibliographystyle{elsarticle-num}
 %%%%%%%%%%%%%%%%%%%%%%%
 
+% general
 \newcommand{\Kn}{\mathrm{Kn}}
 \newcommand{\dd}{\mathrm{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
@@ -55,59 +68,57 @@
 \newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
 \newcommand{\OO}[1]{O(#1)}
 \newcommand{\transpose}[1]{#1^\mathsf{T}}
-\newcommand{\dxi}{\boldsymbol{\dd\xi}}
-\newcommand{\bxi}{{\boldsymbol{\xi}}}
-\newcommand{\dx}{\boldsymbol{\dd{x}}}
-\newcommand{\bx}{\boldsymbol{x}}
+\DeclarePairedDelimiter\autobracket()       % mathtools are needed
+\newcommand{\br}[1]{\autobracket*{#1}}
 
 % topic-specific
+\newcommand{\dxi}{\boldsymbol{\dd\xi}}
+\newcommand{\bxi}{{\boldsymbol{\xi}}}
+\newcommand{\bxia}{\bxi_\alpha}
+\newcommand{\dx}{\boldsymbol{\dd{x}}}
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\xiai}{\xi_{\alpha i}}
+\newcommand{\xiaj}{\xi_{\alpha j}}
+\newcommand{\xiak}{\xi_{\alpha k}}
+\newcommand{\cai}{c_{\alpha i}}
+\newcommand{\caj}{c_{\alpha j}}
 \newcommand{\equil}[1]{#1^\mathrm{(eq)}}
 \newcommand{\refer}[1]{#1_0}
-\newcommand{\todo}[1]{\textcolor{olive}{#1}}
-
-\graphicspath{{pics/}}
 
 \begin{document}
 
 \begin{frontmatter}
 
-\title{Fluid--kinetic coupling based on lattice-Boltzmann and discrete-velocity methods under the finite-volume formulation}
+\title{Multiscale hybrid approach based on the discrete-velocity and lattice-Boltzmann methods under the finite-volume formulation}
 
-%% Group authors per affiliation:
-\author{V.V.Aristov}
-%%\address{}
+\author[ccas]{V.V.~Aristov}
 
-%% or include affiliations in footnotes:
-\author{O.V. Ilyin}
-%%\ead[url]{www.elsevier.com}
+\author[ccas]{O.V.~Ilyin}
+\cortext[mycorrespondingauthor]{Corresponding author}
+\ead{oilyin@gmail.com}
 
-\author{O.A. Rogozin}
-%%\cortext[mycorrespondingauthor]{Corresponding author}
-%%\ead{support@elsevier.com}
+\author[skoltech,ccas]{O.A.~Rogozin}
 
-%%\address[mymainaddress]{1600 John F Kennedy Boulevard, Philadelphia}
-%%\address{360 Park Avenue South, New York}
+\address[ccas]{Dorodnicyn Computing Center,
+    Federal Research Center "Computer Science and Control" of Russian Academy of Science, Moscow, Russia}
+\address[skoltech]{Center for Design, Manufacturing, and Materials,
+    Skolkovo Institute of Science and Technology, Skolkovo, Russia}
 
 \begin{abstract}
 
-In the present paper, a novel hybrid fluid--kinetic computational approach based on the discrete-velocity (DV)
-approximation including lattice-Boltzmann (LB) technique is proposed.
-\todo{Numerical schemes for a kinetic equation are used in regions of rarefied flows and LB schemes are used in continuum flow zones.}
-Different characteristics and possibilities of these schemes are considered.
-\todo{The important issues devoted to matching solutions in buffer cells are discussed.}
-\todo{(Grad's Gauss--Hermite quadrature). The expansion of the solution on Hermite polynomials is used.}
-The Couette-flow problem are investigated as a test problem.
-The good correspondence with the benchmark solution is obtained.
-Influence of different parameters on the accuracy of the hybrid solutions is analyzed.
+A novel hybrid computational approach based on the discrete velocity (DV) approximation
+including the lattice-Boltzmann (LB) technique is proposed.
+Numerical schemes for kinetic equations are used in regions of rarefied flows and LB schemes are used in continuum flow zones.
+Expansion to the Hermite polynomials is used for coupling of DV and LB solutions.
 A special attention is paid to the recent high-order LB models.
-\todo{The hybrid scheme with these lattices permit to study dissipative values, in particular, heat flux.}
-\todo{Different variants of LBM are considered and the efficiency of the hybrid method is evaluated. We show that the results of the hybrid method are with very close to the well-known tabulated solutions of the Couette flow.
-The methodological investigation is made concerning different aspects constructing a hybrid scheme for 1D Couette flow. The criteria transformation from the continuum region to kinetic one is proposed. The influence of the point transformation is studied. The CPU time for the hybrid scheme and for BGK scheme is evaluated. Different lattice schemes are used.}
+Additional correction procedures are applied to ensure conservative properties.
+The plane Couette flow is investigated as a test problem.
+Influence of the breakdown criterion to accuracy and efficiency of the proposed hybrid method is studied.
 
 \end{abstract}
 
 \begin{keyword}
-discrete-velocity method, lattice-Boltzmann method, rarefied and continuum flows, BGK equation, hybrid scheme
+kinetic--kinetic coupling, discrete-velocity method, lattice-Boltzmann method, rarefied and continuum flows, hybrid methods
 \end{keyword}
 
 \end{frontmatter}
@@ -116,39 +127,147 @@ discrete-velocity method, lattice-Boltzmann method, rarefied and continuum flows
 
 \section{Introduction}\label{sec:intro}
 
-Introduction
+So far, a problem of effective numerical simulation of complex flows is challenging despite the efforts of many researchers. This is due, in particular, to a multiscale complicated structure of a flow where there are zones of equilibrium and nonequilibrium states. The use of the kinetic equation in all regions is very computationally consuming. On the other hand, the modern approaches including the LB method is a profitable tool for description near-equilibrium flows, but it is not adequate for regions where the distribution function is not close to Maxwellian and  the contribution of highest moments can not be ignored. So the computational hydrodynamics is being confronted with an issue of constructing the unified numerical method suited for calculations in all regions of flows.
 
-So far a problem of effective numerical simulation of complex flows is challenging despite the efforts of many researchers). This is due, in particular, to a multiscale complicated structure of a flow where there are zones of equilibrium and nonequilibrium states. The use of the kinetic equation in all regions is very computationally consuming. On the other hand, the modern approaches including the LB method is a profitable tool for description near-equilibrium flows, but it is not adequate for regions where the distribution function is not close to Maxwellian. So the computational hydrodynamics is being confronted with an issue of constructing the unified numerical method suited for calculations in all regions of flows.
+One of the most effective methods for modeling multiscale flows is the construction of hybrid schemes. Some methods include the solution of both kinetic and hydrodynamic equations in the entire spatial region, and the transport coefficients for the hydrodynamic equations are calculated on the basis of the distribution function. The next type includes methods with dividing the physical space region into kinetic and continual subregions using some criterion of domain decomposition \cite{Dimarco2014}. The fluid-kinetic coupling is an effective approach for the description of multiscale flows. The coupling of the Boltzmann and Euler (or NS) equations is one of canonical example of such hybrid schemes (see, e.g., \cite{Bourgat1996} \cite{Tallec1997}) and has been also elaborated and applied within the framework of UFS (Unified Flow Solver) \cite{Kolobov2007}. In the last method the kinetic oriented schemes for approximation of continuum equations are used.
 
-(rewrite. without classification. not only three).
-One of the most effective methods for modeling multiscale flows is the construction of hybrid schemes. Until now all the developed hybrid methods can be divided into three types. The methods of the first type include the solution of both kinetic and hydrodynamic equations in the entire spatial region, and the transport coefficients for the hydrodynamic equations are calculated on the basis of the distribution function. In the methods of the second type, the separation of the velocity space in the subdomains of slow and fast molecules is used, and these regions are processed separately from each other (see e.g. \cite{Kolobov2013}). The third type includes methods with dividing the physical space region into kinetic and continual subregions using some criterion of domain decomposition.\cite{Dimarco2014}.
+We consider very briefly development and realization of these important ideas. The kinetic-based description of continuum media has been suggested independently and has been widely used since the beginning of 80s, see~\cite{Potkin1975, Pullin1980, Reitz1981, Aristov1983}. Later these kinetic-consistent schemes have been developed in~\cite{Elizarova1985, Deshpande1986, Prendergast1993, Chou1997, Ohwada2004Xu, Ohwada2004Kobayashi, Ohwada2006}. Such methods reproduce the Euler and Navier–Stokes (NS) dynamics. The cellular-automata approximation for the Navier–Stokes equations has been developed in the middle of 80s (see e.g.~\cite{Frisch1986}). Finally, the lattice-gas model based on the BGK equation was proposed in the beginning of 90s (see e.g.~\cite{Qian1992}). It gave rise to a wide class of mentioned numerical methods called LB methods (see e.g.~\cite{Succi2001}).
 
-In methods of the third type, approaches of DSMC type in the kinetic zones and the Euler or Navier-Stokes equations in the continuum are used, but the usual statistical modeling in the buffer zone yields appreciable statistical noise (especially for subsonic flows), which complicates calculations. Unlike DSMC, the methods of direct numerical solution of the Boltzmann equation do not give a statistical noise of macroscopic parameters. Therefore, hybrid methods based on a direct numerical solution of the Boltzmann equation appear in principal to be more promising. \cite{Staso2016short, Staso2016long, Staso2018}.
+It is  worth to emphasize that LB method is based, in fact, on some models of DV method. There are obvious relations between these two methods. For instance, one can cite a phrase from \cite{Rivet2001}: ''This type of discrete kinetic theory can be seen as the ''ancestor'' of the lattice gas approach''. The LB method is genetically related to the Broadwell-type models~{\cite{Broadwell1964shock, Gatignol1975}, which use small numbers of discrete velocities to caricature the Boltzmann dynamics. Thus the DV approximation is a natural basis for construction a hybrid fluid--kinetic model.
 
-A novel hybrid kinetic approach (of the third type) for multiscale problems is proposed in the present paper. The kinetic-based description of continuum media has been suggested independently and has been widely used since the beginning of 80s, see~\cite{Potkin1975, Pullin1980, Reitz1981, Aristov1983}. Later these kinetic-consistent schemes have been developed in~\cite{Elizarova1985, Deshpande1986, Prendergast1993, Chou1997, Ohwada2002, Ohwada2004Xu, Ohwada2004Kobayashi, Ohwada2006}. Such methods reproduce the Euler and Navier–Stokes (NS) dynamics. The cellular-automata approximation for the Navier–Stokes equations has been developed in the middle of 80s (see e.g.~\cite{Frisch1986}). Finally, the lattice-gas model based on the BGK equation was proposed in the beginning of 90s (see e.g.~\cite{Qian1992}). It gave rise to a wide class of mentioned numerical methods called LB methods (see e.g.~\cite{Succi2001}).
+The  mapping scheme for the mapping of the solutions for low order
+and  high order LB models is  presented in \cite{Meng2011}, while the possibility of DVM and LB merging  was noticed in \cite{Succi2016}.
+The methods of DSMC type in the kinetic zones and the Euler or Navier-Stokes equations in the continuum are well developed  now, but the usual statistical modeling in the buffer zone yields some statistical noise especially for subsonic flows, which complicates calculations. This hybrid approach has been suggested in~\cite{Staso2016short, Staso2016long}  and in the recent paper \cite{Staso2018} where the solution is obtained by means of hybridization of the DSMC and LB methods.
 
-The fluid-kinetic coupling is an effective approach for the description of multiscale flows. The coupling of the Boltzmann and Euler (or NS) equations is one of canonical example of such hybrid schemes (see, e.g., \cite{Bourgat1996} \cite{Tallec1997}) and has been also elaborated and applied within the framework of UFS (Unified Flow Solver) \cite{Kolobov2007}.
+Unlike DSMC, the methods of direct numerical solution of the Boltzmann equation do not give a statistical noise of macroscopic parameters. Therefore, hybrid methods based on a direct numerical solution of the Boltzmann equation appear in principal to be more promising. The DV schemes with the large number of discrete velocities are used in direct methods for solving BE, BGK, S-model or other kinetic equations. The DV method is applied with the combination of Monte Carlo or quasi-Monte Carlo procedures for evaluating collision integrals and for computing the appropriate moments which are used in the collision integrals of the model kinetic equations. For the near-equilibrium zones the small number of discrete velocities can be considered. Therefore, one can expect that LB approaches are fit for describing flows in these regions.
 
-The other hybrid schemes have been developed in recent years, see e.g. \cite{Xu2010} Some works are based on alternative proposals (in particular for DSMC) related to the properties of the distribution functions. In \cite{Larina2005} the authors proposed a method in which the distribution function is represented by the sum of a local Maxwellian and a nonequilibrium term that has the order of magnitude of the low Knudsen number.
+A novel hybrid kinetic approach for multiscale problems is proposed in the present paper. We attempt to couple DV method for the Boltzmann equation (or its BGK model) and LB method for the Navier--Stokes equations. The first one adequately describes nonequilibrium regions, while the second one provides an adequate description in continuum-flow regions. At the boundaries of the BGK and LBGK domains the coupling method is applied. For mapping we assume that in the overlapping zone of the two methods the distribution function takes the form of truncated Grad expansion.  We employ several LB models including  high order lattices \cite{Shan2006,Feuchter2016}. The hybrid LB+DVM method is tested for the Plane Couette flow and the excellent correspondence with previous results was achieved. No any  additional  regularization procedures \cite{Latt2006, Mont2015} for LB method are needed since LB covers the spatial domain where the distribution function is close to equilibrium.
+In the mapping domain the Lattice Boltzmann distribution function is equivalent to the Grad expansion via Gauss-Hermite quadrature. Similar approach of mapping has been suggested in~\cite{Staso2016short, Staso2016long, Staso2018}.
+
+The plan of the present paper is as follows. The employed kinetic equations and nondimensional variables are introduced in Section~\ref{sec:equations}. The numerical methods are described in Section~\ref{sec:numerics}. This section is subdivided in several parts in which in particular the coupling procedure of the hybrid algorithm is presented. In Section~\ref{sec:results} examines the computations obtained by the BGK model in the whole region of the Couette flow, the analogous results by the different LB models and by the hybrid scheme. The efficiency of the hybrid approach is studied. In section~\ref{sec:summary} Conclusions and a perspective development of DV hybrid methods is discussed.
+
+\section{Main equations}
+
+In the present  paper we will consider  two  kinetic models based on the  nonlinear  Boltzmann equation which will be used in our further computations.
+Our main object is the Bhatnagar-Gross-Krook (BGK) kinetic model \cite{Kogan1969} which reads  in the  dimensionless variables as
+\begin{equation}\label{bgk}
+\frac{\partial f}{\partial t}+\boldsymbol{\xi}\frac{\partial f}{\partial \mathbf{x}}=\frac{{1}}{\tau}(f^{eq}-f), \quad f^{eq}=\equiv\frac{\rho}{(2\pi T)^{3/2}}e^{-(\boldsymbol{\xi}-\mathbf{u})^2/2T},
+\end{equation}
+where  $f(t,\mathbf{x},\boldsymbol{\xi})$  is   distribution function of  a dilute  gas, $\tau$  is dimensionless  relaxation time (which equals  to average number of collisions per particle until relaxation) assumed  to be  constant  in the present study, $\rho,\mathbf{v},T$ are  density, bulk velocity and  temperature. We also denote  $p_{\alpha \beta}, \mathbf{q}$ as stress tensor and  heat flow.
+All this quantities are defined as
+
+\begin{equation}\label{eq:macro}
+    \begin{gathered}
+    \rho = \int f \dxi, \quad
+    \mathbf{v} = \frac1{\rho} \int \boldsymbol{\xi} f \dxi, \quad
+    T = \frac{2}{3\rho}\int(\boldsymbol{\xi}-\mathbf{v})^2f \dxi = \frac{p_{ii}}{3\rho}, \\
+    p_{\alpha \beta} = 2 \int(\xi_{\alpha}-v_{\alpha})(\xi_{\beta}-v_{\beta}) f \dxi, \quad
+    q_{\alpha} = \int(\xi_{\alpha}-v_{\alpha})(\boldsymbol{\xi}-\mathbf{v})^2 f \dxi
+    \end{gathered}
+\end{equation}
 
 
-\todo{LB method is based, in fact, on some DV models of DV method. Therefore, it is natural to connect DV and LB methods. In the present paper, we attempt to couple DV method for the Boltzmann equation (or its BGK model) and LB method for the Navier--Stokes equations. The first one adequately describes nonequilibrium regions, while the second one provides an adequate description in continuum-flow regions.} There are obvious relations between these two methods. For instance, one can cite a phrase from \cite{Rivet2001}: ''This type of discrete kinetic theory can be seen as the ''ancestor'' of the lattice gas approach''. The LB method is genetically related to the Broadwell-type models~{\cite{Broadwell1964shock, Gatignol1975}, which use small numbers of discrete velocities to caricature the Boltzmann dynamics. Thus the DV approximation is a natural basis for construction a hybrid fluid--kinetic model.
+The Knudsen number \(\Kn\) can be expressed in terms of the reference gas viscosity \(\refer\mu\):
+\begin{equation}\label{eq:Knudsen_number}
+    k = \frac{\sqrt\pi}2\Kn = \frac{\refer\mu V}{\refer{p}L}.
+\end{equation}
 
-The DV schemes with the large number of discrete velocities are used in direct methods for solving BE, BGK, S-model or other kinetic equations. The DV method is applied with the combination of Monte Carlo or quasi-Monte Carlo procedures for evaluating collision integrals and for computing the appropriate moments which are used in the collision integrals of the model kinetic equations. For the near-equilibrium zones the small number of discrete velocities can be considered. Therefore, one can expect that LB approaches are fit for describing flows in these regions.
 
-At the boundaries of the BGK and LBGK domains the coupling method is applied. For mapping we assume that in the overlapping zone of the two methods the distribution function takes the form of truncated Grad expansion. In the mapping domain the Lattice Boltzmann distribution function is equivalent to the Grad expansion via Gauss-Hermite quadrature. This approach of mapping has been suggested in~\cite{Staso2016short, Staso2016long} where the solution is obtained by means of hybridization of the DSMC and LB methods (see also a new work~\cite{Staso2018}).
 
-The plan of the present paper is as follows.
-The employed kinetic equations and nondimensional variables are introduced in Section~\ref{sec:equations}.
-The numerical methods are described in Section~\ref{sec:numerics}.
-This section is subdivided in several parts in which in particular the coupling procedure of the hybrid algorithm is presented.
-In Section~\ref{sec:results} examines the computations obtained by the BGK model in the whole region of the Couette flow, the analogous results by the different LB models and by the hybrid scheme. The efficiency of the hybrid approach is presented.
-In section~\ref{sec:summary} Conclusions and a perspective development of DV hybrid methods is discussed.
+This   model is  derived from the  full Boltzmann equation  substituting the  collision integral term by the  local Maxwell distribution $f^{eq}$.  Formally the nonlinearity in $f^{eq}$ is  more severe than in the  full Boltzmann equation since  $f^{eq}$  depends  on $f$  via the moments $\rho,\mathbf{v},T$  but the BGK model  \eqref{bgk} is  simpler for the  numerical study. The BGK equation can adequately
+describe strongly non-equilibrium effects in a dilute gas we will
+solve this equation  using the second-order splitting scheme.
+
+
+The  second  approach is  the  Lattice Boltzmann method which is the further simplification of the BGK model \cite{Succi2001}. We assume that the considered flow is isothermal,  slow,  i.e the  Mach number is  close  to zero, then we  can expand  the local Maxwell term.
+in the Taylor series on the bulk velocity $\mathbf{v}$ (or to perform the expansion on the Hermite polynomials)  up to the terms of some finite order (at least second). Moreover, we assume that  the particle can travel with the  velocities $\mathbf{c}_{j}, j=1 \ldots N$ from a finite discrete set of possible velocities and  the values of absolute Maxwellian are  changed  by the lattice weights $w_j$.
+Finally the general LB model is  obtained  by the finite difference integration of the BGK equation on the  characteristics,
+the third order expansion on $\mathbf{v}$ yields the  following model
+$$
+f(t+\delta t, \mathbf{x}+\mathbf{c}_j\delta t, \mathbf{c}_j)-f(t, \mathbf{x},\mathbf{c}_j)=
+$$
+\begin{equation}\label{lbgk}
+=\frac{1}{(\frac{1}{2}+\frac{\tau}{\delta t})}\left\{ \rho w_j\left(1+ \frac{\mathbf{c_j}\mathbf{v}}{c_s^2}+\frac{(\mathbf{c_j}\mathbf{v})^2-c_s^2v^2}{2c_s^4}
++\frac{(\mathbf{c}_j\mathbf{v})^3-3c_s^2 v^2(\mathbf{c}_j\mathbf{v})}{6c_s^6}\right)-f(t,\mathbf{x}, \mathbf{c}_j) \right \},
+\end{equation}
+for $j=1\ldots N$, where $\mathbf{c}_j$ are lattice velocities, $c_s$  is  sound velocity defined by $\sum_jw_j\mathbf{c}^2_j=c_s^2$, $\tau$  is  relaxation time, $\delta t$  is lattice  time step and  $N$  is number of lattice velocities.  The integration on  the  characteristics using the trapezium rule adds the small error terms of the  order  $\delta t^2$.
+
+
+Several approaches can be applied for the  construction of the LB models like Gauss-Hermite \cite{he1997},\cite{shan1998}, \cite{Shan2006},\cite{shan2010} and the entropic  method \cite{karlin1999},\cite{chikatamarla2006},\cite{chikatamarla2009}.
+
+We adopt the spatial domain splitting procedure  for solving  the  boundary problems  for  rarefied gas dynamics.
+Commonly the  non-equilibrium effects in flows appear near boundaries, therefore the  boundary domains are modeled with the BGK model while the internal  zone which is modeled with the Lattice BGK. Previously, the  approach based on solving  the gas  dynamics with DSMC method and LBGK models using  domain splitting was presented in papers \cite{Staso2016short,Staso2016long,Staso2018} where  the Couette and  Poiseuille  flow  was  considered. Nevertheless, LBGK and DSMC coupling leads to appearance  of some  noise \cite{Succi2016} therefore the  introduction of the LBGK and  BGK coupling  method  is  very desirable.
+
+
+\section{The  mapping  method}
+
+We will introduce the coupling  procedure  in the spatial overlapping  zone  of the BGK and LB models.
+First of all, we  assume that in this  domain  the real distribution function of the gas is close  to the Maxwell state with zero bulk velocity,  unit temperature and  can  be represented in the  form of the truncated  Grad expansion up to the third order terms on the velocity
+\begin{equation}\label{grad}
+f_{Grad}(\mathbf{x},\boldsymbol{\xi})=w(\boldsymbol{\xi})\left(a(\mathbf{y})
++\sum_{\alpha}a_{\alpha}(\mathbf{x})H_{\alpha}+\frac{1}{2}\sum_{\alpha\beta}a_{\alpha \beta}(\mathbf{x})H_{\alpha\beta}+\frac{1}{6}\sum_{\alpha\beta \gamma}a_{\alpha\beta \gamma}(\mathbf{x})H_{\alpha\beta \gamma}\right),
+\end{equation}
+ where $H_{\alpha}, H_{\alpha\beta}, H_{\alpha\beta \gamma}$ are the  Hermite polynomials of the first, second and third order defined by
+  $$
+H_\alpha(\boldsymbol{\xi})=\frac{(-1)}{w(\boldsymbol{\xi})}\frac{\partial}{\partial \xi_\alpha}w(\boldsymbol{\xi}),  \quad H_{\alpha\beta}(\boldsymbol{\xi})=\frac{1}{w(\boldsymbol{\xi})}\frac{\partial^2}{\partial \xi_\alpha\partial \xi_\beta}w(\boldsymbol{\xi}),
+\quad H_{\alpha\beta \gamma}(\boldsymbol{\xi})=\frac{(-1)}{w(\boldsymbol{\xi})}\frac{\partial^3}{\partial \xi_\alpha\partial \xi_\beta \partial \xi_\gamma}w(\boldsymbol{\xi}),
+$$
+and
+ $$
+ w(\boldsymbol{\xi})\equiv \frac{1}{\sqrt{(2\pi})^3}\exp\left(-\frac{\boldsymbol{\xi}^2}{2}\right).
+ $$
+ The  terms $a, a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma}$ are coefficients depending on $\mathbf{x}$ (the point in the overlapping domain).
+ We will use the function \eqref{grad} for the transfer of the  data between the lattice Boltzmann  and the BGK models. We will discuss this  procedure  in turn.
+
+For the sake of clarity we  assume  that the flow  depends  not on the whole vector $\mathbf{y}$ but on one of the coordinates only, we denote  it  by $y$.
+
+At the  first  step we  update the DV distribution function $f_{DV}(y,\boldsymbol{\xi})$ for the discrete velocities  $\boldsymbol{\xi}_n$ such that $(\boldsymbol{\xi}_n,\mathbf{e})<0$ , where $\mathbf{e}$ is the outer normal to overlapping domain,  starting from the wall spatial nodes and  moving  towards the overlapping zone  (for instance, see Fig. 1 -- Fig. 8 in the case  of the Couette flow, the computations of the BGK scheme starts  at $y=0.5$).
+In the spatial domain (physical domain) where  the DV method overlaps the LB method we map the DV distribution function for the DV difference scheme on the Grad distribution function by calculating the following coefficients $a, a_\alpha,a_{\alpha\beta}, a_{\alpha\beta \gamma}$
+$$
+a(y)=\sum_{m=1}^M  f_{DV}(y,\boldsymbol{\xi}_m),   \quad a_\alpha(y)=\sum_{m=1}^Mf_{DV}(y,\boldsymbol{\xi}_m)H_j(\boldsymbol{\xi}_m),
+$$
+$$
+a_{\alpha\beta }(y)=\sum_{m=1}^Mf_{DV}(y,\boldsymbol{\xi}_m)H_{\alpha\beta}(\boldsymbol{\xi}_m), \quad
+a_{\alpha\beta \gamma}(y)=\sum_{m=1}^Mf_{DV}(y,\boldsymbol{\xi}_m)H_{\alpha\beta \gamma}(\boldsymbol{\xi}_m),
+$$
+where $\boldsymbol{\xi}_m, m=1 \ldots M$ are velocities for DV  difference scheme.
+The Grad  distribution function \eqref{grad} is recovered in the overlapping spatial domain.
+
+Next we will map the velocity distribution \eqref{grad} on the lattice Boltzmann distribution using  the  Gauss-Hermite quadrature method.
+The idea of the method is based on the fact  that the representation of the distribution function in the  Grad form  is equivalent to the  lattice  Boltzmann method \cite{he1997},\cite{shan1998},\cite{Shan2006}.
+We  consider the first moments $a,a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma}$  in the integral form and then calculate them using Gauss-Hermite quadratures
+$$
+\{ a,a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma} \}=\int f_{Grad}(\boldsymbol{\xi})\{1,H_{\alpha}, H_{\alpha\beta} ,H_{\alpha\beta \gamma}\}(\boldsymbol{\xi})d\boldsymbol{\xi}=\sum_{j=1}^N w_j\frac{f_{Grad}(\boldsymbol{c}_j)}{w(\mathbf{c}_j)}
+\{1,H_{\alpha}(\mathbf{c_j}),H_{\alpha\beta}(\mathbf{c_j}), H_{\alpha\beta\gamma}(\mathbf{c_j}) \},
+$$
+where $w_j, \boldsymbol{c}_j$  are the weights  and the  nodes of the Gauss-Hermite quadrature respectively. The  nodes $\mathbf{c}_j$  can be  considered as  the  lattice Boltzmann velocities while $ w_j\frac{f(\mathbf{c}_j)}{w(\mathbf{v}_j)}$ are the lattice Boltzmann distribution function values and
+$w_j$ are the  lattice analog of the Maxwell distribution.  Then the  formula
+\begin{equation}\label{grad_to_latt}
+f_{LB,j}\equiv w_j\frac{f_{Grad}(\mathbf{c}_j)}{w(\mathbf{c}_j)}
+\end{equation}
+gives  the mapping from  the Grad truncated distribution function $f_{Grad}$ to the lattice Boltzmann distribution function $f_{LB,j}$ for the corresponding velocities $\mathbf{c}_j$. Now having  the values in the overlapping domain we  update  $f_{LB,j}$  for the  velocities $\mathbf{c}_j$  directed from the  overlapping domain into the interior of the LB  domain (the lattice velocities with non-positive $y$ component in Fig. 1-- Fig. 8).
+
+
+The  second  step consists of the evaluation of the LB   distribution  for the lattice velocities  $\boldsymbol{c}_j$ such that $(\boldsymbol{c}_j,\mathbf{e})<0$ , where $\mathbf{e}$ is the outer normal to overlapping domain.  We evaluate the moments $a,a_{\alpha},a_{\alpha\beta},
+a_{\alpha\beta\gamma}$ and finally  update again  the  Grad  distribution function (in  Fig.1--Fig. 8 computations starts from $y=0$) in the overlapping domain. The coefficients $a,a_{\alpha},a_{\alpha\beta},
+a_{\alpha\beta\gamma}$ are calculated using the formulas
+$$
+a=\sum_{j=1}^N f_{LB,j}, \quad a_{\alpha}=\sum_{j=1}^N f_{LB,j}H_{\alpha}(\mathbf{c}_j), \quad  a_{\alpha\beta}=\sum_{j=1}^N f_{LB,j}H_{\alpha\beta}(\mathbf{c}_j),
+\quad a_{\alpha\beta\gamma}=\sum_{j=1}^N f_{LB,j}H_{\alpha\beta\gamma}(\mathbf{c}_j).
+$$
+Now  we  are ready derive the DV distribution function in the  DV and  LB  overlapping domain. This  can be made by a simple
+discretization of the Grad distribution functions at  the  nodes  of the  DV  scheme. Finally, we evaluate the DV distribution function for  the  all velocities  $(\boldsymbol{\xi}_j,\mathbf{e}) \leq 0$
+in the interior of the  DV  spatial domain.
+
+The described mapping  method can be generalized for the LB models which are not derived on the basis of the Gauss-Hermite quadratures. We assume that after the regularization procedure~\cite{Latt2006, Chen2006} and~\cite{Zhang2006, Mont2015, Mattila2017} the non-equilibrium part of LB distribution function will be  projected in a  finite dimensional velocity space with a basis spanned by  Hermite polynomials. Then the equivalence between the calculated LB distribution and
+the expansion of the Grad  type can be achieved  therefore  the proposed mapping method can be applied.
+
 
 
 \section{Basic equations}\label{sec:equations}
 
-%%% Nondimensional variables
+%%% nondimensional variables
+Consider a monatomic ideal gas in \(D\)-dimensions.
 Let \(L\), \(\refer\rho\), \(\refer{T}\), \(V = \sqrt{2R\refer{T}}\) and \(\refer{p} = \refer{\rho}R\refer{T}\) be
 the reference length, density, temperature, velocity, and pressure, respectively.
 The specific gas constant \(R = k_B/m\), where \(k_B\) is the Boltzmann constant and \(m\) is the molar mass.
@@ -157,7 +276,7 @@ defined in \((2D+1)\)-dimensional space \((tL/V, x_iL, \xi_iV)\) and
 the macroscopic variables take the following form:
 \(\rho\refer{\rho}\) is the density, \(v_iV\) is the velocity, \(T\refer{T}\) is the temperature,
 \(p_{ij}\refer{p}\) is the stress tensor, \(q_i\refer{p}V\) is the heat-flow vector.
-In the dimensionless form, they are calculated as polynomial moments of VDF:
+In the dimensionless form, they are calculated as polynomial moments of the VDF:
 \begin{equation}\label{eq:macro}
     \begin{gathered}
     \rho = \int f \dxi, \quad
@@ -167,129 +286,286 @@ In the dimensionless form, they are calculated as polynomial moments of VDF:
     q_i = \int(\xi_i-v_i)(\xi_j-v_j)^2 f \dxi.
     \end{gathered}
 \end{equation}
+Integration with respect to \(\bxi\) is, hereafter, carried out over \(\mathbb{R}^D\) unless otherwise stated.
 
 %%% Boltzmann equation
 The VDF is governed by the Boltzmann equation
 \begin{equation}\label{eq:Boltzmann}
     \pder[f]{t} + \xi_i\pder[f]{x_i} = \frac1kJ(f),
 \end{equation}
-where \(J(f)\) is the collisional operator and \(k=\refer\mu V/\refer{p}L\)
-is expressed in terms of the reference gas viscosity \(\refer\mu\).
-The Knudsen number \(\Kn=\lambda/L = 2k/\sqrt\pi\), where \(\lambda\) is the mean free path.
+where \(J(f)\) is the collisional operator with a local Maxwellian as the equilibrium function
 \begin{equation}\label{eq:equilibrium}
-    \equil{f} = \frac{\rho}{(\pi T)^{D/2}}\exp\left(-\frac{(\xi_i - v_i)^2}T\right)
+    \equil{f}\br{\xi_i,\rho,v_i,T} = \frac{\rho}{(\pi T)^{D/2}}\exp\br{-\frac{(\xi_i - v_i)^2}T}.
 \end{equation}
-is a local Maxwellian as the equilibrium function.
-%\begin{equation}\label{eq:Knudsen_number}
-%    \Kn = \frac2{\sqrt\pi} k
-%    k = \frac{\sqrt\pi}2\Kn = \frac{\refer\mu V}{\refer{p}L}.
-%\end{equation}
+The Knudsen number \(\Kn\) can be expressed in terms of the reference gas viscosity \(\refer\mu\):
+\begin{equation}\label{eq:Knudsen_number}
+    k = \frac{\sqrt\pi}2\Kn = \frac{\refer\mu V}{\refer{p}L}.
+\end{equation}
 
-%%% Model equation
+%%% BGK equation
 In the present paper, we restrict ourselves to the simplest relaxation model~\cite{Krook1954, Welander1954}
-\begin{equation}\label{eq:bgk}
-    J(f) = \frac1\tau\left(\equil{f}-f\right), \quad \tau = \frac{T^{\omega-1}}{\rho},
+\begin{equation}\label{eq:bgk_integral}
+    J(f) = \frac1\tau\br{\equil{f}-f}, \quad \tau = \frac{T^{\omega-1}}{\rho},
 \end{equation}
-often referred as the Bhatnagar--Gross--Krook (BGK) model of the Boltzmann equation.
+often referred as the Bhatnagar--Gross--Krook (BGK) model of the Boltzmann collisional operator.
 \(\omega\) is the exponent of the viscosity law of the gas.
-The nonlinearity in \(\equil{f}\) is more severe in comparison to the full Boltzmann equation
+The nonlinearity in~\eqref{eq:bgk_integral} is more severe in comparison to the full Boltzmann equation
 since \(\equil{f}\) depends on \(f\) via its moments,
 but the BGK model is much simpler from the numerical point of view.
 
+%%% Kinetic BC
+The gas-surface interaction is described via the diffuse-reflection boundary conditions:
+\begin{equation}\label{eq:diffuse}
+    f(t,\xi_i) = \br{-2\sqrt\frac\pi{T_B} \int_{\xi'_jn_j<0}\xi'_jn_jf(t,\xi'_i)\dxi'}
+        \equil{f}(\xi_i,1,v_{Bi},T_B) \quad (\xi_in_i>0),
+\end{equation}
+where \(n_i\) is the unit vector normal to the boundary, directed into gas.
+\(T_B\) and \(v_{Bi}\) are the boundary temperature and velocity, respectively.
+It is also assumed that \(v_{Bi}n_i = 0\).
+
 \section{Numerical method}\label{sec:numerics}
 
-The equation \eqref{bgk} is solved by the second-order splitting scheme into the transport equation \textcolor{red}{(DO NOT UNDERSTAND  THE PHRASE)}
-$$
-\frac{\partial f}{\partial t}+\mathbf{v}\frac{\partial f}{\partial \mathbf{x}}=0,
-$$
-for which a finite-volume method with an explicit second-order TVD scheme is used, and the space-homogeneous BGK equation
-$$
-\frac{\partial f}{\partial t}=\frac{{1}}{\tau Kn}(\Phi-f)
-$$
-which has the exact solution
-$$
-f=\Phi+e^{t/\tau Kn}(f_0-\Phi).
-$$
-\textcolor{red}{(THEN WHAT ?)}
-The three-dimensional velocity space is discretized by the uniform lattice confined with the sphere of radius \(\zeta_{\max}=4\).
-\(M=16\) nodes are placed along each axis. The total amount of nodes is equal to \(6528\).
+\subsection{Discrete-velocity approximation}\label{sec:dv}
 
-The  second  approach is  called the  Lattice Boltzmann method which is the further simplification of the BGK model \cite{Succi2001}. We assume that the considered flow is  slow,  i.e the  Mach number is  close  to zero and isothermal, then we  can expand  the local Maxwell term $\Phi$
-in the Taylor series on the bulk velocity $\mathbf{u}$  up to the terms of the second order. Moreover, we assume that  the particle can travel with the  velocities $\mathbf{c}_i$ from a finite discrete set of possible velocities.
-Finally the general LBGK model is  obtained  by the finite difference integration of the BGK equations on the  characteristics jointly with the aforementioned assumptions
-$$
-f(t+\delta t, \mathbf{x}+\mathbf{c}_j\delta t, \mathbf{c}_j)-f(t, \mathbf{x},\mathbf{c}_j)=
-$$
-\begin{equation}\label{lbgk}
-=\frac{1}{(\frac{1}{2}+\frac{\tau Kn}{\delta t})}\left\{ \rho w_j\left(1+ \frac{\mathbf{c_j}\mathbf{u}}{c_s^2}+\frac{(\mathbf{c_j}\mathbf{u})^2-c_s^2u^2}{2c_s^4}\right)-f(t,\mathbf{x}, \mathbf{c}_j) \right \},
+%%% quadratures in velocity space
+Formally, the VDF can be represented as a weighted sum
+\begin{equation}\label{eq:discrete_velocity}
+    f(\bx,\bxi,t) = \sum_\alpha w_\alpha f_\alpha(\bx,t)\delta(\bxi-\bxia),
 \end{equation}
-for $j=1\ldots N$, where $\mathbf{c}_j$ are lattice velocities, $c_s$  is  sound velocity defined by $\sum_jw_j\mathbf{c}^2_j=c_s^2$, $w_j$ are  lattice weights (or discrete analogs of the Maxwell state) obeying $\sum_jw_j=1$, $\tau$  is  relaxation time, $\delta t$  is lattice  time step and  $N$  is number of lattice velocities. The  lattice weights and  velocities should be evaluated in a such way that at the $Kn \rightarrow 0$ limit the resulting Navier-Stokes equations  are reproduced with negligible  errors if the flow is slow ( of order $Ma^3$). The integration on  the  characteristics using the trapezium rule adds the small error terms of the  order  $\delta t^2$.
-
-
-Several approaches can be applied for the  construction of the LB models like Gauss-Hermite \cite{He1997},\cite{Shan1998}, \cite{Shan2006},\cite{Shan2010} and the entropic  method \cite{Karlin1999},\cite{Chikatamarla2006},\cite{Chikatamarla2009}.
-
-We adopt the spatial domain splitting procedure  for solving  the  boundary problems  for  rarefied gas dynamics.
-Commonly the  non-equilibrium effects in flows appear near boundaries, therefore the  boundary domains are modeled with the BGK model while the internal  zone which is modeled with the Lattice BGK. Previously, the  approach based on solving  the gas  dynamics with DSMC method and LBGK models using  domain splitting was presented in papers \cite{Staso2016short, Staso2016long} where  the Couette and  Poiseuille  flow  was  considered. Nevertheless, LBGK and DSMC coupling leads to appearance  of some  noise \cite{Staso2016short} therefore the  introduction of the LBGK and  BGK coupling  method  is  very desirable.
-
-
-
-We will discuss the   matching  procedure   in the spatial overlapping  zone  of the BGK and LBGK methods.
-First of all, we  assume that in this  domain  the real distribution function of the gas is close  to the Maxwell state with zero bulk velocity,  unit temperature and  can  be casted in the  form of the truncated  Grad expansion
-\begin{equation}\label{grad}
-f_{Grad}(\mathbf{y},\mathbf{v})=\frac{1}{\sqrt{(2\pi})^3}\exp\left(-\frac{\mathbf{v}^2}{2}\right)\left(a(\mathbf{x})
-+\sum_{j}a_j(\mathbf{x})H_{j}+\frac{1}{2}\sum_{jk}a_{jk}(\mathbf{x})H_{jk}\right),
+where \(\delta(\bxi)\) is the Dirac delta function in the velocity space.
+Then, an arbitrary moment \(\phi(\bxi)\) from \(f\) is calculated as
+\begin{equation}\label{eq:cubature}
+    \int \phi f\dxi = \sum_\alpha w_\alpha \phi(\bxia) f_\alpha.
 \end{equation}
- where $H_j, H_{jk}$ are the  Hermite polynomials of the first and second order defined by
-  $$
-H_j(\mathbf{v})=\frac{(-1)}{w(\mathbf{v})}\frac{\partial}{\partial v_j}w(\mathbf{v}),  \quad H_{jk}(\mathbf{v})=\frac{1}{w(\mathbf{v})}\frac{\partial^2}{\partial v_j\partial v_k}w(\mathbf{v})
-$$
-and
- $$
- w(\mathbf{v})\equiv \frac{1}{\sqrt{(2\pi})^3}\exp\left(-\frac{\mathbf{v}^2}{2}\right).
- $$
- The  terms $a, a_j,a_{jk}$ are coefficients depending on $\mathbf{y}$ (the point in the overlapping domain). We suppose  that the truncation of the  Grad expansion at the  second order terms is  minimal  but sufficient  possibility since  the Navier-Stokes  equations  can be reproduced  for this  case with small errors of order $Ma^3$  when Knudsen number  tends  to zero.
- We will use the function \eqref{grad} for the transfer of the boundary data between the lattice Boltzmann  and the BGK models. We will discuss this  procedure  in turn.
-
-For the sake of clarity we  assume  that the flow  depends  not on the whole vector $\mathbf{y}$ but on one of the coordinates only, we denote  it  by $y$.
-
-At the  first  step we  update the BGK distribution function $f_{BGK}(y_{\mathbf{\alpha}},\mathbf{v}_{\mathbf{\beta}})$ (where we define $y_{\mathbf{\alpha}},\mathbf{v}_{\mathbf{\beta}}$ as the BGK difference scheme's spatial points and velocities) for the velocities with positive (non-positive) $v_y$ component  in the whole BGK domain using the boundary data on the wall (see Fig. 3 in the case  of the Couette flow, the computations of the BGK scheme starts  at $y=0.5$). In the spatial domain where  the BGK method overlaps the LBGK method we map the BGK  scheme distribution on the Grad distribution function by calculating the following coefficients $a, a_j,a_{jk}$ using  the formulas below
-\begin{equation}\label{bgk_to_grad}
-a(y_{\mathbf{\beta}})=\sum_{\mathbf{\beta}}  f_{BGK}(y_{\mathbf{\alpha}},\mathbf{v}_{\mathbf{\beta}}),   \quad a_j(y_{\mathbf{\beta}})=\sum_{\mathbf{\beta}}f_{BGK}(y_{\mathbf{\alpha}},\mathbf{v}_{\mathbf{\beta}})H_j(\mathbf{v}_{\mathbf{\beta}}), \quad  a_{jk}(y_{\mathbf{\beta}})=\sum_{\mathbf{\beta}}f_{BGK}(y_{\mathbf{\alpha}},\mathbf{v}_{\mathbf{\beta}})H_{jk}(\mathbf{v}_{\mathbf{\beta}}).
+It is convenient to deal with weighted values \(\hat{f}_\alpha = w_\alpha f_\alpha\).
+The evolution of \(\hat{f}_\alpha\) is governed by the system of partial differential equations
+\begin{equation}\label{eq:dvm}
+    \pder[\hat{f}_\alpha]{t} + \xiai\pder[\hat{f}_\alpha]{x_i} = \frac1kJ(\hat{f}_\alpha),
 \end{equation}
-Once  this summation is performed we are able to recover  the Grad  distribution function \eqref{grad} in the considered spatial domain.
+which is called the \emph{discrete-velocity (DV) model} of~\eqref{eq:Boltzmann}~\cite{Cabannes1980}.
 
-Next we will map the distribution \eqref{grad} on the lattice Boltzmann distribution using  the  Gauss-Hermite quadrature method.
-The idea of the method is based on the fact  that the representation of the distribution function in the  Grad form  is equivalent to the  lattice  Boltzmann method \cite{He1997},\cite{Shan1998}, \cite{Shan2006}.
-We  consider the first moments $a,a_j,a_{jk}$  in the integral form and then calculate them using Gauss-Hermite quadratures
-$$
-\{a,a_j,a_{jk}\}=\int f_{Grad}(\mathbf{v})\{1,H_j(\mathbf{v}),H_{jk}(\mathbf{v})\}d\mathbf{v}=\sum_{s}w_s\frac{f_{Grad}(\mathbf{v}_s)}{w(\mathbf{v}_s)}
-\{1,H_j(\mathbf{v_s}),H_{jk}(\mathbf{v_s})\},
-$$
-where $w_s, \mathbf{v}_s$  are the weights  and the  nodes of the Gauss-Hermite quadrature respectively. The  nodes $\mathbf{v}_s$  can be  considered as  the  lattice Boltzmann velocities while $ w_s\frac{f(\mathbf{v}_s)}{w(\mathbf{v}_s)}$ are the lattice Boltzmann distribution function values and
-$w_s$ are the  lattice analog of the total Maxwell distribution.  Then the  formula
-\begin{equation}\label{grad_to_latt}
-f_{latt,s}\equiv w_s\frac{f_{Grad}(\mathbf{v}_s)}{w(\mathbf{v}_s)}
+%%% conservative and entropic models
+It is important for a DV model~\eqref{eq:dvm} to preserve conservation and entropy properties
+of the continuous kinetic equation~\eqref{eq:Boltzmann}.
+For the BGK model
+\begin{equation}\label{eq:dvm-bgk}
+    J(\hat{f}_\alpha) = \frac1\tau\br{\equil{\hat{f}}_\alpha-\hat{f}_\alpha},
 \end{equation}
-gives  the mapping from  the Grad truncated distribution function $f_{Grad}$ to the lattice Boltzmann distribution function $f_{latt,s}$ for the correspondent speeds $\mathbf{v}_s$. Now having  the  boundary values we  update the lattice Boltzmann distribution function $f_{latt,s}$  for the  velocities $\mathbf{v}_s$  with positive  $y$  component (non-positive).
-%\begin{figure}[!h]
-%\centering
-%\includegraphics[height=60mm]{fig1.jpg}
-%\caption{Step 1 of the  mapping  scheme.}
-%\end{figure}
-%\begin{figure}[!h]
-%\centering
-%\includegraphics[height=60mm]{fig2.jpg}
-%\caption{Step 2 of the  mapping  scheme.}
-%\end{figure}
+it can be accomplished when the discrete equilibrium function \(\equil{\hat{f}}_\alpha\)
+is defined from the minimum entropy principle~\cite{Mieussens2000}:
+\begin{equation}\label{eq:equilibrium-bgk}
+    \equil{f}_\alpha = \exp(\beta_r\psi_{\alpha r}), \quad
+    \psi_{\alpha r} = \transpose{\br{1,\bxia, \xi_\alpha^2}},
+\end{equation}
+where \(\beta_r\in\mathbb{R}^{D+2}\) is unique solution of
+\begin{equation}\label{eq:beta}
+    \sum_\alpha\psi_{\alpha r}\br{\equil{\hat{f}}_\alpha - \hat{f}_\alpha} = 0.
+\end{equation}
 
-The  second  step consists of the evaluation of the  distribution functions for the non-positive  (positive) velocities. Now we  start
-from the  another boundary and using  the  boundary  conditions  we calculate the Lattice  Boltzmann distribution for the velocities with non-positive  $y$-component (positive) in LBGK spatial domain. Next we evaluate the moments $a,a_j,a_{jk}$ and finally  recover  the  Grad  distribution function. We have
-$$
-a=\sum_sf_{latt,s}, \quad a_j=\sum_sf_{latt,s}H_j(\mathbf{v}_s), \quad  \quad a_{jk}=\sum_sf_{latt,s}H_{jk}(\mathbf{v}_s).
-$$
-Now  we  are ready derive the BGK distribution function in the  BGK and  LBGK  overlapping domain. This  can be made by a simple
-discretization of the Grad distribution functions at  the  nodes  of the  BGK difference scheme. Finally, we evaluate the BGK distribution function for  the  all velocities  with non-positive  $y$-component (positive) in BGK spatial domain.
+%%% DV method
+Let the molecular velocities \(\bxia\) be restricted to a Cartesian lattice \(X\)
+with uniform spacing \(c\), called the \emph{lattice speed}.
+The classical \emph{DV method} of solving~\eqref{eq:Boltzmann} is based on such approximations \(J(\hat{f}_\alpha)\)
+that are consistent with \(J(f)\) when \(c\) goes to zero~\cite{Aristov2001}.
+Due to exponential decay of the VDF, the given accuracy can be achieved
+by cutting off all velocities that satisfy condition \(|\xi_\alpha| > \xi^{(\mathrm{cut})}\) from \(X\).
 
+%%% LB method
+A set of velocities with the corresponding weights \(\Set{(\bxia,w_\alpha)}{\alpha=1,\dots,Q}\)
+is called the \emph{quadrature} (\emph{cubature} if \(D>1\)) \emph{rule}~\cite{Stroud1971}.
+A common notation D\(n\)Q\(m\) means \(D=n\) and \(Q=m\).
+Hereinafter, a quadrature rule, together with the discrete operator in form~\eqref{eq:dvm-bgk},
+is referred as the \emph{lattice-BGK (LBGK) model}.
+When the VDF is close to equilibrium, it can be acceptably approximated using quadratures with small number \(Q\).
+LBGK models are capable of reproducing low-order polynomial moments of the VDF accurately and,
+therefore, describing a fluid-dynamic behavior of a gas, including that beyond the Navier--Stokes level.
+They serve as a foundation for the \emph{lattice Boltzmann (LB) method}.
+
+%%% Difference between DV and LB
+Within the introduced terminology, the only difference between the DV and LB methods is an ultimate goal.
+The former one strives to capture kinetic properties of highly nonequilibrium flows and, therefore,
+forced to have a quite large dimension of the approximation space \(Q\).
+The latter one, on the contrary, is based on the assumption of a slightly perturbed equilibrium and, therefore,
+tends to describe it in the most efficient way.
+
+%%% Gauss--Hermite
+In the present paper, we employ LBGK models based on the projection of the VDF onto Hermite basis~\cite{Shan2006}:
+\begin{multline}\label{eq:gauss-hermite}
+    \equil{f}_\alpha = \rho\Bigg\{ 1 + 2\xiai v_i + \overbrace{
+        2\br{\xiai v_i}^2 - v_i^2 + (T-1)\br{\xiai^2 - \frac{D}2}
+    }^\text{second order} + \\ \underbrace{
+        \frac{2\xiaj v_j}3\left[ 2\br{\xiai v_i}^2 - 3v_i^2 + 3(T-1)\br{\xiai^2 - 1 - \frac{D}2}\right]
+    }_\text{third order} + \cdots \Bigg\}.
+\end{multline}
+Truncating of~\eqref{eq:gauss-hermite} compromises the positivity condition and,
+therefore, these LBGK models are not entropic, but the conservation properties are preserved.
+
+\subsection{Time-integration method}\label{sec:splitting}
+
+%%% Splitting scheme
+For the present study, we start from the simplest numerical algorithm providing the second-order accuracy
+for both time and physical coordinates.
+Equation~\eqref{eq:Boltzmann} is solved by the symmetric Strang's splitting scheme~\cite{Bobylev2001}
+\begin{equation}\label{eq:Strang}
+    S^{\Delta{t}}_{A+B}(f_0) = S^{\Delta{t}/2}_A \br{S^{\Delta{t}}_B \br{S^{\Delta{t}/2}_A(f_0)} } + \OO{\Delta{t}^3},
+\end{equation}
+where \(A(f) = -\xi_i\Pder[f]{x_i}\), \(B(f) = J(f)/k\).
+\(S^t_P (f_0)\) denotes the solution of the Cauchy problem
+\begin{equation}\label{eq:Cauchy}
+    \pder[f]{t} = P(f), \quad f|_{t=0} = f_0.
+\end{equation}
+
+%%% Space-homogeneous
+Important implication of the splitting procedure is that the space-homogeneous BGK equation
+\begin{equation}\label{eq:bgk_homogeneous}
+    \pder[f]{t} = \frac{\rho}k \br{\equil{f}-f}
+\end{equation}
+has the exact solution
+\begin{equation}\label{eq:bgk_exact}
+    f(t) = \equil{f} + \br{f(t_0)-\equil{f}}\exp\br{-\frac{\rho}k (t-t_0)}.
+\end{equation}
+Moreover, generalization of this algorithm to the original Boltzmann equation is straightforward.
+
+%%% Steady-state solution
+To find a steady-state solution of the boundary-value problem,
+the time-marching process is started from some initial approximation
+and continues until the convergence criterion is met.
+
+\subsection{Finite-volume formulation}\label{sec:fv}
+
+For brevity, we consider a one-dimensional physical space.
+The transport equation
+\begin{equation}\label{eq:transport}
+    \pder[f]{t} + \xi_1\pder[f]{x_1} = 0
+\end{equation}
+is approximated by the \emph{finite-volume (FV)} method:
+\begin{equation}\label{eq:finite_volume}
+    f^{n+1}_m = f^n_m - \frac{\Delta{t}}{\Delta{x_m}}\br{F^n_{m+1/2}-F^n_{m-1/2}}, \quad
+    m = 1,\dots,M, \quad n\in\mathbb{N},
+\end{equation}
+where \(\Delta{t}\) is the time step, \(\Delta{x_m}\) is the width of \(m\) cell in the physical space,
+\begin{equation}\label{eq:vdf_fv}
+    f^n_m(\bxi) = f\br{n\Delta{t}, \frac{\Delta{x_m}}2 + \sum_{k=1}^{m-1}\Delta{x_k}, \bxi}.
+\end{equation}
+For \(\xi_1>0\), the internal fluxes can be written in the following form:
+\begin{equation}\label{eq:internal_fluxes}
+    F_{m+1/2}^n = \xi_1\br{ f_m^n + \frac{1-\gamma}2\overline{\Delta{f_m^n}}},
+    \quad \gamma = \frac{\xi_1\Delta{t}}{\Delta{x_m}}, \quad m = 1,\dots,M.
+\end{equation}
+They are calculated by the second-order total variation diminishing (TVD) scheme,
+e.g., with the monotonized central (MC) slope limiter
+\begin{equation}\label{eq:limiter}
+    \overline{\Delta{f_m^n}} = \begin{cases}\min\br{
+         2\frac{|D_-|}{h_-}, \frac12\frac{|D_-+D_+|}{h_-+h_+}, 2\frac{|D_+|}{h_+}
+    }\Delta{x_m}, \quad D_+D_- > 0, \\
+    0, \quad D_+D_- \leq 0,
+    \end{cases}
+\end{equation}
+where
+\begin{equation}\label{eq:differences}
+    D_\pm = \pm\br{f_{m\pm1}^n - f_m^n}, \quad h_\pm = \frac{\Delta{x_{m\pm1}} + \Delta{x_m}}2.
+\end{equation}
+The last flux \(F_{M+1/2}^n\) is calculated based on the linear extrapolation of the solution for the ghost cell:
+\begin{equation}\label{eq:last_ghost}
+    f_{M+1}^n = 2f_M^n - f_{M-1}^n.
+\end{equation}
+Note that sharp variations (in physical space) of solution can occur even for nearly incompressible flow,
+especially for large \(|\bxi|\).
+
+%%% Boundary conditions
+The diffuse-reflection boundary condition~\eqref{eq:diffuse}, e.g. at \(x=0\),
+is introduced through the first flux and ghost cell:
+\begin{gather}
+    F_{1/2}^n(\bxia) = \displaystyle\xi_1\frac{\sum_{\xi'_{\alpha1}<0}F_{m+1/2}^n(\bxia')}
+        {\sum_{\xi'_{\alpha1}<0}\xi'_{\alpha1}\equil{f}(\bxi'_\alpha,1,v_{Bi},T_B)}
+        \equil{f}(\bxi_\alpha, 1, v_{Bi}, T_B) \quad (\xi_{\alpha1}>0), \label{eq:first_flux}\\
+    f_0^n(\bxia) = \displaystyle\frac{\sum_{\xi'_{\alpha1}<0}\xi'_{\alpha1}f_1^n(\bxia')}
+        {\sum_{\xi'_{\alpha1}<0}\xi'_{\alpha1}\equil{f}(\bxi'_\alpha,1,v_{Bi},T_B)}
+        \equil{f}(\bxi_\alpha, 1, v_{Bi}, T_B) \quad (\xi_{\alpha1}>0). \label{eq:first_ghost}
+\end{gather}
+This implementation yields second-order accuracy along with conservation of mass.
+For \(\xi_1<0\), all expressions are analogous.
+
+%%% Why half-integer lattice?
+The boundary conditions also dictate a way of discretization in the velocity space.
+With respect to the origin of the velocity coordinates, only two types of lattices are symmetric~\cite{Inamuro1990}:
+\emph{integer} \(\br{\xiai/c} \in \mathbb{Z}^D\) and \emph{half-integer} \(\br{\xiai/c + e_i/2} \in \mathbb{Z}^D\),
+where \(e_i\) is the corresponding orthonormal basis.
+For the considered boundary condition at \(x=0\) and \(D>1\), there is a zero-measure set of velocities
+\(\Set{\bxi\in\mathbb{R}^D}{\xi_1=0}\), called tangential.
+These velocities are immune to the diffuse reflection.
+In contrast, the integer lattice contains a substantial subset of tangential velocities.
+Therefore, to avoid an additional discretization error, the half-integer lattice should be employed.
+
+%%% Diffuse reflection for LB
+In the same manner, LB cubatures without tangential velocities are preferable to the classical ones.
+Moreover, LB models can be augmented by special groups of velocities to approximate
+the diffuse-reflection boundary condition more accurately~\cite{Feuchter2016}.
+These models ensure vanishing errors of the relevant half-space integrals.
+
+\subsection{Coupling algorithm}\label{sec:coupling}
+
+%%% Homogeneous domain decomposition problem
+Staying within the FV framework, divide our computational domain in the physical space
+into subdomains, each employing its own DV model.
+The coupling conditions at the interface between subdomains can be considered as virtual boundary conditions.
+They are symmetric due to unified formulation in the physical space.
+
+%%% Projection and reconstruction procedures
+The concept of ghost cells suggests the simplest (from the algorithmic point of view) coupling strategy.
+If the interface between subdomains lies in the near-continuum region,
+it is admissible to exchange information only within a Hilbert subspace \(\mathcal{H}\)
+spanned by the first \(D\)-dimensional Hermite polynomials.
+Then, all that we need is to supplement each DV model with a mapping to this subspace.
+In other words, a projection and reconstruction procedures should be implemented.
+While the former one is nothing else but weighted cubatures~\eqref{eq:cubature},
+the latter one depends on the underlying DV model.
+
+%%% Specify the reconstruction procedure
+In the present paper, we confine \(\mathcal{H}\) to the first \(1+5D/2+D^2/2\) polynomials
+corresponding to the macroscopic variables~\eqref{eq:macro}.
+Note that pressure tensor \(p_{ij}\) contains \(D(D+1)/2\) independent values due to its symmetric nature.
+For the DV model, the desired reconstruction coincides with the Grad's thirteen-moment method:
+\begin{equation}\label{eq:interface_dvm}
+    f^{\mathcal{H}}_\alpha = \equil{f}_\alpha\br{
+        1 + \frac{\cai\caj P_{ij}}{\rho T^2} + \frac{4\cai q_i}{\rho T^2}\br{\frac{\caj^2}{(D+2)T} - \frac12} },
+\end{equation}
+where \(P_{ij} = p_{ij} - \rho T\delta_{ij}\) and \(\cai = \xiai - v_i\).
+For the Gauss--Hermite LB model, the appropriate discrete VDF is recovered as a part of the third-order Hermite expansion:
+\begin{equation}\label{eq:interface_lbm}
+    f^{\mathcal{H}}_\alpha = \equil{f}_\alpha + \underbrace{ \vphantom{ \br{\frac{2\xiaj^2}{D+2}-1} }
+        \xiai\xiaj P_{ij}
+    }_\text{second order} + \underbrace{
+        2\xiai q_i\br{\frac{2\xiaj^2}{D+2}-1} - 2\xiai P_{ij}\br{ v_j - \xiaj\xiak v_k }
+    }_\text{third order}.
+\end{equation}
+
+%%% Conservative scheme
+At first glance, the proposed reconstruction procedure does not violate the conservation properties of the FV scheme,
+because all moments required for the equilibrium function are calculated exactly.
+However, the reality is different, since the FV scheme actually deals separately
+with velocities directed in the opposite half-spaces with respect to the interface.
+For this reason, mass, momentum, and energy fluxes across the coupling interface
+are turned out to differ slightly for each DV model.
+In the present paper, we employ the polynomial correction (like in~\cite{Aristov1980}):
+\begin{equation}\label{eq:poly_correction}
+    \bar{F}^{(1)}_\alpha = F^{(1)}_\alpha(1+\gamma_r\psi_{\alpha r}), \quad
+    \sum_{\alpha=1}^{Q^{(1)}} \bar{F}^{(1)}_\alpha\psi_{\alpha r} = \sum_{\alpha=1}^{Q^{(2)}} F^{(2)}_\alpha\psi_{\alpha r},
+\end{equation}
+where \(F^{(s)}\) and \(Q^{(s)}\) are the initial flux and number of velocities of \(s\) model, respectively,
+\(\bar{F}^{(1)}\) is the corrected flux, \(\psi_{\alpha r}\) is defined in~\eqref{eq:beta}.
+In practice, each component of \(\gamma_r\in\mathbb{R}^{D+2}\) is much less than unity;
+therefore, the positivity is also preserved.
+
+%%% 1D example
+Finally, let us return to the one-dimensional example outlined in sec.~\ref{sec:fv}
+and suppose that \(x=0\) is our interface.
+In order to use~\eqref{eq:internal_fluxes}, the VDF should be reconstructed in the ghost cells.
+In case of second-order TVD scheme, \(f_{-1}^n\) is used for all \(\bxia\) and, additionally,
+\(f_{-2}^n\) is required when \(\xi_{\alpha1}>0\).
+In case of first-order scheme, \(f_{-1}^n\) and only for \(\xi_{\alpha1}>0\) is sufficient.
+
+\section{Results and discussions}\label{sec:results}
 
 \begin{figure}[!h]
 \centering
@@ -352,13 +628,11 @@ discretization of the Grad distribution functions at  the  nodes  of the  BGK di
 
 
 
-\section{Results of numerical simulations}\label{sec:results}
 
 \todo{In the present paper, we deal with the flow between the two parallel planes which have non-zero relative velocity (the plane Couette flow) for small Knudsen numbers. For solving this problem we develop a hybrid BGK and LBGK coupling method. The gas dynamics in Knudsen layers is considered using the full nonlinear BGK equation while the internal zone is described by LB model.}
 
 The classical stationary Couette problem has been used as a test for the consideration of the hybrid BGK+LBM BGK scheme. The results of the computations for BGK in the whole 1D computational domain are compared with the computations with the LBM and BGK scheme and with the computations by the hybrid scheme. The gas is confined between two infinite parallel plates placed at $y = \pm 1/2$ with constant temperature $T = 1$ and velocities ($v = \pm\Delta v/2,0,0$). A complete diffuse reflection are assumed at the plates. The average density is equal to unity $\int_{-1/2}^{1/2}\rho dy=1$. The physical space $0 < y < 1/2$ is divided into $N = 40$ nonuniform cells refined near $y = 1/2$. This numerical example was tested for the Knudsen number Kn=0.1. The results of the TVD difference scheme for thee BGK  are presented in Fig.1. The buffer layer is located for \textcolor{red}{the first variant} of computation at a distance of $1.2$ mean free path from the plate. The point of matching has been defined as the boundary between the Knudsen layer and the continuum zone of the flow, of course the switching procedure should be introduced, e.g. by the magnitudes of some moment gradients, in our calculations changing the coupling point has been investigated.
 
-\textcolor{red}{(THE DETAILS OF THE  OVERLAPPING  BETWEEN THE DOMAINS SHOULD BE REVEALED)  }
 
 The results of the simulations for the Lattice BGK  (D3Q19) in the whole spatial domain are showed in Fig. 2. One can see the differences for the velocity profile between the LBGK and the tabulated data. Obviously the lattice Boltzmann  model is  unable to describe  the  boundary layer with a good precision.
 The  heat flux for lattice Boltzmann model equals zero in the whole domain since this model can not tackle with the third  moment.   We use  the  kinetic (diffusive) boundary conditions at the wall, for the LB models  this boundary condistions are described in
@@ -393,41 +667,17 @@ The last considered simulations for hybrids with more complex LBM are very impor
 
 \textcolor{blue} {The criteria of the distinguishing between continuum and rarefied zones according to the value of the heat flux can be used. The threshold value for the transition from the continuum region to the kinetic region could be, e.g. related to the accepted level of the error in the calculations. Namely, if the module of the heat flux is less than this threshold value than this region is related to the continuum area and vice versa. In Fig. 5 the value related to the mentioned criteria is shown for all points of the coordinate computational domain.}
 
-\section{Conclusions}\label{sec:summary}
+\section{Conclusion}\label{sec:summary}
+%%%%%%%%%%%%%%% very new %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In the paper, we presented a new algorithm  of merging of the numerical solutions for BGK kinetic equation  applied in the boundary regions with the Lattice Boltzmann Models used in continuum regions. The buffer cells use the distribution function in a form of the Grad expansion, that allows us to construct a hybrid method. We applied several lattice Boltzmann models ranging from the most common D3Q19 to LBM models with the large numbers (in comparison with ordinary samples) of  velocities [1] capable to simulate some dissipative properties. This method was tested for a simple one-dimensional Couette problem for the isothermal  regime.   The following problems for the further study can be addressed.
- The usage of multiple velocities in the  difference  schemes  for the full Boltzmann equation or BGK equation is somewhat overkill since  the highest moments  can be unimportant for many flows then the methods for the velocity number reduction for the methods should be developed.  Moreover the implementation of the  Cartesian grids and the advection part in a fashion similar  to LB method potentially allows to diminish the interpolation errors in the finite difference expressions for the Boltzmann equation. In [2] a similar idea has been realized for D3Q27 in the advection part of BE.
-The other developments could be concerned to the hybrid method for supersonic flows, see , e.g. a recent paper [3] Implementation of the entropic lattice models has been applied in the hybridization scheme like D3Q41-ZOT Ansumali, Chikatamarla, Karlin- many papers]. Potentially the usage of entropic models is very appealing due to its amazing stability for low viscosities (and large Reynolds numbers). In recent papers [3, 5-6] the LBM method extended to thermal, compressible and supersonic  flows with appropriate lattices  and  this models  can be also considred as  candidates in hybrid methods.
+In the paper, we presented a new algorithm of merging of the numerical solutions for BGK kinetic equation applied in the boundary regions with the Lattice Boltzmann Models used in continuum regions. The buffer cells use the distribution function in a form of the Grad expansion, that allows us to construct a hybrid method. We applied several lattice Boltzmann models ranging from the most common D3Q19 to high-order LBM models with the large number of velocities (in comparison with ordinary samples). This method was tested for a simple one-dimensional Couette problem for the isothermal regime.  The  LB
+models  which are not based on the Gauss-Hermite quadrature  method could be implemented  using the regularization procedure
 
+The following problems for the further study can be addressed. The usage of multiple velocities in the difference schemes for the full Boltzmann equation or BGK equation is somewhat overkill since the highest moments can be unimportant for many flows. Therefore the methods for the velocity number reduction  should be developed. The DV methods with different  number of discrete velocities in different flow regions can be perspective hybrid schemes for compressible flows. Such approaches can be analogous to the adaptive schemes in velocity space. In some given methods the separation of the velocity space in the subdomains, in particular for small and high temperature (see [1]) or for slow and fast molecules [2] is made.
 
-%%% old
+The implementation of the Cartesian grids and the advection part in a fashion similar to LB method potentially allows to diminish the interpolation errors in the finite difference expressions for the Boltzmann equation. In [3] a similar idea has been realized for D3Q27 in the advection part of BE.
+The other developments could be concerned to the hybrid method for supersonic flows, compressible and  thermal flows~\cite{Chen2010, Frapolli2015, Frapolli2016}. Also  the potential usage of entropic models is  appealing due to its enhanced stability for low viscosities (and large Reynolds numbers).
 
-
-Perspectives of hybrid DVM schemes are considered. Special attention is paid to the possible hybrid schemes on the basis of the direct methods for the Boltzmann (or BGK) equations and the Lattice Boltzmann Models (LBM). The proposed BGK+LBM hybrid scheme is studied for the classical Couette problem. Different LBM schemes are considered for discussing the possibilities of the hybrid approach and the speed-up of this scheme in comparison of BGK scheme is computed.
-
-
-Finally, we  mention  subtle differences between the Lattice Boltzmann method  and  the numerical methods for the BGK equation. The  equilibrium state (the local Maxwell distribution) for the BGK numerical methods is reproduced precisely at the points of the discrete velocity grid $\xi_j$ . The discreetness of the velocity space  implies that the moments can not be reproduced exactly %%for any $\rho, u, T$ %%.
-For instance, for the zero moment we need to satisfy the condition
-
-$$\sum_j  \frac{\Delta \xi}{(2\pi T)^{1/2}}\exp\left(-\frac{(\xi_j-u)^2}{2T}  \right)=1
-$$
-(1D case is considered) for any values $u,T$. Obviously this problem  can not be solved without a computational error and  the error vanishes when the velocity step $\Delta \xi$ approaches to zero. Then the special procedures for recovering  of the exact values for the moments up to the second  order are performed in order to keep the conservative property \cite{Aristov1980}. In contrast, for the Lattice Boltzmann method  the  first moments are reproduced exactly (in the case  of  polynomilal equilibrium) but  the  local equilibrium does not coincide with the Maxwell distribution. Moreover, the form of the Lattice Boltzmann equilibrium can even have a  non-Gaussian form \cite{Chikatamarla2009}. As a consequence, the highest moments are obtained with errors increasing with Mach number. Thus, the numerical methods  for  the BGK equation allows to evaluate any moments at the cost of the large number of velocities and small velocity steps while the LBM recovers only the first moments but with the less computational time than for the BGK numerical methods. In further  it will be interesting  to develop the discrete velocity models which  utilize  the  useful properties  of the both methods.
-
-The  number  of discrete velocities in a general DVM is related with the number of moments which the model describes. In the  ideal case the total number of discrete velocities equals to the number of  moments.  In 1D case this relation between the moments and the discrete distribution function is  given by Vandermonde matrix filled  with the discrete velocities.
- For the  real Lattice Boltzmann models in many dimensions this  equality does not hold since of the requirement for the  lattice to have a Cartesian form. For instance, the minimal model based on the Gauss-Hermite quadratures which exactly reproduces  the moments up to the third order ($20$ moments) has $38$ velocities \cite{Feuchter2016}. Therefore, the number  of the moments give only the lower bound for the possible number  of discrete velocities. Nevertheless, the closer  the distribution to equilibrium  the fever moments and the discrete velocities are needed to describe  the flow.
-
-%\textcolor{red}{(DANGER ! WRONG ! TOXIC WASTE !)}
-
-%For the mentioned analogy one can note that there is a relation between the number of the discrete velocities and the number of the appropriate moments computed according to a certain quadrature formula (as the Vandermonde determinant does not equal zero). One can deal with DVM for the distribution function or with the equal number of the moment equations \textcolor{red}{(TOTALLY WRONG AS USUAL)}. For the near-continuum zones it is sufficient to apply only 13 velocities since 13 moments appear in the NS description (it is more convenient to use, e.g. $14$ nodes as in Cabannes discrete kinetic model). It would allow us to connect different methods with discrete velocities (including DSMC with stochastic distributed velocities) and to construct new hybrid schemes.
-%\textcolor{red}{(HAS SPOKEN  MANY TIMES,  NOTHING HAPPENED)}
-
-\todo{
-Some possibilities are discussed related to the use of the systems of nodes (similar to the lattices of LBM)
-in the advection part of BGK equation.
-The method can be proposed with a novel and natural way to construct a hybrid BGK-LBGK scheme.
-}
-
-It is useful to juxtapose procedures of adaptation and hybridization of the DV approach. The DVM allows us to change the number of velocities in different parts of flow related to their properties. The first possibility consists in constructing adaptive scheme with the lesser number of velocities in regions with a better smooth. The second possibility: the lesser numbers are in the continuum zones and the greater in the kinetic zones. and this variant is realized in the present paper for LBM in the hybrid scheme.
 
 This work was supported by the Russian Foundation on Basic Researches, Grant 18-01-00899.
 

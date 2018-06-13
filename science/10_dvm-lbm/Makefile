@@ -16,7 +16,7 @@ clean:
 pics:
 	mkdir -p $(PICS)
 	cd $(PICS) && ln -s $(FIGS)/*.pdf .
-	cd $(PICS) &&ln -s $(FIGS)/acceleration/*.pdf .
+	cd $(PICS) && ln -s $(FIGS)/acceleration/*.pdf .
 
 zip: $(SOURCES)
 	zip -r $(PROJECT).zip $(SOURCES) $(PICS)/
