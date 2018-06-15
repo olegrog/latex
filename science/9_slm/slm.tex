@@ -6,6 +6,9 @@
 \usepackage{siunitx}
 \usepackage{comment}
 
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+
 \usepackage[
     pdfusetitle,
     colorlinks
@@ -88,7 +91,8 @@ Introduce the following dimensionless variables:
     \end{aligned}
 \end{equation}
 where \(t_0 = \rho_0 c_p(T_0) R^2/k_0(T_0)\) is the diffusive time scale at \(T=T_0\),
-\(\Delta{T} = (T_S+T_L)/2 - T_0\) is the unit temperature.
+\(\Delta{T} = (T_S+T_L)/2 - T_0\) is the unit temperature,
+\(T_S\) and \(T_L\) are the solidus and liquidus temperatures, respectively.
 If \(|\pdv*{x_{Bi}}{t}|\) is of order \(U_0\), where \(U_0\) is the reference scanning speed (\si{m/s}),
 then \(R/U_0\) is the convective time scale. Also denote
 \begin{equation}\label{eq:dimensionless2}
@@ -112,7 +116,8 @@ The initial condition is \(\hat{h} = 0\).
 
 \subsection{Thermophysical properties}
 
-For conventional materials, the required thermophysical properties can be reasonably approximated by the three-parameter model
+For conventional materials, the required thermophysical properties can be reasonably approximated
+by the three-parameter model (Fig.~\ref{fig:thermophysical})
 \begin{equation}\label{eq:thermophysical_model}
 	\hat{f} = 1 + \hat{f}'_S\hat{T} + \qty[
 	    \fusion{\hat{f}} + \qty(\hat{f}'_L - \hat{f}'_S) \qty(\hat{T} - 1)
@@ -120,23 +125,53 @@ For conventional materials, the required thermophysical properties can be reason
 \end{equation}
 where \(\hat{f}'_{S,L}\) are the corresponding constant first temperature derivatives far from fusion process,
 \(\fusion{\hat{f}}\) is the property jump at the phase transition.
+Matching~\eqref{eq:thermophysical_model} with~\eqref{eq:fusion_change}, we obtain
+\begin{equation}\label{eq:thermophysical_model_explicit}
+	\hat{f}_S = 1 + \hat{f}'_S\hat{T}, \quad
+	\hat{f}_L = \hat{f}_{L0} + \hat{f}'_L\hat{T},
+\end{equation}
+where \(\hat{f}_{L0} = 1 + \hat{f}'_S - \hat{f}'_L + \fusion{\hat{f}}\).
 
-% TODO: supplement the proposed model by a figure.
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[thick, >=stealth']
+        \coordinate (O) at (0,0);
+        \draw[->] (-0.1,0) -- (6.5,0) node[above] {$\hat{T}$} coordinate(xmax);
+        \draw[->] (0,-0.1) -- (0,4.5) node[right] {$\hat{f}$} coordinate(ymax);
+
+        \path (O) -- (3,1) node[midway,sloped,above] {$\hat{f}_S=1+\hat{f}'_S\hat{T}$}
+            -- (3,2.5) -- (6,4) node[midway,sloped,above] {$\hat{f}_L=\hat{f}_{L0}+\hat{f}'_L\hat{T}$};
+        \draw[red, very thick] plot[smooth,tension=0.3,mark=] coordinates{
+            (0,0) (2.4,2.4/3) (2.8, 2.8/3+0.05) (2.9,3.5/2-0.5) (3.1,3.5/2+0.5) (3.2,2.5+0.2/2-0.05) (3.6,2.5+0.6/2) (6,4)};
+        \draw[thin,dashed] (0,1) coordinate(A) -- (6,4);
+        \draw[thin,dashed] (O) -- (6,2);
+        \draw[thin,dashed] (3,0) coordinate(F) -- (3,3);
+
+        \node[below] at (O) {$0$};
+        \node[below] at (F) {$1$};
+        \node[left] at (O) {$1$};
+        \node[left] at (A) {$\hat{f}_{L0}$};
+
+        \draw[thin] (3,1) -- (4,1);
+        \draw[thin] (3,2.5) -- (4,2.5);
+        \draw[thin,<->] (3.8,1) -- (3.8,2.5) node[midway,right] {$\fusion{\hat{f}}$};
+    \end{tikzpicture}
+    \caption{Dimensionless thermophysical properties versus temperature for the three-parameter model~\eqref{eq:thermophysical_model}.}
+    \label{fig:thermophysical}
+\end{figure}
 
 \section{Liquid fraction models}
 
 Impose the following physical requirements upon \(\hat\phi(\hat{h})\):
 \begin{gather}
     0 \leq \dv{\hat\phi}{\hat{h}} \leq \eval{\dv{\hat\phi}{\hat{h}}}_{\hat{h}=\hat{h}(1)} =
-        \frac1{\hat{h}_L-\hat{h}_S}, \label{eq:lf_monotonic}\\
+        \frac1{\hat{h}(\hat{T}_L)-\hat{h}(\hat{T}_S)}, \label{eq:lf_monotonic}\\
     \hat\phi\qty(\hat{h}(1) - \hat{h}) = 1 - \hat\phi(\hat{h}) \quad \qty(\hat{h}\geq\hat{h}(1)), \label{eq:lf_symmetric}\\
     \begin{cases}
-	\phi(\hat{h}) = \order{(\hat{h}_S-\hat{h})^{-\infty}} \quad \qty(\hat{h} < \hat{h}_S), \\
-	    \phi(\hat{h}) = \order{(\hat{h}-\hat{h}_L)^{-\infty}} \quad \qty(\hat{h} > \hat{h}_L),
+	\phi(\hat{h}) = \order{(\hat{h}(\hat{T}_S)-\hat{h})^{-\infty}} \quad \qty(\hat{h} < \hat{h}(\hat{T}_S)), \\
+	    \phi(\hat{h}) = \order{(\hat{h}-\hat{h}(\hat{T}_L))^{-\infty}} \quad \qty(\hat{h} > \hat{h}(\hat{T}_L)).
 	\end{cases}\label{eq:lf_exp_decay}
 \end{gather}
-where \(\hat{h}_S = \hat{h}(\hat{T}_S)\) and \(\hat{h}_L = \hat{h}(\hat{T}_L)\).
-\(\hat{T}_S\) and \(\hat{T}_L\) are the solidus and liquidus temperatures, respectively.
 Inequalities~\eqref{eq:lf_monotonic} are the monotonic condition and boundedness of the fusion rate,
 \eqref{eq:lf_symmetric} is the symmetric property,
 and~\eqref{eq:lf_exp_decay} describes an exponential decay of \(\hat\phi(\hat{h})\) outside the fusion range.
@@ -144,9 +179,10 @@ and~\eqref{eq:lf_exp_decay} describes an exponential decay of \(\hat\phi(\hat{h}
 The simplest \(\mathcal{C}^0\) model for \(\hat{\phi}(\hat{h})\) can be constructed as a piecewise approximation
 \begin{equation}\label{eq:lf_piecewise}
 	\hat{\phi} = \begin{cases}
-        0,                                             & \hat{h} \leq \hat{h}_S, \\
-        \frac{\hat{h}-\hat{h}_S}{\hat{h}_L-\hat{h}_S}, & \hat{h}_S < \hat{h} < \hat{h}_L, \\
-        1,                                             & \hat{h}_L \leq \hat{h}.
+        0,                                           & \hat{h} \leq \hat{h}(\hat{T}_S), \\
+        \frac{\hat{h}-\hat{h}(\hat{T}_S)}
+            {\hat{h}(\hat{T}_L)-\hat{h}(\hat{T}_S)}, & \hat{h}(\hat{T}_S) < \hat{h} < \hat{h}(\hat{T}_L), \\
+        1,                                           & \hat{h}(\hat{T}_L) \leq \hat{h}.
     \end{cases}
 \end{equation}
 Except \(\fusion{\hat{h}}\), \(\delta\fusion{\hat{T}} = \hat{T}_L - \hat{T}_S\)
@@ -174,9 +210,9 @@ Several approaches can be proposed to find a simplified approximation of \(\hat{
         \hline\\[-1em]
         \(\hat{h}\)                         & \(\hat{c}'_p\)    & \(\hat{c}_{p0}\)  & \(\hat{T}^\dag\) & \(\hat{h}^\dag\) \\[0.3em]
         \hline\\[-1em]
-        \(\hat{h} \leq \hat{h}_S\)          & \(\hat{c}'_{pS}\) & \(1\)             & \(0\)            & \(0\)            \\[0.3em]
-        \(\hat{h}_S < \hat{h} < \hat{h}_L\) & \(a\)             & \(b\)             & \(\hat{T}_S\)    & \(\hat{h}_1\)    \\[0.3em]
-        \(\hat{h}_L \leq \hat{h}\)          & \(\hat{c}'_{pL}\) & \(\hat{c}_{pL0}\) & \(\hat{T}_L\)    & \(\hat{h}_2\)    \\[0.3em]
+        \(\hat{h} \leq \hat{h}(\hat{T}_S)\)          & \(\hat{c}'_{pS}\) & \(1\)             & \(0\)            & \(0\)            \\[0.3em]
+        \(\hat{h}(\hat{T}_S) < \hat{h} < \hat{h}(\hat{T}_L)\) & \(a\)             & \(b\)             & \(\hat{T}_S\)    & \(\hat{h}_1\)    \\[0.3em]
+        \(\hat{h}(\hat{T}_L) \leq \hat{h}\)          & \(\hat{c}'_{pL}\) & \(\hat{c}_{pL0}\) & \(\hat{T}_L\)    & \(\hat{h}_2\)    \\[0.3em]
         \hline
     \end{tabular}
 \end{table}
@@ -185,9 +221,9 @@ An acceptable accuracy can be achieved if the heat capacity is assumed
 to depend on temperature linearly during a fusion process, i.e.,
 \begin{equation}\label{eq:cp_crude}
 	\hat{c}_p = \begin{cases}
-        1 + \hat{c}'_{pS}\hat{T},             & \quad \hat{h} \leq \hat{h}_S, \\
-        b + a\hat{T},                         & \quad \hat{h}_S < \hat{h} < \hat{h}_L, \\
-        \hat{c}_{pL0} + \hat{c}'_{pL}\hat{T}, & \quad \hat{h}_L \leq \hat{h},
+        1 + \hat{c}'_{pS}\hat{T},             & \quad \hat{h} \leq \hat{h}(\hat{T}_S), \\
+        b + a\hat{T},                         & \quad \hat{h}(\hat{T}_S) < \hat{h} < \hat{h}(\hat{T}_L), \\
+        \hat{c}_{pL0} + \hat{c}'_{pL}\hat{T}, & \quad \hat{h}(\hat{T}_L) \leq \hat{h},
     \end{cases}
 \end{equation}
 where
@@ -203,7 +239,7 @@ we obtain that the temperature is calculated as a root of the quadratic equation
 \end{equation}
 with the piecewise quantities defined in Tab.~\ref{table:temp_params}. Finally,
 \begin{equation}\label{eq:enthalpySL_crude}
-	\hat{h}_S = \fusion{\hat{h}}\hat{\phi}_S + \hat{h}_1, \quad \hat{h}_L = \fusion{\hat{h}}\hat{\phi}_L + \hat{h}_1 + \hat{h}_2,
+	\hat{h}(\hat{T}_S) = \fusion{\hat{h}}\hat{\phi}_S + \hat{h}_1, \quad \hat{h}(\hat{T}_L) = \fusion{\hat{h}}\hat{\phi}_L + \hat{h}_1 + \hat{h}_2,
 \end{equation}
 where \(\hat{\phi}_{S,L} = \hat{\phi}(\hat{h}(\hat{T}_{S,L}))\) and
 \begin{equation*}
@@ -237,11 +273,19 @@ Another way is to use~\eqref{eq:fusion_change} for \(f=h\) with the five-paramet
 \end{equation}
 where
 \begin{equation}\label{eq:enthalpy_phi_params}
-	\hat{h}'_S = 1, \quad \hat{h}'_L = \fusion{\hat{c}}_p + \hat{c}'_{pS} - \hat{c}'_{pL}, \quad
-	\hat{h}''_S = \hat{c}'_{pS}, \quad \hat{h}''_S = \hat{c}'_{pL}
+	\hat{h}'_S = 1, \quad \hat{h}'_L = 1 + \hat{c}'_{pS} - \hat{c}'_{pL} + \fusion{\hat{c}}_p, \quad
+	\hat{h}''_S = \hat{c}'_{pS}, \quad \hat{h}''_L = \hat{c}'_{pL}
 \end{equation}
 should be fulfilled for~\eqref{eq:enthalpy_phi} to be consistent with \(\hat{c}_p(\hat{T})\)
-defined as~\eqref{eq:thermophysical_model}. Then,
+defined as~\eqref{eq:thermophysical_model}.
+Indeed,~\eqref{eq:enthalpy_phi_params} results from the following assumption:
+\begin{equation}\label{eq:enthalpy_phi_explicit}
+	\hat{h}_S(\hat{T}) = \int_0^{\hat{T}} \hat{c}_{pS}(\xi)\dd{\xi}, \quad
+	\hat{h}_L(\hat{T}) = \int_0^1 \hat{c}_{pS}(\xi)\dd{\xi} + \fusion{\hat{h}} + \int_1^{\hat{T}} \hat{c}_{pL}(\xi)\dd{\xi},
+\end{equation}
+where \(\hat{c}_{pS,L}\) is defined as~\eqref{eq:thermophysical_model_explicit}.
+
+Actually,~\eqref{eq:enthalpy_phi} is the quadratic equation with respect to \(\hat{T}\), hence
 \begin{equation}\label{eq:temp_phi}
 	\hat{T} = \frac{\sqrt{\hat{h}'^2 + 2\hat{h}''\hat{h}_*}-\hat{h}'}{\hat{h}''},
 \end{equation}
@@ -297,8 +341,8 @@ where superscript \(n\) corresponds to values calculated at the previous time st
 For the piecewise approximation~\eqref{eq:lf_piecewise},
 \begin{equation}
 	\fdv{\hat{\phi}}{\hat{h}} = \diag{\var{\hat{\phi}}} = \begin{cases}
-        0 & \quad \hat{h} \leq \hat{h}_S, \quad \hat{h}_L \leq \hat{h}, \\
-        1/(\hat{h}_L-\hat{h}_S) & \quad \hat{h}_S < \hat{h} < \hat{h}_L. \\
+        0 & \quad \hat{h} \leq \hat{h}(\hat{T}_S), \quad \hat{h}(\hat{T}_L) \leq \hat{h}, \\
+        1/(\hat{h}(\hat{T}_L)-\hat{h}(\hat{T}_S)) & \quad \hat{h}(\hat{T}_S) < \hat{h} < \hat{h}(\hat{T}_L). \\
     \end{cases} \label{eq:pert_phi_h_diag}
 \end{equation}
 
