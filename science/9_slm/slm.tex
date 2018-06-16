@@ -22,6 +22,20 @@
 \newcommand{\diag}[1]{\qty(#1)^\mathrm{diag}}
 \newcommand{\fusion}[1]{{#1}^\mathrm{fus}}
 
+% dimensionless variables
+\newcommand{\Hx}{\hat{x}}
+\newcommand{\Ht}{\hat{t}}
+\newcommand{\Hh}{\hat{h}}
+\newcommand{\HT}{\hat{T}}
+\newcommand{\HP}{\hat{P}}
+\newcommand{\Halpha}{\hat{\alpha}}
+\newcommand{\Hsigma}{\hat{\sigma}}
+\newcommand{\Hf}{\hat{f}}
+\newcommand{\Hc}{\hat{c}}
+\newcommand{\Hk}{\hat{k}}
+\newcommand{\Hphi}{\hat{\phi}}
+\newcommand{\Hpsi}{\hat{\psi}}
+
 \begin{document}
 \maketitle
 \tableofcontents
@@ -85,9 +99,9 @@ The initial condition is \(T=T_0\) at \(t=0\).
 Introduce the following dimensionless variables:
 \begin{equation}\label{eq:dimensionless}
     \begin{aligned}
-        x_i &= \hat{x}_iR, & t &= \hat{t}t_0, & h &= \hat{h}c_p(T_0)\Delta{T}, & T - T_0 &= \hat{T}\Delta{T}, \\
-        P &= \hat{P} k_0(T_0)\Delta{T}R^{D-2}, & \alpha &= \hat{\alpha}\frac{k_0(T_0)}R, &
-            \sigma &= \hat{\sigma}\frac{k_0(T_0)}{R\Delta{T}^D}, & T_0 &= \hat{T}_0\Delta{T}, \\
+        x_i &= \Hx_iR, & t &= \Ht t_0, & h &= \Hh c_p(T_0)\Delta{T}, & T - T_0 &= \HT\Delta{T}, \\
+        P &= \HP k_0(T_0)\Delta{T}R^{D-2}, & \alpha &= \Halpha\frac{k_0(T_0)}R, &
+            \sigma &= \Hsigma\frac{k_0(T_0)}{R\Delta{T}^D}, & T_0 &= \HT_0\Delta{T}, \\
     \end{aligned}
 \end{equation}
 where \(t_0 = \rho_0 c_p(T_0) R^2/k_0(T_0)\) is the diffusive time scale at \(T=T_0\),
@@ -96,51 +110,51 @@ where \(t_0 = \rho_0 c_p(T_0) R^2/k_0(T_0)\) is the diffusive time scale at \(T=
 If \(|\pdv*{x_{Bi}}{t}|\) is of order \(U_0\), where \(U_0\) is the reference scanning speed (\si{m/s}),
 then \(R/U_0\) is the convective time scale. Also denote
 \begin{equation}\label{eq:dimensionless2}
-    \hat{c}_p(\hat{T}) = \frac{c_p(T)}{c_p(T_0)}, \quad
-    \hat{k}_0(\hat{T}) = \frac{k_0(T)}{k_0(T_0)}, \quad
-    \hat{\phi}(\hat{h}) = \phi(h), \quad
-    \hat{\psi}(\hat{h}) = \psi(h).
+    \Hc_p(\HT) = \frac{c_p(T)}{c_p(T_0)}, \quad
+    \Hk_0(\HT) = \frac{k_0(T)}{k_0(T_0)}, \quad
+    \Hphi(\Hh) = \phi(h), \quad
+    \Hpsi(\Hh) = \psi(h).
 \end{equation}
 Then~\eqref{eq:enthalpy},~\eqref{eq:heat_conduction2}, and~\eqref{eq:bc} take the following nondimensional form:
 \begin{gather}
-	\hat{h}_* \equiv \hat{h} - \fusion{\hat{h}}\hat{\phi} = \int_0^{\hat{T}} \hat{c}_p(\xi)\dd{\xi}, \label{eq:enthalpy_hats} \\
-	\pdv{\hat{h}}{\hat{t}} = \pdv{\hat{x}_i}\qty(
-	    \frac{1-\hat{\psi}}{1-\psi_0}
-	    \frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})}\pdv{\hat{h}_*}{\hat{x}_i}
+	\Hh_* \equiv \Hh - \fusion{\Hh}\Hphi = \int_0^{\HT} \Hc_p(\xi)\dd{\xi}, \label{eq:enthalpy_hats} \\
+	\pdv{\Hh}{\Ht} = \pdv{\Hx_i}\qty(
+	    \frac{1-\Hpsi}{1-\psi_0}
+	    \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\pdv{\Hh_*}{\Hx_i}
 	), \label{eq:heat_conduction_hats} \\
-	\qty(1 - \hat{\psi}) \frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})}\pdv{\hat{h}_*}{\hat{x}_D} +
-	    \hat{\alpha}\hat{T} + \epsilon\hat{\sigma} \qty(\hat{T} + \hat{T}_0)^{D+1} =
-	    \frac{A(\psi)\hat{P}}{\pi^{(D-1)/2}}\exp\qty( -\qty(\hat{x}_i-\hat{x}_{Bi}(t))^2 ). \label{eq:bc_hats}
+	\qty(1 - \Hpsi) \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\pdv{\Hh_*}{\Hx_D} +
+	    \Halpha\HT + \epsilon\Hsigma \qty(\HT + \HT_0)^{D+1} =
+	    \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\qty(\Hx_i-\Hx_{Bi}(t))^2 ). \label{eq:bc_hats}
 \end{gather}
-The initial condition is \(\hat{h} = 0\).
+The initial condition is \(\Hh = 0\).
 
 \subsection{Thermophysical properties}
 
 For conventional materials, the required thermophysical properties can be reasonably approximated
 by the three-parameter model (Fig.~\ref{fig:thermophysical})
 \begin{equation}\label{eq:thermophysical_model}
-	\hat{f} = 1 + \hat{f}'_S\hat{T} + \qty[
-	    \fusion{\hat{f}} + \qty(\hat{f}'_L - \hat{f}'_S) \qty(\hat{T} - 1)
-	]\hat{\phi},
+	\Hf = 1 + \Hf'_S\HT + \qty[
+	    \fusion{\Hf} + \qty(\Hf'_L-\Hf'_S) \qty(\HT-1)
+	]\Hphi,
 \end{equation}
-where \(\hat{f}'_{S,L}\) are the corresponding constant first temperature derivatives far from fusion process,
-\(\fusion{\hat{f}}\) is the property jump at the phase transition.
+where \(\Hf'_{S,L}\) are the corresponding constant first temperature derivatives far from fusion process,
+\(\fusion{\Hf}\) is the property jump at the phase transition.
 Matching~\eqref{eq:thermophysical_model} with~\eqref{eq:fusion_change}, we obtain
 \begin{equation}\label{eq:thermophysical_model_explicit}
-	\hat{f}_S = 1 + \hat{f}'_S\hat{T}, \quad
-	\hat{f}_L = \hat{f}_{L0} + \hat{f}'_L\hat{T},
+	\Hf_S = 1 + \Hf'_S\HT, \quad
+	\Hf_L = \Hf_{L0} + \Hf'_L\HT,
 \end{equation}
-where \(\hat{f}_{L0} = 1 + \hat{f}'_S - \hat{f}'_L + \fusion{\hat{f}}\).
+where \(\Hf_{L0} = 1 + \Hf'_S - \Hf'_L + \fusion{\Hf}\).
 
 \begin{figure}
     \centering
     \begin{tikzpicture}[thick, >=stealth']
         \coordinate (O) at (0,0);
-        \draw[->] (-0.1,0) -- (6.5,0) node[above] {$\hat{T}$} coordinate(xmax);
-        \draw[->] (0,-0.1) -- (0,4.5) node[right] {$\hat{f}$} coordinate(ymax);
+        \draw[->] (-0.1,0) -- (6.5,0) node[above] {$\HT$} coordinate(xmax);
+        \draw[->] (0,-0.1) -- (0,4.5) node[right] {$\Hf$} coordinate(ymax);
 
-        \path (O) -- (3,1) node[midway,sloped,above] {$\hat{f}_S=1+\hat{f}'_S\hat{T}$}
-            -- (3,2.5) -- (6,4) node[midway,sloped,above] {$\hat{f}_L=\hat{f}_{L0}+\hat{f}'_L\hat{T}$};
+        \path (O) -- (3,1) node[midway,sloped,above] {$\Hf_S=1+\Hf'_S\HT$}
+            -- (3,2.5) -- (6,4) node[midway,sloped,above] {$\Hf_L=\Hf_{L0}+\Hf'_L\HT$};
         \draw[red, very thick] plot[smooth,tension=0.3,mark=] coordinates{
             (0,0) (2.4,2.4/3) (2.8, 2.8/3+0.05) (2.9,3.5/2-0.5) (3.1,3.5/2+0.5) (3.2,2.5+0.2/2-0.05) (3.6,2.5+0.6/2) (6,4)};
         \draw[thin,dashed] (0,1) coordinate(A) -- (6,4);
@@ -150,11 +164,11 @@ where \(\hat{f}_{L0} = 1 + \hat{f}'_S - \hat{f}'_L + \fusion{\hat{f}}\).
         \node[below] at (O) {$0$};
         \node[below] at (F) {$1$};
         \node[left] at (O) {$1$};
-        \node[left] at (A) {$\hat{f}_{L0}$};
+        \node[left] at (A) {$\Hf_{L0}$};
 
         \draw[thin] (3,1) -- (4,1);
         \draw[thin] (3,2.5) -- (4,2.5);
-        \draw[thin,<->] (3.8,1) -- (3.8,2.5) node[midway,right] {$\fusion{\hat{f}}$};
+        \draw[thin,<->] (3.8,1) -- (3.8,2.5) node[midway,right] {$\fusion{\Hf}$};
     \end{tikzpicture}
     \caption{Dimensionless thermophysical properties versus temperature for the three-parameter model~\eqref{eq:thermophysical_model}.}
     \label{fig:thermophysical}
@@ -162,30 +176,29 @@ where \(\hat{f}_{L0} = 1 + \hat{f}'_S - \hat{f}'_L + \fusion{\hat{f}}\).
 
 \section{Liquid fraction models}
 
-Impose the following physical requirements upon \(\hat\phi(\hat{h})\):
+Impose the following physical requirements upon \(\hat\phi(\Hh)\):
 \begin{gather}
-    0 \leq \dv{\hat\phi}{\hat{h}} \leq \eval{\dv{\hat\phi}{\hat{h}}}_{\hat{h}=\hat{h}(1)} =
-        \frac1{\hat{h}(\hat{T}_L)-\hat{h}(\hat{T}_S)}, \label{eq:lf_monotonic}\\
-    \hat\phi\qty(\hat{h}(1) - \hat{h}) = 1 - \hat\phi(\hat{h}) \quad \qty(\hat{h}\geq\hat{h}(1)), \label{eq:lf_symmetric}\\
+    0 \leq \dv{\hat\phi}{\Hh} \leq \eval{\dv{\hat\phi}{\Hh}}_{\Hh=\Hh(1)} =
+        \frac1{\Hh(\HT_L)-\Hh(\HT_S)}, \label{eq:lf_monotonic}\\
+    \hat\phi\qty(\Hh(1) - \Hh) = 1 - \hat\phi(\Hh) \quad \qty(\Hh\geq\Hh(1)), \label{eq:lf_symmetric}\\
     \begin{cases}
-	\phi(\hat{h}) = \order{(\hat{h}(\hat{T}_S)-\hat{h})^{-\infty}} \quad \qty(\hat{h} < \hat{h}(\hat{T}_S)), \\
-	    \phi(\hat{h}) = \order{(\hat{h}-\hat{h}(\hat{T}_L))^{-\infty}} \quad \qty(\hat{h} > \hat{h}(\hat{T}_L)).
+	\phi(\Hh) = \order{(\Hh(\HT_S)-\Hh)^{-\infty}} \quad \qty(\Hh < \Hh(\HT_S)), \\
+	    \phi(\Hh) = \order{(\Hh-\Hh(\HT_L))^{-\infty}} \quad \qty(\Hh > \Hh(\HT_L)).
 	\end{cases}\label{eq:lf_exp_decay}
 \end{gather}
 Inequalities~\eqref{eq:lf_monotonic} are the monotonic condition and boundedness of the fusion rate,
 \eqref{eq:lf_symmetric} is the symmetric property,
-and~\eqref{eq:lf_exp_decay} describes an exponential decay of \(\hat\phi(\hat{h})\) outside the fusion range.
+and~\eqref{eq:lf_exp_decay} describes an exponential decay of \(\hat\phi(\Hh)\) outside the fusion range.
 
-The simplest \(\mathcal{C}^0\) model for \(\hat{\phi}(\hat{h})\) can be constructed as a piecewise approximation
+The simplest \(\mathcal{C}^0\) model for \(\Hphi(\Hh)\) can be constructed as a piecewise approximation
 \begin{equation}\label{eq:lf_piecewise}
-	\hat{\phi} = \begin{cases}
-        0,                                           & \hat{h} \leq \hat{h}(\hat{T}_S), \\
-        \frac{\hat{h}-\hat{h}(\hat{T}_S)}
-            {\hat{h}(\hat{T}_L)-\hat{h}(\hat{T}_S)}, & \hat{h}(\hat{T}_S) < \hat{h} < \hat{h}(\hat{T}_L), \\
-        1,                                           & \hat{h}(\hat{T}_L) \leq \hat{h}.
+	\Hphi = \begin{cases}
+        0,                                            & \Hh \leq \Hh(\HT_S), \\
+        \frac{\Hh-\Hh(\HT_S)}{\Hh(\HT_L)-\Hh(\HT_S)}, & \Hh(\HT_S) < \Hh < \Hh(\HT_L), \\
+        1,                                            & \Hh(\HT_L) \leq \Hh.
     \end{cases}
 \end{equation}
-Except \(\fusion{\hat{h}}\), \(\delta\fusion{\hat{T}} = \hat{T}_L - \hat{T}_S\)
+Except \(\fusion{\Hh}\), \(\delta\fusion{\HT} = \HT_L - \HT_S\)
 is the only parameter of the fusion process  used in~\eqref{eq:lf_piecewise}.
 Employing cubic splines near \(h_S\) and \(h_L\) yields the more realistic two-parameter \(\mathcal{C}^1\) model:
 \begin{equation}\label{eq:lf_splines}
@@ -194,11 +207,11 @@ Employing cubic splines near \(h_S\) and \(h_L\) yields the more realistic two-p
 
 \section{Temperature evaluation}
 
-For arbitrary \(\hat{\phi}(\hat{h})\), solution of~\eqref{eq:enthalpy_hats} is not straightforward.
+For arbitrary \(\Hphi(\Hh)\), solution of~\eqref{eq:enthalpy_hats} is not straightforward.
 However, the temperature is included in~\eqref{eq:heat_conduction_hats} only through thermophysical properties
 and, therefore, can be evaluated quite roughly.
 Direct dependence of boundary conditions~\eqref{eq:bc_hats} on temperature is also weak.
-Several approaches can be proposed to find a simplified approximation of \(\hat{T}(\hat{h})\).
+Several approaches can be proposed to find a simplified approximation of \(\HT(\Hh)\).
 
 \subsection{\(\mathcal{C}^1\) approximation}
 
@@ -208,11 +221,11 @@ Several approaches can be proposed to find a simplified approximation of \(\hat{
     \label{table:temp_params}
     \begin{tabular}{c|cccc}
         \hline\\[-1em]
-        \(\hat{h}\)                         & \(\hat{c}'_p\)    & \(\hat{c}_{p0}\)  & \(\hat{T}^\dag\) & \(\hat{h}^\dag\) \\[0.3em]
+        \(\Hh\)                           & \(\Hc'_p\)    & \(\Hc_{p0}\)  & \(\HT^\dag\) & \(\Hh^\dag\) \\[0.3em]
         \hline\\[-1em]
-        \(\hat{h} \leq \hat{h}(\hat{T}_S)\)          & \(\hat{c}'_{pS}\) & \(1\)             & \(0\)            & \(0\)            \\[0.3em]
-        \(\hat{h}(\hat{T}_S) < \hat{h} < \hat{h}(\hat{T}_L)\) & \(a\)             & \(b\)             & \(\hat{T}_S\)    & \(\hat{h}_1\)    \\[0.3em]
-        \(\hat{h}(\hat{T}_L) \leq \hat{h}\)          & \(\hat{c}'_{pL}\) & \(\hat{c}_{pL0}\) & \(\hat{T}_L\)    & \(\hat{h}_2\)    \\[0.3em]
+        \(\Hh \leq \Hh(\HT_S)\)           & \(\Hc'_{pS}\) & \(1\)         & \(0\)        & \(0\)        \\[0.3em]
+        \(\Hh(\HT_S) < \Hh < \Hh(\HT_L)\) & \(a\)         & \(b\)         & \(\HT_S\)    & \(\Hh_1\)    \\[0.3em]
+        \(\Hh(\HT_L) \leq \Hh\)           & \(\Hc'_{pL}\) & \(\Hc_{pL0}\) & \(\HT_L\)    & \(\Hh_2\)    \\[0.3em]
         \hline
     \end{tabular}
 \end{table}
@@ -220,119 +233,110 @@ Several approaches can be proposed to find a simplified approximation of \(\hat{
 An acceptable accuracy can be achieved if the heat capacity is assumed
 to depend on temperature linearly during a fusion process, i.e.,
 \begin{equation}\label{eq:cp_crude}
-	\hat{c}_p = \begin{cases}
-        1 + \hat{c}'_{pS}\hat{T},             & \quad \hat{h} \leq \hat{h}(\hat{T}_S), \\
-        b + a\hat{T},                         & \quad \hat{h}(\hat{T}_S) < \hat{h} < \hat{h}(\hat{T}_L), \\
-        \hat{c}_{pL0} + \hat{c}'_{pL}\hat{T}, & \quad \hat{h}(\hat{T}_L) \leq \hat{h},
+	\Hc_p = \begin{cases}
+        1 + \Hc'_{pS}\HT,         & \quad \Hh \leq \Hh(\HT_S), \\
+        b + a\HT,                 & \quad \Hh(\HT_S) < \Hh < \Hh(\HT_L), \\
+        \Hc_{pL0} + \Hc'_{pL}\HT, & \quad \Hh(\HT_L) \leq \Hh,
     \end{cases}
 \end{equation}
 where
 \begin{equation*}
-	\hat{c}_{pL0} = 1 + \fusion{\hat{c}_p} + \hat{c}'_{pS} - \hat{c}'_{pL}, \quad
-	a = \frac{\hat{c}'_{pS} + \hat{c}'_{pL}}2 + \frac{\fusion{\hat{c}_p}}{\delta\fusion{\hat{T}}}, \quad
-	b = 1 + \hat{T}_S\qty(\hat{c}'_{pS} - a).
+	\Hc_{pL0} = 1 + \fusion{\Hc_p} + \Hc'_{pS} - \Hc'_{pL}, \quad
+	a = \frac{\Hc'_{pS} + \Hc'_{pL}}2 + \frac{\fusion{\Hc_p}}{\delta\fusion{\HT}}, \quad
+	b = 1 + \HT_S\qty(\Hc'_{pS} - a).
 \end{equation*}
 Substituting~\eqref{eq:cp_crude} into~\eqref{eq:enthalpy_hats},
 we obtain that the temperature is calculated as a root of the quadratic equation
 \begin{equation}\label{eq:temp_crude}
-	\hat{T} = \hat{T}^\dag + \frac{\sqrt{\hat{c}_{p0}^2 + 2\hat{c}_p'(\hat{h}_* - \hat{h}^\dag) } - \hat{c}_{p0}}{\hat{c}'_p},
+	\HT = \HT^\dag + \frac{\sqrt{\Hc_{p0}^2 + 2\Hc_p'(\Hh_* - \Hh^\dag) } - \Hc_{p0}}{\Hc'_p},
 \end{equation}
 with the piecewise quantities defined in Tab.~\ref{table:temp_params}. Finally,
 \begin{equation}\label{eq:enthalpySL_crude}
-	\hat{h}(\hat{T}_S) = \fusion{\hat{h}}\hat{\phi}_S + \hat{h}_1, \quad \hat{h}(\hat{T}_L) = \fusion{\hat{h}}\hat{\phi}_L + \hat{h}_1 + \hat{h}_2,
+	\Hh(\HT_S) = \fusion{\Hh}\Hphi_S + \Hh_1, \quad \Hh(\HT_L) = \fusion{\Hh}\Hphi_L + \Hh_1 + \Hh_2,
 \end{equation}
-where \(\hat{\phi}_{S,L} = \hat{\phi}(\hat{h}(\hat{T}_{S,L}))\) and
+where \(\Hphi_{S,L} = \Hphi(\Hh(\HT_{S,L}))\) and
 \begin{equation*}
-	\hat{h}_1 = \hat{T}_S\qty(1 + \frac{\hat{c}'_{pS}}2\hat{T}_S), \quad
-	\hat{h}_2 = \delta\fusion{\hat{T}}\qty(b + \frac{a}2\delta\fusion{\hat{T}}).
+	\Hh_1 = \HT_S\qty(1 + \frac{\Hc'_{pS}}2\HT_S), \quad
+	\Hh_2 = \delta\fusion{\HT}\qty(b + \frac{a}2\delta\fusion{\HT}).
 \end{equation*}
 
 %%% Smoothness of c_p
-Note that \(\dd\hat{c}_p/\dd\hat{h}\in\mathcal{C}^1\)
-only if \(\hat{\phi}(\hat{h})\in\mathcal{C}^1\) and \(\hat{c}_p\in\mathcal{C}^0\).
-Therefore, using \(\mathcal{C}^1\) model~\eqref{eq:lf_splines} for calculating \(\hat{c}_p(\hat{T})\)
-and \(\mathcal{C}^0\) model~\eqref{eq:cp_crude} for calculating \(\hat{T}\)
-ensure that \(\dd\hat{c}_p/\dd\hat{h}\in\mathcal{C}^1\).
+Note that \(\dd\Hc_p/\dd\Hh\in\mathcal{C}^1\)
+only if \(\Hphi(\Hh)\in\mathcal{C}^1\) and \(\Hc_p\in\mathcal{C}^0\).
+Therefore, using \(\mathcal{C}^1\) model~\eqref{eq:lf_splines} for calculating \(\Hc_p(\HT)\)
+and \(\mathcal{C}^0\) model~\eqref{eq:cp_crude} for calculating \(\HT\)
+ensure that \(\dd\Hc_p/\dd\Hh\in\mathcal{C}^1\).
 
 %%% Simple case
-If \(\hat{c}'_{pL} = \hat{c}'_{pS} = \hat{c}'_p\) and \(\fusion{\hat{c}_{p}} = 0\),
+If \(\Hc'_{pL} = \Hc'_{pS} = \Hc'_p\) and \(\fusion{\Hc_{p}} = 0\),
 then~\eqref{eq:temp_crude} can be rewritten as
 \begin{equation}\label{eq:temp_crude2}
-	\hat{T} = \frac{\sqrt{1+2\hat{c}_p'\hat{h}_*}-1}{\hat{c}_p'}
+	\HT = \frac{\sqrt{1+2\Hc_p'\Hh_*}-1}{\Hc_p'}
 \end{equation}
-when \(\hat{c}_p'>0\) and \(\hat{T} = \hat{h}_*\) when \(\hat{c}_p'=0\).
+when \(\Hc_p'>0\) and \(\HT = \Hh_*\) when \(\Hc_p'=0\).
 
 \subsection{\(\hat\phi\)-based approximation}
 
 Another way is to use~\eqref{eq:fusion_change} for \(f=h\) with the five-parameter model:
 \begin{equation}\label{eq:enthalpy_phi}
-	\hat{h} = \hat{h}'_S\hat{T} + \frac{\hat{h}''_S}2\hat{T}^2 + \qty[
-	    \fusion{\hat{h}} + \qty(\hat{h}'_L - \hat{h}'_S) \qty(\hat{T} - 1) +
-	    \frac{\hat{h}''_L - \hat{h}''_S}2\qty( \hat{T}^2-1 )
-	]\hat{\phi},
+	\Hh = \Hh'_S\HT + \frac{\Hh''_S}2\HT^2 + \qty[
+	    \fusion{\Hh} + \qty(\Hh'_L-\Hh'_S) \qty(\HT-1) + \frac{\Hh''_L-\Hh''_S}2 \qty( \HT^2-1 )
+	]\Hphi,
 \end{equation}
 where
 \begin{equation}\label{eq:enthalpy_phi_params}
-	\hat{h}'_S = 1, \quad \hat{h}'_L = 1 + \hat{c}'_{pS} - \hat{c}'_{pL} + \fusion{\hat{c}}_p, \quad
-	\hat{h}''_S = \hat{c}'_{pS}, \quad \hat{h}''_L = \hat{c}'_{pL}
+	\Hh'_S = 1, \quad \Hh'_L = 1 + \Hc'_{pS} - \Hc'_{pL} + \fusion{\Hc}_p, \quad
+	\Hh''_S = \Hc'_{pS}, \quad \Hh''_L = \Hc'_{pL}
 \end{equation}
-should be fulfilled for~\eqref{eq:enthalpy_phi} to be consistent with \(\hat{c}_p(\hat{T})\)
+should be fulfilled for~\eqref{eq:enthalpy_phi} to be consistent with \(\Hc_p(\HT)\)
 defined as~\eqref{eq:thermophysical_model}.
 Indeed,~\eqref{eq:enthalpy_phi_params} results from the following assumption:
 \begin{equation}\label{eq:enthalpy_phi_explicit}
-	\hat{h}_S(\hat{T}) = \int_0^{\hat{T}} \hat{c}_{pS}(\xi)\dd{\xi}, \quad
-	\hat{h}_L(\hat{T}) = \int_0^1 \hat{c}_{pS}(\xi)\dd{\xi} + \fusion{\hat{h}} + \int_1^{\hat{T}} \hat{c}_{pL}(\xi)\dd{\xi},
+	\Hh_S(\HT) = \int_0^{\HT} \Hc_{pS}(\xi)\dd{\xi}, \quad
+	\Hh_L(\HT) = \int_0^1 \Hc_{pS}(\xi)\dd{\xi} + \fusion{\Hh} + \int_1^{\HT} \Hc_{pL}(\xi)\dd{\xi},
 \end{equation}
-where \(\hat{c}_{pS,L}\) is defined as~\eqref{eq:thermophysical_model_explicit}.
+where \(\Hc_{pS,L}\) is defined as~\eqref{eq:thermophysical_model_explicit}.
 
-Actually,~\eqref{eq:enthalpy_phi} is the quadratic equation with respect to \(\hat{T}\), hence
+Actually,~\eqref{eq:enthalpy_phi} is the quadratic equation with respect to \(\HT\), hence
 \begin{equation}\label{eq:temp_phi}
-	\hat{T} = \frac{\sqrt{\hat{h}'^2 + 2\hat{h}''\hat{h}_*}-\hat{h}'}{\hat{h}''},
+	\HT = \frac{\sqrt{\Hh'^2 + 2\Hh''\Hh_*}-\Hh'}{\Hh''},
 \end{equation}
-where \(\hat{h}^{\prime,\prime\prime} = \hat{h}_S^{\prime,\prime\prime} (1-\hat\phi) + \hat{h}_L^{\prime,\prime\prime}\hat\phi\).
+where \(\Hh^{\prime,\prime\prime} = \Hh_S^{\prime,\prime\prime} (1-\hat\phi) + \Hh_L^{\prime,\prime\prime}\hat\phi\).
 
 \section{Numerical methods}
 
 \subsection{Perturbation and its diagonal part}
 
 With~\eqref{eq:heat_conduction_hats},~\eqref{eq:thermophysical_model},~\eqref{eq:temp_phi},
-and arbitrary \(\hat{\phi}(\hat{h})\), we can employ the following expressions for numerical simulation:
+and arbitrary \(\Hphi(\Hh)\), we can employ the following expressions for numerical simulation:
 \begin{gather}
-    F = \dder{\hat{x}_i}\qty(
-        \frac{1 - \hat{\psi}}{1 - \psi_0}
-	    \frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})}
-	    \dder[\hat{h}_*]{\hat{x}_i}
+    F = \dder{\Hx_i}\qty(
+        \frac{1 - \Hpsi}{1 - \psi_0} \frac{\Hk_0(\HT)}{\Hc_p(\HT)} \dder[\Hh_*]{\Hx_i}
 	), \\
-    \var{F} = \dder{\hat{x}_i}\qty[ \frac{1 - \hat{\psi}}{1 - \psi_0} \qty(
-	    \dv{\hat{h}_*}(\frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})})\var{\hat{h}_*}\dder[\hat{h}_*]{\hat{x}_i}
-	    +
-	    \frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})}
-	    \dder[\var{\hat{h}_*}]{\hat{x}_i}
+    \var{F} = \dder{\Hx_i}\qty[ \frac{1 - \Hpsi}{1 - \psi_0} \qty(
+	    \dv{\Hh_*}(\frac{\Hk_0(\HT)}{\Hc_p(\HT)})\var{\Hh_*}\dder[\Hh_*]{\Hx_i} +
+	    \frac{\Hk_0(\HT)}{\Hc_p(\HT)} \dder[\var{\Hh_*}]{\Hx_i}
 	)], \\
-    \diag{\var{F}} = \frac{1 - \hat{\psi}}{1 - \psi_0} \qty(
-	    \dv{\hat{h}_*}(\frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})})\dder[\hat{h}_*]{\hat{x}_i} \diag{\dder{\hat{x}_i}}
-	    +
-	    \frac{\hat{k}_0(\hat{T})}{\hat{c}_p(\hat{T})}
-	    \diag{\dder{\hat{x}_i}^2}
-	)\diag{\var{\hat{h}_*}}.
+    \diag{\var{F}} = \frac{1 - \Hpsi}{1 - \psi_0} \qty(
+	    \dv{\Hh_*}(\frac{\Hk_0(\HT)}{\Hc_p(\HT)})\dder[\Hh_*]{\Hx_i} \diag{\dder{\Hx_i}} +
+	    \frac{\Hk_0(\HT)}{\Hc_p(\HT)} \diag{\dder{\Hx_i}^2}
+	)\diag{\var{\Hh_*}}.
 \end{gather}
 where
 \begin{equation}
-    \var{\hat{h}_*} = \qty(1 - \fusion{\hat{h}}\hat\phi')\var{\hat{h}}, \quad
-    \diag{\hat{h}_*} = \diag{\var{\hat{h}_*}} = 1 - \fusion{\hat{h}}\hat\phi'(\hat{h}).
+    \var{\Hh_*} = \qty(1 - \fusion{\Hh}\hat\phi')\var{\Hh}, \quad
+    \diag{\Hh_*} = \diag{\var{\Hh_*}} = 1 - \fusion{\Hh}\hat\phi'(\Hh).
 \end{equation}
 
 \subsection{Boundary conditions}
 
-Nonlinear dependence~\eqref{eq:temp_phi} can be linearized; therefore, we have the following linear boundary condition at \(x_D=0\):
+Nonlinear dependence~\eqref{eq:temp_phi} can be linearized; therefore, we have the following linear boundary condition at \(\Hx_D=0\):
 \begin{multline}\label{eq:bc_linearized}
 	\qty[
-	    \qty(1 - \hat{\psi}^n) \frac{\hat{k}_0(\hat{T}^n)}{\hat{c}_p(\hat{T}^n)}
-	    \qty(1-\fusion{\hat{h}}\hat\phi'(\hat{h}^n))\pdv{\hat{x}_D} +
-	    \dv{\hat{T}^n}{\hat{h}}\qty(
-	        \hat{\alpha}\hat{T}^n + \epsilon\hat{\sigma}(D+1)\qty(\hat{T}^n + \hat{T}_0)^D)
-	]h = \\ \frac{A(\psi^n)\hat{P}}{\pi^{(D-1)/2}}\exp\qty( -\qty(\hat{x}_i-\hat{x}_{Bi}^n)^2 ) -
-        \hat{\alpha}\hat{T}^n - \epsilon\hat{\sigma}\qty(\hat{T}^n + \hat{T}_0)^{D+1}.
+	    \qty(1 - \Hpsi^n) \frac{\Hk_0(\HT^n)}{\Hc_p(\HT^n)} \qty(1-\fusion{\Hh}\hat\phi'(\Hh^n))\pdv{\Hx_D} +
+	    \dv{\HT^n}{\Hh}\qty( \Halpha\HT^n + \epsilon\Hsigma(D+1) \qty(\HT^n + \HT_0)^D )
+	]\Hh = \\ \frac{A(\Hpsi^n)\HP}{\pi^{(D-1)/2}}\exp\qty( -\qty(\Hx_i-\Hx_{Bi}^n)^2 ) -
+        \Halpha\HT^n - \epsilon\Hsigma\qty(\HT^n + \HT_0)^{D+1}.
 \end{multline}
 where superscript \(n\) corresponds to values calculated at the previous time step.
 
@@ -340,9 +344,9 @@ where superscript \(n\) corresponds to values calculated at the previous time st
 
 For the piecewise approximation~\eqref{eq:lf_piecewise},
 \begin{equation}
-	\fdv{\hat{\phi}}{\hat{h}} = \diag{\var{\hat{\phi}}} = \begin{cases}
-        0 & \quad \hat{h} \leq \hat{h}(\hat{T}_S), \quad \hat{h}(\hat{T}_L) \leq \hat{h}, \\
-        1/(\hat{h}(\hat{T}_L)-\hat{h}(\hat{T}_S)) & \quad \hat{h}(\hat{T}_S) < \hat{h} < \hat{h}(\hat{T}_L). \\
+	\fdv{\Hphi}{\Hh} = \diag{\var{\Hphi}} = \begin{cases}
+        0 & \quad \Hh \leq \Hh(\HT_S), \quad \Hh(\HT_L) \leq \Hh, \\
+        1/(\Hh(\HT_L)-\Hh(\HT_S)) & \quad \Hh(\HT_S) < \Hh < \Hh(\HT_L). \\
     \end{cases} \label{eq:pert_phi_h_diag}
 \end{equation}
 
