@@ -331,14 +331,15 @@ where
 \subsection{Boundary conditions}
 
 Nonlinear dependence~\eqref{eq:temp_phi} can be linearized; therefore, we have the following linear boundary condition at \(\Hx_D=0\):
-\begin{multline}\label{eq:bc_linearized}
-	\qty[
-	    \qty(1 - \Hpsi^n) \frac{\Hk_0(\HT^n)}{\Hc_p(\HT^n)} \qty(1-\fusion{\Hh}\hat\phi'(\Hh^n))\pdv{\Hx_D} +
-	    \dv{\HT^n}{\Hh}\qty( \Halpha\HT^n + \epsilon\Hsigma(D+1) \qty(\HT^n + \HT_0)^D )
-	]\Hh = \\ \frac{A(\Hpsi^n)\HP}{\pi^{(D-1)/2}}\exp\qty( -\qty(\Hx_i-\Hx_{Bi}^n)^2 ) -
-        \Halpha\HT^n - \epsilon\Hsigma\qty(\HT^n + \HT_0)^{D+1}.
-\end{multline}
-where superscript \(n\) corresponds to values calculated at the previous time step.
+\begin{equation}\label{eq:bc_linearized}
+    \qty(1 - \Hpsi^n) \frac{\Hk_0(\HT^n)}{\Hc_p(\HT^n)} \qty(1-\fusion{\Hh}\hat\phi'(\Hh^n))\pdv{\Hh}{\Hx_D} +
+	    F^n + \dv{F^n}{\HT}\dv{\HT^n}{\Hh}\qty(\Hh - \Hh^n) =
+	    \frac{A(\Hpsi^n)\HP}{\pi^{(D-1)/2}}\exp\qty( -\qty(\Hx_i-\Hx_{Bi}^n)^2 ),
+\end{equation}
+where superscript \(n\) corresponds to values calculated at the previous time step and
+\begin{equation}\label{eq:bc_Dirichlet_part}
+    F(\HT) = \Halpha\HT + \epsilon\Hsigma\qty(\HT + \HT_0)^{D+1}.
+\end{equation}
 
 \subsection{Liquid fraction models}
 
