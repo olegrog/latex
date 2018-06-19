@@ -1,28 +1,27 @@
 %&pdflatex
 \documentclass{article}
 \usepackage[utf8]{inputenc}
-\usepackage[T2A]{fontenc}
-\usepackage[english,french,russian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
 
+%%% functional packages
 \usepackage{amssymb, mathtools, amsthm, mathrsfs}
+\usepackage{subcaption}
+
+%%% configuration packages
 \usepackage{fullpage}
 \usepackage{indentfirst}
-\usepackage{subcaption}
-\usepackage{tikz}
-\usepackage{pgfplots}
 \usepackage{comment}
 
 \usepackage[
     pdfusetitle,
-    colorlinks,
-    unicode
+    colorlinks
 ]{hyperref}
 
 \usepackage[
     backend=biber,
-    style=gost-numeric,
+    style=numeric,
     sorting=none,
-    autolang=other,
     maxbibnames=99, minbibnames=99,
     natbib=true,
     url=false,
@@ -31,7 +30,7 @@
     firstinits]{biblatex}
 \bibliography{bgk_lattice}
 
-\title{Kinetic--continuum coupling based on the discrete-velocity and lattice-Boltzmann methods under the finite-volume formulation}
+\title{Multiscale hybrid approach based on the discrete-velocity and lattice-Boltzmann methods under the finite-volume formulation}
 \author{Oleg Rogozin}
 
 % general
@@ -127,7 +126,7 @@ where \(n_i\) is the unit vector normal to the boundary, directed into gas.
 \(T_B\) and \(v_{Bi}\) are the boundary temperature and velocity, respectively.
 It is also assumed that \(v_{Bi}n_i = 0\).
 
-\section{Numerical method}
+\section{Numerical method}\label{sec:numerics}
 
 \subsection{Discrete-velocity approximation}\label{sec:dv}
 
@@ -213,7 +212,7 @@ Equation~\eqref{eq:Boltzmann} is solved by the symmetric Strang's splitting sche
 \begin{equation}\label{eq:Strang}
     S^{\Delta{t}}_{A+B}(f_0) = S^{\Delta{t}/2}_A \br{S^{\Delta{t}}_B \br{S^{\Delta{t}/2}_A(f_0)} } + \OO{\Delta{t}^3},
 \end{equation}
-where \(A(f) = -\xi_i\Pder[f]{x_i}\), \(B(f) = J(f)/k\).
+where \(A(f) = -\xi_i\Pder[f]{x_i}\), \(B(f) = J(f)/k\), \(\Delta{t}\) is the time step.
 \(S^t_P (f_0)\) denotes the solution of the Cauchy problem
 \begin{equation}\label{eq:Cauchy}
     \pder[f]{t} = P(f), \quad f|_{t=0} = f_0.
@@ -230,6 +229,11 @@ has the exact solution
 \end{equation}
 Moreover, generalization of this algorithm to the original Boltzmann equation is straightforward.
 
+%%% Steady-state solution
+To find a steady-state solution of the boundary-value problem,
+the time-marching process is started from some initial approximation
+and continues until the convergence criterion is met.
+
 \subsection{Finite-volume formulation}\label{sec:fv}
 
 For brevity, we consider a one-dimensional physical space.
@@ -242,7 +246,7 @@ is approximated by the \emph{finite-volume (FV)} method:
     f^{n+1}_m = f^n_m - \frac{\Delta{t}}{\Delta{x_m}}\br{F^n_{m+1/2}-F^n_{m-1/2}}, \quad
     m = 1,\dots,M, \quad n\in\mathbb{N},
 \end{equation}
-where \(\Delta{t}\) is the time step, \(\Delta{x_m}\) is the width of \(m\) cell in the physical space,
+where \(\Delta{x_m}\) is the width of \(m\) cell in the physical space,
 \begin{equation}\label{eq:vdf_fv}
     f^n_m(\bxi) = f\br{n\Delta{t}, \frac{\Delta{x_m}}2 + \sum_{k=1}^{m-1}\Delta{x_k}, \bxi}.
 \end{equation}
@@ -282,7 +286,7 @@ is introduced through the first flux and ghost cell:
         {\sum_{\xi'_{\alpha1}<0}\xi'_{\alpha1}\equil{f}(\bxi'_\alpha,1,v_{Bi},T_B)}
         \equil{f}(\bxi_\alpha, 1, v_{Bi}, T_B) \quad (\xi_{\alpha1}>0). \label{eq:first_ghost}
 \end{gather}
-This implementation yields second-order accuracy along with conservation of mass.
+This implementation yields the second-order accuracy along with conservation of mass.
 For \(\xi_1<0\), all expressions are analogous.
 
 %%% Why half-integer lattice?
@@ -342,9 +346,10 @@ For the Gauss--Hermite LB model, the appropriate discrete VDF is recovered as a 
 %%% Conservative scheme
 At first glance, the proposed reconstruction procedure does not violate the conservation properties of the FV scheme,
 because all moments required for the equilibrium function are calculated exactly.
-However, the reality is different, since the FV scheme actually deals with half-moments.
-Mass, momentum, and energy fluxes across the coupling interface are turned out
-to differ slightly for each DV model.
+However, the reality is different, since the FV scheme actually deals separately
+with velocities directed in the opposite half-spaces with respect to the interface.
+For this reason, mass, momentum, and energy fluxes across the coupling interface
+are turned out to differ slightly for each DV model.
 To ensure conservation properties, it is sufficient to correct the total flux of the VDF for one of the DV models.
 In the present paper, we employ the polynomial correction (like in~\cite{Aristov1980}):
 \begin{equation}\label{eq:poly_correction}
@@ -362,34 +367,7 @@ and suppose that \(x=0\) is our interface.
 In order to use~\eqref{eq:internal_fluxes}, the VDF should be reconstructed in the ghost cells.
 In case of second-order TVD scheme, \(f_{-1}^n\) is used for all \(\bxia\) and, additionally,
 \(f_{-2}^n\) is required when \(\xi_{\alpha1}>0\).
-In case of first-order scheme, \(f_{-1}^n\) and only for \(\xi_{\alpha1}>0\) is sufficient.
-
-\begin{comment}
-    def first_flux(self, h2, f2, F, mask, calc_F):
-        self._lock_F.wait()
-        self._lock_F.clear()
-        # reconstruct a flux from the partner distribution function (2 cells)
-        f3, h3 = self._new_f3(h2, f2)
-        idx = 1 + 2*self._idx_partner # -1 or 1
-        f3[:2] = reconstruct(model_partner, model, self._f_partner[::-idx][-2:])
-        h3[:2] = delta_y(domains[self._n_partner])[::-idx][-2:]
-        self._calc_flux(F, mask, calc_F, h3, f3)
-
-    def __call__(self, f, mask):
-        f_partner = self._f_partner[self._idx_partner]
-        f[mask] = reconstruct(model_partner, model, f_partner)[mask]
-        return delta_y(domains[self._n_partner])[self._idx_partner]
-
-    def correct_first_flux(self, xi_y, F, mask):
-        model, model_partner = domains[self._n].model, domains[self._n_partner].model
-        # conservative correction of the reconstructed flux
-        if self._idx_partner:               # correct for both domains
-            xi_y_partner = model_partner.xi()[...,1]
-            m0, m1_i, m2 = calc_first_moments0(model_partner, xi_y_partner*self._F_partner[self._idx_partner])
-            M0, M1_i, M2 = calc_first_moments0(model, xi_y*F)
-            logging.debug('Couple BC velocity correction: mass %g, momentum %g, energy %g' % ((m0-M0)[0], (m1_i-M1_i)[0,0], (m2-M2)[0]))
-            F[mask] *= 1 + poly_correct_moments(model, xi_y*F, mask, m0-M0, m1_i-M1_i, m2-M2)
-\end{comment}
+In case of the first-order scheme, \(f_{-1}^n\) and only for \(\xi_{\alpha1}>0\) is sufficient.
 
 \section{Results and discussions}\label{sec:examples}
 

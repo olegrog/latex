@@ -705,8 +705,8 @@ boundaries = (
 )
 bcs = create_bcs()
 norms = {
-    'L1': lambda f,g: np.einsum('ai->a', np.abs(f-g))/f[0].size,
-    'L2': lambda f,g: np.sqrt(np.einsum('ai->a', (f-g)**2)/f[0].size),
+    'L1': lambda f,g: np.einsum('ai->a', np.abs(f-g)),
+    'L2': lambda f,g: np.sqrt(np.einsum('ai->a', (f-g)**2)),
     'Linf': lambda f,g: np.max(np.abs(f-g), axis=1)
 }
 
@@ -718,7 +718,7 @@ class Solution(object):
         self.f3 = empty(domain.model, 3)                            # ghost + 2 cells
 
 print ''.join(['=' for i in range(50)])
-print 'DVM: xi_max = %g, grid=(%d)^%d, total = %d' % (args.radius, 2*args.M, fixed.D, models['dvm'].xi().size/fixed.D)
+print 'DVM: xi_max = %g, grid=(%d)^%d, total = %d, step = %g' % (args.radius, 2*args.M, fixed.D, models['dvm'].xi().size/fixed.D, args.radius / args.M)
 print 'LBM: type = %s, total = %d' % (args.lattice, models['lbm'].xi().size/fixed.D)
 print 'Kn = %g, U = %g, cells = %d + %d' % (args.kn, args.U, args.N1, args.N2)
 print 'Model: (antisym)[ %s | %s ](diffuse), limiter = %s' % (args.model1, args.model2, args.limiter)
