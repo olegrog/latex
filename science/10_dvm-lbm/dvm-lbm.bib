@@ -270,6 +270,16 @@
 %%%   DV method   %%%
 %%%%%%%%%%%%%%%%%%%%%
 
+@article{Aristov1977,
+  title={Method of adaptative meshes in velocity space for the intense shock wave problem},
+  author={Aristov, V V},
+  journal={USSR Comput. Math. Math. Phys.},
+  volume={17},
+  number={4},
+  pages={261--267},
+  year={1977}
+}
+
 @Article{Aristov1980,
   author  = {Aristov, V V and Tcheremissine, F G},
   title   = {Conservative splitting method for solving the Boltzmann equation},
@@ -315,6 +325,17 @@
   pages     = {063301},
   doi       = {10.1103/PhysRevE.88.063301},
   publisher = {APS},
+}
+
+@article{Baranger2014,
+  title={Locally refined discrete velocity grids for stationary rarefied flow simulations},
+  author={Baranger, C{\'e}line and Claudel, Jean and H{\'e}rouard, Nicolas and Mieussens, Luc},
+  journal={Journal of Computational Physics},
+  volume={257},
+  pages={572--593},
+  year={2014},
+  doi={10.1016/j.jcp.2013.10.014},
+  publisher={Elsevier}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -409,7 +430,6 @@
   booktitle    = {AIP Conference Proceedings},
   year         = {2016},
   volume       = {1786},
-  number       = {1},
   pages        = {030001},
   organization = {AIP Publishing},
   doi          = {10.1063/1.4967538},
@@ -665,6 +685,26 @@
   publisher = {Elsevier},
 }
 
+@Article{Ohwada1990,
+  author  = {Sone, Yoshio and Takata, Shigeru and Ohwada, Taku},
+  title   = {Numerical analysis of the plane Couette flow of a rarefied gas on the basis of the linearized Boltzmann equation for hard-sphere molecules},
+  journal = {Eur. J. Mech. B/Fluids},
+  year    = {1990},
+  volume  = {9},
+  pages   = {273--288},
+  langid  = {english},
+}
+
+@article{Rogozin2016,
+  title={Numerical analysis of the nonlinear plane Couette-flow problem of a rarefied gas for hard-sphere molecules},
+  author={Rogozin, Oleg},
+  journal={European Journal of Mechanics B/Fluids},
+  year={2016},
+  volume={60},
+  pages={148--163},
+  doi={10.1016/j.euromechflu.2016.06.011}
+}
+
 %%%%%%%%%%%%%%%%%
 %%%   Other   %%%
 %%%%%%%%%%%%%%%%%
@@ -681,12 +721,12 @@
   publisher = {Elsevier},
 }
 
-%%%%%%%%%%%%%%%%%%%
-%%%   Thermal   %%%
-%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%
+%%%   Thermal LB   %%%
+%%%%%%%%%%%%%%%%%%%%%%
 
 @Article{Frapolli2015,
-  author  = {Frapolli, N. and Chikatamarla, S and Karlin I},
+  author  = {Frapolli, N. and Chikatamarla, S and Karlin, I},
   title   = {Entropic lattice Boltzmann model for compressible flows},
   journal = {Phys. Rev. E},
   year    = {2015},
@@ -696,7 +736,7 @@
 }
 
 @Article{Frapolli2016,
-  author  = {Frapolli, N. and Chikatamarla, S and Karlin I},
+  author  = {Frapolli, N and Chikatamarla, S and Karlin, I},
   title   = {Entropic lattice Boltzmann model for gas dynamics: Theory, boundary conditions, and implementation},
   journal = {Phys. Rev. E},
   year    = {2016},
@@ -715,5 +755,98 @@
   doi     = {10.1209/0295-5075/90/54003},
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Gauss-Laguerre LB %%
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+@Article{Ambrus2014,
+  author  = {Ambrus, Victor and Sofonea, Victor  },
+  title   = {Implementation of diffuse-reflection boundary conditions using lattice Boltzmann models based on
+half-space Gauss-Laguerre quadratures},
+  journal = {Phys. Rev E },
+  year    = {2014},
+  volume  = {89},
+  pages   = {041301(R)},
+  doi     = {10.1103/PhysRevE.96.013311},
+}
+
+@Article{Ambrus2016,
+  author  = {Ambrus, Victor and Sofonea, Victor  },
+  title   = {Lattice Boltzmann models based on half-range Gauss–Hermite quadratures},
+  journal = {J. Comp. Phys.},
+  year    = {2016},
+  volume  = {316},
+  pages   = {760--768},
+  doi     = {10.1016/j.jcp.2016.04.010},
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%   Finite-volume LB   %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{Succi1992,
+  title={The lattice Boltzmann equation on irregular lattices},
+  author={Nannelli, Francesca and Succi, Sauro},
+  journal={Journal of Statistical Physics},
+  volume={68},
+  number={3-4},
+  pages={401--407},
+  year={1992},
+  doi={10.1007/BF01341755},
+  publisher={Springer}
+}
+
+@article{Peng1999,
+  title={Finite volume scheme for the lattice Boltzmann method on unstructured meshes},
+  author={Peng, Gongwen and Xi, Haowen and Duncan, Comer and Chou, So-Hsiang},
+  journal={Physical Review E},
+  volume={59},
+  number={4},
+  pages={4675},
+  year={1999},
+  doi={10.1103/PhysRevE.59.4675},
+  publisher={APS}
+}
+
+@article{Patil2009,
+  title={Finite volume TVD formulation of lattice Boltzmann simulation on unstructured mesh},
+  author={Patil, Dhiraj V and Lakshmisha, KN},
+  journal={Journal of Computational Physics},
+  volume={228},
+  number={14},
+  pages={5262--5279},
+  year={2009},
+  doi={10.1016/j.jcp.2009.04.008},
+  publisher={Elsevier}
+}
+
+@article{Li2016,
+  title={Finite volume lattice Boltzmann method for nearly incompressible flows on arbitrary unstructured meshes},
+  author={Li, Weidong and Luo, Li-Shi},
+  journal={Communications in Computational Physics},
+  volume={20},
+  number={2},
+  pages={301--324},
+  year={2016},
+  doi={10.4208/cicp.211015.040316a},
+  publisher={Cambridge University Press}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Breakdown criteria  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{Zhang2014,
+  title={Breakdown parameter for kinetic modeling of multiscale gas flows},
+  author={Meng, Jianping and Dongari, Nishanth and Reese, Jason M and Zhang, Yonghao},
+  journal={Physical Review E},
+  volume={89},
+  number={6},
+  pages={063305},
+  year={2014},
+  doi={10.1103/PhysRevE.89.063305},
+  publisher={APS}
+}
 
 @Comment{jabref-meta: databaseType:bibtex;}
