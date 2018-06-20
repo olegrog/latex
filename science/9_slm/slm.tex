@@ -150,8 +150,8 @@ where \(\Hf_{L0} = 1 + \Hf'_S - \Hf'_L + \fusion{\Hf}\).
     \centering
     \begin{tikzpicture}[thick, >=stealth']
         \coordinate (O) at (0,0);
-        \draw[->] (-0.1,0) -- (6.5,0) node[above] {$\HT$} coordinate(xmax);
-        \draw[->] (0,-0.1) -- (0,4.5) node[right] {$\Hf$} coordinate(ymax);
+        \draw[->] (-0.1,0) -- (6.5,0) node[above] {$\HT$};
+        \draw[->] (0,-0.1) -- (0,4.5) node[right] {$\Hf$};
 
         \path (O) -- (3,1) node[midway,sloped,above] {$\Hf_S=1+\Hf'_S\HT$}
             -- (3,2.5) -- (6,4) node[midway,sloped,above] {$\Hf_L=\Hf_{L0}+\Hf'_L\HT$};
@@ -255,10 +255,10 @@ with the piecewise quantities defined in Tab.~\ref{table:temp_params}. Finally,
 	\Hh(\HT_S) = \fusion{\Hh}\Hphi_S + \Hh_1, \quad \Hh(\HT_L) = \fusion{\Hh}\Hphi_L + \Hh_1 + \Hh_2,
 \end{equation}
 where \(\Hphi_{S,L} = \Hphi(\Hh(\HT_{S,L}))\) and
-\begin{equation*}
+\begin{equation}\label{eq:enthalpy12_crude}
 	\Hh_1 = \HT_S\qty(1 + \frac{\Hc'_{pS}}2\HT_S), \quad
 	\Hh_2 = \delta\fusion{\HT}\qty(b + \frac{a}2\delta\fusion{\HT}).
-\end{equation*}
+\end{equation}
 
 %%% Smoothness of c_p
 Note that \(\dd\Hc_p/\dd\Hh\in\mathcal{C}^1\)
@@ -299,9 +299,14 @@ where \(\Hc_{pS,L}\) is defined as~\eqref{eq:thermophysical_model_explicit}.
 
 Actually,~\eqref{eq:enthalpy_phi} is the quadratic equation with respect to \(\HT\), hence
 \begin{equation}\label{eq:temp_phi}
-	\HT = \frac{\sqrt{\Hh'^2 + 2\Hh''\Hh_*}-\Hh'}{\Hh''},
+	\HT = \frac{\sqrt{g_1^2 + 2g_2g_3}-g_1}{g_2}, \quad
+	\dv{\HT}{\Hh} = \frac{g_3' - g_1'\HT - \frac12g_2'\HT^2}{g_2\HT + g_1},
 \end{equation}
-where \(\Hh^{\prime,\prime\prime} = \Hh_S^{\prime,\prime\prime} (1-\hat\phi) + \Hh_L^{\prime,\prime\prime}\hat\phi\).
+where
+\begin{equation}\label{eq:enthalpy3_phi}
+    g_{1,2}(\Hh) = \Hh_S^{\prime,\prime\prime} (1-\hat\phi) + \Hh_L^{\prime,\prime\prime}\hat\phi, \quad
+	g_3(\Hh) = \Hh_* + \qty(\Hh_L' - \Hh_S' + \frac{\Hh_L'' - \Hh_S''}2)\Hphi.
+\end{equation}
 
 \section{Numerical methods}
 
@@ -345,7 +350,7 @@ where superscript \(n\) corresponds to values calculated at the previous time st
 
 For the piecewise approximation~\eqref{eq:lf_piecewise},
 \begin{equation}
-	\fdv{\Hphi}{\Hh} = \diag{\var{\Hphi}} = \begin{cases}
+	\dv{\Hphi}{\Hh} = \diag{\var{\Hphi}} = \begin{cases}
         0 & \quad \Hh \leq \Hh(\HT_S), \quad \Hh(\HT_L) \leq \Hh, \\
         1/(\Hh(\HT_L)-\Hh(\HT_S)) & \quad \Hh(\HT_S) < \Hh < \Hh(\HT_L). \\
     \end{cases} \label{eq:pert_phi_h_diag}
