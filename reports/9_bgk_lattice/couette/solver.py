@@ -574,7 +574,7 @@ def solve_bgk():
             rho_disp, pxy_mean = sum(h*(m.rho-m0.rho)**2), np.sum(h*m.tau[:,2])
             pxy_disp = sum(h*(m.tau[:,2]-pxy_mean)**2)
             print '%d: err(rho) = %g, p_xy/U = %g, err(p_xy)/U = %g, vel_x[-1]/U = %g, qflow_x[-1]/U = %g' \
-                % ( i, rho_disp, pxy_mean/U, pxy_disp/U, m.vel[-1,0]/U, m.qflow[-1,0] )
+                % ( i, rho_disp, pxy_mean/U, pxy_disp/U, m.vel[-1,0]/U, m.qflow[-1,0]/U )
             plot_profiles(solution)
     total_values(solution)
     y, h, m = calc_macro(solution)
