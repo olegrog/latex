@@ -1,0 +1,1 @@
+stefan_boltzmann    5.670373e-8    W/m**2/K**4
