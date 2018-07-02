@@ -19,4 +19,4 @@ pics:
 	cd $(PICS) && ln -s $(FIGS)/acceleration/*.pdf .
 
 zip: $(SOURCES)
-	zip -r $(PROJECT).zip $(SOURCES) $(PICS)/
+	zip -r $(PROJECT).zip $(SOURCES) $(PROJECT).bbl $(PICS)/
