@@ -1,0 +1,4 @@
+Physical Review E = Phys. Rev. E
+USSR Computational Mathematics and Mathematical Physics = USSR Comp. Math. Math. Phys.
+Journal of Computational Science = J. Comp. Sci.
+Doklady Akademii Nauk SSSR = Dokl. Akad. Nauk SSSR+
