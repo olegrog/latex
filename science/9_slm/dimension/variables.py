@@ -115,7 +115,7 @@ derived = dict2nt('derived', {
     'solidus': alloy.solidus - eval(args.zero_temp),
     'liquidus': alloy.liquidus - eval(args.zero_temp),
     'fusion_delta': alloy.liquidus - alloy.solidus,
-    'radiation_transfer': const.stefan_boltzmann,
+    'radiative_transfer': const.stefan_boltzmann,
 })
 
 basis1 = [  # for diffusive time scale
@@ -144,14 +144,14 @@ dimensionless = [
     ( bed, 'laser_power', basis2 ),
     ( bed, 'layer_thickness', basis2 ),
     ( bed, 'track_length', basis2 ),
-    ( bed, 'convection_transfer', basis1),
+    ( bed, 'convective_transfer', basis1),
     ( alloy, 'fusion_heat', basis2),
     ( derived, 'liquidus', basis2 ),
     ( derived, 'solidus', basis2 ),
     ( derived, 'fusion_delta', basis2 ),
     ( derived, 'fusion_capacity', basis1 ),
     ( derived, 'total_time', basis1 ),
-    ( derived, 'radiation_transfer', basis2 ),
+    ( derived, 'radiative_transfer', basis2 ),
     ( derived, 'abs_temperature', basis2 ),
 ] + get_derivatives(alloy)
 

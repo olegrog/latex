@@ -312,26 +312,21 @@ where
 
 \subsection{Perturbation and its diagonal part}
 
-With~\eqref{eq:heat_conduction_hats},~\eqref{eq:thermophysical_model},~\eqref{eq:temp_phi},
+With~\eqref{eq:heat_conduction_hats},~\eqref{eq:thermophysical_model},~\eqref{eq:temp_phi}
 and arbitrary \(\Hphi(\Hh)\), we can employ the following expressions for numerical simulation:
 \begin{gather}
     F = \dder{\Hx_i}\qty(
         \frac{1 - \Hpsi}{1 - \psi_0} \frac{\Hk_0(\HT)}{\Hc_p(\HT)} \dder[\Hh_*]{\Hx_i}
 	), \\
     \var{F} = \dder{\Hx_i}\qty[ \frac{1 - \Hpsi}{1 - \psi_0} \qty(
-	    \dv{\Hh_*}(\frac{\Hk_0(\HT)}{\Hc_p(\HT)})\var{\Hh_*}\dder[\Hh_*]{\Hx_i} +
+	    \dv{\Hh}(\frac{\Hk_0(\HT)}{\Hc_p(\HT)})\var{\Hh}\dder[\Hh_*]{\Hx_i} +
 	    \frac{\Hk_0(\HT)}{\Hc_p(\HT)} \dder[\var{\Hh_*}]{\Hx_i}
 	)], \\
-    \diag{\var{F}} = \frac{1 - \Hpsi}{1 - \psi_0} \qty(
-	    \dv{\Hh_*}(\frac{\Hk_0(\HT)}{\Hc_p(\HT)})\dder[\Hh_*]{\Hx_i} \diag{\dder{\Hx_i}} +
-	    \frac{\Hk_0(\HT)}{\Hc_p(\HT)} \diag{\dder{\Hx_i}^2}
-	)\diag{\var{\Hh_*}}.
+    \diag{\fdv{F}{h}} = \frac{1 - \Hpsi}{1 - \psi_0} \qty(
+	    \dv{\Hh}(\frac{\Hk_0(\HT)}{\Hc_p(\HT)})\dder[\Hh_*]{\Hx_i} \diag{\dder{\Hx_i}} +
+	    \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\dv{\Hh_*}{\Hh} \diag{\dder{\Hx_i}^2}
+	).
 \end{gather}
-where
-\begin{equation}
-    \var{\Hh_*} = \qty(1 - \fusion{\Hh}\hat\phi')\var{\Hh}, \quad
-    \diag{\Hh_*} = \diag{\var{\Hh_*}} = 1 - \fusion{\Hh}\hat\phi'(\Hh).
-\end{equation}
 
 \subsection{Boundary conditions}
 
@@ -357,10 +352,3 @@ For the piecewise approximation~\eqref{eq:lf_piecewise},
 \end{equation}
 
 \end{document}
-
-0 = T + c'T^2 + phi - h
-T = (-1+\sqrt{1+4c'(h-phi)})/2c'
-\psi = \psi_0 -- \phi=0
-\psi = 0      -- \phi=1
-\psi = \psi_0 - \phi\psi_0
-

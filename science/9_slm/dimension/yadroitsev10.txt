@@ -4,4 +4,4 @@ scanning_speed      0.1     m/s
 beam_radius         35      um
 bulk_temperature    20      degC
 track_length        1       mm
-convection_transfer 10      W/m**2/delta_degC
+convective_transfer 10      W/m**2/delta_degC
