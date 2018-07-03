@@ -341,6 +341,21 @@ where superscript \(n\) corresponds to values calculated at the previous time st
     F(\HT) = \Halpha\HT + \epsilon\Hsigma\qty(\HT + \HT_0)^{D+1}.
 \end{equation}
 
+\subsection{Initial conditions}
+
+To reduce initial oscillations, the initial condition should be consistent with the boundary condition.
+It means that the initial condition should satisfy~\eqref{eq:bc_hats} at \(\Hx_D=0\)
+and decay exponentially to zero while reaching other boundaries.
+For instance,
+\begin{equation}\label{eq:ic_hats}
+    \HT = \HT_1\exp\qty( \Hx_D^2 - \qty[\Hx_i-\Hx_{Bi}(0)]^2 ) \exp\qty(\lambda \Hx_D), \quad
+    \lambda = \eval{ \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}\HT_1 k_0(\HT)(1-\Hpsi)} }_{\Hx_D=0},
+\end{equation}
+where \(\HT_1\) is an arbitrary parameter corresponding to the maximum initial temperature.
+Convective and radiative heat transfers are neglected in~\eqref{eq:ic_hats}.
+The initial condition for the enthalpy can be calculated from~\eqref{eq:enthalpy_phi}
+with some approximate, but smooth \(\Hphi(\HT)\).
+
 \subsection{Liquid fraction models}
 
 For the piecewise approximation~\eqref{eq:lf_piecewise},

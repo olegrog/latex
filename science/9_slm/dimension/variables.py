@@ -111,7 +111,7 @@ derived = dict2nt('derived', {
     'unit_temperature': eval(args.unit_temp) - eval(args.zero_temp),
     'total_time': bed.track_length/bed.scanning_speed,
     'fusion_capacity': alloy.fusion_heat/(alloy.liquidus - alloy.solidus),
-    'abs_temperature': eval(args.zero_temp),
+    'absolute_temperature': eval(args.zero_temp),
     'solidus': alloy.solidus - eval(args.zero_temp),
     'liquidus': alloy.liquidus - eval(args.zero_temp),
     'fusion_delta': alloy.liquidus - alloy.solidus,
@@ -152,7 +152,7 @@ dimensionless = [
     ( derived, 'fusion_capacity', basis1 ),
     ( derived, 'total_time', basis1 ),
     ( derived, 'radiative_transfer', basis2 ),
-    ( derived, 'abs_temperature', basis2 ),
+    ( derived, 'absolute_temperature', basis2 ),
 ] + get_derivatives(alloy)
 
 get_references = lambda system: map(lambda q: (q + '({})'.format(args.zero_temp), system._asdict()[q], [(system, q)]),
