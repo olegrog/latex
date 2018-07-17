@@ -35,6 +35,7 @@
 \newcommand{\Hk}{\hat{k}}
 \newcommand{\Hphi}{\hat{\phi}}
 \newcommand{\Hpsi}{\hat{\psi}}
+\newcommand{\HR}{\hat{R}}
 
 \begin{document}
 \maketitle
@@ -174,7 +175,7 @@ where \(\Hf_{L0} = 1 + \Hf'_S - \Hf'_L + \fusion{\Hf}\).
     \label{fig:thermophysical}
 \end{figure}
 
-\section{Liquid fraction models}
+\subsection{Liquid fraction models}
 
 Impose the following physical requirements upon \(\hat\phi(\Hh)\):
 \begin{gather}
@@ -205,79 +206,13 @@ Employing cubic splines near \(h_S\) and \(h_L\) yields the more realistic two-p
 	\dots
 \end{equation}
 
-\section{Temperature evaluation}
+\subsection{Temperature evaluation}
 
 For arbitrary \(\Hphi(\Hh)\), solution of~\eqref{eq:enthalpy_hats} is not straightforward.
-However, the temperature is included in~\eqref{eq:heat_conduction_hats} only through thermophysical properties
-and, therefore, can be evaluated quite roughly.
-Direct dependence of boundary conditions~\eqref{eq:bc_hats} on temperature is also weak.
-Several approaches can be proposed to find a simplified approximation of \(\HT(\Hh)\).
-
-\subsection{\(\mathcal{C}^1\) approximation}
-
-\begin{table}[ht]
-    \centering
-    \caption{Piecewise quantities for~\eqref{eq:temp_crude}}
-    \label{table:temp_params}
-    \begin{tabular}{c|cccc}
-        \hline\\[-1em]
-        \(\Hh\)                           & \(\Hc'_p\)    & \(\Hc_{p0}\)  & \(\HT^\dag\) & \(\Hh^\dag\) \\[0.3em]
-        \hline\\[-1em]
-        \(\Hh \leq \Hh(\HT_S)\)           & \(\Hc'_{pS}\) & \(1\)         & \(0\)        & \(0\)        \\[0.3em]
-        \(\Hh(\HT_S) < \Hh < \Hh(\HT_L)\) & \(a\)         & \(b\)         & \(\HT_S\)    & \(\Hh_1\)    \\[0.3em]
-        \(\Hh(\HT_L) \leq \Hh\)           & \(\Hc'_{pL}\) & \(\Hc_{pL0}\) & \(\HT_L\)    & \(\Hh_2\)    \\[0.3em]
-        \hline
-    \end{tabular}
-\end{table}
-
-An acceptable accuracy can be achieved if the heat capacity is assumed
-to depend on temperature linearly during a fusion process, i.e.,
-\begin{equation}\label{eq:cp_crude}
-	\Hc_p = \begin{cases}
-        1 + \Hc'_{pS}\HT,         & \quad \Hh \leq \Hh(\HT_S), \\
-        b + a\HT,                 & \quad \Hh(\HT_S) < \Hh < \Hh(\HT_L), \\
-        \Hc_{pL0} + \Hc'_{pL}\HT, & \quad \Hh(\HT_L) \leq \Hh,
-    \end{cases}
-\end{equation}
-where
-\begin{equation*}
-	\Hc_{pL0} = 1 + \fusion{\Hc_p} + \Hc'_{pS} - \Hc'_{pL}, \quad
-	a = \frac{\Hc'_{pS} + \Hc'_{pL}}2 + \frac{\fusion{\Hc_p}}{\delta\fusion{\HT}}, \quad
-	b = 1 + \HT_S\qty(\Hc'_{pS} - a).
-\end{equation*}
-Substituting~\eqref{eq:cp_crude} into~\eqref{eq:enthalpy_hats},
-we obtain that the temperature is calculated as a root of the quadratic equation
-\begin{equation}\label{eq:temp_crude}
-	\HT = \HT^\dag + \frac{\sqrt{\Hc_{p0}^2 + 2\Hc_p'(\Hh_* - \Hh^\dag) } - \Hc_{p0}}{\Hc'_p},
-\end{equation}
-with the piecewise quantities defined in Tab.~\ref{table:temp_params}. Finally,
-\begin{equation}\label{eq:enthalpySL_crude}
-	\Hh(\HT_S) = \fusion{\Hh}\Hphi_S + \Hh_1, \quad \Hh(\HT_L) = \fusion{\Hh}\Hphi_L + \Hh_1 + \Hh_2,
-\end{equation}
-where \(\Hphi_{S,L} = \Hphi(\Hh(\HT_{S,L}))\) and
-\begin{equation}\label{eq:enthalpy12_crude}
-	\Hh_1 = \HT_S\qty(1 + \frac{\Hc'_{pS}}2\HT_S), \quad
-	\Hh_2 = \delta\fusion{\HT}\qty(b + \frac{a}2\delta\fusion{\HT}).
-\end{equation}
-
-%%% Smoothness of c_p
-Note that \(\dd\Hc_p/\dd\Hh\in\mathcal{C}^1\)
-only if \(\Hphi(\Hh)\in\mathcal{C}^1\) and \(\Hc_p\in\mathcal{C}^0\).
-Therefore, using \(\mathcal{C}^1\) model~\eqref{eq:lf_splines} for calculating \(\Hc_p(\HT)\)
-and \(\mathcal{C}^0\) model~\eqref{eq:cp_crude} for calculating \(\HT\)
-ensure that \(\dd\Hc_p/\dd\Hh\in\mathcal{C}^1\).
-
-%%% Simple case
-If \(\Hc'_{pL} = \Hc'_{pS} = \Hc'_p\) and \(\fusion{\Hc_{p}} = 0\),
-then~\eqref{eq:temp_crude} can be rewritten as
-\begin{equation}\label{eq:temp_crude2}
-	\HT = \frac{\sqrt{1+2\Hc_p'\Hh_*}-1}{\Hc_p'}
-\end{equation}
-when \(\Hc_p'>0\) and \(\HT = \Hh_*\) when \(\Hc_p'=0\).
-
-\subsection{\(\hat\phi\)-based approximation}
-
-Another way is to use~\eqref{eq:fusion_change} for \(f=h\) with the five-parameter model:
+However, the temperature is included in~\eqref{eq:heat_conduction_hats} and~\eqref{eq:bc_hats}
+only through thermophysical properties and, therefore, can be evaluated approximately.
+Several approaches can be employed to work around this difficulty.
+We employ the \(\hat\phi\)-based approximation~\eqref{eq:fusion_change} based on the five-parameter model:
 \begin{equation}\label{eq:enthalpy_phi}
 	\Hh = \Hh'_S\HT + \frac{\Hh''_S}2\HT^2 + \qty[
 	    \fusion{\Hh} + \qty(\Hh'_L-\Hh'_S) \qty(\HT-1) + \frac{\Hh''_L-\Hh''_S}2 \qty( \HT^2-1 )
@@ -343,18 +278,23 @@ where superscript \(n\) corresponds to values calculated at the previous time st
 
 \subsection{Initial conditions}
 
-To reduce initial oscillations, the initial condition should be consistent with the boundary condition.
+To reduce initial oscillations, the initial condition should be consistent with the boundary conditions.
 It means that the initial condition should satisfy~\eqref{eq:bc_hats} at \(\Hx_D=0\)
-and decay exponentially to zero while reaching other boundaries.
+and decay exponentially to zero as we approach other boundaries.
 For instance,
-\begin{equation}\label{eq:ic_hats}
-    \HT = \HT_1\exp\qty( \Hx_D^2 - \qty[\Hx_i-\Hx_{Bi}(0)]^2 ) \exp\qty(\lambda \Hx_D), \quad
-    \lambda = \eval{ \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}\HT_1 k_0(\HT)(1-\Hpsi)} }_{\Hx_D=0},
-\end{equation}
-where \(\HT_1\) is an arbitrary parameter corresponding to the maximum initial temperature.
+\begin{gather}
+    \HT = \HT_p\exp\qty( \frac{\Hx_D^2 - \qty[\Hx_i-\Hx_{Bi}(0)]^2}{\HR_p^2} )
+        \exp\qty(\lambda \Hx_D - \frac{\Hx_D^2}{\HR_p^2}), \label{eq:ic_hats}\\
+    \lambda = \eval{ \frac{A(\Hpsi)\HP\exp\qty( -\qty(\Hx_i-\Hx_{Bi}^n)^2\qty(1-\HR_p^{-2}) )}
+        {\pi^{(D-1)/2}\HT_p k_0(\HT)(1-\Hpsi)} }_{\Hx_D=0}, \label{eq:lambda}
+\end{gather}
+where \(\HT_p\) and \(\HR_p\) are the arbitrary parameters corresponding
+to the maximum temperature and radius of the initial melting pool, respectively.
+They can be chosen to mimic the near-steady state.
+The depth of the initial melting pool is governed by \(\HT_p\).
 Convective and radiative heat transfers are neglected in~\eqref{eq:ic_hats}.
 The initial condition for the enthalpy can be calculated from~\eqref{eq:enthalpy_phi}
-with some approximate, but smooth \(\Hphi(\HT)\).
+based on some smooth approximation of \(\Hphi(\HT)\).
 
 \subsection{Liquid fraction models}
 
