@@ -175,44 +175,13 @@ where \(\Hf_{L0} = 1 + \Hf'_S - \Hf'_L + \fusion{\Hf}\).
     \label{fig:thermophysical}
 \end{figure}
 
-\subsection{Liquid fraction models}
-
-Impose the following physical requirements upon \(\hat\phi(\Hh)\):
-\begin{gather}
-    0 \leq \dv{\hat\phi}{\Hh} \leq \eval{\dv{\hat\phi}{\Hh}}_{\Hh=\Hh(1)} =
-        \frac1{\Hh(\HT_L)-\Hh(\HT_S)}, \label{eq:lf_monotonic}\\
-    \hat\phi\qty(\Hh(1) - \Hh) = 1 - \hat\phi(\Hh) \quad \qty(\Hh\geq\Hh(1)), \label{eq:lf_symmetric}\\
-    \begin{cases}
-	\phi(\Hh) = \order{(\Hh(\HT_S)-\Hh)^{-\infty}} \quad \qty(\Hh < \Hh(\HT_S)), \\
-	    \phi(\Hh) = \order{(\Hh-\Hh(\HT_L))^{-\infty}} \quad \qty(\Hh > \Hh(\HT_L)).
-	\end{cases}\label{eq:lf_exp_decay}
-\end{gather}
-Inequalities~\eqref{eq:lf_monotonic} are the monotonic condition and boundedness of the fusion rate,
-\eqref{eq:lf_symmetric} is the symmetric property,
-and~\eqref{eq:lf_exp_decay} describes an exponential decay of \(\hat\phi(\Hh)\) outside the fusion range.
-
-The simplest \(\mathcal{C}^0\) model for \(\Hphi(\Hh)\) can be constructed as a piecewise approximation
-\begin{equation}\label{eq:lf_piecewise}
-	\Hphi = \begin{cases}
-        0,                                            & \Hh \leq \Hh(\HT_S), \\
-        \frac{\Hh-\Hh(\HT_S)}{\Hh(\HT_L)-\Hh(\HT_S)}, & \Hh(\HT_S) < \Hh < \Hh(\HT_L), \\
-        1,                                            & \Hh(\HT_L) \leq \Hh.
-    \end{cases}
-\end{equation}
-Except \(\fusion{\Hh}\), \(\delta\fusion{\HT} = \HT_L - \HT_S\)
-is the only parameter of the fusion process  used in~\eqref{eq:lf_piecewise}.
-Employing cubic splines near \(h_S\) and \(h_L\) yields the more realistic two-parameter \(\mathcal{C}^1\) model:
-\begin{equation}\label{eq:lf_splines}
-	\dots
-\end{equation}
-
 \subsection{Temperature evaluation}
 
 For arbitrary \(\Hphi(\Hh)\), solution of~\eqref{eq:enthalpy_hats} is not straightforward.
 However, the temperature is included in~\eqref{eq:heat_conduction_hats} and~\eqref{eq:bc_hats}
 only through thermophysical properties and, therefore, can be evaluated approximately.
 Several approaches can be employed to work around this difficulty.
-We employ the \(\hat\phi\)-based approximation~\eqref{eq:fusion_change} based on the five-parameter model:
+We employ the \(\Hphi\)-based approximation~\eqref{eq:fusion_change} based on the five-parameter model:
 \begin{equation}\label{eq:enthalpy_phi}
 	\Hh = \Hh'_S\HT + \frac{\Hh''_S}2\HT^2 + \qty[
 	    \fusion{\Hh} + \qty(\Hh'_L-\Hh'_S) \qty(\HT-1) + \frac{\Hh''_L-\Hh''_S}2 \qty( \HT^2-1 )
@@ -223,14 +192,14 @@ where
 	\Hh'_S = 1, \quad \Hh'_L = 1 + \Hc'_{pS} - \Hc'_{pL} + \fusion{\Hc}_p, \quad
 	\Hh''_S = \Hc'_{pS}, \quad \Hh''_L = \Hc'_{pL}
 \end{equation}
-should be fulfilled for~\eqref{eq:enthalpy_phi} to be consistent with \(\Hc_p(\HT)\)
-defined as~\eqref{eq:thermophysical_model}.
+should be satisfied for~\eqref{eq:enthalpy_phi} to be consistent with \(\Hc_p(\HT)\)
+defined by~\eqref{eq:thermophysical_model}.
 Indeed,~\eqref{eq:enthalpy_phi_params} results from the following assumption:
 \begin{equation}\label{eq:enthalpy_phi_explicit}
 	\Hh_S(\HT) = \int_0^{\HT} \Hc_{pS}(\xi)\dd{\xi}, \quad
 	\Hh_L(\HT) = \int_0^1 \Hc_{pS}(\xi)\dd{\xi} + \fusion{\Hh} + \int_1^{\HT} \Hc_{pL}(\xi)\dd{\xi},
 \end{equation}
-where \(\Hc_{pS,L}\) is defined as~\eqref{eq:thermophysical_model_explicit}.
+where \(\Hc'_{pS,L}\) is defined as~\eqref{eq:thermophysical_model_explicit}.
 
 Actually,~\eqref{eq:enthalpy_phi} is the quadratic equation with respect to \(\HT\), hence
 \begin{equation}\label{eq:temp_phi}
@@ -239,8 +208,42 @@ Actually,~\eqref{eq:enthalpy_phi} is the quadratic equation with respect to \(\H
 \end{equation}
 where
 \begin{equation}\label{eq:enthalpy3_phi}
-    g_{1,2}(\Hh) = \Hh_S^{\prime,\prime\prime} (1-\hat\phi) + \Hh_L^{\prime,\prime\prime}\hat\phi, \quad
+    g_{1,2}(\Hh) = \Hh_S^{\prime,\prime\prime} (1-\Hphi) + \Hh_L^{\prime,\prime\prime}\Hphi, \quad
 	g_3(\Hh) = \Hh_* + \qty(\Hh_L' - \Hh_S' + \frac{\Hh_L'' - \Hh_S''}2)\Hphi.
+\end{equation}
+
+\subsection{Liquid fraction models}
+
+Denote \(\Hh_1 = \Hh(1)\), \(\Hphi'_1 = \Hphi'(\Hh_1)\) and
+impose the following requirements upon \(\Hphi(\Hh)\):
+\begin{gather}
+    \Hphi'_1 = \frac1{\Hh_L(\HT_L)-\Hh_S(\HT_S)}, \label{eq:lf_derivative}\\
+    0 \leq \Hphi' \leq \Hphi'_1, \label{eq:lf_monotonic}\\
+    \Hphi(\Hh_1 - \Hh) = 1-\Hphi(\Hh) \quad (\Hh\geq\Hh_1), \label{eq:lf_symmetric}\\
+    \begin{cases}
+	    \phi(\Hh) = \order{(\Hh_1-\Hh)^{-\infty}} \quad (\Hh < \Hh_1), \\
+	    \phi(\Hh) = 1+\order{(\Hh-\Hh_1)^{-\infty}} \quad (\Hh > \Hh_1).
+	\end{cases}\label{eq:lf_exp_decay}
+\end{gather}
+Inequalities~\eqref{eq:lf_monotonic} are the monotonic condition and boundedness of the fusion rate,
+\eqref{eq:lf_symmetric} is the symmetric property,
+and~\eqref{eq:lf_exp_decay} describes fast decay of \(\Hphi(\Hh)\) outside the fusion range.
+The fixed value of \(\Hphi'_1\) depends only on \(\HT_{S,L}\), \(\Hc'_{pS,L}\), \(\fusion{\Hh}\), and \(\fusion{\Hc_p}\).
+Incidentally, \(\Hphi'_1 = (\fusion{\Hh})^{-1}\) when \(\HT_S=\HT_L\)
+and \(\Hphi'_1 = (\fusion{\Hh}+\delta\fusion{\HT})^{-1}\) for constant heat capacity,
+where \(\delta\fusion{\HT} = \HT_L - \HT_S\).
+
+The simplest \(\mathcal{C}^0\) model for \(\Hphi(\Hh)\) can be constructed as a piecewise approximation
+\begin{equation}\label{eq:lf_piecewise}
+	\Hphi = \begin{cases}
+        0,                                            & \Hh \leq \Hh(\HT_S), \\
+        \qty(\Hh-\Hh(\HT_S))\Hphi'_1, & \Hh(\HT_S) < \Hh < \Hh(\HT_L), \\
+        1,                                            & \Hh(\HT_L) \leq \Hh.
+    \end{cases}
+\end{equation}
+The hyperbolic tangent yields \(\mathcal{C}^\infty\) model
+\begin{equation}\label{eq:lf_tanh}
+	\Hphi = \frac1{1+\exp\qty(-4\Hphi'_1(\Hh-\Hh_1))}.
 \end{equation}
 
 \section{Numerical methods}
@@ -248,26 +251,25 @@ where
 \subsection{Perturbation and its diagonal part}
 
 With~\eqref{eq:heat_conduction_hats},~\eqref{eq:thermophysical_model},~\eqref{eq:temp_phi}
-and arbitrary \(\Hphi(\Hh)\), we can employ the following expressions for numerical simulation:
+and arbitrary \(\Hphi(\Hh)\), we can employ the following expressions for numerical solution of \(\pdv*{h}{t}=\mathcal{F}(h)\):
 \begin{gather}
-    F = \dder{\Hx_i}\qty(
+    \mathcal{F} = \dder{\Hx_i}\qty(
         \frac{1 - \Hpsi}{1 - \psi_0} \frac{\Hk_0(\HT)}{\Hc_p(\HT)} \dder[\Hh_*]{\Hx_i}
 	), \\
-    \var{F} = \dder{\Hx_i}\qty[ \frac{1 - \Hpsi}{1 - \psi_0} \qty(
+    \var{\mathcal{F}} = \dder{\Hx_i}\qty[ \frac{1 - \Hpsi}{1 - \psi_0} \qty(
 	    \dv{\Hh}(\frac{\Hk_0(\HT)}{\Hc_p(\HT)})\var{\Hh}\dder[\Hh_*]{\Hx_i} +
 	    \frac{\Hk_0(\HT)}{\Hc_p(\HT)} \dder[\var{\Hh_*}]{\Hx_i}
 	)], \\
-    \diag{\fdv{F}{h}} = \frac{1 - \Hpsi}{1 - \psi_0} \qty(
+    \diag{\fdv{\mathcal{F}}{h}} = \frac{1 - \Hpsi}{1 - \psi_0} \qty(
 	    \dv{\Hh}(\frac{\Hk_0(\HT)}{\Hc_p(\HT)})\dder[\Hh_*]{\Hx_i} \diag{\dder{\Hx_i}} +
 	    \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\dv{\Hh_*}{\Hh} \diag{\dder{\Hx_i}^2}
 	).
 \end{gather}
 
 \subsection{Boundary conditions}
-
-Nonlinear dependence~\eqref{eq:temp_phi} can be linearized; therefore, we have the following linear boundary condition at \(\Hx_D=0\):
+Linearization of the boundary condition~\eqref{eq:bc_hats} around \(\Hh^n\) leads to
 \begin{equation}\label{eq:bc_linearized}
-    \qty(1 - \Hpsi^n) \frac{\Hk_0(\HT^n)}{\Hc_p(\HT^n)} \qty(1-\fusion{\Hh}\hat\phi'(\Hh^n))\pdv{\Hh}{\Hx_D} +
+    \qty(1 - \Hpsi^n) \frac{\Hk_0(\HT^n)}{\Hc_p(\HT^n)} \qty(1-\fusion{\Hh}\Hphi'(\Hh^n))\pdv{\Hh}{\Hx_D} +
 	    F^n + \dv{F^n}{\HT}\dv{\HT^n}{\Hh}\qty(\Hh - \Hh^n) =
 	    \frac{A(\Hpsi^n)\HP}{\pi^{(D-1)/2}}\exp\qty( -\qty(\Hx_i-\Hx_{Bi}^n)^2 ),
 \end{equation}
@@ -281,29 +283,19 @@ where superscript \(n\) corresponds to values calculated at the previous time st
 To reduce initial oscillations, the initial condition should be consistent with the boundary conditions.
 It means that the initial condition should satisfy~\eqref{eq:bc_hats} at \(\Hx_D=0\)
 and decay exponentially to zero as we approach other boundaries.
-For instance,
+For instance, consider the following two-parameter model:
 \begin{gather}
     \HT = \HT_p\exp\qty( \frac{\Hx_D^2 - \qty[\Hx_i-\Hx_{Bi}(0)]^2}{\HR_p^2} )
         \exp\qty(\lambda \Hx_D - \frac{\Hx_D^2}{\HR_p^2}), \label{eq:ic_hats}\\
     \lambda = \eval{ \frac{A(\Hpsi)\HP\exp\qty( -\qty(\Hx_i-\Hx_{Bi}^n)^2\qty(1-\HR_p^{-2}) )}
         {\pi^{(D-1)/2}\HT_p k_0(\HT)(1-\Hpsi)} }_{\Hx_D=0}, \label{eq:lambda}
 \end{gather}
-where \(\HT_p\) and \(\HR_p\) are the arbitrary parameters corresponding
-to the maximum temperature and radius of the initial melting pool, respectively.
+where arbitrary \(\HT_p\) and \(\HR_p\) correspond to the maximum temperature
+and radius of the initial melting pool, respectively.
 They can be chosen to mimic the near-steady state.
 The depth of the initial melting pool is governed by \(\HT_p\).
 Convective and radiative heat transfers are neglected in~\eqref{eq:ic_hats}.
 The initial condition for the enthalpy can be calculated from~\eqref{eq:enthalpy_phi}
-based on some smooth approximation of \(\Hphi(\HT)\).
-
-\subsection{Liquid fraction models}
-
-For the piecewise approximation~\eqref{eq:lf_piecewise},
-\begin{equation}
-	\dv{\Hphi}{\Hh} = \diag{\var{\Hphi}} = \begin{cases}
-        0 & \quad \Hh \leq \Hh(\HT_S), \quad \Hh(\HT_L) \leq \Hh, \\
-        1/(\Hh(\HT_L)-\Hh(\HT_S)) & \quad \Hh(\HT_S) < \Hh < \Hh(\HT_L). \\
-    \end{cases} \label{eq:pert_phi_h_diag}
-\end{equation}
+based on the appropriate approximation of \(\Hphi(\HT)\).
 
 \end{document}
