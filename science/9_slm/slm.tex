@@ -14,7 +14,7 @@
     colorlinks
 ]{hyperref}
 
-\title{Modeling and simulation of the SLM process}
+\title{Macroscopic model for the SLM process}
 \date{\today}
 \author{Oleg Rogozin}
 
@@ -116,18 +116,19 @@ then \(R/U_0\) is the convective time scale. Also denote
     \Hphi(\Hh) = \phi(h), \quad
     \Hpsi(\Hh) = \psi(h).
 \end{equation}
-Then~\eqref{eq:enthalpy},~\eqref{eq:heat_conduction2}, and~\eqref{eq:bc} take the following nondimensional form:
+Then~\eqref{eq:enthalpy},~\eqref{eq:heat_conduction2},~\eqref{eq:porosity} and~\eqref{eq:bc} take the following nondimensional form:
 \begin{gather}
 	\Hh_* \equiv \Hh - \fusion{\Hh}\Hphi = \int_0^{\HT} \Hc_p(\xi)\dd{\xi}, \label{eq:enthalpy_hats} \\
 	\pdv{\Hh}{\Ht} = \pdv{\Hx_i}\qty(
 	    \frac{1-\Hpsi}{1-\psi_0}
 	    \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\pdv{\Hh_*}{\Hx_i}
 	), \label{eq:heat_conduction_hats} \\
+	\Hpsi(\Ht) = \psi_0\min_{0\leq\tau\leq \Ht}\qty( 1-\Hphi(\Hh(\tau)) ), \label{eq:porosity_hats} \\
 	\qty(1 - \Hpsi) \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\pdv{\Hh_*}{\Hx_D} +
 	    \Halpha\HT + \epsilon\Hsigma \qty(\HT + \HT_0)^{D+1} =
 	    \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\qty(\Hx_i-\Hx_{Bi}(t))^2 ). \label{eq:bc_hats}
 \end{gather}
-The initial condition is \(\Hh = 0\).
+The initial condition is \(\Hh = 0\) and \(\Hpsi = \psi_0\).
 
 \subsection{Thermophysical properties}
 
@@ -177,6 +178,7 @@ where \(\Hf_{L0} = 1 + \Hf'_S - \Hf'_L + \fusion{\Hf}\).
 
 \subsection{Temperature evaluation}
 
+%%% 5-parameter model
 For arbitrary \(\Hphi(\Hh)\), solution of~\eqref{eq:enthalpy_hats} is not straightforward.
 However, the temperature is included in~\eqref{eq:heat_conduction_hats} and~\eqref{eq:bc_hats}
 only through thermophysical properties and, therefore, can be evaluated approximately.
@@ -201,6 +203,7 @@ Indeed,~\eqref{eq:enthalpy_phi_params} results from the following assumption:
 \end{equation}
 where \(\Hc'_{pS,L}\) is defined as~\eqref{eq:thermophysical_model_explicit}.
 
+%%% Explicit formulas for temperature
 Actually,~\eqref{eq:enthalpy_phi} is the quadratic equation with respect to \(\HT\), hence
 \begin{equation}\label{eq:temp_phi}
 	\HT = \frac{\sqrt{g_1^2 + 2g_2g_3}-g_1}{g_2}, \quad
@@ -214,6 +217,7 @@ where
 
 \subsection{Liquid fraction models}
 
+%%% Requirements
 Denote \(\Hh_1 = \Hh(1)\), \(\Hphi'_1 = \Hphi'(\Hh_1)\) and
 impose the following requirements upon \(\Hphi(\Hh)\):
 \begin{gather}
@@ -225,14 +229,19 @@ impose the following requirements upon \(\Hphi(\Hh)\):
 	    \phi(\Hh) = 1+\order{(\Hh-\Hh_1)^{-\infty}} \quad (\Hh > \Hh_1).
 	\end{cases}\label{eq:lf_exp_decay}
 \end{gather}
-Inequalities~\eqref{eq:lf_monotonic} are the monotonic condition and boundedness of the fusion rate,
+Thickness of the solid-liquid interface is defined by~\eqref{eq:lf_derivative},
+inequalities~\eqref{eq:lf_monotonic} are the monotonic condition and boundedness of the fusion rate,
 \eqref{eq:lf_symmetric} is the symmetric property,
 and~\eqref{eq:lf_exp_decay} describes fast decay of \(\Hphi(\Hh)\) outside the fusion range.
+Note that \(\Hphi_1 = \Hphi(\Hh_1) = 1/2\).
+
+%%% Examples of \Hphi'_1
 The fixed value of \(\Hphi'_1\) depends only on \(\HT_{S,L}\), \(\Hc'_{pS,L}\), \(\fusion{\Hh}\), and \(\fusion{\Hc_p}\).
 Incidentally, \(\Hphi'_1 = (\fusion{\Hh})^{-1}\) when \(\HT_S=\HT_L\)
 and \(\Hphi'_1 = (\fusion{\Hh}+\delta\fusion{\HT})^{-1}\) for constant heat capacity,
 where \(\delta\fusion{\HT} = \HT_L - \HT_S\).
 
+%%% Examples of liquid fraction models
 The simplest \(\mathcal{C}^0\) model for \(\Hphi(\Hh)\) can be constructed as a piecewise approximation
 \begin{equation}\label{eq:lf_piecewise}
 	\Hphi = \begin{cases}
@@ -246,36 +255,84 @@ The hyperbolic tangent yields \(\mathcal{C}^\infty\) model
 	\Hphi = \frac1{1+\exp\qty(-4\Hphi'_1(\Hh-\Hh_1))}.
 \end{equation}
 
+\subsection{Solid--liquid interface thickness}
+
+Let local interface thickness be defined at isotherm \(\HT=1\) as
+\begin{equation}\label{eq:thickness}
+    \delta\fusion{\Hx} = \qty|\pdv{\Hphi}{\Hx_i}|^{-1}.
+\end{equation}
+It can be evaluated after substitution~\eqref{eq:lf_derivative} into~\eqref{eq:enthalpy}, which gives
+\begin{equation}\label{eq:phi_vs_temp}
+    \pdv{\Hphi}{\Hx_i}\qty(\Hh_L(\HT_L)-\Hh_S(\HT_S)-\fusion{\Hh}) = \Hc_p(\HT)\pdv{\HT}{\Hx_i}.
+\end{equation}
+For constant thermophysical properties,
+\begin{equation}\label{eq:thickness_simple}
+    \fusion{\delta\Hx} = \delta\fusion{\HT}\qty|\pdv{\HT}{\Hx_i}|^{-1}.
+\end{equation}
+
 \section{Numerical methods}
 
-\subsection{Perturbation and its diagonal part}
+Adaptive wavelet collocation method (AWCM) is employed for numerical solution of the problem
+in order to capture solid-liquid interface with high accuracy while preserving computational efficiency.
 
-With~\eqref{eq:heat_conduction_hats},~\eqref{eq:thermophysical_model},~\eqref{eq:temp_phi}
-and arbitrary \(\Hphi(\Hh)\), we can employ the following expressions for numerical solution of \(\pdv*{h}{t}=\mathcal{F}(h)\):
-\begin{gather}
-    \mathcal{F} = \dder{\Hx_i}\qty(
-        \frac{1 - \Hpsi}{1 - \psi_0} \frac{\Hk_0(\HT)}{\Hc_p(\HT)} \dder[\Hh_*]{\Hx_i}
-	), \\
-    \var{\mathcal{F}} = \dder{\Hx_i}\qty[ \frac{1 - \Hpsi}{1 - \psi_0} \qty(
-	    \dv{\Hh}(\frac{\Hk_0(\HT)}{\Hc_p(\HT)})\var{\Hh}\dder[\Hh_*]{\Hx_i} +
-	    \frac{\Hk_0(\HT)}{\Hc_p(\HT)} \dder[\var{\Hh_*}]{\Hx_i}
-	)], \\
-    \diag{\fdv{\mathcal{F}}{h}} = \frac{1 - \Hpsi}{1 - \psi_0} \qty(
-	    \dv{\Hh}(\frac{\Hk_0(\HT)}{\Hc_p(\HT)})\dder[\Hh_*]{\Hx_i} \diag{\dder{\Hx_i}} +
-	    \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\dv{\Hh_*}{\Hh} \diag{\dder{\Hx_i}^2}
-	).
-\end{gather}
+\subsection{Time-marching scheme}
+
+Evolution equation \(\pdv*{h}{t}=\mathcal{F}(h)\) is solved by the Crank--Nicolson time integration method.
+The discretization of the right-hand side~\eqref{eq:heat_conduction_hats}
+\begin{equation}\label{eq:rhs}
+    \mathcal{F} = \dder{\Hx_i}\qty(a \dder[\Hh_*]{\Hx_i})
+\end{equation}
+is linearized as
+\begin{equation}\label{eq:Drhs}
+    \var{\mathcal{F}} = \dder{\Hx_i}\qty[ a'\var{\Hh}\dder[\Hh_*]{\Hx_i} + a\dder[\var{\Hh_*}]{\Hx_i} ],
+\end{equation}
+where \(\dder{\Hx_i}\) is the finite-difference approximation of the gradient,
+\begin{equation}\label{eq:a}
+    a(h) = \frac{1-\Hpsi}{1-\psi_0}\frac{\Hk_0(\HT)}{\Hc_p(\HT)}.
+\end{equation}
+The resulting linear system is solved by the BICGSTAB (Biconjugate Gradient Stabilized) algorithm.
+To accelerate convergence, the preconditioning procedure based on the following diagonal term is used:
+\begin{equation}\label{eq:Drhs_diag}
+    \diag{\fdv{\mathcal{F}}{h}} = a'\diag{\dder{\Hx_i}} \dder[\Hh_*]{\Hx_i} +
+        a\Hh'_*\diag{\dder{\Hx_i}^2},
+\end{equation}
+where \(\diag{\mathcal{L}}\) is the diagonal part of finite-difference operator \(\mathcal{L}\).
+
+Since the present problem is interface-driven, the computational mesh is refined according to
+the wavelet-based local interpolation error for \(a\) and \(\Hh_*\).
 
 \subsection{Boundary conditions}
-Linearization of the boundary condition~\eqref{eq:bc_hats} around \(\Hh^n\) leads to
+
+Linearization of the boundary condition~\eqref{eq:bc_hats} around \(\Hh\) leads to
 \begin{equation}\label{eq:bc_linearized}
-    \qty(1 - \Hpsi^n) \frac{\Hk_0(\HT^n)}{\Hc_p(\HT^n)} \qty(1-\fusion{\Hh}\Hphi'(\Hh^n))\pdv{\Hh}{\Hx_D} +
-	    F^n + \dv{F^n}{\HT}\dv{\HT^n}{\Hh}\qty(\Hh - \Hh^n) =
-	    \frac{A(\Hpsi^n)\HP}{\pi^{(D-1)/2}}\exp\qty( -\qty(\Hx_i-\Hx_{Bi}^n)^2 ),
+    \qty(b' + a\qty(1 - \psi_0) \Hh'_* \dder{\Hx_D})\var{\Hh} =
+	    \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\qty(\Hx_i-\Hx_{Bi})^2 ) - b,
 \end{equation}
-where superscript \(n\) corresponds to values calculated at the previous time step and
+where
 \begin{equation}\label{eq:bc_Dirichlet_part}
-    F(\HT) = \Halpha\HT + \epsilon\Hsigma\qty(\HT + \HT_0)^{D+1}.
+    b(\Hh) = \Halpha\HT + \epsilon\Hsigma\qty(\HT + \HT_0)^{D+1}.
+\end{equation}
+
+\subsection{Porosity evaluation}
+
+The porosity defined in~\eqref{eq:porosity_hats} can be evaluated as
+\begin{equation}\label{eq:porosity_eval}
+    \Hpsi_0 = \psi_0, \quad \Hpsi_n = \min\qty(\Hpsi_{n-1}, \psi_0(1-\Hphi_n)) \quad (n\in\mathbb{N}),
+\end{equation}
+where subscript \(n\) corresponds to the value at \(n\) time iteration.
+Its first derivative
+\begin{equation}\label{eq:Dporosity}
+    \Hpsi' = -\psi_0\max\qty(0, \Hphi') \begin{cases}
+        1, \quad \Hpsi = \psi_0(1-\Hphi), \\
+        0, \quad \Hpsi < \psi_0(1-\Hphi)
+    \end{cases}
+\end{equation}
+can be evaluated as
+\begin{equation}\label{eq:Dporosity_eval}
+    \Hpsi'_0 = 0, \quad \Hpsi'_n = -\psi_0\Hpsi'_n \begin{cases}
+        1, \quad \Hpsi_n < \Hpsi_{n-1}, \\
+        0, \quad \Hpsi_n = \Hpsi_{n-1}
+    \end{cases}\quad (n\in\mathbb{N}).
 \end{equation}
 
 \subsection{Initial conditions}
@@ -287,7 +344,7 @@ For instance, consider the following two-parameter model:
 \begin{gather}
     \HT = \HT_p\exp\qty( \frac{\Hx_D^2 - \qty[\Hx_i-\Hx_{Bi}(0)]^2}{\HR_p^2} )
         \exp\qty(\lambda \Hx_D - \frac{\Hx_D^2}{\HR_p^2}), \label{eq:ic_hats}\\
-    \lambda = \eval{ \frac{A(\Hpsi)\HP\exp\qty( -\qty(\Hx_i-\Hx_{Bi}^n)^2\qty(1-\HR_p^{-2}) )}
+    \lambda = \eval{ \frac{A(\Hpsi)\HP\exp\qty( -\qty(\Hx_i-\Hx_{Bi})^2\qty(1-\HR_p^{-2}) )}
         {\pi^{(D-1)/2}\HT_p k_0(\HT)(1-\Hpsi)} }_{\Hx_D=0}, \label{eq:lambda}
 \end{gather}
 where arbitrary \(\HT_p\) and \(\HR_p\) correspond to the maximum temperature
@@ -297,5 +354,6 @@ The depth of the initial melting pool is governed by \(\HT_p\).
 Convective and radiative heat transfers are neglected in~\eqref{eq:ic_hats}.
 The initial condition for the enthalpy can be calculated from~\eqref{eq:enthalpy_phi}
 based on the appropriate approximation of \(\Hphi(\HT)\).
+
 
 \end{document}
