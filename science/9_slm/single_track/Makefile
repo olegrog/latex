@@ -3,7 +3,7 @@ PDF = $(VTK:.vtk=.pdf)
 
 all: $(PDF)
 
-%.pdf: %.tex 
+%.pdf: %.tex
 	pdflatex $< > /dev/null
 	rm $*{-inc-eps-converted-to.pdf,-inc.eps,.aux,.log}
 
