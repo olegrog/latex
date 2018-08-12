@@ -159,6 +159,8 @@ get_references = lambda system: map(lambda q: (q + '({})'.format(args.zero_temp)
         filter(lambda q: der_name(q) in system._asdict(), system._asdict().keys()))
 dimensional = [
     ( 'time', 'second', basis1 ),
+    ( 'length', 'meter', basis1 ),
+    ( 'velocity', 'm/s', basis1 ),
 ] + get_references(alloy)
 
 print 'Dimension units:'

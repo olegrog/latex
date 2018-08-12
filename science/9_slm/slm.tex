@@ -14,6 +14,18 @@
     colorlinks
 ]{hyperref}
 
+\usepackage[
+    backend=biber,
+    style=numeric,
+    sorting=none,
+    maxbibnames=99, minbibnames=99,
+    natbib=true,
+    url=false,
+    eprint=true,
+    pagetracker,
+    giveninits]{biblatex}
+\bibliography{slm}
+
 \title{Macroscopic model for the SLM process}
 \date{\today}
 \author{Oleg Rogozin}
@@ -51,22 +63,23 @@ The conservation of energy for a substance at rest is described by the \(D\)-dim
 where \(x_i\) are the physical coordinates (\si{m}), \(t\) is the time (\si{s}),
 \(\rho\) is the density (\si{kg/m}\(^D\)), \(h\) is the specific enthalpy (\si{J/kg}),
 \(T\) is the temperature (\si{\K}), \(k\) is the thermal conductivity (\si{W/Km}\(^{D-2}\)),
-\(\psi\) is the porosity. Let
+\(\psi\) is the porosity, and the Einstein notation is assumed. Let
 \begin{equation}\label{eq:porosity_variables}
 	\rho = \rho_0(1-\psi_0), \quad k = k_0(T)(1-\psi),
 \end{equation}
-where \(\rho_0\) and \(k_0\) is the density and thermal conductivity of the bulk material, respectively,
-\(\psi_0\) is the initial porosity.
+where \(\rho_0\) and \(k_0\) are the density and thermal conductivity of the bulk material, respectively,
+and \(\psi_0\) is the initial porosity.
 
 %%% Introduce a liquid fraction
-To incorporate the fusion process into the model, let the enthalpy depends on the temperature as follows:
+To incorporate the fusion process into the model, the following dependance of \(h\) on \(T\) is assumed:
 \begin{equation}\label{eq:enthalpy}
 	h = \int_{T_0}^T c_p(\xi)\dd{\xi} + \fusion{h}\phi(h),
 \end{equation}
 where \(c_p\) is the specific heat capacity (\si{J/kgK}), \(\fusion{h}\) is the specific enthalpy of fusion (\si{J/kg}),
 \(\phi\) is the liquid fraction (\(0 \leq \phi \leq 1\)).
-\(\phi=0\) and \(\phi=1\) corresponds to the solid and liquid states, respectively.
-Substituting~\eqref{eq:porosity_variables} and~\eqref{eq:enthalpy} into~\eqref{eq:heat_conduction}, we obtain
+The limits \(\phi=0\) and \(\phi=1\) correspond to the solid and liquid states, respectively.
+Substituting Eqs.~\eqref{eq:porosity_variables} and~\eqref{eq:enthalpy} into Eq.~\eqref{eq:heat_conduction},
+the governing equation for \(h\) becomes
 \begin{equation}\label{eq:heat_conduction2}
 	\rho_0\pdv{h}{t} = \pdv{x_i}\qty( \frac{1-\psi}{1-\psi_0} \frac{k_0(T)}{c_p(T)}\pdv{h_*}{x_i} ),
 \end{equation}
@@ -85,19 +98,19 @@ The porosity change is irreversible in time:
 \end{equation}
 
 %%% Initial and boundary conditions
-Consider a half-space problem \(x_D<0\) with the following boundary condition at \(x_D=0\):
+Let us consider a half-space problem \(x_D<0\) with the following boundary condition at \(x_D=0\):
 \begin{equation}\label{eq:bc}
-	k(\psi,T)\pdv{T}{x_D} = \frac{A(\psi)P}{(\pi R^2)^{(D-1)/2}}\exp\qty( -\frac{(x_i-x_{Bi}(t))^2}{R^2} )
+	k(\psi,T)\pdv{T}{x_D} = \frac{A(\psi)P}{(\pi R^2)^{(D-1)/2}}\exp\qty( -\sum_{i\neq D}\frac{\qty[x_i-x_{Bi}(t)]^2}{R^2} )
 	    - \alpha(T-T_0) - \epsilon\sigma T^{D+1},
 \end{equation}
 where \(A\) is the absorptivity, \(P\) is the laser power (\si{W}), \(R\) is the radius of the laser beam (\si{m}),
 \(x_{Bi}\) are the coordinates of its center (\si{m}), \(\alpha\) is the convective heat transfer coefficient (\si{W/Km}\(^{D-1}\)),
 \(\epsilon\) is the emissivity, \(\sigma\) is the Stefan--Boltzmann constant (\si{W/K}\(^{D+1}\)\si{m}\(^{D-1}\)).
-The initial condition is \(T=T_0\) at \(t=0\).
+The initial condition at \(t=0\) is \(T=T_0\), \(\Hpsi = \psi_0\) and \(\Hpsi = 0\) for the powder and solid states, respectively.
 
 \subsection{Dimensionless expressions}
 
-Introduce the following dimensionless variables:
+In the present study, the variables are dimensionalized as follows:
 \begin{equation}\label{eq:dimensionless}
     \begin{aligned}
         x_i &= \Hx_iR, & t &= \Ht t_0, & h &= \Hh c_p(T_0)\Delta{T}, & T - T_0 &= \HT\Delta{T}, \\
@@ -126,9 +139,9 @@ Then~\eqref{eq:enthalpy},~\eqref{eq:heat_conduction2},~\eqref{eq:porosity} and~\
 	\Hpsi(\Ht) = \psi_0\min_{0\leq\tau\leq \Ht}\qty( 1-\Hphi(\Hh(\tau)) ), \label{eq:porosity_hats} \\
 	\qty(1 - \Hpsi) \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\pdv{\Hh_*}{\Hx_D} +
 	    \Halpha\HT + \epsilon\Hsigma \qty(\HT + \HT_0)^{D+1} =
-	    \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\qty(\Hx_i-\Hx_{Bi}(t))^2 ). \label{eq:bc_hats}
+	    \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\sum_{i\neq D}\qty[\Hx_i-\Hx_{Bi}(t)]^2 ). \label{eq:bc_hats}
 \end{gather}
-The initial condition is \(\Hh = 0\) and \(\Hpsi = \psi_0\).
+The initial condition is \(\Hh = 0\).
 
 \subsection{Thermophysical properties}
 
@@ -272,17 +285,17 @@ For constant thermophysical properties,
 
 \section{Numerical methods}
 
-Adaptive wavelet collocation method (AWCM) is employed for numerical solution of the problem
+Parallel Adaptive Wavelet Collocation Method (PAWCM)~\cite{Vasilyev2015} is employed for numerical solution of the problem
 in order to capture solid-liquid interface with high accuracy while preserving computational efficiency.
 
 \subsection{Time-marching scheme}
 
-Evolution equation \(\pdv*{h}{t}=\mathcal{F}(h)\) is solved by the Crank--Nicolson time integration method.
+Evolution equation \(\pdv*{h}{t}=\mathcal{F}(h)\) is solved by the linearized Crank--Nicolson time integration method.
 The discretization of the right-hand side~\eqref{eq:heat_conduction_hats}
 \begin{equation}\label{eq:rhs}
     \mathcal{F} = \dder{\Hx_i}\qty(a \dder[\Hh_*]{\Hx_i})
 \end{equation}
-is linearized as
+is perturbed as
 \begin{equation}\label{eq:Drhs}
     \var{\mathcal{F}} = \dder{\Hx_i}\qty[ a'\var{\Hh}\dder[\Hh_*]{\Hx_i} + a\dder[\var{\Hh_*}]{\Hx_i} ],
 \end{equation}
@@ -294,19 +307,19 @@ The resulting linear system is solved by the BICGSTAB (Biconjugate Gradient Stab
 To accelerate convergence, the preconditioning procedure based on the following diagonal term is used:
 \begin{equation}\label{eq:Drhs_diag}
     \diag{\fdv{\mathcal{F}}{h}} = a'\diag{\dder{\Hx_i}} \dder[\Hh_*]{\Hx_i} +
-        a\Hh'_*\diag{\dder{\Hx_i}^2},
+        a\Hh'_*\diag{\dder{\Hx_i}\dder{\Hx_i}},
 \end{equation}
 where \(\diag{\mathcal{L}}\) is the diagonal part of finite-difference operator \(\mathcal{L}\).
 
-Since the present problem is interface-driven, the computational mesh is refined according to
-the wavelet-based local interpolation error for \(a\) and \(\Hh_*\).
+The computational mesh is refined adaptively at every time step
+according to the local interpolation error for \(a\), \(\Hphi\), and \(\HT\).
 
 \subsection{Boundary conditions}
 
 Linearization of the boundary condition~\eqref{eq:bc_hats} around \(\Hh\) leads to
 \begin{equation}\label{eq:bc_linearized}
     \qty(b' + a\qty(1 - \psi_0) \Hh'_* \dder{\Hx_D})\var{\Hh} =
-	    \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\qty(\Hx_i-\Hx_{Bi})^2 ) - b,
+	    \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\sum_{i\neq D}\qty(\Hx_i-\Hx_{Bi})^2 ) - b,
 \end{equation}
 where
 \begin{equation}\label{eq:bc_Dirichlet_part}
@@ -329,7 +342,7 @@ Its first derivative
 \end{equation}
 can be evaluated as
 \begin{equation}\label{eq:Dporosity_eval}
-    \Hpsi'_0 = 0, \quad \Hpsi'_n = -\psi_0\Hpsi'_n \begin{cases}
+    \Hpsi'_0 = 0, \quad \Hpsi'_n = -\psi_0\Hphi'_n \begin{cases}
         1, \quad \Hpsi_n < \Hpsi_{n-1}, \\
         0, \quad \Hpsi_n = \Hpsi_{n-1}
     \end{cases}\quad (n\in\mathbb{N}).
@@ -342,18 +355,17 @@ It means that the initial condition should satisfy~\eqref{eq:bc_hats} at \(\Hx_D
 and decay exponentially to zero as we approach other boundaries.
 For instance, consider the following two-parameter model:
 \begin{gather}
-    \HT = \HT_p\exp\qty( \frac{\Hx_D^2 - \qty[\Hx_i-\Hx_{Bi}(0)]^2}{\HR_p^2} )
+    \HT = \HT_p\exp\qty( -\sum_{i\neq D}\frac{\qty[\Hx_i-\Hx_{Bi}(0)]^2}{\HR_p^2} )
         \exp\qty(\lambda \Hx_D - \frac{\Hx_D^2}{\HR_p^2}), \label{eq:ic_hats}\\
-    \lambda = \eval{ \frac{A(\Hpsi)\HP\exp\qty( -\qty(\Hx_i-\Hx_{Bi})^2\qty(1-\HR_p^{-2}) )}
+    \lambda = \eval{ \frac{A(\Hpsi)\HP\exp\qty( -\sum_{i\neq D}\qty(\Hx_i-\Hx_{Bi})^2\qty(1-\HR_p^{-2}) )}
         {\pi^{(D-1)/2}\HT_p k_0(\HT)(1-\Hpsi)} }_{\Hx_D=0}, \label{eq:lambda}
 \end{gather}
 where arbitrary \(\HT_p\) and \(\HR_p\) correspond to the maximum temperature
 and radius of the initial melting pool, respectively.
 They can be chosen to mimic the near-steady state.
-The depth of the initial melting pool is governed by \(\HT_p\).
 Convective and radiative heat transfers are neglected in~\eqref{eq:ic_hats}.
-The initial condition for the enthalpy can be calculated from~\eqref{eq:enthalpy_phi}
-based on the appropriate approximation of \(\Hphi(\HT)\).
+The initial condition for the enthalpy is calculated as a solution of nonlinear equation~\eqref{eq:enthalpy_phi}.
 
+\printbibliography
 
 \end{document}
