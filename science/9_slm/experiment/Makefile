@@ -1,7 +1,7 @@
-PLOTS = width.pdf
-SOURCE = single_track.txt awesumm.txt
+PDF = width.pdf
+SOURCE = $(shell ls *.txt)
 
-all: $(PLOTS)
+all: $(PDF)
 
 %.pdf: %.tex
 	pdflatex $< > /dev/null

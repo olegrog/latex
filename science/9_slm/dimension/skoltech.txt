@@ -1,0 +1,7 @@
+laser_power         90      W
+layer_thickness     30      um
+scanning_speed      1     mm/s
+beam_radius         27.5    um
+bulk_temperature    20      degC
+track_length        2       mm
+convective_transfer 10      W/m**2/delta_degC

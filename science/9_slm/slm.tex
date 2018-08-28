@@ -5,6 +5,7 @@
 \usepackage{physics}
 \usepackage{siunitx}
 \usepackage{comment}
+\usepackage{subcaption}
 
 \usepackage{tikz}
 \usetikzlibrary{arrows}
@@ -26,11 +27,12 @@
     giveninits]{biblatex}
 \bibliography{slm}
 
-\title{Macroscopic model for the SLM process}
+\title{Multi-Scale Multi-Physics Modeling and Simulation of Selective Laser Melting}
 \date{\today}
-\author{Oleg Rogozin}
+\author{O.A.~Rogozin, E.L.~Sharaborin, A.V.~Vezolainen, O.V.~Vasilyev}
 
 \newcommand{\dder}[2][]{\Delta_{#2}#1}
+\newcommand{\transpose}[1]{#1^\mathsf{T}}
 \newcommand{\diag}[1]{\qty(#1)^\mathrm{diag}}
 \newcommand{\fusion}[1]{{#1}^\mathrm{fus}}
 
@@ -301,8 +303,9 @@ is perturbed as
 \end{equation}
 where \(\dder{\Hx_i}\) is the finite-difference approximation of the gradient,
 \begin{equation}\label{eq:a}
-    a(h) = \frac{1-\Hpsi}{1-\psi_0}\frac{\Hk_0(\HT)}{\Hc_p(\HT)}.
+    a(h) = \frac{1-\Hpsi}{1-\psi_0}\frac{\Hk_0(\HT)}{\Hc_p(\HT)}
 \end{equation}
+is the thermal diffusivity.
 The resulting linear system is solved by the BICGSTAB (Biconjugate Gradient Stabilized) algorithm.
 To accelerate convergence, the preconditioning procedure based on the following diagonal term is used:
 \begin{equation}\label{eq:Drhs_diag}
@@ -365,6 +368,161 @@ and radius of the initial melting pool, respectively.
 They can be chosen to mimic the near-steady state.
 Convective and radiative heat transfers are neglected in~\eqref{eq:ic_hats}.
 The initial condition for the enthalpy is calculated as a solution of nonlinear equation~\eqref{eq:enthalpy_phi}.
+
+\section{Single-track formation}
+
+In this section, formation of a single straight track from the only powder layer covering the solid substrate is investigated.
+For this problem, the boundary and initial conditions are supplemented with the following relations:
+\begin{gather}
+    x_{Bi} = \transpose{\qty(U_0,0,0)}t, \label{eq:single:bc} \\
+    \psi = \psi_0\begin{cases}
+        1, \quad x_D \geq -H, \\
+        0, \quad x_D < -H.
+    \end{cases}\label{eq:single:ic}
+\end{gather}
+where \(H\) is the thickness of the powder layer.
+\begin{equation}\label{eq:single:params}
+    \psi_0 = 0.4, \quad A = 0.3, \quad \epsilon = 0.3,
+\end{equation}
+and the corresponding thermophysical properties are assumed for the SS316L powder.
+
+\subsection{Two-dimensional problem}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{single_track/layer1_smooth2_mesh}
+    \caption{
+        The thermal diffusivity and computational mesh for the two-dimensional problem.
+    }\label{fig:2d:mesh}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{single_track/layer1_smooth2}
+    \caption{
+        Profiles of the nondimensional quantities along the symmetry axis.
+    }\label{fig:2d:profiles}
+\end{figure}
+
+From the computational point of view, the two-dimensional problem is much simpler than the three-dimensional one;
+therefore, it is considered first of all in order to illustrate the proposed model.
+Fig.~\ref{fig:2d:mesh} demonstrates how the computational mesh is effectively refined
+to capture \(a\) with near-constant accuracy over the whole computational domain.
+It is seen that the thermal diffusivity reaches its maximum in the point of the maximum temperature in the melting pool,
+decreases rapidly as approaching the solid-liquid interface, jumps after solidification (typical for the stainless steel alloys),
+and, finally, reduces to its minimum value in the powder region.
+The profiles of the nondimensional quantities along \(x_1\) axis for \(x_D=0\) are shown in Fig.~\ref{fig:2d:profiles}.
+
+\subsection{Three-dimensional problem}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.24\textwidth}
+        \includegraphics[width=\textwidth]{experiment/photos/90W_V100}
+        \caption{\SI{100}{mm/s}}
+    \end{subfigure}\:
+    \begin{subfigure}[b]{0.24\textwidth}
+        \includegraphics[width=\textwidth]{experiment/photos/90W_V300}
+        \caption{\SI{300}{mm/s}}
+    \end{subfigure}\:
+    \begin{subfigure}[b]{0.24\textwidth}
+        \includegraphics[width=\textwidth]{experiment/photos/90W_V600}
+        \caption{\SI{600}{mm/s}}
+    \end{subfigure}\:
+    \begin{subfigure}[b]{0.24\textwidth}
+        \includegraphics[width=\textwidth]{experiment/photos/90W_V900}
+        \caption{\SI{900}{mm/s}}
+    \end{subfigure}\\[6pt]
+    \begin{subfigure}[b]{0.24\textwidth}
+        \includegraphics[width=\textwidth]{experiment/photos/90W_V1200}
+        \caption{\SI{1200}{mm/s}}
+    \end{subfigure}\:
+    \begin{subfigure}[b]{0.24\textwidth}
+        \includegraphics[width=\textwidth]{experiment/photos/90W_V1500}
+        \caption{\SI{1500}{mm/s}}
+    \end{subfigure}\:
+    \begin{subfigure}[b]{0.24\textwidth}
+        \includegraphics[width=\textwidth]{experiment/photos/90W_V1800}
+        \caption{\SI{1800}{mm/s}}
+    \end{subfigure}\:
+    \begin{subfigure}[b]{0.24\textwidth}
+        \includegraphics[width=\textwidth]{experiment/photos/90W_V2100}
+        \caption{\SI{2100}{mm/s}}
+    \end{subfigure}\\[6pt]
+    \begin{subfigure}[b]{0.24\textwidth}
+        \includegraphics[width=\textwidth]{experiment/photos/90W_V2400}
+        \caption{\SI{2400}{mm/s}}
+    \end{subfigure}\:
+    \begin{subfigure}[b]{0.24\textwidth}
+        \includegraphics[width=\textwidth]{experiment/photos/90W_V2700}
+        \caption{\SI{2700}{mm/s}}
+    \end{subfigure}\:
+    \begin{subfigure}[b]{0.24\textwidth}
+        \includegraphics[width=\textwidth]{experiment/photos/90W_V3000}
+        \caption{\SI{3000}{mm/s}}
+    \end{subfigure}\:
+    \begin{subfigure}[b]{0.24\textwidth}
+        \includegraphics[width=\textwidth]{experiment/photos/powder}
+        \caption{powder}
+    \end{subfigure}
+    \caption{
+        Optical microscopy.
+        Single tracks after scanning the only powder layer by laser beam
+        with \(P=\SI{90}{W}\) and various speeds.
+    }
+    \label{fig:3d:experiment}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{experiment/width}
+    \caption{
+        The width of a track versus the scanning speed.
+        The solid and dashed lines correspond to the experimental and numerical results, respectively.
+    }\label{fig:3d:width}
+\end{figure}
+
+\begin{table}
+    \centering
+    \caption{
+        The track width \(d\) in dependence of the laser power \(P\) and scanning speed \(U_0\).
+    }\label{table:3d:width}
+    \centering
+    \begin{tabular}{|c|cccc|ccc|}\hline
+        & \multicolumn{4}{c|}{Experimental} & \multicolumn{3}{c|}{Numerical} \\\hline
+        \(P\) & \SI{60}{W} & \SI{90}{W} & \SI{120}{W} & \SI{150}{W} & \SI{60}{W} & \SI{90}{W} & \SI{150}{W} \\\hline
+        \(U_0\) (\si{mm/s}) & \multicolumn{4}{c|}{\(d\) (\si{\um})} & \multicolumn{3}{c|}{\(d\) (\si{\um})} \\\hline
+        100  & 175 & 220 & 245 & 270 &     &     &     \\
+        150  &     &     &     &     & 121 & 147 & 183 \\
+        300  & 105 & 140 & 145 & 165 & 106 & 129 & 165 \\
+        600  & 73  & 110 & 115 & 135 & 91  & 105 & 132 \\
+        900  & 65  & 80  & 90  & 110 &     &     &     \\
+        1200 & 58  & 70  & 78  & 90  & 73  & 87  & 105 \\
+        1500 & 50  & 60  & 70  & 80  &     &     &     \\
+        1800 & 46  & 50  & 55  & 72  &     &     &     \\
+        2100 & 42  & 45  & 52  & 68  &     &     &     \\
+        2400 & 38  & 40  & 52  & 73  & 62  & 74  & 87  \\
+        2700 & 33  & 40  & 52  & 70  &     &     &     \\
+        3000 & 30  & 36  & 50  & 64  &     &     &     \\\hline
+    \end{tabular}
+\end{table}
+
+In order to validate the proposed macroscopic model, a number of tracks was printed by Trumpf TruPrint 1000.
+Some pictures obtained from the optical microscope are shown in Fig.~\ref{fig:3d:experiment}.
+It is seen that too small scanning speed leads to overheating,
+but nonuniform and discontinuous tracks are observed for the opposite case.
+
+The current model is unable to describe such instabilities,
+but it is possible to compare the resulting track width.
+The following parameters are taken to reproduce the mention printing process:
+\begin{equation}\label{eq:single:trumpf}
+    2R=\SI{55}{\um}, \quad H=\SI{30}{\um}.
+\end{equation}
+As seen from Fig.~\ref{fig:3d:width} and Tab.~\ref{table:3d:width},
+the numerical and experimental results appear to be quite close, especially in the middle regimes (from 300 to 600 \si{mm/s}).
+In practice, they correspond to the main operating modes.
+Since fluid dynamics and surface tension, along with the powder structure, are not taken into account,
+the difference grows for the lowest and highest values of the scanning speed.
 
 \printbibliography
 
