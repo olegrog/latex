@@ -50,6 +50,8 @@
 \newcommand{\Hphi}{\hat{\phi}}
 \newcommand{\Hpsi}{\hat{\psi}}
 \newcommand{\HR}{\hat{R}}
+\newcommand{\HU}{\hat{U}}
+\newcommand{\HL}{\hat{L}}
 
 \begin{document}
 \maketitle
@@ -124,7 +126,7 @@ where \(t_0 = \rho_0 c_p(T_0) R^2/k_0(T_0)\) is the diffusive time scale at \(T=
 \(\Delta{T} = (T_S+T_L)/2 - T_0\) is the unit temperature,
 \(T_S\) and \(T_L\) are the solidus and liquidus temperatures, respectively.
 If \(|\pdv*{x_{Bi}}{t}|\) is of order \(U_0\), where \(U_0\) is the reference scanning speed (\si{m/s}),
-then \(R/U_0\) is the convective time scale. Also denote
+then \(R/U_0=t_0/\HU_0\) is the convective time scale. Also denote
 \begin{equation}\label{eq:dimensionless2}
     \Hc_p(\HT) = \frac{c_p(T)}{c_p(T_0)}, \quad
     \Hk_0(\HT) = \frac{k_0(T)}{k_0(T_0)}, \quad
@@ -270,7 +272,14 @@ The hyperbolic tangent yields \(\mathcal{C}^\infty\) model
 	\Hphi = \frac1{1+\exp\qty(-4\Hphi'_1(\Hh-\Hh_1))}.
 \end{equation}
 
-\subsection{Solid--liquid interface thickness}
+\subsection{Space and time scales}
+
+It is possible to identify several space scales in the considered problem:
+\begin{itemize}
+    \item solid--liquid interface thickness \(\delta\fusion{\Hx}\),
+    \item radius of the laser beam \(1\),
+    \item length of the whole domain \(\HL\).
+\end{itemize}
 
 Let local interface thickness be defined at isotherm \(\HT=1\) as
 \begin{equation}\label{eq:thickness}
@@ -284,6 +293,14 @@ For constant thermophysical properties,
 \begin{equation}\label{eq:thickness_simple}
     \fusion{\delta\Hx} = \delta\fusion{\HT}\qty|\pdv{\HT}{\Hx_i}|^{-1}.
 \end{equation}
+
+There is also a set of time scales:
+\begin{itemize}
+    \item diffusive \(\Ht_\mathrm{diff} = 1\),
+    \item convective \(\Ht_\mathrm{conv} = \HU_0^{-1}\),
+    \item fusion \(\Ht_\mathrm{fus} = (1+\fusion{\Hh})/\HP\).
+\end{itemize}
+If the fusion time scale is less than the convective one, the melting pool is formed under the influence of the laser heat source.
 
 \section{Numerical methods}
 
