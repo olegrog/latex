@@ -53,6 +53,10 @@
 \newcommand{\HU}{\hat{U}}
 \newcommand{\HL}{\hat{L}}
 
+\newcommand\OVV[1]{{\color{magenta}#1}}
+\newcommand\OVVl[1]{{\color{magenta}$\leftarrow$[{\em #1}]}}
+\newcommand\OVVr[1]{{\color{magenta} [{\em #1}]$\rightarrow$}}
+
 \begin{document}
 \maketitle
 \tableofcontents
@@ -62,14 +66,14 @@
 %%% The first law of thermodynamics
 The conservation of energy for a substance at rest is described by the \(D\)-dimensional heat-conduction equation
 \begin{equation}\label{eq:heat_conduction}
-	\rho\pdv{h(T)}{t} = \pdv{x_i}\qty( k(\psi,T)\pdv{T}{x_i} ),
+    \rho\pdv{h(T)}{t} = \pdv{x_i}\qty( k(\psi,T)\pdv{T}{x_i} ),
 \end{equation}
 where \(x_i\) are the physical coordinates (\si{m}), \(t\) is the time (\si{s}),
 \(\rho\) is the density (\si{kg/m}\(^D\)), \(h\) is the specific enthalpy (\si{J/kg}),
 \(T\) is the temperature (\si{\K}), \(k\) is the thermal conductivity (\si{W/Km}\(^{D-2}\)),
 \(\psi\) is the porosity, and the Einstein notation is assumed. Let
 \begin{equation}\label{eq:porosity_variables}
-	\rho = \rho_0(1-\psi_0), \quad k = k_0(T)(1-\psi),
+    \rho = \rho_0(1-\psi_0), \quad k = k_0(T)(1-\psi),
 \end{equation}
 where \(\rho_0\) and \(k_0\) are the density and thermal conductivity of the bulk material, respectively,
 and \(\psi_0\) is the initial porosity.
@@ -77,7 +81,7 @@ and \(\psi_0\) is the initial porosity.
 %%% Introduce a liquid fraction
 To incorporate the fusion process into the model, the following dependance of \(h\) on \(T\) is assumed:
 \begin{equation}\label{eq:enthalpy}
-	h = \int_{T_0}^T c_p(\xi)\dd{\xi} + \fusion{h}\phi(h),
+    h = \int_{T_0}^T c_p(\xi)\dd{\xi} + \fusion{h}\phi(h),
 \end{equation}
 where \(c_p\) is the specific heat capacity (\si{J/kgK}), \(\fusion{h}\) is the specific enthalpy of fusion (\si{J/kg}),
 \(\phi\) is the liquid fraction (\(0 \leq \phi \leq 1\)).
@@ -85,7 +89,7 @@ The limits \(\phi=0\) and \(\phi=1\) correspond to the solid and liquid states, 
 Substituting Eqs.~\eqref{eq:porosity_variables} and~\eqref{eq:enthalpy} into Eq.~\eqref{eq:heat_conduction},
 the governing equation for \(h\) becomes
 \begin{equation}\label{eq:heat_conduction2}
-	\rho_0\pdv{h}{t} = \pdv{x_i}\qty( \frac{1-\psi}{1-\psi_0} \frac{k_0(T)}{c_p(T)}\pdv{h_*}{x_i} ),
+    \rho_0\pdv{h}{t} = \pdv{x_i}\qty( \frac{1-\psi}{1-\psi_0} \frac{k_0(T)}{c_p(T)}\pdv{h_*}{x_i} ),
 \end{equation}
 where \(h_* = h - \fusion{h}\phi\) is introduced for convenience.
 
@@ -93,19 +97,19 @@ where \(h_* = h - \fusion{h}\phi\) is introduced for convenience.
 The phase transition results in an abrupt change in the thermophysical properties \(f=c_p,k_0\) of the material;
 therefore, they can be expressed as
 \begin{equation}\label{eq:fusion_change}
-	f = f_S(T) + \qty( f_L(T) - f_S(T) )\phi,
+    f = f_S(T) + \qty( f_L(T) - f_S(T) )\phi,
 \end{equation}
 where \(f_S\) and \(f_L\) correspond to solid and liquid properties.
 The porosity change is irreversible in time:
 \begin{equation}\label{eq:porosity}
-	\psi(t) = \psi_0\min_{0\leq\tau\leq t}\qty( 1-\phi(h(\tau)) ).
+    \psi(t) = \psi_0\min_{0\leq\tau\leq t}\qty( 1-\phi(h(\tau)) ).
 \end{equation}
 
 %%% Initial and boundary conditions
 Let us consider a half-space problem \(x_D<0\) with the following boundary condition at \(x_D=0\):
 \begin{equation}\label{eq:bc}
-	k(\psi,T)\pdv{T}{x_D} = \frac{A(\psi)P}{(\pi R^2)^{(D-1)/2}}\exp\qty( -\sum_{i\neq D}\frac{\qty[x_i-x_{Bi}(t)]^2}{R^2} )
-	    - \alpha(T-T_0) - \epsilon\sigma T^{D+1},
+    k(\psi,T)\pdv{T}{x_D} = \frac{A(\psi)P}{(\pi R^2)^{(D-1)/2}}\exp\qty( -\sum_{i\neq D}\frac{\qty[x_i-x_{Bi}(t)]^2}{R^2} )
+        - \alpha(T-T_0) - \epsilon\sigma T^{D+1},
 \end{equation}
 where \(A\) is the absorptivity, \(P\) is the laser power (\si{W}), \(R\) is the radius of the laser beam (\si{m}),
 \(x_{Bi}\) are the coordinates of its center (\si{m}), \(\alpha\) is the convective heat transfer coefficient (\si{W/Km}\(^{D-1}\)),
@@ -135,15 +139,15 @@ then \(R/U_0=t_0/\HU_0\) is the convective time scale. Also denote
 \end{equation}
 Then~\eqref{eq:enthalpy},~\eqref{eq:heat_conduction2},~\eqref{eq:porosity} and~\eqref{eq:bc} take the following nondimensional form:
 \begin{gather}
-	\Hh_* \equiv \Hh - \fusion{\Hh}\Hphi = \int_0^{\HT} \Hc_p(\xi)\dd{\xi}, \label{eq:enthalpy_hats} \\
-	\pdv{\Hh}{\Ht} = \pdv{\Hx_i}\qty(
-	    \frac{1-\Hpsi}{1-\psi_0}
-	    \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\pdv{\Hh_*}{\Hx_i}
-	), \label{eq:heat_conduction_hats} \\
-	\Hpsi(\Ht) = \psi_0\min_{0\leq\tau\leq \Ht}\qty( 1-\Hphi(\Hh(\tau)) ), \label{eq:porosity_hats} \\
-	\qty(1 - \Hpsi) \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\pdv{\Hh_*}{\Hx_D} +
-	    \Halpha\HT + \epsilon\Hsigma \qty(\HT + \HT_0)^{D+1} =
-	    \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\sum_{i\neq D}\qty[\Hx_i-\Hx_{Bi}(t)]^2 ). \label{eq:bc_hats}
+    \Hh_* \equiv \Hh - \fusion{\Hh}\Hphi = \int_0^{\HT} \Hc_p(\xi)\dd{\xi}, \label{eq:enthalpy_hats} \\
+    \pdv{\Hh}{\Ht} = \pdv{\Hx_i}\qty(
+        \frac{1-\Hpsi}{1-\psi_0}
+        \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\pdv{\Hh_*}{\Hx_i}
+    ), \label{eq:heat_conduction_hats} \\
+    \Hpsi(\Ht) = \psi_0\min_{0\leq\tau\leq \Ht}\qty( 1-\Hphi(\Hh(\tau)) ), \label{eq:porosity_hats} \\
+    \qty(1 - \Hpsi) \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\pdv{\Hh_*}{\Hx_D} +
+        \Halpha\HT + \epsilon\Hsigma \qty(\HT + \HT_0)^{D+1} =
+        \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\sum_{i\neq D}\qty[\Hx_i-\Hx_{Bi}(t)]^2 ). \label{eq:bc_hats}
 \end{gather}
 The initial condition is \(\Hh = 0\).
 
@@ -152,16 +156,16 @@ The initial condition is \(\Hh = 0\).
 For conventional materials, the required thermophysical properties can be reasonably approximated
 by the three-parameter model (Fig.~\ref{fig:thermophysical})
 \begin{equation}\label{eq:thermophysical_model}
-	\Hf = 1 + \Hf'_S\HT + \qty[
-	    \fusion{\Hf} + \qty(\Hf'_L-\Hf'_S) \qty(\HT-1)
-	]\Hphi,
+    \Hf = 1 + \Hf'_S\HT + \qty[
+        \fusion{\Hf} + \qty(\Hf'_L-\Hf'_S) \qty(\HT-1)
+    ]\Hphi,
 \end{equation}
 where \(\Hf'_{S,L}\) are the corresponding constant first temperature derivatives far from fusion process,
 \(\fusion{\Hf}\) is the property jump at the phase transition.
 Matching~\eqref{eq:thermophysical_model} with~\eqref{eq:fusion_change}, we obtain
 \begin{equation}\label{eq:thermophysical_model_explicit}
-	\Hf_S = 1 + \Hf'_S\HT, \quad
-	\Hf_L = \Hf_{L0} + \Hf'_L\HT,
+    \Hf_S = 1 + \Hf'_S\HT, \quad
+    \Hf_L = \Hf_{L0} + \Hf'_L\HT,
 \end{equation}
 where \(\Hf_{L0} = 1 + \Hf'_S - \Hf'_L + \fusion{\Hf}\).
 
@@ -202,34 +206,34 @@ only through thermophysical properties and, therefore, can be evaluated approxim
 Several approaches can be employed to work around this difficulty.
 We employ the \(\Hphi\)-based approximation~\eqref{eq:fusion_change} based on the five-parameter model:
 \begin{equation}\label{eq:enthalpy_phi}
-	\Hh = \Hh'_S\HT + \frac{\Hh''_S}2\HT^2 + \qty[
-	    \fusion{\Hh} + \qty(\Hh'_L-\Hh'_S) \qty(\HT-1) + \frac{\Hh''_L-\Hh''_S}2 \qty( \HT^2-1 )
-	]\Hphi,
+    \Hh = \Hh'_S\HT + \frac{\Hh''_S}2\HT^2 + \qty[
+        \fusion{\Hh} + \qty(\Hh'_L-\Hh'_S) \qty(\HT-1) + \frac{\Hh''_L-\Hh''_S}2 \qty( \HT^2-1 )
+    ]\Hphi,
 \end{equation}
 where
 \begin{equation}\label{eq:enthalpy_phi_params}
-	\Hh'_S = 1, \quad \Hh'_L = 1 + \Hc'_{pS} - \Hc'_{pL} + \fusion{\Hc}_p, \quad
-	\Hh''_S = \Hc'_{pS}, \quad \Hh''_L = \Hc'_{pL}
+    \Hh'_S = 1, \quad \Hh'_L = 1 + \Hc'_{pS} - \Hc'_{pL} + \fusion{\Hc}_p, \quad
+    \Hh''_S = \Hc'_{pS}, \quad \Hh''_L = \Hc'_{pL}
 \end{equation}
 should be satisfied for~\eqref{eq:enthalpy_phi} to be consistent with \(\Hc_p(\HT)\)
 defined by~\eqref{eq:thermophysical_model}.
 Indeed,~\eqref{eq:enthalpy_phi_params} results from the following assumption:
 \begin{equation}\label{eq:enthalpy_phi_explicit}
-	\Hh_S(\HT) = \int_0^{\HT} \Hc_{pS}(\xi)\dd{\xi}, \quad
-	\Hh_L(\HT) = \int_0^1 \Hc_{pS}(\xi)\dd{\xi} + \fusion{\Hh} + \int_1^{\HT} \Hc_{pL}(\xi)\dd{\xi},
+    \Hh_S(\HT) = \int_0^{\HT} \Hc_{pS}(\xi)\dd{\xi}, \quad
+    \Hh_L(\HT) = \int_0^1 \Hc_{pS}(\xi)\dd{\xi} + \fusion{\Hh} + \int_1^{\HT} \Hc_{pL}(\xi)\dd{\xi},
 \end{equation}
 where \(\Hc'_{pS,L}\) is defined as~\eqref{eq:thermophysical_model_explicit}.
 
 %%% Explicit formulas for temperature
 Actually,~\eqref{eq:enthalpy_phi} is the quadratic equation with respect to \(\HT\), hence
 \begin{equation}\label{eq:temp_phi}
-	\HT = \frac{\sqrt{g_1^2 + 2g_2g_3}-g_1}{g_2}, \quad
-	\dv{\HT}{\Hh} = \frac{g_3' - g_1'\HT - \frac12g_2'\HT^2}{g_2\HT + g_1},
+    \HT = \frac{\sqrt{g_1^2 + 2g_2g_3}-g_1}{g_2}, \quad
+    \dv{\HT}{\Hh} = \frac{g_3' - g_1'\HT - \frac12g_2'\HT^2}{g_2\HT + g_1},
 \end{equation}
 where
 \begin{equation}\label{eq:enthalpy3_phi}
     g_{1,2}(\Hh) = \Hh_S^{\prime,\prime\prime} (1-\Hphi) + \Hh_L^{\prime,\prime\prime}\Hphi, \quad
-	g_3(\Hh) = \Hh_* + \qty(\Hh_L' - \Hh_S' + \frac{\Hh_L'' - \Hh_S''}2)\Hphi.
+    g_3(\Hh) = \Hh_* + \qty(\Hh_L' - \Hh_S' + \frac{\Hh_L'' - \Hh_S''}2)\Hphi.
 \end{equation}
 
 \subsection{Liquid fraction models}
@@ -242,9 +246,9 @@ impose the following requirements upon \(\Hphi(\Hh)\):
     0 \leq \Hphi' \leq \Hphi'_1, \label{eq:lf_monotonic}\\
     \Hphi(\Hh_1 - \Hh) = 1-\Hphi(\Hh) \quad (\Hh\geq\Hh_1), \label{eq:lf_symmetric}\\
     \begin{cases}
-	    \phi(\Hh) = \order{(\Hh_1-\Hh)^{-\infty}} \quad (\Hh < \Hh_1), \\
-	    \phi(\Hh) = 1+\order{(\Hh-\Hh_1)^{-\infty}} \quad (\Hh > \Hh_1).
-	\end{cases}\label{eq:lf_exp_decay}
+        \phi(\Hh) = \order{(\Hh_1-\Hh)^{-\infty}} \quad (\Hh < \Hh_1), \\
+        \phi(\Hh) = 1+\order{(\Hh-\Hh_1)^{-\infty}} \quad (\Hh > \Hh_1).
+    \end{cases}\label{eq:lf_exp_decay}
 \end{gather}
 Thickness of the solid-liquid interface is defined by~\eqref{eq:lf_derivative},
 inequalities~\eqref{eq:lf_monotonic} are the monotonic condition and boundedness of the fusion rate,
@@ -261,7 +265,7 @@ where \(\delta\fusion{\HT} = \HT_L - \HT_S\).
 %%% Examples of liquid fraction models
 The simplest \(\mathcal{C}^0\) model for \(\Hphi(\Hh)\) can be constructed as a piecewise approximation
 \begin{equation}\label{eq:lf_piecewise}
-	\Hphi = \begin{cases}
+    \Hphi = \begin{cases}
         0,                                            & \Hh \leq \Hh(\HT_S), \\
         \qty(\Hh-\Hh(\HT_S))\Hphi'_1, & \Hh(\HT_S) < \Hh < \Hh(\HT_L), \\
         1,                                            & \Hh(\HT_L) \leq \Hh.
@@ -269,7 +273,7 @@ The simplest \(\mathcal{C}^0\) model for \(\Hphi(\Hh)\) can be constructed as a 
 \end{equation}
 The hyperbolic tangent yields \(\mathcal{C}^\infty\) model
 \begin{equation}\label{eq:lf_tanh}
-	\Hphi = \frac1{1+\exp\qty(-4\Hphi'_1(\Hh-\Hh_1))}.
+    \Hphi = \frac1{1+\exp\qty(-4\Hphi'_1(\Hh-\Hh_1))}.
 \end{equation}
 
 \subsection{Space and time scales}
@@ -339,7 +343,7 @@ according to the local interpolation error for \(a\), \(\Hphi\), and \(\HT\).
 Linearization of the boundary condition~\eqref{eq:bc_hats} around \(\Hh\) leads to
 \begin{equation}\label{eq:bc_linearized}
     \qty(b' + a\qty(1 - \psi_0) \Hh'_* \dder{\Hx_D})\var{\Hh} =
-	    \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\sum_{i\neq D}\qty(\Hx_i-\Hx_{Bi})^2 ) - b,
+        \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\sum_{i\neq D}\qty(\Hx_i-\Hx_{Bi})^2 ) - b,
 \end{equation}
 where
 \begin{equation}\label{eq:bc_Dirichlet_part}
