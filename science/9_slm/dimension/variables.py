@@ -21,13 +21,13 @@ state_name = lambda name, state: name + '_' + state if len(state) else name
 
 def load_data(system, filename):
     quantities = {}
-    print '{} parameters (temperature in kelvins) read from "{}":'.format(system, filename)
+    print('{} parameters (temperature in kelvins) read from "{}":'.format(system, filename))
     with open(filename) as lines:
         for line in lines:
             if line.startswith('#'):
                 continue
             words = line.split()
-            #print ' #words', words
+            #print(' #words', words)
             name, quantity, state = words[0], ureg.Quantity(float(words[1]), words[2]).to_base_units(), ''
             subnames = name.split('-')
             if len(subnames) > 1:
@@ -55,16 +55,16 @@ def load_data(system, filename):
                     name = '{} for {}'.format(name, state)
             else:
                 quantities[name] = quantity
-            print ' - {0:40s} = {1:.3e}'.format(name, quantity)
+            print(' - {0:40s} = {1:.3e}'.format(name, quantity))
     return dict2nt(system, quantities)
 
 def calc_derivatives(quantities, base_temp, jump_temp):
     def calc_der(quant, state=''):
         if len(quant) == 1:
-            value = quant.values()[0]       # impossible to calculate derivative for 1 point
+            value = next(iter(quant.values()))          # impossible to calculate derivative for 1 point
         else:
-            coeffs = np.polyfit(quant.keys(), [ q.magnitude for q in quant.values() ], 1)
-            units = quant.values()[0].units
+            coeffs = np.polyfit(np.fromiter(quant.keys(), dtype=float), [ q.magnitude for q in quant.values() ], 1)
+            units = next(iter(quant.values())).units
             calc_value = lambda temp: ureg.Quantity(np.poly1d(coeffs)(temp), units)
             value = calc_value(base_temp)
             at_jump_temp[state] = calc_value(jump_temp)
@@ -77,9 +77,9 @@ def calc_derivatives(quantities, base_temp, jump_temp):
     for name, quant in quantities._asdict().items():
         if type(quant) != dict:
             continue
-        if type(quant.keys()[0]) == str and len(quant) == 1:
-            quant = quant.values()[0]               # remove state if only one is provided
-        if type(quant.keys()[0]) != str:
+        if type(next(iter(quant))) == str and len(quant) == 1:
+            quant = next(iter(quant.values()))          # remove state if only one is provided
+        if type(next(iter(quant))) != str:
             calc_der(quant)
         else:
             for state in quant.keys():
@@ -98,7 +98,7 @@ def to_dimensionless(quant, basis, dimensional=False):
     power = powers.pop('_')
     expression = lambda sgn: pint.formatter([ (item[0], sgn*item[1]/power) for item in powers.items() ])
     if args.verbose:
-        print '\t\t{}'.format('=' if dimensional else '*'), expression(-1)
+        print('\t\t{}'.format('=' if dimensional else '*'), expression(-1))
     return eval(expression(-1 if dimensional else 1))*(ureg('') if dimensional else quant)
 
 ureg = pint.UnitRegistry(auto_reduce_dimensions=True, autoconvert_offset_to_baseunit=True)
@@ -138,7 +138,7 @@ basis3 = [  # for derivatives
 ]
 
 get_derivatives = lambda system: map(lambda q: (system, q, basis3),
-        filter(lambda q: q.split('_')[-1] == 'der' or q.split('_')[-1] == 'jump', system._asdict().keys()))
+        filter(lambda q: q.split('_')[-1] == 'der' or q.split('_')[-1] == 'jump', list(system._asdict())))
 dimensionless = [
     ( bed, 'scanning_speed', basis1 ),
     ( bed, 'laser_power', basis2 ),
@@ -153,7 +153,7 @@ dimensionless = [
     ( derived, 'total_time', basis1 ),
     ( derived, 'radiative_transfer', basis2 ),
     ( derived, 'absolute_temperature', basis2 ),
-] + get_derivatives(alloy)
+] + list(get_derivatives(alloy))
 
 get_references = lambda system: map(lambda q: (q + '({})'.format(args.zero_temp), system._asdict()[q], [(system, q)]),
         filter(lambda q: der_name(q) in system._asdict(), system._asdict().keys()))
@@ -161,12 +161,12 @@ dimensional = [
     ( 'time', 'second', basis1 ),
     ( 'length', 'meter', basis1 ),
     ( 'velocity', 'm/s', basis1 ),
-] + get_references(alloy)
+] + list(get_references(alloy))
 
-print 'Dimension units:'
+print('Dimension units:')
 for name, unit, basis in dimensional:
-    print ' - {:38s}: {:.3e}'.format('[{}]'.format(name), to_dimensionless(ureg.Quantity(unit), basis, dimensional=True))
+    print(' - {:38s}: {:.3e}'.format('[{}]'.format(name), to_dimensionless(ureg.Quantity(unit), basis, dimensional=True)))
 
-print 'Dimensionless variables:'
+print('Dimensionless variables:')
 for system, quantity, basis in dimensionless:
-    print ' {:>8s}) {:30s}: {:.3e}'.format(type(system).__name__, quantity, to_dimensionless(system._asdict()[quantity], basis))
+    print(' {:>8s}) {:30s}: {:.3e}'.format(type(system).__name__, quantity, to_dimensionless(system._asdict()[quantity], basis)))
