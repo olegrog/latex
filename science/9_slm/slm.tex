@@ -6,6 +6,7 @@
 \usepackage{siunitx}
 \usepackage{comment}
 \usepackage{subcaption}
+\usepackage[draft]{graphicx}
 
 \usepackage{tikz}
 \usetikzlibrary{arrows}
@@ -219,10 +220,10 @@ should be satisfied for~\eqref{eq:enthalpy_phi} to be consistent with \(\Hc_p(\H
 defined by~\eqref{eq:thermophysical_model}.
 Indeed,~\eqref{eq:enthalpy_phi_params} results from the following assumption:
 \begin{equation}\label{eq:enthalpy_phi_explicit}
-    \Hh_S(\HT) = \int_0^{\HT} \Hc_{pS}(\xi)\dd{\xi}, \quad
-    \Hh_L(\HT) = \int_0^1 \Hc_{pS}(\xi)\dd{\xi} + \fusion{\Hh} + \int_1^{\HT} \Hc_{pL}(\xi)\dd{\xi},
+    \eval{\Hh}_{\Hphi=0} = \Hh_S(\HT) \equiv \int_0^{\HT} \Hc_{pS}(\xi)\dd{\xi}, \quad
+    \eval{\Hh}_{\Hphi=1} = \Hh_L(\HT) \equiv \Hh_S(1) + \fusion{\Hh} + \int_1^{\HT} \Hc_{pL}(\xi)\dd{\xi},
 \end{equation}
-where \(\Hc'_{pS,L}\) is defined as~\eqref{eq:thermophysical_model_explicit}.
+where \(\Hc_{pS,L}\) is defined as~\eqref{eq:thermophysical_model_explicit}.
 
 %%% Explicit formulas for temperature
 Actually,~\eqref{eq:enthalpy_phi} is the quadratic equation with respect to \(\HT\), hence
@@ -250,7 +251,7 @@ impose the following requirements upon \(\Hphi(\Hh)\):
         \phi(\Hh) = 1+\order{(\Hh-\Hh_1)^{-\infty}} \quad (\Hh > \Hh_1).
     \end{cases}\label{eq:lf_exp_decay}
 \end{gather}
-Thickness of the solid-liquid interface is defined by~\eqref{eq:lf_derivative},
+Thickness of the solid--liquid interface is defined by~\eqref{eq:lf_derivative},
 inequalities~\eqref{eq:lf_monotonic} are the monotonic condition and boundedness of the fusion rate,
 \eqref{eq:lf_symmetric} is the symmetric property,
 and~\eqref{eq:lf_exp_decay} describes fast decay of \(\Hphi(\Hh)\) outside the fusion range.
@@ -259,7 +260,7 @@ Note that \(\Hphi_1 = \Hphi(\Hh_1) = 1/2\).
 %%% Examples of \Hphi'_1
 The fixed value of \(\Hphi'_1\) depends only on \(\HT_{S,L}\), \(\Hc'_{pS,L}\), \(\fusion{\Hh}\), and \(\fusion{\Hc_p}\).
 Incidentally, \(\Hphi'_1 = (\fusion{\Hh})^{-1}\) when \(\HT_S=\HT_L\)
-and \(\Hphi'_1 = (\fusion{\Hh}+\delta\fusion{\HT})^{-1}\) for constant heat capacity,
+and \(\Hphi'_1 = (\fusion{\Hh}+\delta\fusion{\HT})^{-1}\) for the constant specific heat capacity,
 where \(\delta\fusion{\HT} = \HT_L - \HT_S\).
 
 %%% Examples of liquid fraction models
@@ -271,7 +272,7 @@ The simplest \(\mathcal{C}^0\) model for \(\Hphi(\Hh)\) can be constructed as a 
         1,                                            & \Hh(\HT_L) \leq \Hh.
     \end{cases}
 \end{equation}
-The hyperbolic tangent yields \(\mathcal{C}^\infty\) model
+The hyperbolic tangent yields the \(\mathcal{C}^\infty\) model
 \begin{equation}\label{eq:lf_tanh}
     \Hphi = \frac1{1+\exp\qty(-4\Hphi'_1(\Hh-\Hh_1))}.
 \end{equation}
@@ -285,16 +286,16 @@ It is possible to identify several space scales in the considered problem:
     \item length of the whole domain \(\HL\).
 \end{itemize}
 
-Let local interface thickness be defined at isotherm \(\HT=1\) as
-\begin{equation}\label{eq:thickness}
+Let the local interface thickness be defined at isotherm \(\HT=1\) as
+\begin{equation}\label{eq:thickness_def}
     \delta\fusion{\Hx} = \qty|\pdv{\Hphi}{\Hx_i}|^{-1}.
 \end{equation}
-It can be evaluated after substitution~\eqref{eq:lf_derivative} into~\eqref{eq:enthalpy}, which gives
-\begin{equation}\label{eq:phi_vs_temp}
-    \pdv{\Hphi}{\Hx_i}\qty(\Hh_L(\HT_L)-\Hh_S(\HT_S)-\fusion{\Hh}) = \Hc_p(\HT)\pdv{\HT}{\Hx_i}.
+It can be evaluated after substitution~\eqref{eq:lf_derivative} into the spatial derivative from~\eqref{eq:enthalpy_hats}, which gives
+\begin{equation}\label{eq:thickness_general}
+    \fusion{\delta\Hx} = \frac{1-\fusion{\Hh}\Hphi'_1}{\Hphi'_1\Hc_p(1)}\qty|\pdv{\HT}{\Hx_i}|^{-1}.
 \end{equation}
-For constant thermophysical properties,
-\begin{equation}\label{eq:thickness_simple}
+For the constant specific heat capacity,
+\begin{equation}\label{eq:thickness_const}
     \fusion{\delta\Hx} = \delta\fusion{\HT}\qty|\pdv{\HT}{\Hx_i}|^{-1}.
 \end{equation}
 
@@ -309,7 +310,7 @@ If the fusion time scale is less than the convective one, the melting pool is fo
 \section{Numerical methods}
 
 Parallel Adaptive Wavelet Collocation Method (PAWCM)~\cite{Vasilyev2015} is employed for numerical solution of the problem
-in order to capture solid-liquid interface with high accuracy while preserving computational efficiency.
+in order to capture solid--liquid interface with high accuracy while preserving computational efficiency.
 
 \subsection{Time-marching scheme}
 
@@ -430,7 +431,7 @@ therefore, it is considered first of all in order to illustrate the proposed mod
 Fig.~\ref{fig:2d:mesh} demonstrates how the computational mesh is effectively refined
 to capture \(a\) with near-constant accuracy over the whole computational domain.
 It is seen that the thermal diffusivity reaches its maximum in the point of the maximum temperature in the melting pool,
-decreases rapidly as approaching the solid-liquid interface, jumps after solidification (typical for the stainless steel alloys),
+decreases rapidly as approaching the solid--liquid interface, jumps after solidification (typical for the stainless steel alloys),
 and, finally, reduces to its minimum value in the powder region.
 The profiles of the nondimensional quantities along \(x_1\) axis for \(x_D=0\) are shown in Fig.~\ref{fig:2d:profiles}.
 
