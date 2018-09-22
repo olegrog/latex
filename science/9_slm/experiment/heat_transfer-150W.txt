@@ -1,5 +1,5 @@
 # power = 150 W
-speed(mm/s) width(um) progress(%)
+# speed(mm/s) width(um) progress(%)
       150 1.826e+02 99.7
       300 1.649e+02 100.0
       600 1.315e+02 100.0
