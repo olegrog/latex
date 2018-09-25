@@ -1,5 +1,5 @@
 # power = 90 W
-#   speed(mm/s)       width(um)     progress(%)      spend_time  remaining_time
-            300       1.311e+02            99.9         22h  2m             42s
-            600       1.076e+02           100.0      1d 17h 35m             28s
-           1200       8.819e+01            99.0      3d 17h  8m         52m 59s
+#   speed(mm/s)       width(um)       depth(um)
+            300       1.311e+02       5.285e+01
+            600       1.076e+02       3.977e+01
+           1200       8.814e+01       2.777e+01
