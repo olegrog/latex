@@ -106,16 +106,20 @@ The porosity change is irreversible in time:
     \psi(t) = \psi_0\min_{0\leq\tau\leq t}\qty( 1-\phi(h(\tau)) ).
 \end{equation}
 
-%%% Initial and boundary conditions
+%%% Initial conditions
+The initial (\(t=0\)) temperature is \(T_0\).
+The initial porosity is equal to \(\psi_0\) and \(0\) for the powder and solid states, respectively.
+
+%%% Boundary conditions
 Let us consider a half-space problem \(x_D<0\) with the following boundary condition at \(x_D=0\):
 \begin{equation}\label{eq:bc}
-    k(\psi,T)\pdv{T}{x_D} = \frac{A(\psi)P}{(\pi R^2)^{(D-1)/2}}\exp\qty( -\sum_{i\neq D}\frac{\qty[x_i-x_{Bi}(t)]^2}{R^2} )
+    k(\psi,T)\pdv{T}{x_D} = \frac{A(\psi)P}{(\pi R^2/2)^{(D-1)/2}}\exp\qty( -2\sum_{i\neq D}\frac{\qty[x_i-x_{Bi}(t)]^2}{R^2} )
         - \alpha(T-T_0) - \epsilon\sigma T^{D+1},
 \end{equation}
 where \(A\) is the absorptivity, \(P\) is the laser power (\si{W}), \(R\) is the radius of the laser beam (\si{m}),
 \(x_{Bi}\) are the coordinates of its center (\si{m}), \(\alpha\) is the convective heat transfer coefficient (\si{W/Km}\(^{D-1}\)),
 \(\epsilon\) is the emissivity, \(\sigma\) is the Stefan--Boltzmann constant (\si{W/K}\(^{D+1}\)\si{m}\(^{D-1}\)).
-The initial condition at \(t=0\) is \(T=T_0\), \(\Hpsi = \psi_0\) and \(\Hpsi = 0\) for the powder and solid states, respectively.
+
 
 \subsection{Dimensionless expressions}
 
@@ -131,7 +135,7 @@ where \(t_0 = \rho_0 c_p(T_0) R^2/k_0(T_0)\) is the diffusive time scale at \(T=
 \(\Delta{T} = (T_S+T_L)/2 - T_0\) is the unit temperature,
 \(T_S\) and \(T_L\) are the solidus and liquidus temperatures, respectively.
 If \(|\pdv*{x_{Bi}}{t}|\) is of order \(U_0\), where \(U_0\) is the reference scanning speed (\si{m/s}),
-then \(R/U_0=t_0/\HU_0\) is the convective time scale. Also denote
+then \(R/U_0=t_0/\HU_0\) is the convective time scale and \(\HU_0\) coincides with the P\'eclet number. Also denote
 \begin{equation}\label{eq:dimensionless2}
     \Hc_p(\HT) = \frac{c_p(T)}{c_p(T_0)}, \quad
     \Hk_0(\HT) = \frac{k_0(T)}{k_0(T_0)}, \quad
@@ -148,7 +152,7 @@ Then~\eqref{eq:enthalpy},~\eqref{eq:heat_conduction2},~\eqref{eq:porosity} and~\
     \Hpsi(\Ht) = \psi_0\min_{0\leq\tau\leq \Ht}\qty( 1-\Hphi(\Hh(\tau)) ), \label{eq:porosity_hats} \\
     \qty(1 - \Hpsi) \frac{\Hk_0(\HT)}{\Hc_p(\HT)}\pdv{\Hh_*}{\Hx_D} +
         \Halpha\HT + \epsilon\Hsigma \qty(\HT + \HT_0)^{D+1} =
-        \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\sum_{i\neq D}\qty[\Hx_i-\Hx_{Bi}(t)]^2 ). \label{eq:bc_hats}
+        \frac{A(\Hpsi)\HP}{(\pi/2)^{(D-1)/2}}\exp\qty( -2\sum_{i\neq D}\qty[\Hx_i-\Hx_{Bi}(t)]^2 ). \label{eq:bc_hats}
 \end{gather}
 The initial condition is \(\Hh = 0\).
 
@@ -344,7 +348,7 @@ according to the local interpolation error for \(a\), \(\Hphi\), and \(\HT\).
 Linearization of the boundary condition~\eqref{eq:bc_hats} around \(\Hh\) leads to
 \begin{equation}\label{eq:bc_linearized}
     \qty(b' + a\qty(1 - \psi_0) \Hh'_* \dder{\Hx_D})\var{\Hh} =
-        \frac{A(\Hpsi)\HP}{\pi^{(D-1)/2}}\exp\qty( -\sum_{i\neq D}\qty(\Hx_i-\Hx_{Bi})^2 ) - b,
+        \frac{A(\Hpsi)\HP}{(\pi/2)^{(D-1)/2}}\exp\qty( -2\sum_{i\neq D}\qty(\Hx_i-\Hx_{Bi})^2 ) - b,
 \end{equation}
 where
 \begin{equation}\label{eq:bc_Dirichlet_part}
@@ -380,14 +384,12 @@ It means that the initial condition should satisfy~\eqref{eq:bc_hats} at \(\Hx_D
 and decay exponentially to zero as we approach other boundaries.
 For instance, consider the following two-parameter model:
 \begin{gather}
-    \HT = \HT_p\exp\qty( -\sum_{i\neq D}\frac{\qty[\Hx_i-\Hx_{Bi}(0)]^2}{\HR_p^2} )
+    \HT = \HT_p\exp\qty( -2\sum_{i\neq D}\frac{\qty[\Hx_i-\Hx_{Bi}(0)]^2}{\HR_p^2} )
         \exp\qty(\lambda \Hx_D - \frac{\Hx_D^2}{\HR_p^2}), \label{eq:ic_hats}\\
-    \lambda = \eval{ \frac{A(\Hpsi)\HP\exp\qty( -\sum_{i\neq D}\qty(\Hx_i-\Hx_{Bi})^2\qty(1-\HR_p^{-2}) )}
-        {\pi^{(D-1)/2}\HT_p k_0(\HT)(1-\Hpsi)} }_{\Hx_D=0}, \label{eq:lambda}
+    \lambda = \eval{ \frac{A(\Hpsi)\HP\exp\qty( -2\sum_{i\neq D}\qty(\Hx_i-\Hx_{Bi})^2\qty(1-\HR_p^{-2}) )}
+        {(\pi/2)^{(D-1)/2}\HT_p k_0(\HT)(1-\Hpsi)} }_{\Hx_D=0}, \label{eq:lambda}
 \end{gather}
-where arbitrary \(\HT_p\) and \(\HR_p\) correspond to the maximum temperature
-and radius of the initial melting pool, respectively.
-They can be chosen to mimic the near-steady state.
+where arbitrary \(\HT_p\) and \(\HR_p\) can be chosen to mimic the near-steady state.
 Convective and radiative heat transfers are neglected in~\eqref{eq:ic_hats}.
 The initial condition for the enthalpy is calculated as a solution of nonlinear equation~\eqref{eq:enthalpy_phi}.
 
@@ -497,7 +499,7 @@ The profiles of the nondimensional quantities along \(x_1\) axis for \(x_D=0\) a
 
 \begin{figure}
     \centering
-    \includegraphics{experiment/width}
+    \includegraphics{experiment/width-specific_power}
     \caption{
         The width of a track versus the scanning speed.
         The solid and dashed lines correspond to the experimental and numerical results, respectively.
