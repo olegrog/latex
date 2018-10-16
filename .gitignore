@@ -33,6 +33,10 @@
 *.fdb_latexmk
 *.spl
 
+# LaTeX special templates
+*.cls
+*.bst
+
 # Gnuplot Tikz files
 *.table
 *.gnuplot
