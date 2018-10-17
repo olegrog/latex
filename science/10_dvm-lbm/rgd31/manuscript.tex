@@ -14,21 +14,6 @@
  {\end{minipage}}
 \makeatother
 
-
-
-%\makeatletter
-%\def\@fnsymbol#1{\ensuremath{\ifcase#1\or *\or \dagger\or **\or
-%   \ddagger\or \mathsection\or \mathparagraph\or \|\or \dagger\dagger
-%   \or \ddagger\ddagger \or\mathsection\mathsection
-%   \or \mathparagraph\mathparagraph \or *{*}*\or
-%   \dagger{\dagger}\dagger \or\ddagger{\ddagger}\ddagger\or
-%   \mathsection{\mathsection}\mathsection
-%   \or \mathparagraph{\mathparagraph}\mathparagraph \else\@ctrerr\fi}}
-%\makeatother
-
-% general
-\newcommand{\Kn}{\mathrm{Kn}}
-\newcommand{\Ma}{\mathrm{Ma}}
 \newcommand{\dd}{\mathrm{d}}
 \newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
 \newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
@@ -58,8 +43,6 @@
 \newcommand{\cai}{c_{j \alpha}}
 \newcommand{\caj}{c_{j \beta}}
 \newcommand{\equil}[1]{#1^\mathrm{(eq)}}
-\newcommand{\refer}[1]{#1_0}
-
 
 
 % Document starts
@@ -283,7 +266,7 @@ the expansion of the Grad type can be achieved; therefore, the proposed mapping 
         \includegraphics[width=0.5\textwidth]{d3v96}}
     \end{subfigures}
     \caption{
-        Numerical solution of the Couette-flow problem for $\tau=0.05\sqrt\pi$ ($\Kn=0.1$) obtained by the pure DV and LB methods.
+        Numerical solution of the Couette-flow problem for $\tau=0.1$ obtained by the pure DV and LB methods.
         The black lines are the high-accuracy solution of the BGK model.
         The black boxes correspond to the tabulated solutions~\cite{Luo2015, Luo2016}.
     }\label{fig:pure}
@@ -302,7 +285,7 @@ the expansion of the Grad type can be achieved; therefore, the proposed mapping 
         \includegraphics[width=0.5\textwidth]{hyb-d3q19-wide}}
     \end{subfigures}
     \caption{
-        Numerical solution of the Couette-flow problem for $\tau=0.05\sqrt\pi$ ($\Kn=0.1$) obtained by the proposed hybrid method.
+        Numerical solution of the Couette-flow problem for $\tau=0.1$ obtained by the proposed hybrid method.
         The black lines are the high-accuracy solution of the BGK model.
         The black boxes correspond to the tabulated solutions~\cite{Luo2015, Luo2016}.
         The coupling interface is located at a distance of $0.6$ (c),
@@ -354,7 +337,7 @@ and special 7-order D3Q96 model developed for the boundary-value problems driven
 Obviously, the LB models are unable to describe the Knudsen layer accurately.
 In particular, models of the Navier--Stokes level do not capture it due to lack of additional degrees of freedom (Fig.~\ref{fig:pure}b).
 Increasing order of the LB model practically does not reduce the approximation error (Fig.~\ref{fig:pure}c).
-However, the LB models augmented by special groups of velocities are capable to reproduce the Knudsen to some extent (Fig.~\ref{fig:pure}d).
+However, the LB models augmented by special groups of velocities are capable to reproduce the Knudsen layer to some extent (Fig.~\ref{fig:pure}d).
 
 %%% Heat flux
 Ability to capture kinetic effects arising from the diffuse-reflection boundary condition
