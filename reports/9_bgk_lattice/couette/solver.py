@@ -337,19 +337,19 @@ def calc_moment(solution, n):
 
 def total_values(domains):
     y, h, macro = calc_macro(domains)
-    print 'Total mass =', 2*sum(h*macro.rho)
-    print 'Total half momentum =', np.einsum('a,al', h*macro.rho, macro.vel)
-    print 'Total energy =', 2*sum(h*macro.rho*(fixed.D*macro.temp/2 + np.einsum('al,al->a', macro.vel, macro.vel)))
+    print('Total mass =', 2*sum(h*macro.rho))
+    print('Total half momentum =', np.einsum('a,al', h*macro.rho, macro.vel))
+    print('Total energy =', 2*sum(h*macro.rho*(fixed.D*macro.temp/2 + np.einsum('al,al->a', macro.vel, macro.vel))))
 
 def check(f, flux=False):
     if np.sum(np.isnan(f)) > 0:
         logging.error('NaN:')
-        print f
+        print(f)
         raise NameError("NaN has been found!")
     if np.sum(f<0) > 0 and not flux:
         logging.error('Negative:')
-        print np.argwhere(f<0)
-        print f[f<0]
+        print(np.argwhere(f<0))
+        print(f[f<0])
         raise NameError("Negative value has been found!")
 
 # Second-order TVD scheme
@@ -406,7 +406,7 @@ def transport(domain, bc, solution, delta_t):
     for n, b in enumerate(bc):
         b.correct_first_flux(_xi_y, F[-n], _mask(1-2*n))
     f -= np.einsum('i,a,ai->ai', gamma, 1/h, F[1:] - F[:-1])
-    #print 'bflux for y0=%.2f: %.8e, %.8e' % (domain.y0, np.einsum('i,i' , gamma, F[0]), np.einsum('i,i' , gamma, F[-1]))
+    #print('bflux for y0=%.2f: %.8e, %.8e' % (domain.y0, np.einsum('i,i' , gamma, F[0]), np.einsum('i,i' , gamma, F[-1])))
     check(f) # after transport
 
 def bgk(domain, bc, solution, delta_t):
@@ -514,7 +514,8 @@ class Couple(Boundary):
                 xi_y_partner = model_partner.xi()[...,1]
                 m0, m1_i, m2 = calc_first_moments0(model_partner, xi_y_partner*self._F_partner[self._idx_partner])
                 M0, M1_i, M2 = calc_first_moments0(model, xi_y*F)
-                logging.debug('Couple BC velocity correction: mass %g, momentum %g, energy %g' % ((m0-M0)[0], (m1_i-M1_i)[0,0], (m2-M2)[0]))
+                logging.debug('Couple BC velocity correction: mass %g, momentum %g, energy %g'
+                    % ((m0-M0)[0], (m1_i-M1_i)[0,0], (m2-M2)[0]))
                 F[mask] *= 1 + poly_correct_moments(model, xi_y*F, mask, m0-M0, m1_i-M1_i, m2-M2)
     def last_flux_is_calculated(self):
         bcs[self._n_partner][self._idx_partner]._lock_F.set()
@@ -563,7 +564,7 @@ def solve_bgk():
     if args.plot:
         plt.ion()
         plot_profiles(solution)
-    for i in xrange(args.end):
+    for i in range(args.end):
         # Symmetry second-order splitting
         run_threads(solution, transport, delta_t)
         run_threads(solution, bgk, 2*delta_t)
@@ -573,8 +574,8 @@ def solve_bgk():
             y, h, m = calc_macro(solution)
             rho_disp, pxy_mean = sum(h*(m.rho-m0.rho)**2), np.sum(h*m.tau[:,2])
             pxy_disp = sum(h*(m.tau[:,2]-pxy_mean)**2)
-            print '%d: err(rho) = %g, p_xy/U = %g, err(p_xy)/U = %g, vel_x[-1]/U = %g, qflow_x[-1]/U = %g' \
-                % ( i, rho_disp, pxy_mean/U, pxy_disp/U, m.vel[-1,0]/U, m.qflow[-1,0]/U )
+            print('%d: err(rho) = %g, p_xy/U = %g, err(p_xy)/U = %g, vel_x[-1]/U = %g, qflow_x[-1]/U = %g'
+                % ( i, rho_disp, pxy_mean/U, pxy_disp/U, m.vel[-1,0]/U, m.qflow[-1,0]/U ))
             plot_profiles(solution)
     total_values(solution)
     y, h, m = calc_macro(solution)
@@ -602,8 +603,8 @@ def tests():
         v = lambda name, idx: m._asdict()[name][idx] - m0._asdict()[name][idx]
         columns = ( 'rho', 'temp', 'vel_x', 'vel_y', 'p_xy', 'q_x', 'q_y' )
         values = ( s('rho'), s('temp'), v('vel', 0), v('vel', 1), v('tau', 2), v('qflow', 0), v('qflow', 1) )
-        print 'Variable: ', ''.join([fmt_str + ' ' for i in range(len(columns))]) % columns
-        print 'Deviation:', ''.join([fmt_str + ' ' for i in range(len(values))]) % tuple(map(dev2str, values))
+        print('Variable: ', ''.join([fmt_str + ' ' for i in range(len(columns))]) % columns)
+        print('Deviation:', ''.join([fmt_str + ' ' for i in range(len(values))]) % tuple(map(dev2str, values)))
     def check_macro(model, f, expected):
         computed = calc_macro0(model, f)
         print_sample(computed, expected)
@@ -612,22 +613,22 @@ def tests():
     o = lambda y: np.ones_like(y)
     delta = args.U/2
     rho, vel, temp, tau, qflow = 1 + delta, delta*e_x, 1 + delta**2, delta*e_z, delta*e_x/2
-    print 'Test #1: Maxwell distribution (rho=%g, vel_x=%g, temp=%g)' % (rho, vel[0], temp)
+    print('Test #1: Maxwell distribution (rho=%g, vel_x=%g, temp=%g)' % (rho, vel[0], temp))
     macro = Macro(rho, vel, temp)
     for name, model in models.iteritems():
-        print '-- %s model:' % name
+        print('-- %s model:' % name)
         check_macro(model, model.Maxw(macro), macro)
-    print ''.join(['-' for i in range(50)])
-    print 'Test #2: Grad distribution (rho=%g, vel_x=%g, temp=%g, p_xy=%g)' % (rho, vel[0], temp, tau[2])
+    print(''.join(['-' for i in range(50)]))
+    print('Test #2: Grad distribution (rho=%g, vel_x=%g, temp=%g, p_xy=%g)' % (rho, vel[0], temp, tau[2]))
     macro = Macro(rho, vel, temp, tau)
     for name, model in models.iteritems():
-        print '-- %s model:' % name
+        print('-- %s model:' % name)
         check_macro(model, model.Grad13(macro), macro)
-    print ''.join(['-' for i in range(50)])
-    print 'Test #3: Grad distribution (rho=%g, vel_x=%g, temp=%g, qflow_x=%g)' % (rho, vel[0], temp, qflow[0])
+    print(''.join(['-' for i in range(50)]))
+    print('Test #3: Grad distribution (rho=%g, vel_x=%g, temp=%g, qflow_x=%g)' % (rho, vel[0], temp, qflow[0]))
     macro = Macro(rho, vel, temp, qflow=qflow)
     for name, model in models.iteritems():
-        print '-- %s model:' % name
+        print('-- %s model:' % name)
         check_macro(model, model.Grad13(macro), macro)
 
 Macro = namedtuple('Macro', 'rho vel temp tau qflow')
@@ -717,14 +718,16 @@ class Solution(object):
         self.F = empty(domain.model, domain.N + 1)                  # fluxes between cells
         self.f3 = empty(domain.model, 3)                            # ghost + 2 cells
 
-print ''.join(['=' for i in range(50)])
-print 'DVM: xi_max = %g, grid=(%d)^%d, total = %d, step = %g' % (args.radius, 2*args.M, fixed.D, models['dvm'].xi().size/fixed.D, args.radius / args.M)
-print 'LBM: type = %s, total = %d' % (args.lattice, models['lbm'].xi().size/fixed.D)
-print 'Kn = %g, U = %g, cells = %d + %d' % (args.kn, args.U, args.N1, args.N2)
-print 'Model: (antisym)[ %s | %s ](diffuse), limiter = %s' % (args.model1, args.model2, args.limiter)
-print 'Width:  |<-- %.3f -->|<-- %.3f -->|' % (fixed.L-args.width, args.width)
-print 'Delta_y:     | %.4f | %.4f -- %.4f |' % (delta_y(domains[0])[0], delta_y(domains[1])[0], delta_y(domains[1])[-1])
-print ''.join(['=' for i in range(50)])
+print(''.join(['=' for i in range(50)]))
+print('DVM: xi_max = %g, grid=(%d)^%d, total = %d, step = %g' %
+        (args.radius, 2*args.M, fixed.D, models['dvm'].xi().size/fixed.D, args.radius / args.M))
+print('LBM: type = %s, total = %d' % (args.lattice, models['lbm'].xi().size/fixed.D))
+print('Kn = %g, U = %g, cells = %d + %d' % (args.kn, args.U, args.N1, args.N2))
+print('Model: (antisym)[ %s | %s ](diffuse), limiter = %s' % (args.model1, args.model2, args.limiter))
+print('Width:  |<-- %.3f -->|<-- %.3f -->|' % (fixed.L-args.width, args.width))
+print('Delta_y:     | %.4f | %.4f -- %.4f |' %
+        (delta_y(domains[0])[0], delta_y(domains[1])[0], delta_y(domains[1])[-1]))
+print(''.join(['=' for i in range(50)]))
 
 if args.tests:
     tests()
