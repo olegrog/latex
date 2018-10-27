@@ -20,6 +20,7 @@ parser.add_argument('-m2', '--model2', default='dvm', metavar='dvm|lbm', help='t
 parser.add_argument('-l', '--lattice', default='d3q19', metavar='d3q15|19|27', help='type of velocity lattice')
 parser.add_argument('-i', '--limiter', default='mc', metavar='none|minmod|mc|superbee', help='type of limiter')
 parser.add_argument('-c', '--correction', default='poly', metavar='none|poly|entropy|lagrange', help='type of correction for construction of discrete Maxwellian')
+parser.add_argument('-o', '--reconstruction', default='hermite40', metavar='grad13|hermite40', help='type of reconstruction in the buffer layer')
 parser.add_argument('-n', '--norm', default='L2', metavar='L1|L2|Linf', help='norm for distance between solutions')
 parser.add_argument('-p', '--plot', type=int, default=10, metavar='<int>', help='plot every <int> steps')
 parser.add_argument('--plot-norms', action='store_true', help='plot profiles of the norms instead')
@@ -112,15 +113,15 @@ def lagrange_correct(f, macro, xi):
     # see Gamba, Tharkabhushanam 2009
     raise NotImplementedError()
 
+correct_vdf = lambda func, macro, xi: {
+    'none': lambda f, m, xi0: f,
+    'poly': poly_correct,
+    'entropy': entropy_correct,
+    'lagrange': lagrange_correct
+}[args.correction](func(to_arr(macro)), to_arr(macro), xi)[from_arr(macro)]
+
 ### DVM velocity grid
 def dvm_grid():
-    correct = lambda func, macro: {
-        'none': lambda f, macro, xi: f,
-        'poly': poly_correct,
-        'entropy': entropy_correct,
-        'lagrange': lagrange_correct
-    }[args.correction](func(to_arr(macro)), to_arr(macro), xi0)[from_arr(macro)]
-
     # 1d packing, symm=1 for antisymmetry, symm=-1 for specular reflection
     def dvm_ball(symm):
         _xi_y = _xi(zeros)[...,1]
@@ -128,7 +129,7 @@ def dvm_grid():
         n = np.where((_xi_y < 0)*(_sqr_xi(zeros) <= args.radius**2))
         return np.hstack((n[0], p[0][::symm])), np.hstack((n[1], p[1])), np.hstack((n[2], p[2]))
 
-    idx, delta_v, D = lambda M: np.arange(2*M) - M + .5, args.radius / args.M, fixed.D
+    idx, delta_v = lambda M: np.arange(2*M) - M + .5, args.radius / args.M
     _Xi, _I = delta_v * idx(args.M), np.ones(2*args.M)
     dom = lambda v: np.ones(v.shape[0])
     I = lambda v: np.ones((v.shape[0], 2*args.M))
@@ -142,18 +143,20 @@ def dvm_grid():
 
     xi = lambda v: np.einsum('lai,laj,lak->aijkl', G(v, 0), G(v, 1), G(v, 2))[(slice(None),) + _ball]
     sqr_xi = lambda v: np.einsum('ail,ail->ai', xi(v), xi(v))
-    Maxw = lambda m: np.einsum('a,ai->ai', m.rho*(delta_v/np.sqrt(np.pi*m.temp))**D, np.exp(np.einsum('ai,a->ai', -sqr_xi(m.vel), 1./m.temp)))
+    Maxw = lambda m: np.einsum('a,ai->ai', m.rho*(delta_v/np.sqrt(np.pi*m.temp))**fixed.D,
+            np.exp(np.einsum('ai,a->ai', -sqr_xi(m.vel), 1./m.temp)))
 
     G_tau = lambda m: np.einsum('ail,aim,an,lmn,a->ai', xi(m.vel), xi(m.vel), m.tau, hodge, 1/m.rho/m.temp**2)
-    G_qflow = lambda m: 4 * np.einsum('ail,al,ai,a->ai', xi(m.vel), m.qflow, np.einsum('ai,a->ai', sqr_xi(m.vel), 1/m.temp/(D+2)) - .5, 1/m.rho/m.temp**2)
+    G_qflow = lambda m: 4 * np.einsum('ail,al,ai,a->ai', xi(m.vel), m.qflow,
+            np.einsum('ai,a->ai', sqr_xi(m.vel), 1/m.temp/(fixed.D+2)) - .5, 1/m.rho/m.temp**2)
     Grad13 = lambda m: Maxw(m) * (1 + G_tau(m) + G_qflow(m))
 
     return Model(
         info = 'DVM: (%d)^%d' % (2*args.M, fixed.D),
-        weights = np.ones_like(_ball[0]) * delta_v**D,
+        weights = np.ones_like(_ball[0]) * delta_v**fixed.D,
         xi = lambda vel=zeros: xi(_to_arr(vel))[_from_arr(vel)],
-        Maxw = lambda macro: correct(Maxw, macro),
-        Grad13 = lambda macro: correct(Grad13, macro)
+        Maxw = lambda macro: correct_vdf(Maxw, macro, xi0),
+        Grad13 = lambda macro: correct_vdf(Grad13, macro, xi0)
     )
 
 ### LBM velocity grid
@@ -204,14 +207,14 @@ def lbm_grid():
     G2 = lambda m: np.einsum('il,im,an,lmn->ai', _xi, _xi, m.tau, hodge)/a * Tn(2)
     G3 = lambda m: xi_v(m.qflow) * (sqr_xi/5-1) + G2(m)*xi_v(m.vel) - np.einsum('il,am,an,lmn->ai', _xi, m.vel, m.tau, hodge)/a
     Grad13 = lambda m: Maxw(m) + weighted(G2(m) + G3(m))
-    correct = lambda func, macro: func(to_arr(macro))[from_arr(macro)]
+    adapter = lambda func, macro: func(to_arr(macro))[from_arr(macro)]
 
     return Model(
         info = 'LBM: %s' % args.lattice,
         weights = _w,
         xi = lambda vel=zeros: xi(_to_arr(vel))[_from_arr(vel)],
-        Maxw = lambda macro: correct(Maxw, macro),
-        Grad13 = lambda macro: correct(Grad13, macro)
+        Maxw = lambda macro: adapter(Maxw, macro),
+        Grad13 = lambda macro: adapter(Grad13, macro)
     )
 
 def splot(model, f):
@@ -302,9 +305,34 @@ def calc_first_moments0(model, F, mask=slice(None), all=False, xi=None):
     m4 = np.einsum('ai,i,i->a', f, sqr_xi, sqr_xi)
     return m0, m1_i, m2, m2_ij, m3_i, m4
 
-def reconstruct(old_model, new_model, f):
+def hermite_polynomials(model):
+    xi, I = model.xi() / np.sqrt(fixed.sqr_a), np.eye(fixed.D)
+    S = lambda n: 2**(n/2)
+    h0 = np.ones_like(xi[:,0]) * S(0)
+    h1 = xi * S(1)
+    h2 = (np.einsum('il,im->ilm', xi, xi) - np.einsum('i,lm', h0, I)) * S(2)
+    h3 = (np.einsum('il,im,in->ilmn', xi, xi, xi) - np.einsum('il,mn', xi, I)
+        - np.einsum('im,ln', xi, I) - np.einsum('in,lm', xi, I)) * S(3)
+    return h0, h1, h2, h3
+
+def hermite_reconstruct(old_model, new_model, f):
     macro = calc_macro0(old_model, f)
-    return new_model.Grad13(macro)
+    f = _to_arr(f)
+    H_old = hermite_polynomials(old_model)
+    H_new = hermite_polynomials(new_model)
+    Idx = [ '', 'l', 'lm', 'lmn' ]
+    C = lambda n: fixed.sqr_a**n/np.math.factorial(n)
+    result = np.zeros((f.shape[0], H_new[0].size))
+    for n, (h_old, h_new, idx) in enumerate(zip(H_old, H_new, Idx)):
+        a = np.einsum('ai,i{0}'.format(idx), f, h_old)
+        result += np.einsum('a{0},i{0}'.format(idx), a, h_new)*C(n)
+    return np.einsum('i,ai->ai', new_model.Maxw(Macro()), result)[from_arr(macro)]
+
+def reconstruct(old_model, new_model, f):
+    return {
+        'grad13': lambda: new_model.Grad13(calc_macro0(old_model, f)),
+        'hermite40': lambda: hermite_reconstruct(old_model, new_model, f),
+    }[args.reconstruction]()
 
 def calc_macro(solution):
     y, h, rho, vel, temp, tau, qflow = [], [], [], [], [], [], []
