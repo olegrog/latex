@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, argparse
+import os, stat, argparse
 
 parser = argparse.ArgumentParser(description='create a gnuplot script from the template')
 parser.add_argument('template', help='template gnuplot script')
@@ -19,5 +19,5 @@ with open(args.template, 'r') as infile:
         data = data.replace('<%s>' % name, str(value))
     with open(out, 'w') as outfile:
         outfile.write(data)
-    os.chmod(out, 0755)
+    os.chmod(out, os.stat(out).st_mode | stat.S_IXUSR)
 

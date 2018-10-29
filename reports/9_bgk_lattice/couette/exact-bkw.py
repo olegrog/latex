@@ -35,13 +35,14 @@ def plot_abra():
     py.show()
 
 L = .5
-N = 8001
+pts, factor = 100, 80
+N = pts*factor + 1
 X = np.linspace(0, L, N)
 
 def printt(Y):
-    print "--------------------------"
+    print("--------------------------")
     np.savetxt(sys.stdout, Y, fmt='%+.2e')
-    print "--------------------------"
+    print("--------------------------")
 
 def splot(X, K):
     import mpl_toolkits.mplot3d.axes3d as p3
@@ -53,7 +54,7 @@ def splot(X, K):
 def weight_matrix(alpha, beta):
     N = len(X)
     C = np.eye(N)
-    for i in xrange(N):
+    for i in range(N):
         C[i, 1:N-1] = alpha(i, np.arange(2,N)) + beta(i, np.arange(1,N-1))
         C[i, 0] = alpha(i, 1)
         C[i, N-1] = beta(i, N-1)
@@ -87,14 +88,14 @@ def solve_linalg(k, T, F0, F1, f):
     #splot(X, A*T(np.abs(S-Y)/k)/k)
     #splot(X, B*T((S+Y)/k)/k)
     #py.show()
-    phi = solve(a*I - A*T(np.abs(S-Y)/k)/k + B*T((S+Y)/k)/k, f(X))
+    phi = solve(a*I - A*T(np.abs(S-Y)/k)/k + B*T((S+Y)/k)/k, f(k,X))
     p_xy = -(k*(T2(0)-T2(1./k)) + np.trapz((T1((L-X)/k) - T1((L+X)/k))*phi, X))*2/a
     #Phi = np.outer(phi,np.ones(N))
     Phi = np.einsum('s,a', phi, np.ones(N))
     Q = np.trapz(T2((L-X)/k)-T2((L+X)/k) + np.trapz((T1(np.abs(S-Y)/k) - T1((S+Y)/k))*Phi, X)/k, X)/2/a
     q = (T2((L-X)/k)-T2((L+X)/k) + np.trapz((T1(np.abs(S-Y)/k) - T1((S+Y)/k))*Phi, X)/k)/2/a - phi/4
     v = (T0((L-X)/k)-T0((L+X)/k) + np.trapz((T_1(np.abs(S-Y)/k) - T_1((S+Y)/k))*Phi, X)/k)/2/a
-    np.savetxt(sys.stdout, np.transpose((X, phi/2, v, -p_xy*np.ones(N), -q))[::(N-1)/100], fmt='%1.4e',
+    np.savetxt(sys.stdout, np.transpose((X, phi/2, v, -p_xy*np.ones(N), -q))[::factor], fmt='%1.4e',
         header='       X        v_x        v_x      -p_xy       -q_x')
     #splot(X, K(*XX))
     #py.plot(X, phi)
@@ -111,7 +112,7 @@ Kn = Kn[14:16]
 K = Kn*np.sqrt(np.pi)/2
 K = [ 0.1 ]
 
-f = lambda x: T0((L-x)/k) - T0((L+x)/k)
+f = lambda k,x: T0((L-x)/k) - T0((L+x)/k)
 r0 = lambda x: (0 if x==0 else x*(np.log(x) - 1))
 r1 = lambda x: (0 if x==0 else .5*x*x*(np.log(x) - .5))
 F0 = lambda k,x: r0(x) - r0(k+c*x)/c

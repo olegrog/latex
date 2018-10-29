@@ -243,14 +243,10 @@ def plot_profiles(solution):
         plt.semilogy()
         plt.legend()
     else:
-        Y, Vel, Tau = np.loadtxt('k1e-1.txt').T
-        plt.plot(Y, Vel, 'rD--', Y, -2*Tau, 'gD--')                 # k = 0.1
-        Y, Vel, Vel2, Tau, Qflow = np.loadtxt('k1e-1-my.txt').T
+        Y, Vel, Tau = np.loadtxt('k0.1.txt').T
+        plt.plot(Y, Vel, 'rD--', Y, -2*Tau, 'gD--')
+        Y, Vel, Vel2, Tau, Qflow = np.loadtxt('k0.1-my.txt').T
         plt.plot(Y, factor*Qflow, 'b--')
-        #Y, Vel, Tau = np.loadtxt('k1e-0.txt').T
-        #plt.plot(Y, Vel, 'rs--', Y, -2*Tau, 'gs--')                 # k = 1
-        #plt.plot(Y, Y, 'r-.')                                       # k = 0
-        #plt.plot(Y, 0*Y + np.pi**-.5, 'g-.')                        # k = \infty
         plt.plot(y, m.vel[:,0]/U, 'r*-', label='velocity/U')
         plt.plot(y, -m.tau[:,2]/U, 'g*-', label='share stress/U')
         plt.plot(y, -factor*m.qflow[:,0]/U, 'b*-', label='%g*qflow_x/U' % factor)
@@ -608,7 +604,7 @@ def solve_bgk():
     total_values(solution)
     y, h, m = calc_macro(solution)
     if args.plot_norms:
-        names = norms.keys()
+        names = list(norms.keys())
         result = [ calc_norm(solution, name)[1] for name in norms.keys() ]
     else:
         names = [ 'vel_x', 'p_xy', 'q_x' ]
