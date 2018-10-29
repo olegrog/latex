@@ -209,7 +209,7 @@ For the sake of clarity we assume that the flow depends only on one of the coord
 At the first step we update the DV VDF $f_\mathrm{DV}(x,\bxi)$ for the discrete velocities $\bxi_n$ such that $(\bxi_n,\mathbf{e})<0$ , where $\mathbf{e}$ is the outer normal to the overlapping domain, we start from the spatial nodes at the wall and move towards the overlapping zone.
 In the spatial domain (physical domain) where the DV method overlaps the LB method we map the DV VDF for the DV difference scheme on the Grad VDF by calculating the following coefficients:
 $$
-a(x)=\sum_{m=1}^M f_\mathrm{DV}(x,\bxi_m),   \quad a_\alpha(x)=\sum_{m=1}^Mf_\mathrm{DV}(x,\bxi_m)H_j(\bxi_m),
+a(x)=\sum_{m=1}^M f_\mathrm{DV}(x,\bxi_m),   \quad a_\alpha(x)=\sum_{m=1}^Mf_\mathrm{DV}(x,\bxi_m)H_\alpha(\bxi_m),
 $$
 $$
 a_{\alpha\beta }(x)=\sum_{m=1}^Mf_\mathrm{DV}(x,\bxi_m)H_{\alpha\beta}(\bxi_m), \quad
@@ -221,22 +221,32 @@ The Grad VDF \eqref{grad} is recovered in the overlapping spatial domain.
 Next we will map the velocity distribution \eqref{grad} on the LB distribution using the Gauss--Hermite quadrature method.
 The idea of the method is based on the fact that the representation of the VDF in the Grad form
 is equivalent to the LB method~\cite{He1997, Shan1998}.
-We consider the first moments $a,a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma}$ in the integral form and then calculate them using Gauss--Hermite quadratures
+We consider the first moments $a,a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma}$ in the integral form
+and then calculate them using the Gauss--Hermite quadratures
 $$
-\{ a,a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma} \}=\int f_H(\bxi)\{1,H_{\alpha}, H_{\alpha\beta} ,H_{\alpha\beta \gamma}\}(\bxi)d\bxi=\sum_{j=1}^N w_j\frac{f_H(\boldsymbol{c}_j)}{\omega(\bc_j)}
-\{1,H_{\alpha}(\bc_j),H_{\alpha\beta}(\bc_j), H_{\alpha\beta\gamma}(\bc_j) \},
+\{ a, a_{\alpha}, a_{\alpha\beta}, a_{\alpha\beta\gamma} \} =
+    \int f_H(\bxi)\{ 1, H_{\alpha}, H_{\alpha\beta}, H_{\alpha\beta\gamma} \}(\bxi)\dxi =
+    \sum_{j=1}^N w_j\frac{f_H(\boldsymbol{c}_j)}{\omega(\bc_j)}
+    \{1, H_{\alpha}(\bc_j), H_{\alpha\beta}(\bc_j), H_{\alpha\beta\gamma}(\bc_j) \},
 $$
-where $w_j, \boldsymbol{c}_j$ are the weights and the nodes of the Gauss--Hermite quadrature respectively. The nodes $\bc_j$ can be considered as the LB velocities while $ w_j\frac{f(\bc_j)}{\omega(\bv_j)}$ are the LB VDF values and
-$w_j$ are the lattice analog of the Maxwell distribution.  Then the formula
+where $w_j, \boldsymbol{c}_j$ are the weights and the nodes of the Gauss--Hermite quadrature respectively.
+The nodes $\bc_j$ can be considered as the LB velocities
+while $ w_j\frac{f(\bc_j)}{\omega(\bv_j)}$ are the LB VDF values
+and $w_j$ are the lattice analog of the Maxwell distribution.
+Then the formula
 \begin{equation}\label{grad_to_latt}
-f_{\mathrm{LB},j}\equiv w_j\frac{f_H(\bc_j)}{\omega(\bc_j)}
+    f_{\mathrm{LB},j}\equiv w_j\frac{f_H(\bc_j)}{\omega(\bc_j)}
 \end{equation}
-gives the mapping of the Grad truncated VDF $f_H$ to the LB VDF $f_{LB,j}$ for the corresponding velocities $\bc_j$. Now having the values in the overlapping domain we update $f_{LB,j}$ for the velocities $\bc_j$ directed from the overlapping domain into the interior of the LB domain.
+gives the mapping of the Grad truncated VDF $f_H$ to the LB VDF $f_{LB,j}$ for the corresponding velocities $\bc_j$.
+Now having the values in the overlapping domain we update $f_{LB,j}$ for the velocities $\bc_j$
+directed from the overlapping domain into the interior of the LB domain.
 
 
-The second step consists of the evaluation of the LB   distribution for the lattice velocities $\boldsymbol{c}_j$ such that $(\boldsymbol{c}_j,\mathbf{e})<0$ , where $\mathbf{e}$ is the outer normal to the overlapping domain.  We evaluate the moments $a,a_{\alpha},a_{\alpha\beta},
-a_{\alpha\beta\gamma}$ and finally update again the Grad VDF in the overlapping domain. The coefficients $a,a_{\alpha},a_{\alpha\beta},
-a_{\alpha\beta\gamma}$ are calculated using the formulas
+The second step consists of the evaluation of the LB distribution for the lattice velocities $\boldsymbol{c}_j$
+such that $(\boldsymbol{c}_j,\mathbf{e})<0$, where $\mathbf{e}$ is the outer normal to the overlapping domain.
+We evaluate the moments $a, a_{\alpha}, a_{\alpha\beta}, a_{\alpha\beta\gamma}$
+and finally update again the Grad VDF in the overlapping domain.
+The coefficients $a, a_{\alpha}, a_{\alpha\beta}, a_{\alpha\beta\gamma}$ are calculated using the formulas
 $$
 a=\sum_{j=1}^N f_{LB,j}, \quad a_{\alpha}=\sum_{j=1}^N f_{LB,j}H_{\alpha}(\bc_j), \quad a_{\alpha\beta}=\sum_{j=1}^N f_{LB,j}H_{\alpha\beta}(\bc_j),
 \quad a_{\alpha\beta\gamma}=\sum_{j=1}^N f_{LB,j}H_{\alpha\beta\gamma}(\bc_j).
@@ -306,7 +316,7 @@ the expansion of the Grad type can be achieved; therefore, the proposed mapping 
         \includegraphics[width=0.5\textwidth]{norms-hyb-d3v96}}
     \end{subfigures}
     \caption{
-        Quantities that can serve as a equilibrium breakdown parameter. \(L^p\) norm means \(\|f-f^{\mathrm{NSF}}\|_{L^p}/\|f\|\).
+        Quantities that can serve as a equilibrium breakdown parameter.
     }\label{fig:norms}
 \end{figure}
 
@@ -362,22 +372,31 @@ A multiscale hybrid method based on the domain decomposition procedure should be
 \(q_x\) appears only in the Knudsen layer and, therefore, can serve as an equilibrium breakdown parameter
 for the investigated Couette-flow problem, but not in the general case.
 The criteria based on deviation of the VDF from the truncated Chapman--Enskog expansion is natural for kinetic schemes.
-The deviation from the Navier--Stokes--Fourier (NSF) order of approximation~\cite{Zhang2014}
+Quantity \(E_p=\|f-f^{\mathrm{NSF}}\|_p/\|f\|_p\), the deviation from the Navier--Stokes--Fourier (NSF) order of approximation~\cite{Zhang2014}
 \begin{equation}\label{eq:NSF}
     f^{\mathrm{NSF}}_j = \equil{f}_j\br{
         1 + \frac{\cai\caj P_{\alpha\beta}}{2pT} + \frac{2\cai q_\alpha}{5pT}\br{\frac{\caj^2}{2T} - \frac52} },
 \end{equation}
 where \(P_{\alpha\beta} = p_{\alpha\beta} - \rho T\delta_{\alpha\beta}\) and \(\cai = \xiai - v_\alpha\),
-is demonstrated in Fig.~\ref{fig:norms} for the following norms in the DV space:
+is demonstrated in Fig.~\ref{fig:norms} for the following norms in the discrete velocity space:
 \begin{equation}\label{eq:norms}
-    \|f\|_{L^p} = \sum_j \br{|f_j|^p}^{1/p}.
+    \|f\|_p = \bigg(\sum_j |f_j|^p \bigg)^\frac1p, \quad p=1,2, \quad \|f\|_\infty = \max_j |f_j|.
 \end{equation}
-The D3Q19 model produce an almost constant profile (Fig.~\ref{fig:norms}c), since it describes nothing beyond the NSF level.
-The D3Q96 profile (Fig.~\ref{fig:norms}b) is close to the DV one (Fig.~\ref{fig:norms}a),
-which indirectly indicates that this LB model gives a good approximation for the Couette-flow problem;
-however, deviation in \(L^\infty\) norm significantly exceeds the others in Fig.~\ref{fig:norms}b.
-This fact means that D3Q96, despite inability to capture sharp variations of the VDF near the boundary,
-is capable to capture macroscopic dynamics with quite high accuracy.
+The D3Q19 model produce an almost constant profile (Fig.~\ref{fig:norms:d3q19-hyb}),
+since it describes nothing beyond the NSF level.
+The D3Q96 profile (Fig.~\ref{fig:norms:d3q96}) is close to the DV one (Fig.~\ref{fig:norms:dvm}),
+which indirectly indicates that this LB model gives an acceptable approximation for the Couette-flow problem.
+Due to the diffuse-reflection boundary condition, there is a discontinuity of the VDF on the boundary,
+which decays monotonically and faster than any inverse power of distance from the boundary.
+Therefore, all the breakdown parameters reach their maximum on the boundary;
+however, \(E_\infty\) relaxes in a nonmonotonic way.
+This is probably due to crude approximation of the sharp variations of the VDF in the Knudsen layer.
+For the D3Q96 model, \(E_\infty\) noticeably exceeds \(E_{1,2}\) (Fig.~\ref{fig:norms:d3q96}),
+which can be explained by its peculiar properties minimizing the wall moment errors.
+The hermite-based coupling induces oscillations (Fig.~\ref{fig:norms:d3q19-hyb},~\ref{fig:norms:d3q96-hyb}),
+since it is unable to reconstruct nonequilibrium part of the VDF.
+The sharp drop in Fig.~\ref{fig:norms:d3q19-hyb} indicates that the coupling interface is too close to the boundary,
+while the smoother transition in Fig.~\ref{fig:norms:d3q96-hyb} can be considered as more acceptable.
 
 \begin{figure}
     \centering
@@ -397,14 +416,8 @@ One can see that efficiency of the hybrid method achieves the optimum value when
 Note that the asymptotic speed-up can be slightly higher than the optimum one (12--13 versus 11 in Fig.~\ref{fig:speed-up}).
 It is mainly due to memory saving, which results in fewer cache misses.
 
-%\section{CONCLUSIONS}
-%
-%In the present paper we have introduced the hybrid method of solving of the DV models for the BGK kinetic model and LB equations.
-%Non-equilibrium spatial zones are modeled using general DV (or finite-difference schemes) for the BGK model and the spatial domains
-%where the distribution function is close to equilibrium are considered using LB models.
-%At the overlapping domain for these two methods we have introduced the matching between the solutions.
-%The hybrid method shows good precision, moreover significant computation speed-up for the hybrid method over the DV model for the BGK equation.
-
+\section{ACKNOWLEDGMENTS}
+The work was supported by Russian Foundation for Basic Research (Grants 18-01-00899, 18-07-01500).
 
 \bibliographystyle{aipnum-cp}%
 \bibliography{../dvm-lbm}%
