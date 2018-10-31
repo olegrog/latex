@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, argparse, threading, logging, traceback
+import sys, argparse, threading, logging, traceback, vgrid
 import numpy as np
 from functools import partial
 from collections import namedtuple
@@ -9,7 +9,12 @@ parser.add_argument('-U', type=float, default=2e-2, metavar='<float>', help='dif
 parser.add_argument('-k', '--kn', type=float, default=2e-1/np.pi**.5, metavar='<float>', help='the Knudsen number')
 parser.add_argument('-N1', type=int, default=4, metavar='<int>', help='number of cells in the first domain')
 parser.add_argument('-N2', type=int, default=4, metavar='<int>', help='number of cells in the second domain')
-parser.add_argument('-M', type=int, default=8, metavar='<int>', help='number of points along each axis in the velocity space')
+parser.add_argument('-g', '--grid', default='polynomial', metavar='uniform|hermite|polynomial|geometric', help='type of the grid along xi_y')
+parser.add_argument('-M', type=int, default=8, metavar='<int>', help='number of points along xi_x, xi_z')
+parser.add_argument('-My', type=int, default=2, metavar='<int>', help='factor for number of points along xi_y')
+parser.add_argument('-q', '--ratio', type=float, default=1.15, metavar='<float>', help='ratio for the geometric grid')
+parser.add_argument('--w-min', type=float, default=0.1, metavar='<float>', help='minimum weight for the polynomial grid')
+parser.add_argument('--poly', type=float, default=2, metavar='<float>', help='power for the polynomial grid')
 parser.add_argument('-e', '--end', type=int, default=int(1e2), metavar='<int>', help='maximum total time')
 parser.add_argument('-w', '--width', type=str, default='1.2*kn', metavar='<expr>', help='width of the second domain')
 parser.add_argument('-s', '--step', type=float, default=1.5, metavar='<float>', help='reduce timestep in given times')
@@ -120,30 +125,38 @@ correct_vdf = lambda func, macro, xi: {
     'lagrange': lagrange_correct
 }[args.correction](func(to_arr(macro)), to_arr(macro), xi)[from_arr(macro)]
 
+vgrid_params = {
+    'polynomial': { 'w_min': args.w_min, 'p': args.poly },
+    'geometric': { 'q': args.ratio },
+}
+
 ### DVM velocity grid
 def dvm_grid():
     # 1d packing, symm=1 for antisymmetry, symm=-1 for specular reflection
     def dvm_ball(symm):
-        _xi_y = _xi(zeros)[...,1]
-        p = np.where((_xi_y > 0)*(_sqr_xi(zeros) <= args.radius**2))
-        n = np.where((_xi_y < 0)*(_sqr_xi(zeros) <= args.radius**2))
+        _xi_y = _xi[...,1]
+        p = np.where((_xi_y > 0)*(_sqr_xi <= args.radius**2))
+        n = np.where((_xi_y < 0)*(_sqr_xi <= args.radius**2))
         return np.hstack((n[0], p[0][::symm])), np.hstack((n[1], p[1])), np.hstack((n[2], p[2]))
 
-    idx, delta_v = lambda M: np.arange(2*M) - M + .5, args.radius / args.M
-    _Xi, _I = delta_v * idx(args.M), np.ones(2*args.M)
-    dom = lambda v: np.ones(v.shape[0])
-    I = lambda v: np.ones((v.shape[0], 2*args.M))
-    _G = lambda v, k: np.roll((_Xi-v[k], _I, _I), k, axis=0)
-    G = lambda v, k: np.roll((np.einsum('i,a', _Xi, dom(v)) - np.einsum('a,i', v[:,k], _I), I(v), I(v)), k, axis=0)
-
-    _xi = lambda v: np.einsum('li,lj,lk->ijkl', _G(v, 0), _G(v, 1), _G(v, 2))
-    _sqr_xi = lambda v: np.einsum('ijkl,ijkl->ijk', _xi(v), _xi(v))
+    ygrid = getattr(vgrid, args.grid.capitalize())(args.radius, args.M*args.My, **vgrid_params.get(args.grid, {}))
+    grid = getattr(vgrid, 'Hermite')(args.radius, args.M)
+    _Xi = lambda a: ygrid.x if a==1 else grid.x
+    _W = lambda a: ygrid.w if a==1 else grid.w
+    _I = lambda a: np.ones(_W(a).size)
+    _G = lambda a: np.roll((_Xi(a), _I(a), _I(a)), a, axis=0)
+    _xi = np.einsum('li,lj,lk->ijkl', _G(0), _G(1), _G(2))
+    _sqr_xi = np.einsum('ijkl,ijkl->ijk', _xi, _xi)
     _ball = dvm_ball(1)
-    xi0 = _xi(zeros)[_ball]
+    _w = np.einsum('i,j,k->ijk', _W(0), _W(1), _W(2))[_ball]
+
+    I = lambda v, a: np.ones((v.shape[0], _W(a).size))
+    G = lambda v, a: np.roll((np.einsum('a,i', np.ones(v.shape[0]), _Xi(a))
+        - np.einsum('a,i', v[:,a], _I(a)), I(v, a), I(v, a)), a, axis=0)
 
     xi = lambda v: np.einsum('lai,laj,lak->aijkl', G(v, 0), G(v, 1), G(v, 2))[(slice(None),) + _ball]
     sqr_xi = lambda v: np.einsum('ail,ail->ai', xi(v), xi(v))
-    Maxw = lambda m: np.einsum('a,ai->ai', m.rho*(delta_v/np.sqrt(np.pi*m.temp))**fixed.D,
+    Maxw = lambda m: np.einsum('a,i,ai->ai', m.rho*(np.pi*m.temp)**(-fixed.D/2), _w,
             np.exp(np.einsum('ai,a->ai', -sqr_xi(m.vel), 1./m.temp)))
 
     G_tau = lambda m: np.einsum('ail,aim,an,lmn,a->ai', xi(m.vel), xi(m.vel), m.tau, hodge, 1/m.rho/m.temp**2)
@@ -152,11 +165,11 @@ def dvm_grid():
     Grad13 = lambda m: Maxw(m) * (1 + G_tau(m) + G_qflow(m))
 
     return Model(
-        info = 'DVM: (%d)^%d' % (2*args.M, fixed.D),
-        weights = np.ones_like(_ball[0]) * delta_v**fixed.D,
+        info = 'DVM: ({}x{}x{})'.format(*_sqr_xi.shape),
+        weights = _w,
         xi = lambda vel=zeros: xi(_to_arr(vel))[_from_arr(vel)],
-        Maxw = lambda macro: correct_vdf(Maxw, macro, xi0),
-        Grad13 = lambda macro: correct_vdf(Grad13, macro, xi0)
+        Maxw = lambda macro: correct_vdf(Maxw, macro, _xi[_ball]),
+        Grad13 = lambda macro: correct_vdf(Grad13, macro, _xi[_ball])
     )
 
 ### LBM velocity grid
@@ -639,19 +652,19 @@ def tests():
     rho, vel, temp, tau, qflow = 1 + delta, delta*e_x, 1 + delta**2, delta*e_z, delta*e_x/2
     print('Test #1: Maxwell distribution (rho=%g, vel_x=%g, temp=%g)' % (rho, vel[0], temp))
     macro = Macro(rho, vel, temp)
-    for name, model in models.iteritems():
+    for name, model in models.items():
         print('-- %s model:' % name)
         check_macro(model, model.Maxw(macro), macro)
     print(''.join(['-' for i in range(50)]))
     print('Test #2: Grad distribution (rho=%g, vel_x=%g, temp=%g, p_xy=%g)' % (rho, vel[0], temp, tau[2]))
     macro = Macro(rho, vel, temp, tau)
-    for name, model in models.iteritems():
+    for name, model in models.items():
         print('-- %s model:' % name)
         check_macro(model, model.Grad13(macro), macro)
     print(''.join(['-' for i in range(50)]))
     print('Test #3: Grad distribution (rho=%g, vel_x=%g, temp=%g, qflow_x=%g)' % (rho, vel[0], temp, qflow[0]))
     macro = Macro(rho, vel, temp, qflow=qflow)
-    for name, model in models.iteritems():
+    for name, model in models.items():
         print('-- %s model:' % name)
         check_macro(model, model.Grad13(macro), macro)
 
@@ -743,9 +756,9 @@ class Solution(object):
         self.f3 = empty(domain.model, 3)                            # ghost + 2 cells
 
 print(''.join(['=' for i in range(50)]))
-print('DVM: xi_max = %g, grid=(%d)^%d, total = %d, step = %g' %
-        (args.radius, 2*args.M, fixed.D, models['dvm'].xi().size/fixed.D, args.radius / args.M))
-print('LBM: type = %s, total = %d' % (args.lattice, models['lbm'].xi().size/fixed.D))
+for m in models.values():
+    print('{}, total = {}, min_w = {}'.format(m.info, m.weights.size, np.min(m.weights)))
+print('xi_max = %g, xi_y_type = %s' % (args.radius, args.grid))
 print('Kn = %g, U = %g, cells = %d + %d' % (args.kn, args.U, args.N1, args.N2))
 print('Model: (antisym)[ %s | %s ](diffuse), limiter = %s' % (args.model1, args.model2, args.limiter))
 print('Width:  |<-- %.3f -->|<-- %.3f -->|' % (fixed.L-args.width, args.width))
