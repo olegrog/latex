@@ -40,6 +40,13 @@ ymin_0.03 = -0.02
 
 all: $(FIGURES)
 
+subdirs:
+	for dir in $(SUBDIRS); do \
+		cp *.py Makefile $$dir; \
+		$(MAKE) -C $$dir; \
+		rm $$dir/{*.py,Makefile}; \
+	done
+
 %.pdf: %.tex
 	pdflatex $< > /dev/null
 	rm $*{-inc-eps-converted-to.pdf,-inc.eps,.aux,.log}
