@@ -258,7 +258,7 @@ def plot_profiles(solution):
     else:
         Y, Vel, Tau = np.loadtxt('k0.1.txt').T
         plt.plot(Y, Vel, 'rD--', Y, -2*Tau, 'gD--')
-        Y, Vel, Vel2, Tau, Qflow = np.loadtxt('k0.1-my.txt').T
+        Y, Vel, Tau, Qflow = np.loadtxt('k0.1-my.txt').T
         plt.plot(Y, factor*Qflow, 'b--')
         plt.plot(y, m.vel[:,0]/U, 'r*-', label='velocity/U')
         plt.plot(y, -m.tau[:,2]/U, 'g*-', label='share stress/U')

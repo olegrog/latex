@@ -7,7 +7,6 @@ options = \
 	--buffer=$(call buffer,$1) \
 	--kn=$(call knudsen,$1) \
 	--qflow=$(qflow_$(call knudsen,$1)) \
-	--ymin=$(or $(ymin_$(call knudsen,$1)),0) \
 	--hybrid=$(call hybrid,$1)
 
 options_shear = \
@@ -37,14 +36,13 @@ exact_0.1 = -0.0415561
 exact_0.3 = -0.0934498
 exact_0.03 = -0.0141380
 
-ymin_0.03 = -0.02
-
 all: $(FIGURES) $(SUBDIRS)
 
 $(SUBDIRS):
 	files="*.py Makefile k*.txt *.sh" && \
 	cp $$files $@ && \
 	cd $@ && \
+	rm k0.3*.txt && \
 	make && \
 	rm $$files
 

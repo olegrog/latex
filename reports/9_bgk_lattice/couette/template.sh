@@ -11,12 +11,13 @@ set border 3
 set xtics nomirror
 set ytics nomirror
 set grid
+set clip two
 
 set lmargin 6
 set bmargin 2
 
 set xrange [0:.5]
-set yrange [<ymin>:.5]
+set yrange [*:.5]
 
 U = 0.02
 our_width = 2
@@ -36,7 +37,7 @@ plot \
     "<name>.txt" using 1:(-qflow*$4/U) title sprintf('$-%dq_x/\Delta v$', qflow) w lp lw our_width pt our_point, \
     1/0 title 'benchmark' w lp lc exact_color lw exact_width pt exact_point, \
     "k<kn>-my.txt" using 1:2 notitle w l lc exact_color lw exact_width, \
-    "k<kn>-my.txt" using 1:($4/factor) notitle w l lc exact_color lw exact_width, \
-    "k<kn>-my.txt" using 1:(qflow*$5) every 1 notitle w l lc exact_color lw exact_width, \
+    "k<kn>-my.txt" using 1:($3/factor) notitle w l lc exact_color lw exact_width, \
+    "k<kn>-my.txt" using 1:(qflow*$4) every 1 notitle w l lc exact_color lw exact_width, \
     "k<kn>.txt" using 1:2 notitle w p pt exact_point lc exact_color, \
     "k<kn>.txt" using 1:(-2*$3/factor) notitle w p pt exact_point lc exact_color
