@@ -1,6 +1,7 @@
 SOURCES = $(shell ls *.txt | grep -v ^k)
 KNUDSENS = $(shell ls k*.txt | sed 's/.txt//;s/\./_/' | grep -oE '[0-9_]+' | sort | uniq)
 FIGURES = $(SOURCES:.txt=.pdf) $(patsubst %,shear-k%.pdf,$(KNUDSENS))
+SUBDIRS = $(shell find . -type d | grep nonuniform)
 
 options = \
 	--buffer=$(call buffer,$1) \
@@ -38,14 +39,14 @@ exact_0.03 = -0.0141380
 
 ymin_0.03 = -0.02
 
-all: $(FIGURES)
+all: $(FIGURES) $(SUBDIRS)
 
-subdirs:
-	for dir in $(SUBDIRS); do \
-		cp *.py Makefile $$dir; \
-		$(MAKE) -C $$dir; \
-		rm $$dir/{*.py,Makefile}; \
-	done
+$(SUBDIRS):
+	files="*.py Makefile k*.txt *.sh" && \
+	cp $$files $@ && \
+	cd $@ && \
+	make && \
+	rm $$files
 
 %.pdf: %.tex
 	pdflatex $< > /dev/null
@@ -62,6 +63,8 @@ _shear-%.sh: create_plots.py template-shear.sh
 
 _%.sh: create_plots.py template.sh %.txt
 	./$< $(word 2,$^) --name=$* $(call options,$(subst -, ,$*))
+
+.PHONY: all clean $(SUBDIRS)
 
 clean:
 	rm -f $(FIGURES)

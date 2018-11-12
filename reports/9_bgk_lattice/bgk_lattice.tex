@@ -30,7 +30,7 @@
     firstinits]{biblatex}
 \bibliography{bgk_lattice}
 
-\title{Multiscale hybrid approach based on the discrete-velocity and lattice-Boltzmann methods under the finite-volume formulation}
+\title{Kinetic--kinetic coupling based on the discrete-velocity and lattice-Boltzmann methods under the finite-volume formulation}
 \author{Oleg Rogozin}
 
 % general
@@ -69,7 +69,7 @@
 
 \section{Basic equations}\label{sec:equations}
 
-%%% nondimensional variables
+%%% Nondimensional variables
 Consider a monatomic ideal gas in \(D\)-dimensions.
 Let \(L\), \(\refer\rho\), \(\refer{T}\), \(V = \sqrt{2R\refer{T}}\) and \(\refer{p} = \refer{\rho}R\refer{T}\) be
 the reference length, density, temperature, velocity, and pressure, respectively.
@@ -130,7 +130,7 @@ It is also assumed that \(v_{Bi}n_i = 0\).
 
 \subsection{Discrete-velocity approximation}\label{sec:dv}
 
-%%% quadratures in velocity space
+%%% Quadratures in velocity space
 Formally, the VDF can be represented as a weighted sum
 \begin{equation}\label{eq:discrete_velocity}
     f(\bx,\bxi,t) = \sum_\alpha w_\alpha f_\alpha(\bx,t)\delta(\bxi-\bxia),
@@ -147,7 +147,7 @@ The evolution of \(\hat{f}_\alpha\) is governed by the system of partial differe
 \end{equation}
 which is called the \emph{discrete-velocity (DV) model} of~\eqref{eq:Boltzmann}~\cite{Cabannes1980}.
 
-%%% conservative and entropic models
+%%% Conservative and entropic models
 It is important for a DV model~\eqref{eq:dvm} to preserve conservation and entropy properties
 of the continuous kinetic equation~\eqref{eq:Boltzmann}.
 For the BGK model
