@@ -320,6 +320,7 @@ It is also assumed that \(\bv_B\bn = 0\).
 % The assumption of constant relaxation time is acceptable for many cases, for instance, a good precision can be obtained for the Poiseuille and Couette flows \cite{Cerc2004,Luo2015,Luo2016}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% [Rogozin]: this is a wrong citation. They studied the linear Couette flow, where Ma->0. In this limit, the relaxation time \tau=k is constant, since \rho=1.
+%%  - Это верное цитирование, как будто у нас Мах %5  -  большой
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We also denote the stress tensor and heat flux as \(p_{\alpha\beta}\), \(\bq\).
 
@@ -457,15 +458,15 @@ H_\alpha(\bxi)=\frac{(-1)}{\omega(\bxi)}\frac{\partial}{\partial \xi_\alpha}\ome
 $$
 and
 $$
- \omega(\bxi)\equiv \frac{1}{\sqrt{(2\pi})^3}\exp\left(-\frac{\bxi^2}{2}\right).
+ \omega(\bxi)= \frac{1}{\sqrt{(2\pi})^3}\exp\left(-\frac{\bxi^2}{2}\right).
 $$
  The coefficients $a, a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma}$ depend on $\bx$ (the point in the overlapping domain).
- We will use the function \eqref{grad} for the transfer of the data between the LB and the BGK models. We will discuss this procedure in turn.
+ We will use the function \eqref{grad} for the transfer of the data between the LB and the BGK models.
 
 For the sake of clarity, we assume that the flow depends only on one of the coordinates of the vector $\bx$, we denote it by $x$.
 
 At the first step we update the DV VDF $f_\mathrm{DV}(x,\bxi)$ for the discrete velocities $\bxi_n$ such that $(\bxi_n,\mathbf{e})<0$, where $\mathbf{e}$ is the outer normal to the overlapping domain, we start from the  spatial nodes at the wall and move towards  the overlapping zone.
-In the spatial domain (physical domain) where the DV method overlaps the LB method we map the DV VDF for the DV difference scheme on the Grad VDF by calculating the following coefficients $a, a_\alpha,a_{\alpha\beta}, a_{\alpha\beta \gamma}$
+In the overlapping spatial domain (physical domain)  we map the DV VDF  on the Grad VDF by calculating the following coefficients $a, a_\alpha,a_{\alpha\beta}, a_{\alpha\beta \gamma}$
 $$
 a(x)=\sum_{m=1}^M f_\mathrm{DV}(x,\bxi_m),   \quad a_\alpha(x)=\sum_{m=1}^Mf_\mathrm{DV}(x,\bxi_m)H_j(\bxi_m),
 $$
@@ -476,31 +477,31 @@ $$
 where $\bxi_m, m=1 \ldots M$ are the velocities of the DV difference scheme.
 The Grad VDF \eqref{grad} is recovered in the overlapping spatial domain.
 
-Next we will map the velocity distribution \eqref{grad} on the LB distribution using the Gauss--Hermite quadrature method.
+Next we will map the velocity distribution function \eqref{grad} on the LB distribution using the Gauss--Hermite quadrature method.
 The idea of the method is based on the fact that the representation of the VDF in the Grad form
 is equivalent to the LB method~\cite{He1997, Shan1998, Shan2006}.
 We consider the first moments $a,a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma}$ in the integral form and then calculate them using Gauss--Hermite quadratures
 $$
-\{ a,a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma} \}=\int f_H(\bxi)\{1,H_{\alpha}, H_{\alpha\beta} ,H_{\alpha\beta \gamma}\}(\bxi)d\bxi=\sum_{j=1}^N w_j\frac{f_H(\boldsymbol{c}_j)}{\omega(\bc_j)}
+\{ a,a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma} \}=\int f(\bxi)\{1,H_{\alpha}, H_{\alpha\beta} ,H_{\alpha\beta \gamma}\}(\bxi)d\bxi=\sum_{j=1}^N w_j\frac{f_H(\boldsymbol{c}_j)}{\omega(\bc_j)}
 \{1,H_{\alpha}(\bc_j),H_{\alpha\beta}(\bc_j), H_{\alpha\beta\gamma}(\bc_j) \},
 $$
 where $w_j, \boldsymbol{c}_j$ are the weights and the nodes of the Gauss--Hermite quadrature respectively. The nodes $\bc_j$ can be considered as the LB velocities while $ w_j\frac{f(\bc_j)}{\omega(\bv_j)}$ are the LB VDF values and
-$w_j$ are the lattice analog of the Maxwell distribution.  Then the formula
+$w_j$ are the LB analog of the Maxwell distribution.  Then the formula
 \begin{equation}\label{grad_to_latt}
-f_{\mathrm{LB},j}\equiv w_j\frac{f_H(\bc_j)}{\omega(\bc_j)}
+f_{\mathrm{LB},j}= w_j\frac{f_H(\bc_j)}{\omega(\bc_j)}
 \end{equation}
 gives the mapping of the Grad truncated VDF $f_H$ to the LB VDF $f_{LB,j}$ for the corresponding velocities $\bc_j$. Now having the values in the overlapping domain we update $f_{LB,j}$ for the velocities $\bc_j$ directed from the overlapping domain into the interior of the LB domain.
 
 
-The second step consists of the evaluation of the LB   distribution for the lattice velocities $\boldsymbol{c}_j$ such that $(\boldsymbol{c}_j,\mathbf{e})<0$ , where $\mathbf{e}$ is the outer normal to the overlapping domain.  We evaluate the moments $a,a_{\alpha},a_{\alpha\beta},
+The second step consists of the evaluation of the LB   distribution for the lattice velocities $\boldsymbol{c}_j$ such that $(\boldsymbol{c}_j,\mathbf{e})<0$, where $\mathbf{e}$ is the outer normal to the overlapping domain.  We evaluate the moments $a,a_{\alpha},a_{\alpha\beta},
 a_{\alpha\beta\gamma}$ and finally update again the Grad VDF in the overlapping domain. The coefficients $a,a_{\alpha},a_{\alpha\beta},
 a_{\alpha\beta\gamma}$ are calculated using the formulas
 $$
 a=\sum_{j=1}^N f_{LB,j}, \quad a_{\alpha}=\sum_{j=1}^N f_{LB,j}H_{\alpha}(\bc_j), \quad a_{\alpha\beta}=\sum_{j=1}^N f_{LB,j}H_{\alpha\beta}(\bc_j),
 \quad a_{\alpha\beta\gamma}=\sum_{j=1}^N f_{LB,j}H_{\alpha\beta\gamma}(\bc_j).
 $$
-Now we are ready derive the DV VDF in the DV and LB overlapping domain. This can be made by a simple
-discretization of the Grad VDFs at the nodes of the DV scheme. Finally, we evaluate the DV VDF for the all velocities $(\bxi_j,\mathbf{e}) \leq 0$
+Now we  derive the DV VDF in the DV and LB overlapping domain. This can be made by a simple
+discretization of the Grad VDFs at the nodes of the DV scheme. Finally, we evaluate the DV VDF for the all velocities $(\bxi_j,\mathbf{e}) <0$
 in the interior of the DV spatial domain.
 
 The described mapping method can be generalized for the LB models which are not derived on the basis of the Gauss--Hermite quadratures.
@@ -732,14 +733,14 @@ In case of the first-order scheme, \(f_{-1}^n\) and only for \(\xi_{j1}>0\) is s
         \label{fig:hyb:d3q19}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{hyb-d3v96_k01}
+        \includegraphics[width=\textwidth]{hyb-d3v96}
         \caption{hybrid (DV and D3Q96)}
-        \label{fig:hyb:d3v96_k01}
+        \label{fig:hyb:d3v96}
     \end{subfigure}
     \caption{
         Numerical solution of the Couette-flow problem for $k=0.1$ obtained by the proposed hybrid method.
- The matching point is placed  at the  distance $1.2 Kn$ from the  boundary.
-The black lines are the high-accuracy solution of the BGK model. The black boxes correspond to the tabulated solutions~\cite{Luo2015, Luo2016}. The bulk velocity for the hybrid $D3Q19+DVM$ is  better than for the sole $D3Q19$ model while  the  improvement for $D3v96+DVM$ over $D3Q96$ is  small since  $D3Q96$  is able  to reproduce some effects beyond  the Navier-Stokes level. The heat flux is absent  for $D3Q19$ because  this  model does not cover  the  third order moments. Oscillations  in the  heat flux are  observed for  $D3Q96+DVM$, we suppose  that this  effect is a result  of nonequilibrium state at the  matching  point which can not  be  handled with $D3Q96$  model for the  Knudsen numbers beyond  the slip regime.
+ The matching point is placed  at the  distance $1.2 k$ from the  boundary.
+The black lines are the high-accuracy solution of the BGK model. The black boxes correspond to the tabulated solutions~\cite{Luo2015, Luo2016}. The bulk velocity for the hybrid $D3Q19+DVM$ is  better reproduced than for the sole $D3Q19$ model while  the  improvement for $D3v96+DVM$ over $D3Q96$ is  small since  $D3Q96$  is able  to reproduce some effects beyond  the Navier-Stokes level. The heat flux is absent  for $D3Q19$ because  this  model does not cover  the  third order moments. Oscillations  in the  heat flux are  observed for  $D3Q96+DVM$, we suppose  that this  effect is a result  of nonequilibrium state at the  matching  point which can not  be  handled with $D3Q96$  model for the  Knudsen numbers beyond  the slip regime.
     }\label{fig:hybrid}
 \end{figure}
 
@@ -770,7 +771,7 @@ The black lines are the high-accuracy solution of the BGK model. The black boxes
     \caption{
         Numerical solution of the Couette-flow problem for $k=0.03$ obtained by the proposed hybrid method.
  The matching point is placed  at the  distance $1.2 Kn$ from the  boundary.
-The black lines are the high-accuracy solution of the BGK model. The black boxes correspond to the tabulated solutions~\cite{Luo2015, Luo2016}. The  hybrid $D3Q96+DVM$ copes  with the  heat flux  significntly  better than  for the  large $k$ values.
+The black lines are the high-accuracy solution of the BGK model. The black boxes correspond to the tabulated solutions~\cite{Luo2015, Luo2016}. The  hybrid $D3Q96+DVM$ copes  with the  heat flux  significantly  better than  for the  large $k$ values.
     }\label{fig:hybrid003}
 \end{figure}
 
