@@ -9,7 +9,7 @@
 
 %%% configuration packages
 \usepackage{fullpage}
-%\usepackage{comment}
+\usepackage{comment}
 
 \usepackage{xcolor}
 \newcommand{\todo}[1]{\textcolor{olive}{#1}}
@@ -81,15 +81,23 @@
 \newcommand{\bn}{\boldsymbol{n}}
 \newcommand{\dx}{\dd{\boldsymbol{x}}}
 \newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\equil}[1]{#1^\mathrm{(eq)}}
+\newcommand{\refer}[1]{#1_0}
+\newcommand{\LB}{\mathrm{LB}}
+\newcommand{\DV}{\mathrm{DV}}
+
 \newcommand{\xiai}{\xi_{j \alpha}}
 \newcommand{\xiaj}{\xi_{j \beta}}
 \newcommand{\xiak}{\xi_{j \gamma}}
 \newcommand{\cai}{c_{j \alpha}}
 \newcommand{\caj}{c_{j \beta}}
-\newcommand{\equil}[1]{#1^\mathrm{(eq)}}
-\newcommand{\refer}[1]{#1_0}
-\newcommand{\LB}{\mathrm{LB}}
-\newcommand{\DV}{\mathrm{DV}}
+\newcommand{\cak}{c_{j \gamma}}
+\newcommand{\ai}{a_{\alpha}}
+\newcommand{\aij}{a_{\alpha\beta}}
+\newcommand{\aijk}{a_{\alpha\beta\gamma}}
+\newcommand{\Hi}{H_{\alpha}}
+\newcommand{\Hij}{H_{\alpha\beta}}
+\newcommand{\Hijk}{H_{\alpha\beta\gamma}}
 
 \begin{document}
 
@@ -111,7 +119,7 @@
 \address[ccas]{Dorodnicyn Computing Center,
     Federal Research Center "Computer Science and Control" of Russian Academy of Science, Moscow, Russia}
 \address[skoltech]{Center for Design, Manufacturing, and Materials,
-    Skolkovo Institute of Science and Technology, Skolkovo, Russia}
+    Skolkovo Institute of Science and Technology, Moscow, Russia}
 
 \begin{abstract}
 
@@ -376,7 +384,7 @@ is obtained by the maximization of the discrete entropy functional~\cite{Mieusse
 \end{equation}
 where \(\beta_r\in\mathbb{R}^5\) is the unique solution of
 \begin{equation}\label{eq:beta}
-    \sum_j\psi_{jr}\br{\equil{\hat{f}}_j - \hat{f}_j} = 0.
+    \sum_j\psi_{jr}\br{\equil{\hat{f}}_{\DV,j} - \hat{f}_j} = 0, \quad r = 1,\dots,5.
 \end{equation}
 The construction~\eqref{eq:equilibrium-bgk}--\eqref{eq:beta} guarantees that
 the equilibrium state maximizes entropy and the conservation laws are satisfied.
@@ -447,68 +455,77 @@ and the entropic method~\cite{Karlin1999, Chikatamarla2006, Chikatamarla2009}.
 
 We will introduce the mapping method in the spatial overlapping zone of the BGK and LB models.
 First of all, we assume that in this domain the VDF of the gas is close to the Maxwell state with zero bulk velocity and unit temperature.
-Therefore, VDF can be represented in the form of the truncated Grad expansion up to the third order terms on the velocity
-\begin{equation}\label{grad}
-    f_H(\bx,\bxi) = \omega(\bxi)\left(a(\bx) +\sum_{\alpha}a_{\alpha}(\bx)H_{\alpha}+\frac{1}{2!}\sum_{\alpha\beta}a_{\alpha \beta}(\bx)H_{\alpha\beta}+\frac{1}{3!}\sum_{\alpha\beta \gamma}a_{\alpha\beta\gamma}(\bx)H_{\alpha\beta\gamma}\right),
+Therefore, VDF can be represented in the form of the truncated Hermite expansion up to the third order terms on the velocity
+\begin{equation}\label{eq:grad}
+    f_H(\bx,\bxi) = \omega(\bxi)\left(a(\bx) +\sum_{\alpha}\ai(\bx)\Hi+\frac{1}{2!}\sum_{\alpha\beta}
+    \aij(\bx)\Hij+\frac{1}{3!}\sum_{\alpha\beta \gamma}\aijk(\bx)\Hijk\right),
 \end{equation}
-where $H_{\alpha}, H_{\alpha\beta}, H_{\alpha\beta\gamma}$ are the Hermite polynomials of the first, second, and third order. The polynomials are defined by
+where $\Hi, \Hij, \Hijk$ are the Hermite polynomials of the first, second, and third order. The polynomials are defined by
 $$
-H_\alpha(\bxi)=\frac{(-1)}{\omega(\bxi)}\frac{\partial}{\partial \xi_\alpha}\omega(\bxi),  \quad H_{\alpha\beta}(\bxi)=\frac{1}{\omega(\bxi)}\frac{\partial^2}{\partial \xi_\alpha\partial \xi_\beta}\omega(\bxi),
-\quad H_{\alpha\beta \gamma}(\bxi)=\frac{(-1)}{\omega(\bxi)}\frac{\partial^3}{\partial \xi_\alpha\partial \xi_\beta \partial \xi_\gamma}\omega(\bxi),
+H_\alpha(\bxi)=\frac{(-1)}{\omega(\bxi)}\frac{\partial}{\partial \xi_\alpha}\omega(\bxi),  \quad \Hij(\bxi)=\frac{1}{\omega(\bxi)}\frac{\partial^2}{\partial \xi_\alpha\partial \xi_\beta}\omega(\bxi),
+\quad \Hijk(\bxi)=\frac{(-1)}{\omega(\bxi)}
+\frac{\partial^3}{\partial \xi_\alpha\partial \xi_\beta \partial \xi_\gamma}\omega(\bxi),
 $$
 and
 $$
  \omega(\bxi)= \frac{1}{\sqrt{(2\pi})^3}\exp\left(-\frac{\bxi^2}{2}\right).
 $$
- The coefficients $a, a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma}$ depend on $\bx$ (the point in the overlapping domain).
- We will use the function \eqref{grad} for the transfer of the data between the LB and the BGK models.
+ The coefficients $a, \ai,\aij, \aijk$ depend on $\bx$ (the point in the overlapping domain).
+ We will use the function \eqref{eq:grad} for the transfer of the data between the LB and the BGK models.
 
 For the sake of clarity, we assume that the flow depends only on one of the coordinates of the vector $\bx$, we denote it by $x$.
 
-At the first step we update the DV VDF $f_\mathrm{DV}(x,\bxi)$ for the discrete velocities $\bxi_n$ such that $(\bxi_n,\mathbf{e})<0$, where $\mathbf{e}$ is the outer normal to the overlapping domain, we start from the  spatial nodes at the wall and move towards  the overlapping zone.
-In the overlapping spatial domain (physical domain)  we map the DV VDF  on the Grad VDF by calculating the following coefficients $a, a_\alpha,a_{\alpha\beta}, a_{\alpha\beta \gamma}$
+At the first step, we update the DV VDF $f_\DV(x,\bxi)$ for the discrete velocities $\bxi_n$ such that $(\bxi_n,\mathbf{e})<0$,
+where $\mathbf{e}$ is the outer normal to the overlapping domain.
+We start from the  spatial nodes at the wall and move towards  the overlapping zone.
+In the overlapping spatial domain (physical domain)  we map the DV VDF  on the Grad VDF by calculating the following coefficients:
 $$
-a(x)=\sum_{m=1}^M f_\mathrm{DV}(x,\bxi_m),   \quad a_\alpha(x)=\sum_{m=1}^Mf_\mathrm{DV}(x,\bxi_m)H_j(\bxi_m),
+    a(x)=\sum_{m=1}^M f_\DV(x,\bxi_m), \quad \ai(x)=\sum_{m=1}^Mf_\DV(x,\bxi_m)H_j(\bxi_m),
 $$
 $$
-a_{\alpha\beta }(x)=\sum_{m=1}^Mf_\mathrm{DV}(x,\bxi_m)H_{\alpha\beta}(\bxi_m), \quad
-a_{\alpha\beta \gamma}(x)=\sum_{m=1}^Mf_\mathrm{DV}(x,\bxi_m)H_{\alpha\beta \gamma}(\bxi_m),
+    \aij(x)=\sum_{m=1}^Mf_\DV(x,\bxi_m)\Hij(\bxi_m), \quad
+    \aijk(x)=\sum_{m=1}^Mf_\DV(x,\bxi_m)\Hijk(\bxi_m),
 $$
 where $\bxi_m, m=1 \ldots M$ are the velocities of the DV difference scheme.
-The Grad VDF \eqref{grad} is recovered in the overlapping spatial domain.
+The Grad VDF \eqref{eq:grad} is recovered in the overlapping spatial domain.
 
-Next we will map the velocity distribution function \eqref{grad} on the LB distribution using the Gauss--Hermite quadrature method.
+Next we will map~\eqref{eq:grad} on the LB distribution using the Gauss--Hermite quadrature method.
 The idea of the method is based on the fact that the representation of the VDF in the Grad form
 is equivalent to the LB method~\cite{He1997, Shan1998, Shan2006}.
-We consider the first moments $a,a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma}$ in the integral form and then calculate them using Gauss--Hermite quadratures
+We consider the first moments $a,\ai,\aij, \aijk$ in the integral form and then calculate them using Gauss--Hermite quadratures
 $$
-\{ a,a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma} \}=\int f(\bxi)\{1,H_{\alpha}, H_{\alpha\beta} ,H_{\alpha\beta \gamma}\}(\bxi)d\bxi=\sum_{j=1}^N w_j\frac{f_H(\boldsymbol{c}_j)}{\omega(\bc_j)}
-\{1,H_{\alpha}(\bc_j),H_{\alpha\beta}(\bc_j), H_{\alpha\beta\gamma}(\bc_j) \},
+    \{ a, \ai, \aij, \aijk \}=\int f(\bxi)\{ 1, \Hi, \Hij, \Hijk \}(\bxi)d\bxi =
+    \sum_{j=1}^N w_j\frac{f_H(\bc_j)}{\omega(\bc_j)} \{ 1, \Hi(\bc_j), \Hij(\bc_j), \Hijk(\bc_j) \},
 $$
-where $w_j, \boldsymbol{c}_j$ are the weights and the nodes of the Gauss--Hermite quadrature respectively. The nodes $\bc_j$ can be considered as the LB velocities while $ w_j\frac{f(\bc_j)}{\omega(\bv_j)}$ are the LB VDF values and
+where $w_j, \bc_j$ are the weights and the nodes of the Gauss--Hermite quadrature respectively.
+The nodes $\bc_j$ can be considered as the LB velocities while $ w_j\frac{f(\bc_j)}{\omega(\bv_j)}$ are the LB VDF values and
 $w_j$ are the LB analog of the Maxwell distribution.  Then the formula
-\begin{equation}\label{grad_to_latt}
-f_{\mathrm{LB},j}= w_j\frac{f_H(\bc_j)}{\omega(\bc_j)}
+\begin{equation}\label{eq:grad_to_latt}
+f_{\LB,j}= w_j\frac{f_H(\bc_j)}{\omega(\bc_j)}
 \end{equation}
-gives the mapping of the Grad truncated VDF $f_H$ to the LB VDF $f_{LB,j}$ for the corresponding velocities $\bc_j$. Now having the values in the overlapping domain we update $f_{LB,j}$ for the velocities $\bc_j$ directed from the overlapping domain into the interior of the LB domain.
+gives the mapping of $f_H$ to $f_{LB,j}$ for the corresponding velocities $\bc_j$.
+Now having the values in the overlapping domain, we update $f_{LB,j}$ for the velocities $\bc_j$
+directed from the overlapping domain into the interior of the LB domain.
 
 
-The second step consists of the evaluation of the LB   distribution for the lattice velocities $\boldsymbol{c}_j$ such that $(\boldsymbol{c}_j,\mathbf{e})<0$, where $\mathbf{e}$ is the outer normal to the overlapping domain.  We evaluate the moments $a,a_{\alpha},a_{\alpha\beta},
-a_{\alpha\beta\gamma}$ and finally update again the Grad VDF in the overlapping domain. The coefficients $a,a_{\alpha},a_{\alpha\beta},
-a_{\alpha\beta\gamma}$ are calculated using the formulas
+The second step consists of the evaluation of the LB   distribution for the lattice velocities $\bc_j$ such that $(\bc_j,\mathbf{e})<0$, where $\mathbf{e}$ is the outer normal to the overlapping domain.
+We evaluate the moments $a,\ai,\aij,
+\aijk$ and finally update again the Grad VDF in the overlapping domain.
+The coefficients $a,\ai,\aij, \aijk$ are calculated using the formulas
 $$
-a=\sum_{j=1}^N f_{LB,j}, \quad a_{\alpha}=\sum_{j=1}^N f_{LB,j}H_{\alpha}(\bc_j), \quad a_{\alpha\beta}=\sum_{j=1}^N f_{LB,j}H_{\alpha\beta}(\bc_j),
-\quad a_{\alpha\beta\gamma}=\sum_{j=1}^N f_{LB,j}H_{\alpha\beta\gamma}(\bc_j).
+a=\sum_{j=1}^N f_{LB,j}, \quad \ai=\sum_{j=1}^N f_{LB,j}\Hi(\bc_j), \quad \aij=\sum_{j=1}^N f_{LB,j}\Hij(\bc_j),
+\quad \aijk=\sum_{j=1}^N f_{LB,j}\Hijk(\bc_j).
 $$
 Now we  derive the DV VDF in the DV and LB overlapping domain. This can be made by a simple
-discretization of the Grad VDFs at the nodes of the DV scheme. Finally, we evaluate the DV VDF for the all velocities $(\bxi_j,\mathbf{e}) <0$
+discretization of the Grad VDFs at the nodes of the DV scheme.
+Finally, we evaluate the DV VDF for the all velocities $(\bxi_j,\mathbf{e}) <0$
 in the interior of the DV spatial domain.
 
 The described mapping method can be generalized for the LB models which are not derived on the basis of the Gauss--Hermite quadratures.
 We assume that after the regularization procedure~\cite{Latt2006, Chen2006} and~\cite{Zhang2006, Mont2015, Mattila2017}
-the non-equilibrium part of LB VDF will be projected in a finite-dimensional velocity space with a basis spanned by Hermite polynomials.
-Then the equivalence between the calculated LB distribution and
-the expansion of the Grad type can be achieved; therefore, the proposed mapping method can be applied.
+the non-equilibrium part of LB VDF will be projected into a velocity space with a basis spanned by Hermite polynomials.
+Then the equivalence between the LB distribution and the expansion of the Grad type can be achieved;
+therefore, the proposed mapping method can be applied.
 
 \section{Numerical method}\label{sec:numerics}
 
@@ -665,7 +682,7 @@ They are symmetric due to unified formulation in the physical space.
 %%% Projection and reconstruction procedures
 The concept of ghost cells suggests the simplest (from the algorithmic point of view) coupling strategy.
 If the interface between subdomains lies in the near-continuum region,
-it is admissible to exchange information only within a Hilbert subspace \(\mathcal{H}\)
+it is admissible to exchange information only within a Hilbert subspace
 spanned by the truncated Hermite polynomials.
 Then, all that we need is to supplement each DV model with a mapping to this subspace.
 
@@ -687,7 +704,7 @@ In practice, each component of \(\gamma_r\in\mathbb{R}^5\) is significantly less
 therefore, the positivity is also preserved.
 
 %%% 1D example
-Finally, let us return to the one-dimensional example outlined in sec.~\ref{sec:numerics:fv}
+Finally, let us return to the one-dimensional example outlined in Sec.~\ref{sec:numerics:fv}
 and suppose that \(x=0\) is our interface.
 In order to use~\eqref{eq:internal_fluxes}, the VDF should be reconstructed in the ghost cells.
 In case of the second-order TVD scheme, \(f_{-1}^n\) is used for all \(\bxi_j\) and, additionally,
@@ -699,7 +716,7 @@ In case of the first-order scheme, \(f_{-1}^n\) and only for \(\xi_{j1}>0\) is s
 \begin{figure}
     \centering
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{dvm}
+        \includegraphics[width=\textwidth]{nonuniform/dvm}
         \caption{DV method}
         \label{fig:dvm}
     \end{subfigure}%
@@ -719,28 +736,29 @@ In case of the first-order scheme, \(f_{-1}^n\) and only for \(\xi_{j1}>0\) is s
         \label{fig:d3q96}
     \end{subfigure}
     \caption{
-        Numerical solution of the Couette-flow problem for $k=0.1$ obtained by pure DV or LB methods.
-        The black lines are the high-accuracy solution of the BGK model.
-        The black boxes correspond to the tabulated solutions~\cite{Luo2015, Luo2016}.
+        Numerical solution of the Couette-flow problem for \(k=0.1\) obtained by pure DV or LB methods.
+        The black lines are the high-accuracy solution for the BGK model.
+        The black boxes correspond to the tabulated solutions~\cite{Luo2016}.
     }\label{fig:pure}
 \end{figure}
 
 \begin{figure}
     \centering
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{hyb-d3q19}
-        \caption{hybrid (DV and D3Q19)}
+        \includegraphics[width=\textwidth]{nonuniform/hyb-d3q19}
+        \caption{hybrid: DV and D3Q19}
         \label{fig:hyb:d3q19}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{hyb-d3v96}
-        \caption{hybrid (DV and D3Q96)}
+        \includegraphics[width=\textwidth]{nonuniform/hyb-d3v96}
+        \caption{hybrid: DV and D3Q96}
         \label{fig:hyb:d3v96}
     \end{subfigure}
     \caption{
-        Numerical solution of the Couette-flow problem for $k=0.1$ obtained by the proposed hybrid method.
- The matching point is placed  at the  distance $1.2 k$ from the  boundary.
-The black lines are the high-accuracy solution of the BGK model. The black boxes correspond to the tabulated solutions~\cite{Luo2015, Luo2016}. The bulk velocity for the hybrid $D3Q19+DVM$ is  better reproduced than for the sole $D3Q19$ model while  the  improvement for $D3v96+DVM$ over $D3Q96$ is  small since  $D3Q96$  is able  to reproduce some effects beyond  the Navier-Stokes level. The heat flux is absent  for $D3Q19$ because  this  model does not cover  the  third order moments. Oscillations  in the  heat flux are  observed for  $D3Q96+DVM$, we suppose  that this  effect is a result  of nonequilibrium state at the  matching  point which can not  be  handled with $D3Q96$  model for the  Knudsen numbers beyond  the slip regime.
+        Numerical solution of the Couette-flow problem for \(k=0.1\) obtained by the proposed hybrid method.
+        It is \(1.2\) mean free paths between the boundary and coupling interface.
+        The black lines are the high-accuracy solution for the BGK model.
+        The black boxes correspond to the tabulated solutions~\cite{Luo2016}.
     }\label{fig:hybrid}
 \end{figure}
 
@@ -748,90 +766,86 @@ The black lines are the high-accuracy solution of the BGK model. The black boxes
     \centering
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{d3q19-k0_03}
-        \caption{ (D3Q19)}
+        \caption{LB method: D3Q19}
         \label{fig:d3q19-k003}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{d3v96-k0_03.pdf}
-        \caption{ (D3Q96)}
-        \label{fig:d3v96_k003}
+        \includegraphics[width=\textwidth]{d3v96-k0_03}
+        \caption{LB method: D3Q96}
+        \label{fig:d3v96-k003}
     \end{subfigure}\\
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]
-        {hyb-d3q19-k0_03.pdf}
-        \caption{hybrid (DV and D3Q19)}
+        \includegraphics[width=\textwidth]{nonuniform/hyb-d3q19-k0_03}
+        \caption{hybrid: DV and D3Q19}
         \label{fig:hyb:d3q19-k003}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]
-        {hyb-d3v96-k0_03.pdf}
-        \caption{hybrid (DV and D3Q96)}
-        \label{fig:hyb:d3v96_k003}
+        \includegraphics[width=\textwidth]{nonuniform/hyb-d3v96-k0_03}
+        \caption{hybrid: DV and D3Q96}
+        \label{fig:hyb:d3v96-k003}
     \end{subfigure}
     \caption{
-        Numerical solution of the Couette-flow problem for $k=0.03$ obtained by the proposed hybrid method.
- The matching point is placed  at the  distance $1.2 Kn$ from the  boundary.
-The black lines are the high-accuracy solution of the BGK model. The black boxes correspond to the tabulated solutions~\cite{Luo2015, Luo2016}. The  hybrid $D3Q96+DVM$ copes  with the  heat flux  significantly  better than  for the  large $k$ values.
-    }\label{fig:hybrid003}
+        Numerical solution of the Couette-flow problem for \(k=0.03\) obtained by the proposed hybrid method.
+        It is \(3\) mean free paths between the boundary and coupling interface.
+        The black lines are the high-accuracy solution for the BGK model.
+        The black boxes correspond to the tabulated solutions~\cite{Luo2016}.
+    }\label{fig:hybrid-k003}
 \end{figure}
 
+\begin{comment} ### [Rogozin] Seems that results for k=0.3 do not show us smth new
+\begin{figure}
+   \centering
+   \begin{subfigure}[b]{0.5\textwidth}
+       \includegraphics[width=\textwidth]{d3q19-k0_3}
+       \caption{ (D3Q19)}
+       \label{fig:d3q19-k03}
+   \end{subfigure}%
+   \begin{subfigure}[b]{0.5\textwidth}
+       \includegraphics[width=\textwidth]{d3v96-k0_3.pdf}
+       \caption{ (D3Q96)}
+       \label{fig:d3v96_k03}
+   \end{subfigure}\\
+   \begin{subfigure}[b]{0.5\textwidth}
+       \includegraphics[width=\textwidth]
+       {hyb-d3q19-k0_3.pdf}
+       \caption{hybrid (DV and D3Q19)}
+       \label{fig:hyb:d3q19-k03}
+   \end{subfigure}%
+   \begin{subfigure}[b]{0.5\textwidth}
+       \includegraphics[width=\textwidth]
+       {hyb-d3v96-k0_3.pdf}
+       \caption{hybrid (DV and D3Q96)}
+       \label{fig:hyb:d3v96_k03}
+   \end{subfigure}
+   \caption{
+       Numerical solution of the Couette-flow problem for $k=0.3$ obtained by the proposed hybrid method.
+       The matching point is placed  at the  distance $1.2 Kn$ from the  boundary.
+       The black lines are the high-accuracy solution for the BGK model.
+       The black boxes correspond to the tabulated solutions~\cite{Luo2015, Luo2016}.
+   }\label{fig:hybrid03}
+\end{figure}
+\end{comment}
 
 \begin{figure}
     \centering
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{d3q19-k0_3}
-        \caption{ (D3Q19)}
-        \label{fig:d3q19-k03}
-    \end{subfigure}%
-    \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{d3v96-k0_3.pdf}
-        \caption{ (D3Q96)}
-        \label{fig:d3v96_k03}
-    \end{subfigure}\\
-    \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]
-        {hyb-d3q19-k0_3.pdf}
-        \caption{hybrid (DV and D3Q19)}
-        \label{fig:hyb:d3q19-k03}
-    \end{subfigure}%
-    \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]
-        {hyb-d3v96-k0_3.pdf}
-        \caption{hybrid (DV and D3Q96)}
-        \label{fig:hyb:d3v96_k03}
-    \end{subfigure}
-    \caption{
-        Numerical solution of the Couette-flow problem for $k=0.3$ obtained by the proposed hybrid method.
- The matching point is placed  at the  distance $1.2 Kn$ from the  boundary.
-The black lines are the high-accuracy solution of the BGK model. The black boxes correspond to the tabulated solutions~\cite{Luo2015, Luo2016}. Significant  improvement  in the  bulk velocity for $D3Q19+DVM$ over  $D3Q19$ is  observed. The heat flux is absent  for $D3Q19$ because  this  model does not cover  the  third order moments. Oscillations  in the  heat flux are  observed for  $D3Q96+DVM$, we suppose  that this  effect is a result  of nonequilibrium state at the  matching  point which can not  be  handled with $D3Q96$  model for the  Knudsen numbers beyond  the slip regime.
-    }\label{fig:hybrid03}
-\end{figure}
-
-
-
-
-
-
-\begin{figure}
-    \centering
-    \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{norms-dvm}
+        \includegraphics[width=\textwidth]{nonuniform/norms-dvm}
         \caption{DV method}
         \label{fig:norms:dvm}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{norms-d3v96}
-        \caption{D3Q96}
+        \caption{LB method: D3Q96}
         \label{fig:norms:d3q96}
     \end{subfigure}\\
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{norms-hyb-d3q19}
-        \caption{DV and D3Q19}
+        \includegraphics[width=\textwidth]{nonuniform/norms-hyb-d3q19}
+        \caption{hybrid: DV and D3Q19}
         \label{fig:norms:d3q19-hyb}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{norms-hyb-d3v96}
-        \caption{DV and D3Q96}
+        \includegraphics[width=\textwidth]{nonuniform/norms-hyb-d3v96}
+        \caption{hybrid: DV and D3Q96}
         \label{fig:norms:d3q96-hyb}
     \end{subfigure}
     \caption{
@@ -839,64 +853,77 @@ The black lines are the high-accuracy solution of the BGK model. The black boxes
     }\label{fig:norms}
 \end{figure}
 
-%%% Couette-flow problem
+%%% Couette-flow problem & benchmark
 In the present paper, we apply the proposed hybrid method for the plane Couette-flow problem,
 where a gas is placed between the two parallel plates, which have non-zero relative velocity.
 A highly nonequlibrium gas in the Knudsen layer is described using the BGK equation, while the LB model is employed for the internal zone.
 For the BGK model, this problem can be reduced to a one-dimensional integral equation,
 which has been solved with high accuracy in~\cite{Luo2015, Luo2016}.
+Due to lack of data for longitudinal heat flux in the mentioned works,
+the adaptive collocation method based on the generalized Gauss quadratures~\cite{Luo2016}
+was reimplemented in Python for computing the benchmark solution.
 
-%%% Formulation of the problem, grids
-Let the plates be placed at $y = \pm 1/2$ with constant temperature $T = 1$ and velocities ($\pm\Delta v/2,0,0$), where $\Delta v=0.02$.
-A completely diffuse reflection are assumed at the plates.
-The average density is equal to unity $\int_{-1/2}^{1/2}\rho dy=1$.
-The physical space $0 < y < 1/2$ is divided into $N_x = 40$ nonuniform cells refined near $y = 1/2$.
-For the DV approximation, the uniform Cartesian lattice with $c=0.5$ is cut off by the sphere with radius $\xi^{(\mathrm{cut})}=4$.
-The total number of points is $N_\xi=2176$.
+%%% Physical grid
+Let the plates be placed at \(y = \pm 1/2\) with constant temperature \(T = 1\) and velocities (\(\pm\Delta v/2,0,0\)),
+where \(\Delta v=0.02\). A completely diffuse reflection are assumed at the plates.
+The average density is equal to unity: \(\int_{-1/2}^{1/2}\rho dy=1\).
+The physical space \(0 < y < 1/2\) is divided into \(N_x = 40\) nonuniform cells refined near \(y = 1/2\).
 
-%%% Pure DVM results
-The numerical results for the pure DV and LB methods are showed in Fig.~\ref{fig:pure}.
-There is a small discrepancy between the DV and benchmark profiles.
-Mainly, this is due to inaccurate approximation of sharp variations of the VDF near plane \(\xi_y=0\).
-They can be efficiently captured by the DV method by employing significantly nonuniform velocity grid
-with local refinement~\cite{Ohwada1990, Rogozin2016}.
+%%% Velocity grid
+The VDF in the velocity space varies from discontinuous sum of two half-Maxwellians at the boundary
+with complete diffuse-reflection condition to the near-equilibrium form in the vicinity of \(y=0\).
+Such diversity can be efficiently approximated under the fixed DV set by employing
+a significantly nonuniform velocity grid with local refinement near \(\xi_y=0\)~\cite{Ohwada1990, Wu2014, Rogozin2016}.
+In the present paper, the nonuniform Cartesian lattice is cut off by the sphere of radius \(\xi^{(\mathrm{cut})}=4\).
+The nodes are distributed as the scaled roots of the Hermite polynomials along \(\xi_x\) and \(\xi_z\) axis,
+but as a geometric sequence with the ratio \(r = 1.15\) along \(\xi_y\) axis.
+The maximum number of discrete velocities along each axis is equal to \(16\), \(32\) and \(16\), respectively.
+Their total number is \(N_\xi=5928\).
 
-%%% Pure LBM results
-As for LB method, in the present paper, we consider the classical 5-order D3Q19 model, 9-order D3Q121 model~\cite{Shan2010},
-and special 7-order D3Q96 model developed for the boundary-value problems driven by the diffuse boundary condition~\cite{Feuchter2016}.
+%%% Pure DV and LB results
+The numerical results obtained by the pure DV and LB methods for \(k=0.1\) are showed in Fig.~\ref{fig:pure}.
+The nonuniform velocity grid refined at the sharp variations of the VDF yields a very small discrepancy
+between the DV and benchmark profiles (Fig.~\ref{fig:dvm}).
+As for LB method, in the present paper, the classical 5-order D3Q19 model and 9-order D3Q121 model~\cite{Shan2010} are considered,
+along with special 7-order D3Q96 model developed for the boundary-value problems driven by the diffuse boundary condition~\cite{Feuchter2016}.
 Obviously, the LB models are unable to describe the Knudsen layer accurately.
-In particular, models of the Navier--Stokes level do not capture it due to lack of additional degrees of freedom (Fig.~\ref{fig:d3q19}).
-Increasing order of the LB model practically does not reduce the approximation error (Fig.~\ref{fig:d3q121}).
-However, the LB models augmented by special groups of velocities are capable to reproduce the Knudsen layer to some extent (Fig.~\ref{fig:d3q96}).
-
-%%% Heat flux
 Ability to capture kinetic effects arising from the diffuse-reflection boundary condition
 is clearly observed from the profile of the longitudinal heat flux \(q_x\).
-The D3Q19 model does not describe the third-order moments of the VDF.
-Its heat flux is \(\OO{\Delta v^3}\) and tightly connected with the stress tensor and velocity, but is not zero exactly in Fig.~\ref{fig:d3q19}.
-D3Q121 describes the heat flux in the continuum zone most accurately, while the D3Q96 profile is quite close to the exact one in the Knudsen layer.
+In particular, models of the Navier--Stokes level do not capture it due to lack of additional degrees of freedom,
+e.g., the D3Q19 model does not cover the third-order moments of the VDF (Fig.~\ref{fig:d3q19}).
+Instead, there is a small spurious positive heat flux in Fig.~\ref{fig:d3q19}.
+It is \(\OO{\Delta v^3}\) and closely associated with the stress tensor and velocity.
+D3Q121 describes the heat flux in the continuum zone most accurately (Fig.~\ref{fig:d3q121}),
+while the D3Q96 profile is quite close to the exact one in the Knudsen layer (Fig.~\ref{fig:d3q96}).
+Indeed, increasing order of the LB model helps to capture the corresponding low-order moments of the VDF,
+but failed to describe its high-order relaxation correctly.
+However, the LB models augmented by special groups of velocities are capable to reproduce the Knudsen layer to some extent.
 
 %%% Hybrid results
 The numerical results for the hybrid schemes are shown in Fig.~\ref{fig:hybrid}.
-\(v_x\) and \(p_{xy}\) are close to the exact solution;
-\(q_x\) resembles the pure DV result only in the kinetic region (the DV part of the hybrid solution).
-Since the proposed mapping scheme does not preserve monotonicity,
-there are small oscillations in the buffer zone and they are particularly noticeable for \(q_x\).
-The amplitude of these oscillations is proportional to the non-equilibrium part of the VDF
-and decreases exponentially as the coupling interface moves away from \(y=1/2\).
+Quantities \(v_x\) and \(p_{xy}\) are close to the exact solution,
+but there is a noticeable distortion behind the coupling interface in the D3Q19 velocity profile.
+Hybrid \(q_x\) is close to the pure DV one only in the kinetic region (the DV part of the hybrid solution).
+There are small oscillations of macroscopic variables in the buffer zone and they are particularly noticeable for \(q_x\).
+The amplitude of these oscillations is proportional to the high-order terms of the Hermite expansion of the VDF
+that are not included the employed mapping scheme.
+These terms decrease exponentially as the coupling interface moves away from \(y=1/2\).
+The numerical results for \(k=0.03\) shown in Fig.~\ref{fig:hybrid-k003} clearly illustrates this fact.
 
 %%% Breakdown criteria
 A multiscale hybrid method based on the domain decomposition procedure should be supplied with the so-called equilibrium breakdown criteria.
 \(q_x\) appears only in the Knudsen layer and, therefore, can serve as an equilibrium breakdown parameter
 for the investigated Couette-flow problem, but not in the general case.
 Criteria based on deviation of the VDF from the truncated Chapman--Enskog expansion is natural for kinetic schemes.
-Quantity \(E_p=\|f-f^{\mathrm{NSF}}\|_p/\|f\|_p\), the deviation from the Navier--Stokes--Fourier (NSF) order of approximation~\cite{Zhang2014}
-\begin{equation}\label{eq:NSF}
-    f^{\mathrm{NSF}}_j = \equil{f}_j\br{
-        1 + \frac{\cai\caj P_{\alpha\beta}}{2pT} + \frac{2\cai q_\alpha}{5pT}\br{\frac{\caj^2}{2T} - \frac52} },
-\end{equation}
+Quantities \(E_p=\|f-f^{\mathrm{NSF}}\|_p/\|f\|_p\), the deviation from the Navier--Stokes--Fourier (NSF) order of approximation~\cite{Zhang2014}:
+\begin{gather}
+    f^{\mathrm{NSF}}_{\DV,j} = \equil{f}_{\DV,j}\br{
+        1 + \frac{\cai\caj P_{\alpha\beta}}{2pT} + \frac{\cai q_\alpha}{pT}\br{ \frac{c_j^2}{5T} - 1 } }, \label{eq:NSF_DV} \\
+    f^{\mathrm{NSF}}_{\LB,j} = \equil{f}_{\LB,j} + w_j\xiai\br{
+         P_{\alpha\beta}\br{\xiaj\br{1 + \xiak v_\gamma} - 2 v_\beta } + q_\alpha\br{ \frac{\xi_j^2}5 - 1 } }, \label{eq:NSF_LB}
+\end{gather}
 where \(P_{\alpha\beta} = p_{\alpha\beta} - \rho T\delta_{\alpha\beta}\) and \(\cai = \xiai - v_\alpha\),
-is demonstrated in Fig.~\ref{fig:norms} for the following norms in the discrete velocity space:
+are shown in Fig.~\ref{fig:norms} for the following norms in the discrete velocity space:
 \begin{equation}\label{eq:norms}
     \|f\|_p = \bigg(\sum_j |f_j|^p \bigg)^\frac1p, \quad p=1,2, \quad \|f\|_\infty = \max_j |f_j|.
 \end{equation}
@@ -922,7 +949,7 @@ while the smoother transition in Fig.~\ref{fig:norms:d3q96-hyb} can be considere
     \caption{
         Computational speed-up yielded by the hybrid method for different CPUs and operational systems.
         $N_0$ is the number of cells in the kinetic zone, $10N_0$ is the number of cells in the bulk region,
-        $t_\mathrm{DV}$ and $t_\mathrm{hyb}$ are the total CPU times elapsed by the DV and hybrid methods, respectively.
+        $t_\DV$ and $t_\mathrm{hyb}$ are the total CPU times elapsed by the DV and hybrid methods, respectively.
     }\label{fig:speed-up}
 \end{figure}
 

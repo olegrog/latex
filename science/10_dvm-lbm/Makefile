@@ -9,14 +9,17 @@ all: $(PROJECT).pdf
 $(PROJECT).pdf: $(SOURCES)
 	latexmk -pdf $(PROJECT)
 
+.PHONY: pics clean zip
+
 clean:
 	latexmk -C $(PROJECT)
 	rm -f $(PROJECT).{spl,bbl}
 
 pics:
-	mkdir -p $(PICS)
-	cd $(PICS) && ln -s $(FIGS)/*.pdf .
-	cd $(PICS) && ln -s $(FIGS)/acceleration/*.pdf .
+	mkdir -p $(PICS)/nonuniform
+	cd $(PICS) && ln -sf $(FIGS)/*.pdf .
+	cd $(PICS) && ln -sf $(FIGS)/acceleration/*.pdf .
+	cd $(PICS)/nonuniform && ln -sf ../$(FIGS)/nonuniform/*.pdf .
 
 zip: $(SOURCES)
 	zip -r $(PROJECT).zip $(SOURCES) $(PROJECT).bbl $(PICS)/
