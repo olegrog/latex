@@ -6,7 +6,7 @@ from collections import namedtuple
 
 parser = argparse.ArgumentParser(description='Solver for the plane Couette-flow problem')
 parser.add_argument('-U', type=float, default=2e-2, metavar='<float>', help='difference in velocity of plates')
-parser.add_argument('-k', '--kn', type=float, default=2e-1/np.pi**.5, metavar='<float>', help='the Knudsen number')
+parser.add_argument('-k', '--kn', type=float, default=0.1, metavar='<float>', help='modified Knudsen number')
 parser.add_argument('-N1', type=int, default=4, metavar='<int>', help='number of cells in the first domain')
 parser.add_argument('-N2', type=int, default=4, metavar='<int>', help='number of cells in the second domain')
 parser.add_argument('-g', '--grid', default='polynomial', metavar='uniform|hermite|polynomial|geometric', help='type of the grid along xi_y')
@@ -16,7 +16,7 @@ parser.add_argument('-q', '--ratio', type=float, default=1.15, metavar='<float>'
 parser.add_argument('--w-min', type=float, default=0.1, metavar='<float>', help='minimum weight for the polynomial grid')
 parser.add_argument('--poly', type=float, default=2, metavar='<float>', help='power for the polynomial grid')
 parser.add_argument('-e', '--end', type=int, default=int(1e2), metavar='<int>', help='maximum total time')
-parser.add_argument('-w', '--width', type=str, default='1.2*kn', metavar='<expr>', help='width of the second domain')
+parser.add_argument('-w', '--width', type=str, default='2.4/np.sqrt(np.pi)', metavar='<expr>', help='width of the right domain in terms of the Knudsen number')
 parser.add_argument('-s', '--step', type=float, default=1.5, metavar='<float>', help='reduce timestep in given times')
 parser.add_argument('-R', '--radius', type=float, default=4., metavar='<float>', help='radius of the velocity grid')
 parser.add_argument('-r', '--refinement', type=float, default=2., metavar='<float>', help='ratio of maximum and minumum cell width')
@@ -49,8 +49,7 @@ class fixed:
     L = 0.5             # width of computational domain
     sqr_a = .5          # sound velocity in LBM
 
-kn, modified_kn = args.kn, np.pi**.5*args.kn/2  # we need 'kn' to calculate width
-args.width = min(eval(args.width), fixed.L/2)
+args.width = eval(args.width)*args.kn
 zeros, ones = np.zeros(fixed.D), np.ones(fixed.D)
 hodge = np.zeros((3,3,3))
 hodge[0, 1, 2] = hodge[1, 2, 0] = hodge[2, 0, 1] = 1
@@ -218,7 +217,8 @@ def lbm_grid():
     T3 = lambda m: xi_v(m.vel)*( xi_v(m.vel)**2 - 3*sqr(m.vel) + 3*np.einsum('a,i', m.temp-1, sqr_xi-D-2) ) * Tn(3)
     Maxw = lambda m: weighted_rho(m, 1 + T1(m) + T2(m) + T3(m))
     G2 = lambda m: np.einsum('il,im,an,lmn->ai', _xi, _xi, m.tau, hodge)/a * Tn(2)
-    G3 = lambda m: xi_v(m.qflow) * (sqr_xi/5-1) + G2(m)*xi_v(m.vel) - np.einsum('il,am,an,lmn->ai', _xi, m.vel, m.tau, hodge)/a
+    G3 = lambda m: xi_v(m.qflow) * (sqr_xi/(fixed.D+2)-1) + G2(m)*xi_v(m.vel) \
+        - np.einsum('il,am,an,lmn->ai', _xi, m.vel, m.tau, hodge)/a
     Grad13 = lambda m: Maxw(m) + weighted(G2(m) + G3(m))
     adapter = lambda func, macro: func(to_arr(macro))[from_arr(macro)]
 
@@ -246,7 +246,7 @@ def plot_profiles(solution):
     U, factor = args.U, args.qflow_factor
     plt.title(domains[0].model.info, loc='left')
     plt.title(domains[1].model.info, loc='right')
-    plt.title('Kn = %g, U = %g' % (args.kn, args.U))
+    plt.title('k = %g, U = %g' % (args.kn, args.U))
     plt.axvline(x=domains[1].y0, color='k')
     if args.plot_norms:
         for name in norms.keys():
@@ -264,13 +264,13 @@ def plot_profiles(solution):
         plt.plot(y, -m.tau[:,2]/U, 'g*-', label='share stress/U')
         plt.plot(y, -factor*m.qflow[:,0]/U, 'b*-', label='%g*qflow_x/U' % factor)
         plt.plot(y, (m.temp-1)/U**2, 'y', label='(temp-1)/U^2')
-        plt.plot(y, m.qflow[:,1]/U**2/modified_kn, 'c', label='qflow_y/U^2/k')
+        plt.plot(y, m.qflow[:,1]/U**2/args.kn, 'c', label='qflow_y/U^2/k')
         y, norm = calc_norm(solution, args.norm)
         factor = -int(factor*m.qflow[-1,0]/U/norm[-1])
         plt.plot(y, norm*factor, 'k*-', label='%g*%s' % (factor, args.norm))
         if args.plot_ns:
             plt.plot(Y, Y, 'r:')
-            plt.plot(Y, modified_kn+Y*0, 'g:')
+            plt.plot(Y, args.kn+Y*0, 'g:')
             plt.plot(Y, .1-.4*Y**2, 'y:')
             plt.plot(Y, .8*Y, 'c:')
         legend = plt.legend(loc='upper center')
@@ -396,7 +396,7 @@ def transport(domain, bc, solution, delta_t):
     N, xi_y, _xi_y = domain.N, domain.model.xi(np.zeros((domain.N, fixed.D)))[...,1], domain.model.xi()[...,1]
     gamma, h = _xi_y * delta_t,  delta_y(domain)
     mask, _mask = lambda sgn, N: sgn*xi_y[0:N] > 0, lambda sgn: sgn*_xi_y > 0
-    def calc_F(h, f, idx, F, Idx, mask):
+    def calc_F(h, f, idx, F, Idx, mask, low_order=False):
         logging.debug(' - calc_F')
         g = np.einsum('i,a', gamma, 1/h[idx])[mask]
         d1, d2 = f[idx+1] - f[idx], f[idx] - f[idx-1]
@@ -408,7 +408,7 @@ def transport(domain, bc, solution, delta_t):
             'minmod': np.minimum(D(d1, h1), D(d2, h2)),
             'mc': np.minimum(D(d1+d2, h1+h2), 2*np.minimum(D(d1, h1), D(d2, h2))),
             'superbee': np.maximum(np.minimum(2*D(d1, h1), D(d2, h2)), np.minimum(D(d1, h1), 2*D(d2, h2)))
-        }[args.limiter]
+        }[args.limiter] * (0 if low_order else 1)
         F[Idx][mask] = f[idx][mask] + (1-g)*H/2 * np.where(d1[mask]*d2[mask] > 0, lim, 0)
     def calc2N(h, f, F, sgn, bc):
         logging.debug(' - calc2N %+d', sgn)
@@ -449,7 +449,7 @@ def transport(domain, bc, solution, delta_t):
 def bgk(domain, bc, solution, delta_t):
     logging.debug('Starting BGK')
     macro = calc_macro0(domain.model, solution.f)
-    nu = lambda rho: rho / modified_kn
+    nu = lambda rho: rho / args.kn
     M = domain.model.Maxw(macro)
     solution.f[:] = np.einsum('ai,a->ai', solution.f - M, np.exp(-delta_t*nu(macro.rho))) + M
     check(solution.f) # after BGK
@@ -460,8 +460,8 @@ class Boundary(object):
         pass
     def _new_f3(self, h2, f2):
         return np.tile(f2[0], (3,1)), np.tile(h2[0], 3)
-    def _calc_flux(self, F, mask, calc_F, h3, f3):
-        calc_F(h3, f3, np.array([1]), F, slice(1), np.array([mask]))
+    def _calc_flux(self, F, mask, calc_F, h3, f3, low_order=False):
+        calc_F(h3, f3, np.array([1]), F, slice(1), np.array([mask]), low_order)
     def last_flux_is_calculated(self):
         pass
     def correct_first_flux(self, xi_y, F, mask):
@@ -757,7 +757,7 @@ class Solution(object):
 
 print(''.join(['=' for i in range(50)]))
 for m in models.values():
-    print('{}, total = {}, min_w = {}'.format(m.info, m.weights.size, np.min(m.weights)))
+    print('{}, total = {}, min_w = {:.2e}'.format(m.info, m.weights.size, np.min(m.weights)))
 print('xi_max = %g, xi_y_type = %s' % (args.radius, args.grid))
 print('Kn = %g, U = %g, cells = %d + %d' % (args.kn, args.U, args.N1, args.N2))
 print('Model: (antisym)[ %s | %s ](diffuse), limiter = %s' % (args.model1, args.model2, args.limiter))
