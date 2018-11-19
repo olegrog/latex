@@ -14,8 +14,8 @@ options = \
 label_power = 'P, W'
 label_specific_power = 'P/U, \mathrm{J/mm}'
 label_speed = 'U, mm/s'
-label_width = 'd_\mathrm{track}-d_\mathrm{beam}, \mathrm{\mu m}'
-label_depth = 'h_\mathrm{track}-h_\mathrm{powder}, \mathrm{\mu m}'
+label_width = 'd_\mathrm{track}-2R, \mathrm{\mu m}'
+label_depth = 'h_\mathrm{fus}, \mathrm{\mu m}'
 
 formula_speed = 'speed'
 formula_specific_power = 'power/speed'

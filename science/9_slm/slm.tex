@@ -30,7 +30,7 @@
 
 \title{Multi-Scale Multi-Physics Modeling and Simulation of Selective Laser Melting}
 \date{\today}
-\author{O.A.~Rogozin, E.L.~Sharaborin, A.V.~Vezolainen, O.V.~Vasilyev}
+\author{O.A.~Rogozin} % O.V.~Vasilyev
 
 \newcommand{\dder}[2][]{\Delta_{#2}#1}
 \newcommand{\transpose}[1]{#1^\mathsf{T}}
@@ -63,7 +63,7 @@
 \maketitle
 \tableofcontents
 
-\section{Formulation of the problem}
+\section{Formulation of the problem}\label{sec:formulation}
 
 %%% Initial state
 Let us consider a powder bed with porosity \(\psi_0\) lying on the horizontal substrate of the same material.
@@ -430,7 +430,7 @@ The initial condition for the enthalpy is calculated as a solution of nonlinear 
 The initial porosity is equal to \(\psi_0\) and \(0\) for the powder and solid states, respectively.
 % TODO: say on smoothing
 
-\section{Single-track formation}
+\section{Single-track formation}\label{sec:single-track}
 
 In this section, formation of a single straight track from the only powder layer covering the solid substrate is investigated.
 For this problem, the boundary and initial conditions are supplemented with the following relations:
@@ -538,7 +538,7 @@ The profiles of the nondimensional quantities along \(x_1\) axis for \(x_D=0\) a
     \centering
     \includegraphics{experiment/width-specific_power}
     \caption{
-        The width of a track versus the specific power (power per unit length).
+        The width of a track versus the specific power (per unit length).
         The solid and dashed lines correspond to the experimental and numerical results, respectively.
     }\label{fig:3d:width}
 \end{figure}
@@ -547,7 +547,7 @@ The profiles of the nondimensional quantities along \(x_1\) axis for \(x_D=0\) a
     \centering
     \includegraphics{experiment/depth-specific_power}
     \caption{
-        The depth of a track versus the specific power (power per unit length) obtained from the simulation data.
+        The penetration depth into the substrate versus the specific power (per unit length) obtained from the simulation data.
     }\label{fig:3d:depth}
 \end{figure}
 
@@ -587,7 +587,7 @@ The current model is unable to describe such instabilities,
 but it is possible to compare the resulting track width.
 The following parameters are taken to reproduce the mention printing process:
 \begin{equation}\label{eq:single:trumpf}
-    d_\mathrm{beam} = 2R = \SI{55}{\um}, \quad h_\mathrm{powder} = H=\SI{30}{\um}.
+    2R = \SI{55}{\um}, \quad H=\SI{30}{\um}.
 \end{equation}
 As seen from Tab.~\ref{table:3d:width}, the numerical and experimental results appear to be quite close,
 especially in the middle regimes. In practice, the latter correspond to the main operating modes.
@@ -595,18 +595,18 @@ especially in the middle regimes. In practice, the latter correspond to the main
 %%% Width vs the specific power
 Two parameters of the printing process, power \(P\) and scanning speed \(U\),
 are often used as coordinates for analysis of different printing regimes.
-However, specific power \(\HP/\HU\) and Peclet number \(\HU\) are more relevant
+However, specific power \(P/U\) and Peclet number \(\HU\) are more relevant
 from the physical point of view.
 It is clearly seen from Fig.~\ref{fig:3d:width} that the experimental track width \(d_\mathrm{track}\)
 is almost independent on the Peclet number.
-The positive difference between the numerical and experimental results for low \(\HP/\HU\) is
+The positive difference between the numerical and experimental results for low \(P/U\) is
 explained by the fact that fluid dynamics and surface tension are not taken into account.
-The negative difference for high \(\HP/\HU\) is due to transition to the welding modes,
-in which a keyhole is formed on the surface of the melting pool and the actual absorptivity increases to 1.
+The negative difference for high \(P/U\) is due to transition to the welding modes,
+in which a keyhole is formed on the surface of the melting pool and the actual absorptivity increases to one.
 
 %%% Depth vs the specific power
 The same dependence but for the depth of the track is shown in Fig.~\ref{fig:3d:depth}.
-When \(h_\mathrm{track}\) is close or smaller than \(h_\mathrm{powder}\),
+When \(h_\mathrm{fus}\) is close or smaller than \(H\),
 the resulting track can be weakly consolidated with the substrate,
 which result in the residual porosity or/and strength loss.
 
