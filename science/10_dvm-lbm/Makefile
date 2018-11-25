@@ -22,4 +22,4 @@ pics:
 	cd $(PICS)/nonuniform && ln -sf ../$(FIGS)/nonuniform/*.pdf .
 
 zip: $(SOURCES)
-	zip -r $(PROJECT).zip $(SOURCES) $(PROJECT).bbl $(PICS)/
+	zip -r $(PROJECT).zip $(SOURCES) $(PROJECT).bbl $(PICS)
