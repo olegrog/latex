@@ -60,6 +60,7 @@ log.*
 
 # Temporary files and directories
 _*
+*.sav
 
 # Precompiled files
 *.pyc
