@@ -162,7 +162,7 @@ The use of the kinetic equation in all regions is very demanding from a computat
 On the other hand, the computational fluid dynamics provide an efficient description of near-equilibrium flows,
 but it is not adequate for regions where the velocity distribution function (VDF) is not close to Maxwellian
 and the contribution of highest moments cannot be ignored.
-% Therefore, computational fluid dynamics is being confronted with the challange of constructing the unified numerical methods suitable for simulation of multiscale flows.
+% Therefore, computational fluid dynamics is being confronted with the challenge of constructing the unified numerical methods suitable for simulation of multiscale flows.
 % The numerical solution of kinetic equations in stiff regimes represents a challenge in the construction of computational methods.
 % one would like to avoid the expensive cost of solving the kinetic equation in regions well described by continuum fluid models,
 % since the latter are easily solvable by classical numerical methods.
@@ -204,12 +204,12 @@ Finally, the lattice-gas model based on the BGK equation was proposed in the beg
 It gave rise to a wide class of numerical methods called lattice-Boltzmann (LB) methods~\cite{Higuera1989,Benzi1992,Succi2001}.
 
 %%% Connection between DV and LB
-It is worth emphasizing that the LB method is based on a certain models of the DV method.
-There is an obvious relationship between these two methods. For instance, one can cite a phrase from~\cite{Rivet2001}:
-''This type of discrete kinetic theory can be seen as the ancestor of the lattice gas approach''.
+It is worth emphasizing that there is a fundamental relationship between the LB and DV methods.
+For instance, one can cite a phrase from~\cite{Rivet2001}:
+``This type of discrete kinetic theory can be seen as the ancestor of the lattice gas approach''.
 The LB method is genetically related to the Broadwell-type models~\cite{Broadwell1964shock, Gatignol1975},
 which use a small number of discrete velocities to reproduce some relevant features of the Boltzmann equation.
-Thus the DV approximation is a natural basis for construction of a hybrid multiscale model.
+Thus, the DV approximation is a natural basis for construction of a hybrid multiscale model.
 
 %%% Known coupling schemes for LB
 The mapping scheme for coupling of the solutions for low-order and high-order LB models is presented in \cite{Meng2011},
@@ -258,7 +258,7 @@ In section~\ref{sec:summary}, perspectives of the kinetic multiscale DV-LB metho
 
 \section{Main equations}\label{sec:equations}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% [Rogozin]: there should be nothing about Couette flow, discretization, methods, and algorihtms in "Main equations"!
+%%% [Rogozin]: there should be nothing about Couette flow, discretization, methods, and algorithms in "Main equations"!
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Nondimensional variables
@@ -448,9 +448,9 @@ and the entropic method~\cite{Karlin1999, Chikatamarla2006, Chikatamarla2009}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We emphasize that LB is less computationally demanding than DV method. On the other hand, conventional LB is aimed  to reproduce only the lowest  moments  of VDF  in slow regimes whereas DV is able to cope with strong nonequilibrium effects.
 
-% We do not discuss here the numerical aproximation of the transport (advective)  part of the BGK equation
+% We do not discuss here the numerical approximation of the transport (advective)  part of the BGK equation
 % since this question is not related with the discretization methods of the velocity space.
-% This can be achieved using the integration along  chracteristics or applying finite volume method. We have implemented finite volume scheme, the technical details are presented in Section 4.
+% This can be achieved using the integration along characteristics or applying finite volume method. We have implemented finite volume scheme, the technical details are presented in Section 4.
 
 \section{The mapping method}\label{sec:mapping}
 
@@ -839,7 +839,7 @@ In case of the first-order scheme, \(f_{-1}^n\) and only for \(\xi_{j1}>0\) is s
         \label{fig:accuracy-k003}
     \end{subfigure}
     \caption{
-        Relative numerical error of the shear stress obtained by the pure and hybrid schemes.
+        Absolute numerical error of the shear stress obtained by the pure and hybrid schemes.
         The dash-dotted lines correspond to the coupling interface used for the domain decomposition.
     }\label{fig:accuracy}
 \end{figure}
@@ -850,13 +850,13 @@ where a gas is placed between the two parallel plates, which have non-zero relat
 A highly nonequlibrium gas in the Knudsen layer is described using the BGK equation, while the LBGK model is employed for the internal zone.
 For the BGK model, this problem can be reduced to a one-dimensional integral equation,
 which has been solved with high accuracy in~\cite{Luo2015, Luo2016}.
-Due to the lack of data on longitudinal heat flux in the mentioned works, we have reimplemented (in Python)
-the adaptive collocation method based on the generalized Gauss quadratures~\cite{Luo2016}
+Due to the lack of data on longitudinal heat flux in the mentioned works, we have re-implemented (in Python)
+the adaptive collocation method based on the generalized Gauss quadratures presented in~\cite{Luo2016}
 for computing the benchmark solutions.
 
 %%% Physical grid
 Let the plates be placed at \(y = \pm 1/2\) with constant temperature \(T = 1\) and velocities (\(\pm\Delta v/2,0,0\)),
-where \(\Delta v=0.02\). A completely diffuse reflection are assumed at the plates.
+where \(\Delta v=0.02\). A completely diffuse reflection is assumed at the plates.
 The average density is equal to unity: \(\int_{-1/2}^{1/2}\rho dy=1\).
 The physical space \(0 < y < 1/2\) is divided into \(N_x = 40\) nonuniform cells refined near \(y = 1/2\).
 
@@ -902,6 +902,21 @@ that are not included the employed mapping method.
 These terms decrease exponentially as the coupling interface moves away from \(y=1/2\).
 The numerical results for \(k=0.03\) shown in Fig.~\ref{fig:hybrid-k003} clearly illustrate this fact.
 
+\begin{comment}
+\begin{table}
+    \centering
+    \caption{
+        Absolute numerical error of the shear stress obtained by the pure and hybrid schemes near \(y=0\).
+    }\label{table:accuracy}
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}\hline
+        \(k\) & DVM & D3Q19 & D3Q96 & hybrid D3Q19 & hybrid D3Q96 \\\hline
+        0.03 & -0.000022 & 0.00032 & 0.000020 & -0.0000030 & -0.000014 \\
+        0.1  & -0.00010  & 0.0027  & 0.000012 &  0.000052  & -0.00022  \\\hline
+    \end{tabular}
+\end{table}
+\end{comment}
+
 %%% Accuracy of results
 The shear stress profiles look constant in Figs.~\ref{fig:hybrid} and~\ref{fig:hybrid-k003},
 since the absolute error is everywhere smaller than 0.0003, which is easily seen in Fig.~\ref{fig:accuracy}.
@@ -910,7 +925,7 @@ The first one is due to numerical error inherent to the FV approximation,
 while the second one is due to the employed mapping method.
 The obtained numerical accuracy is sufficient to distinguish between molecular potentials~\cite{Sharipov2013, Su2018}.
 
-%%% [Aristov]: We compared our results with available data on the benchmark problem [Phys. Fluids 25, 027101 (2013)] devoted to the computation ab initio by DSMC for the Couette flow problem. In [1] for U/u0=0.2 the values for comparison of only the shear stress are given (the temperature and the velocity gradient are not presented). These results ab initio are compared with the analogous calculations for HS and from Table IV in [1] one can see that the relative difference is of 0.3% (the coloumn concerning C=0 or C=1). Our value of the shear stress for the hybrid scheme is 0.83 and differs from the tabulated values for the Couette flow is of the same order, namely 0.3%. So we conclude that the difference between the hybrid shear stress results and the value of the benchmark results ab inition is in the range of the computational error.
+%%% [Aristov]: We compared our results with available data on the benchmark problem [Phys. Fluids 25, 027101 (2013)] devoted to the computation ab initio by DSMC for the Couette flow problem. In [1] for U/u0=0.2 the values for comparison of only the shear stress are given (the temperature and the velocity gradient are not presented). These results ab initio are compared with the analogous calculations for HS and from Table IV in [1] one can see that the relative difference is of 0.3% (the column concerning C=0 or C=1). Our value of the shear stress for the hybrid scheme is 0.83 and differs from the tabulated values for the Couette flow is of the same order, namely 0.3%. So we conclude that the difference between the hybrid shear stress results and the value of the benchmark results ab initio is in the range of the computational error.
 
 \begin{figure}
     \centering
@@ -967,7 +982,7 @@ however, \(E_\infty\) relaxes in a nonmonotonic way.
 This is probably due to crude approximation of the sharp variations of the VDF in the Knudsen layer.
 For the D3Q96 model, \(E_\infty\) noticeably exceeds \(E_{1,2}\) (Fig.~\ref{fig:norms:d3q96}),
 which can be explained by its peculiar properties minimizing the wall moment errors.
-The hermite-based coupling induces oscillations (Fig.~\ref{fig:norms:d3q19-hyb},~\ref{fig:norms:d3q96-hyb}),
+The Hermite-based coupling induces oscillations (Fig.~\ref{fig:norms:d3q19-hyb},~\ref{fig:norms:d3q96-hyb}),
 since it is unable to reconstruct nonequilibrium part of the VDF.
 The sharp drop in Fig.~\ref{fig:norms:d3q19-hyb} indicates that the coupling interface is too close to the boundary,
 while the smoother transition in Fig.~\ref{fig:norms:d3q96-hyb} can be considered as more acceptable.
@@ -1021,7 +1036,7 @@ The influence of the breakdown criterion on accuracy and efficiency has also bee
 The regularized high-order LB models for the hybrid schemes are of interest for further study.
 
 %%% Adaptive mesh in velocity space
-A number of challanges can be addressed through further study.
+A number of problems can be addressed through further study.
 A significant number of discrete velocities used for approximation of the VDF is somewhat overkill,
 since the highest moments are unimportant for many flows.
 Therefore, adaptation of the DV set according to the local flow regime provides room for improving the efficiency of numerical methods
