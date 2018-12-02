@@ -1,11 +1,11 @@
-\documentclass[]{elsarticle} %review
+\documentclass{elsarticle} %review
 \usepackage[english]{babel}
 
 %%% functional packages
 \usepackage{amssymb, mathtools, amsthm, mathrsfs}
 \usepackage{subcaption}
 \usepackage{graphicx}
-\graphicspath{{pics/}}
+\graphicspath{{_pics/}}
 
 %%% configuration packages
 \usepackage{fullpage}
@@ -15,8 +15,8 @@
 \newcommand{\todo}[1]{\textcolor{olive}{#1}}
 \newcommand{\alert}[1]{\textcolor{red}{\large \bf #1}}
 
-\usepackage{lineno}
-\modulolinenumbers[5]
+% \usepackage{lineno}
+% \modulolinenumbers[5]
 
 \usepackage[
     colorlinks,
@@ -150,7 +150,7 @@ rarefied and continuum flows.
 
 \end{frontmatter}
 
-\linenumbers
+% \linenumbers
 
 \section{Introduction}\label{sec:intro}
 
@@ -974,7 +974,7 @@ while the smoother transition in Fig.~\ref{fig:norms:d3q96-hyb} can be considere
 
 \begin{figure}
     \centering
-    \relax %\includegraphics[width=.7\textwidth]{_pois_hybr_kn01_cropped}
+    \includegraphics[width=.7\textwidth]{_pois_hybr_kn01_cropped}
     \caption{
         The normalized longitudal velocity in the linear force-driven Poiseuille flow between parallel plates for $k=0.1$.
         The position of the coupling interface are shown by the vertical dashed lines.
