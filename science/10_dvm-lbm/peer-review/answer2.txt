@@ -1,0 +1,28 @@
+Answers to questions
+
+Reviewer 1 insists you to solve the Poiseuille flow problem. I suggest you to answer his/her requirement or to provide the corresponding results. 
+ We solved the Poiseuille flow problem by the hybrid method and presented the results for one example of simulation (Figure 5). 
+
+1.  It is desirable to compare your results with those obtained by other methods, e.g., by DSMC based on ab initio potential. 
+   We compared our results with the obtained by DSMC based on ab initio potential (results by Sharipov et al.). Comparison with the shear stress (only this value is presented in the paper for a small velocity U/u0=0.2) is in the range of the numerical method accuracy. The appropriate additions are implemented to the new variant of the paper.  
+ 2. In the revised method, you presented some benchmark results, but no explanations are given about them. How, by whom and by what method the benchmark results have been obtained?
+
+In a new variant of the paper it is explained that the benchmark solutions are obtained by means of the method given in the cited paper.  
+ 3. Since the shear stress is constant over the gap, it is necessary to present its value in a table, but not in figures. No necessity to plot it vs. the coordinate.
+
+We presented values of the shear stress in Table 1, here the benchmark and the hybrid values are given, and also the relative values in the appropriate norm is shown. This relative value is within of the range of the numerical error. Strictly speaking the shear stress is not constant for all plots (the difference is small) so the shear plots are remained.    
+ 4. Provide a numbering of all equations appearing in separated lines.
+
+Agreed and provided. 
+ 5. Provide the explicit expression of tau together with the Knudsen number definition.
+
+Now tau does not appear in the equation (the Knudsen number in fact includes tau). 
+ 6. The quantity R being in sqrt{2RT} is not the universal gas constant, but it is the specific gas constant.
+
+Agreed and corrected. 
+ 7. If you use sqrt{RT} to define the dimensionless velocity, then Kn should be defined via sqrt{RT} too, but not via sqrt{2RT}.
+
+Agreed and corrected. 
+ 8. The Mach number is defined as Ma=U/sqrt{gamma RT}, but not Ma=U/sqrt{RT}. Here, gamma is the specific heat ratio. 
+
+In a new version the value of Mach number does not appear (due to its smallness). 

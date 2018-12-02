@@ -1,0 +1,207 @@
+\documentclass{article} 
+\usepackage[english]{babel}
+
+%%% functional packages
+\usepackage{amssymb, mathtools, amsthm, mathrsfs}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\graphicspath{{../_pics/}}
+
+\DeclarePairedDelimiter\autobracket()       % mathtools are needed
+\newcommand{\br}[1]{\autobracket*{#1}}
+
+\begin{document}
+
+\section*{Answer to the Editor and Reviewers}
+We wish to thank the Reviewers and the Editor for the comments and suggestions. Our answer and  changes are below.
+
+\section*{Answer  to the Editor}
+
+{\it 1. Give explicit explanations or/and relations of the dimensionless quantities to  the corresponding dimensional ones
+
+ 2. The The Knudsen number is defined only in the figure caption. It should be clearly defined in the text too.
+
+3.  You mentioned the mean free path in the figure caption, but did not define it. Provide its definition.
+}
+
+{\bf Answer 1-3} We have  included  the  following text.
+
+In the  present  paper we deal with the plane Couette flow. The conversion to the dimensional variables for this  problem can be  performed  as follows. Assume that $H$ is the distance  between the plates, $T_0$ is the temperature  of the plates, $U_0$ is the  velocity of the plates,
+$\tau$ is the  average time between collisions which in practice can be  measured from the viscosity $\mu$ and average pressure $P_0$ of the gas placed between the walls using the formula $\frac{\sqrt{\pi}\mu}{2 P_0}\sqrt{2RT_0}$, where $R$ is the universal gas  constant. Then the dimensional variables (with  overbars) are defined as
+$$
+\overline{x}=Hx, \quad \overline{\xi}=\sqrt{RT_0} \xi , \quad \overline{t}=\frac{H}{\sqrt{RT_0}}t , \quad \overline{f}=\frac{n_0}{(2RT_0)^{3/2}} f,
+$$
+where $n_0 \sim 1/\tau$ is the average concentration,
+moreover for the Knudsen number we have  the following expression
+$$
+Kn=\frac{\tau\sqrt{2RT_0}}{H} ,
+$$
+we also introduce the Mach number
+$$
+Ma=U_0/\sqrt{RT_0}.
+$$
+
+
+{\it 
+4. You considered only one value of Kn and one value of the wall speed. Is it possible to provide data for other Kn and for a large value of the  wall speed?
+}
+{\bf Answer}
+In the present  version of the manuscript we have also included the computation
+results for $Kn=0.3$ and $Kn=0.03$. The wall velocity should be kept  significantly subsonic since the conventional LB method is able to model only very slow flows.
+
+
+
+{ \it 6. Since the shear stress is constant over the gap, it would be useful to compare it in a table, but not in figures. In this case, you can provide values of the discrepancy with other works.
+}
+
+{\bf Answer 6. } The  relative  shear stress  error over the benchmark is  presented here as a Figure. This relative error  is small for the all models.
+We have  not included  this result in the  text since  the current version of the manuscript is  heavily loaded with Figures ( we  will include it if  necessary).  
+
+\begin{figure}
+    \centering
+    \includegraphics{shear-k0_1.pdf}
+    \caption{
+        Relative error  in shear rate (less  than $0.01$).
+    }\label{fig:shear}
+\end{figure}
+
+
+{\it 5. It is desirable to compare your results with those obtained by other methods, e.g., by DSMC based on ab initio potential.
+}
+{\it 7. A comparison for other benchmark problems would be useful as one of reviewers suggested.
+}
+
+{\bf Answer 5. and  7. }We plan to study some other problems including the Poiseuille problem but now during a period of  1 month, i.e. 
+time period for revizing the paper we did not considered any new tasks (it is needed a serious effort for this aim) 
+and we focused on refining the results for the Couette problem.
+
+
+\section*{ Answer to the Reviewer 1}
+
+{\it
+In Fig. 1(a) there are some differences between the DVM solution and the highly-accurate solution of the BGK equation. This is caused by the in adequate velocity discretization in DVM. One solution is to refine the velocity discretization, the other is to use the non-uniform velocity discretization as in Lei Wu et al (2014) Solving the Boltzmann equation deterministically by the fast spectral method: application to gas microflows. Journal of Fluid Mechanics 746:53-84.}
+
+{\bf Answer} Note that we use the refinement of the velocity discretization with the equal velocity cells,
+the other possibility is to use the non-uniform velocity grid, 
+(Lei Wu et al (2014) Solving the Boltzmann equation deterministically by the fast spectral method: application to gas microflows. Journal of Fluid Mechanics 746:53-84)
+
+
+
+{\it 2.        In Fig. 2 we see that the DVM-LB coupling recovers the velocity and shear stress profiles well, but not the heat flux. This is because the heat flux changes relative larger and the Knudsen layer usually has a range of 5 mean free path of gas molecules. Therefore, the Kn=0.1, the whole region should be solved by the DVM. 
+}
+
+{\bf} We should also mention the fact that all LB  models  used in the  computations can not  reproduce energy  transfer equations correctly even at the  NS level. Thus, when the Knudsen number  is  large  enough the oscillations  in the  heat flux are  observed especially  for Kn numbers  beyond the slip regime. For the  small Kn ($0.03$) we have  obtained  satisfactory results (included in the   manuscript). 
+
+On the  other  hand, $D3Q96$  is  high order lattice and  exactly reproduces lowest  Maxwell half-fluxes  which 
+gives  the  reproduction of the diffusive  boundary  conditions  with acceptable  accuracy.  Then the $5$ mean free path distance  is not so crucial in the  modeling of the lowest moments.
+
+
+
+
+{\it 3. How the LB scheme is solved is not clearly, especially for high-order LB, is it still on lattice? If the LB scheme is solved by the splitting method, then it may introduce significant error in the near continuum regime, as pointed by Prof Kun Xu in his UGKS papers.}
+
+{\bf Answer} All LB models used  in the  modeling are on-lattice.  We have  implemented  FV-LBM version.
+
+
+
+{ \it 4.        This paper only considers the simple Couette flow, it is suggested to run the Poiseuille flow between two parallel plates also. This case is actually very challenge as if the numerical scheme is not good enough it can not get the mass flow rate correct even in the near-continuum flow regime, see Peng Wang et al (2018) Comparative study of discrete velocity methods for rarefied gas flows. Computers \& Fluids 161:33-46.
+}
+
+{\bf Answer}  We plan to study some other problems including the Poiseuille problem but now during a period of  1 month, i.e. 
+time period for revizing the paper we did not considered any new tasks (it is needed a serious effort for this aim) 
+and we focused on refining the results for the Couette problem,  moreover, Prof. Sharipov agreed that other tasks could be solved later, perhaps in collaboration with him.
+
+
+
+\section*{ Answer to Reviewer 2}
+
+{\it My only question/request is the following: the authors show results only at Kn=0.1, which is 
+comparatively small value to probe strong nonequil effects}
+
+{\bf Answer.} In the  present version of the  manuscript we have also included results for $Kn=0.3$ and $Kn=0.03$.
+
+{\it The other minor point is about references:
+Benzi et al, Phys. Rep. 1992 and Higuera-Succi-Benzi, EPL 1989, deserve to be cited.}
+
+{\bf Answer.} The mentioned papers  are  included as the references in the manuscript.
+
+\section*{ Answer to Reviewer 3}
+
+{\it My main concern is about any gain by this scheme. On one hand, the low-order LB models such as $D3Q19$ are fully useless, even with the coupling to the DVM, for capturing heat flux simply because they cannot reproduce the heat flux regardless of what is done. At the same time, on the level of mean velocity, the improvement is there but not as dramatic because the mean velocity is already reasonable (at $Kn=0.1$) even with the plain $D3Q19$. 
+
+What is even more annoying is that the D3Q96 special lattice became worse after hybridization with DVM (Figs. 1b and 2d); any comment on that?
+In this example, which is probably the best what is demonstrated, there is no gain in the mean velocity accuracy (or it is minute) compared to just plain LB, at the same time, heat flux is worse, so what's the advantage of using a hybrid scheme?
+
+In addition, the hybridization brings about large oscillations in the overlap layer, how are we going to interpret them if the features of a given flow are unknown a priori?}
+
+{\bf Answer}
+ We think that the advantage  of  $DV+D3Q19$ scheme in comparision with $D3Q19$ can be  observed for  larger  $Kn$  number. For instance, in the  case  of $Kn=0.3$ the improvement is  more pronounced ( the results for Kn=0.3 are  included  in the  text
+ of the manuscript).
+ 
+ In the  previous version of the manuscript the mapping was  performed  using  only $13$ moments.  This  is not sufficient since  off-diagonal moments ($M_{xxy}$ and etc) carry information about the flow;  the high-order models  like $D3Q96$ also covers this moments. Thus, the  information was lost during  the  matching step. The  inclusion of  the  off-diagonal moments (full $20$ moments mapping) in the mapping scheme mitigates the oscillation issue and  increases the precision.  
+ 
+ Nevertheless, the  oscillation in the heat flux  was not completely removed at $Kn>0.1$. All the models (including $D3Q96$) are not able  to reproduce  energy transfer equations correctly. We suppose  that the  oscillations are the result of this issue
+ especially for  large Kn values, when the flow is far from equilibrium.
+  For the small Knudsen numbers this  problem is not observed.
+  The  hybrid $D3Q96+DVM$ shows  even better precision in the  heat flux than the  $D3Q96$ alone (results for $Kn=0.03$ are  included in the  text).
+
+ The  small total improvement for the bulk velocity in the  hybrid  over $D3Q96$  was  partially expected since  this  model a) "high order lattice"  b) what can be more improtant is the fact that the model  exactly reproduces  low order Maxwellian half-moments. The latter  means  that the  model reproduces diffusive boundary conditions and then shows  good results  near boundaries at least for lowest  moments.
+
+
+
+\section*{ Answer to the Reviewer 4}
+
+{\it Line 109: Change “Paragraph” to “Section”.
+Line 184: Change to: “…and energy fluxes across the coupling interface are slightly different for
+each DV model.” 
+}
+{\bf Answer.} Corrected
+
+{\it Section 5 (Results and Discussion)
+Specify Knudsen number definition and value ($Kn = 0.1$) in text – not just in figure captions. The
+definition of Kn given in the captions of Figs. 1 and 2 is dimensionally incorrect because it is
+missing the gas constant under the radical, and the temperature should be $T$ not $T0$. It is not
+entirely clear from the caption if the reference cited [38] is for the BGK relaxation time or for the
+Knudsen number definition. If we adapt the definition in Ref. 38 to the notation of the present
+paper then $\frac{\tau\sqrt{2RT_0}}{H}$.}
+
+{\bf Answer.}  The definition of the Knudsen number is  included in Section 2,  the universal gas  constant  is  added in the formula for $Kn$ number.
+
+
+{\it Line 200: Change sentence to “Completely diffuse reflection is assumed at the plates.” }
+
+{\bf Answer.} Corrected.
+
+
+{\it Caption for Fig. 2: “ … and 2.4 (d) mean free paths from the plate.”}
+{\bf Answer.} Corrected
+
+{\it Caption for Fig. 3: Should the denominator term also be defined in the $ L^p$
+ norm \(\|f-f^{\mathrm{NSF}}\|_{L^p}/\|f\|_{L^p}\) ?
+
+I think the error norm definition should be given in the main text and not just in the caption. The
+norm definition in Eq. 24 is ambiguous. Should use parentheses to clarify, i.e.  
+  
+  $$
+  |f\|_{L^p} = \Bigl[\sum_j \br|f_j|^p \Bigr]^{1/p}
+  $$
+ 
+  Also, this definition is not appropriate for the $L^{\infty}$
+ norm which should be specified separately.
+}
+
+{\bf Answer.}  Yes, the denominator should be in the  form $|f\|_{L^p}$, corrected.  The  definition of the  norm was  also corrected.
+
+
+{\it Line 236: I did not follow the logic of the statement that because the $L^{\infty}$ norm of D3Q96
+significantly exceeds other norms, it is capable of capturing macroscopic dynamics with quite
+high accuracy. The authors should expand on this point and explain it better. 
+ }
+ 
+{\bf Answer.} Additional explanations  included in the text of the manuscript
+ 
+ {\it In general, I felt that the figures were not fully discussed in the text and Figs. 3c and d are not discussed at all. }
+ 
+ {\bf Answer.}  We have added details in the text
+ 
+\end{document}

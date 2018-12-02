@@ -1,0 +1,22 @@
+Dear Prof. Colligon,
+
+Thank you for reviewing our manuscript.
+
+Prof. Sharipov suggested us to present the shear stress values in a table,
+assuming that it is constant. Indeed, it is constant for the exact solution.
+However, generally speaking, it cannot be constant for any general-purpose
+relaxation method and, especially, for hybrid schemes based on the domain
+decomposition method. The ad hoc methods for the Couette-flow problem,
+similar to that we used to compute the benchmark solution, can account
+for the constancy of the shear stress profile.
+
+Certainly, the near-constant profile can always be averaged in order to
+calculate the mean value, as it typically done for the DSMC method.
+That is what we planned to do and wrote about this in the answer,
+however, at the very last moment before submission, we decided to
+replace unimpressive table values by illustrative Fig. 4.
+First, we demonstrate the highly nonuniform microstructure of the
+shear stress profile and supplement it with an additional discussion.
+Second, we sincerely hope that we remove the issue of the necessity
+for tabular data as outdated, since Fig. 4 shows the absolute error.
+
