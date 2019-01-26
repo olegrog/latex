@@ -23,5 +23,5 @@ pics:
 	cd $(PICS)/nonuniform && ln -sf ../../$(COUETTE)/nonuniform/*.pdf .
 	cd $(PICS) && ln -sf ../$(POISEUILLE)/*.pdf
 
-zip: $(SOURCES)
+zip: $(SOURCES) highlights.txt
 	zip -r $(PROJECT).zip $(SOURCES) $(PROJECT).bbl $(PICS)

@@ -128,8 +128,10 @@ Numerical schemes for the kinetic equations are used in regions of rarefied flow
 The schemes are written under the finite-volume (FV) formulation to achieve flexibility of local mesh refinement.
 The expansion to the Hermite polynomials is used for the coupling of DV and LB solutions.
 Special attention is paid to the recent high-order and regularized LB models.
-The linear Couette and Poiseuille flows are analyzed as numerical examples,
+The linear Couette flow is analyzed as a numerical example,
 where a good correspondence with the benchmark solutions is obtained.
+% [POISEUILLE]: The linear Couette and Poiseuille flows are analyzed as numerical examples,
+
 
 %In the present paper, a novel hybrid fluid--kinetic computational approach based on the discrete-velocity (DV) approximation including lattice-Boltzmann (LB) technique is proposed. Numerical schemes for a kinetic equation are used in regions of rarefied flows and LB schemes are used in continuum flow zones. The problem devoted to matching solutions of DV and LB in buffer cells is solved using the expansion of the solutions of DV and LB models on Hermite polynomials and matching the expansion coefficients.  A special attention is paid to the recent high-order LB models. Some variants of LBM are considered and the efficiency of the hybrid method is evaluated.  The Couette-flow problem is investigated as a test. The criteria transformation from the continuum region to kinetic one is proposed and the influence of the point transformation is studied. The CPU times for the hybrid scheme and for BGK scheme are compared. The good correspondence with the benchmark solution is obtained: the computations on the basis of the hybrid method are close to the well-known tabulated solutions of the Couette flow.
 
@@ -145,7 +147,7 @@ hybrid numerical method,
 discrete-velocity method,
 lattice-Boltzmann method,
 domain decomposition,
-rarefied and continuum flows.
+Knudsen layer.
 \end{keyword}
 
 \end{frontmatter}
@@ -235,7 +237,8 @@ A novel hybrid kinetic approach for multiscale problems is proposed in this pape
 We attempt to couple the DV method for the Boltzmann equation (or its BGK model) and the LB method for the NS equations.
 The DV method adequately describes nonequilibrium regions, while the LB one provides an adequate description in continuum regions.
 To couple solutions between the DV and LB subdomains, we approximate the VDF by the truncated Hermite expansion in the buffer zone.
-The high-order LB models~\cite{Shan2006, Feuchter2016} as well as the special regularization procedures~\cite{Latt2006, Mont2015}
+The high-order LB models~\cite{Shan2006, Feuchter2016}
+% [POISEUILLE]: as well as the special regularization procedures~\cite{Latt2006, Mont2015}
 are used to expand the continuum subdomain.
 
 %%% FV formulation
@@ -251,7 +254,7 @@ The plan of the present paper is as follows.
 The governing equations and nondimensional variables are introduced in Section~\ref{sec:equations}.
 The mapping scheme is described in Section~\ref{sec:mapping}.
 Details of the numerical methods used are presented in Section~\ref{sec:numerics}.
-Section~\ref{sec:results} contains the numerical solutions of the Couette-flow and Poiseuille-flow problems,
+Section~\ref{sec:results} contains the numerical solutions of the Couette-flow problems, % [POISEUILLE]: Poiseuille-flow
 obtained by the DV model, various LB models, and the proposed hybrid scheme,
 as well as a discussion on the computational efficiency of the hybrid approach.
 In section~\ref{sec:summary}, perspectives of the kinetic multiscale DV-LB methods are outlined.
@@ -507,7 +510,6 @@ f_{\LB,j}= w_j\frac{f_H(\bc_j)}{\omega(\bc_j)}
 gives the mapping of $f_H$ to $f_{LB,j}$ for the corresponding velocities $\bc_j$.
 Now having the values in the overlapping domain, we update $f_{LB,j}$ for the velocities $\bc_j$
 directed from the overlapping domain into the interior of the LB domain.
-
 
 The second step consists of the evaluation of the LB   distribution for the lattice velocities $\bc_j$ such that $(\bc_j,\mathbf{e})<0$, where $\mathbf{e}$ is the outer normal to the overlapping domain.
 We evaluate the moments $a,\ai,\aij,
@@ -987,6 +989,8 @@ since it is unable to reconstruct nonequilibrium part of the VDF.
 The sharp drop in Fig.~\ref{fig:norms:d3q19-hyb} indicates that the coupling interface is too close to the boundary,
 while the smoother transition in Fig.~\ref{fig:norms:d3q96-hyb} can be considered as more acceptable.
 
+\begin{comment}% [POISEUILLE]
+
 \begin{figure}
     \centering
     \includegraphics[width=.7\textwidth]{_pois_hybr_kn01_cropped}
@@ -1004,6 +1008,8 @@ The hybrid solution based on the D2Q9-regularized model is very close to the DV 
 while the D2Q9-regularized model is failed to capture the Knudsen-layer part of the solution.
 It is clearly seen from Fig.~\ref{fig:poiseuille} that the application of the regularized LB models in the hybrid scheme
 can positively affect the solution accuracy in comparison to the conventional LB models.
+
+\end{comment}
 
 \begin{figure}
     \centering
@@ -1029,7 +1035,7 @@ It is mainly due to memory saving, which results in fewer cache misses.
 In this paper, we have presented a new algorithm for coupling of the DV numerical solutions of the BGK kinetic equation.
 The mapping method is based on the Hermite expansion of the VDF.
 For the continuum region, we have employed various Gauss--Hermite LB models with different numbers of discrete velocities ranging from 9 to 121.
-Incorporating the augmented~\cite{Feuchter2016} and regularized~\cite{Latt2006, Mont2015} LB models
+Incorporating the augmented~\cite{Feuchter2016} LB models % [POISEUILLE]: and regularized~\cite{Latt2006, Mont2015}
 positively affect the solution accuracy in comparison to the conventional LB models.
 Additional correction procedures have been applied to ensure conservative properties of the hybrid algorithm.
 The influence of the breakdown criterion on accuracy and efficiency has also been studied.
