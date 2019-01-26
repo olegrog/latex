@@ -36,6 +36,7 @@
 \newcommand{\transpose}[1]{#1^\mathsf{T}}
 \newcommand{\diag}[1]{\qty(#1)^\mathrm{diag}}
 \newcommand{\fusion}[1]{{#1}^\mathrm{fus}}
+\newcommand{\bn}{\boldsymbol{n}}
 
 % dimensionless variables
 \newcommand{\Hx}{\hat{x}}
@@ -85,7 +86,8 @@ To incorporate the fusion process into the model, the following dependance of \(
 \begin{equation}\label{eq:enthalpy}
     h = \int_{T_0}^T c_p(\xi)\dd{\xi} + \fusion{h}\phi(h),
 \end{equation}
-where \(c_p\)~is the specific heat capacity (\si{J/kgK}), \(\fusion{h}\)~is the specific enthalpy of fusion (\si{J/kg}),
+where \(c_p\)~is the specific heat capacity at constant pressure (\si{J/kgK}),
+\(\fusion{h}\)~is the specific enthalpy of fusion (\si{J/kg}),
 \(\phi\)~is the liquid fraction (\(0 \leq \phi \leq 1\)).
 The limits \(\phi=0\) and \(\phi=1\) correspond to the solid and liquid states, respectively.
 The phase transition results in an abrupt change in the thermophysical properties \(f=c_p,k_0\) of the material;
@@ -318,6 +320,7 @@ It is possible to identify several space scales in the considered problem:
     \item radius of the laser beam \(1\),
     \item length of the whole domain \(\HL\).
 \end{itemize}
+% TODO: thermal length scale [Wang, Wheeler, McFadden 1993]
 
 %%% Interface thickness
 Let the local interface thickness be defined at isotherm \(\HT=1\) as
@@ -342,7 +345,61 @@ There is also a set of time scales:
 \end{itemize}
 If the fusion time scale is less than the convective one, the melting pool is formed under the influence of the laser heat source.
 
-\section{Numerical methods}
+\section{Phase-field models for solidification}\label{sec:phase-field}
+
+%%% Phase-field framework
+The liquid fraction function of enthalpy (or equivalently temperature) introduced in~\eqref{eq:enthalpy} is unable
+to describe the complex solidification processes including supercooling and anisotropy of the interface kinetics.
+The phase-field framework provides a flexible basis for advanced crystallization modeling.
+In particular, the formulation based on the entropy functional opens up a class of thermodynamically consistent models
+that guarantee spatially local positive entropy production~\cite{Wheeler1993}.
+
+%%% Entropy functional
+The entropy functional of any volume is assumed to have the following form:
+\begin{equation}\label{eq:entropy}
+    \mathcal{S} = \int_\Omega \qty[ s - \frac12\epsilon^2\qty|\pdv{\phi}{x_i}|^2 ] \dd{V},
+\end{equation}
+where \(s(h,\phi)\) is an entropy density, \(\epsilon\) is a gradient energy coefficient
+that is related to the interface energy and interface thickness.
+The second law of thermodynamics is ensured by inequality
+\begin{equation}\label{eq:second_law}
+    \dv{\mathcal{S}}{t} = \oint_{\partial\Omega} \qty( \frac{q_i}{T} + \epsilon^2\dv{\phi}{t}\pdv{\phi}{x_i} ) n_i\dd{S} \geq 0,
+\end{equation}
+where \(q_i\) is the enthalpy flux.
+
+The resulting governed equations can be written in the general form:
+\begin{gather}
+    \Hh_* \equiv \Hh - \fusion{\Hh}\OVV{p(\Hphi)} = \int_0^{\HT} \Hc_p(\xi)\dd{\xi}, \label{eq:enthalpy_new_hats} \\
+%    \qty( c + (p-1)L'(T) ) \pdv{T}{t} + L(T)p'\pdv{\phi}{t} = \pdv{x_i}\qty( k(\psi,T)\pdv{T}{x_i} ) + \dot{q}_V, \\
+    \tau\pdv{\phi}{t} = Q(T) p' - \frac1{4a} g' + \epsilon^2 \pdv[2]{\phi}{x_i}, \label{eq:phase_field} \\
+    \frac{\epsilon^2(\bn)}{m}\pdv{\Hphi}{\Ht} = \pdv{\Hx_i}\qty({\epsilon^2(\bn)\pdv{\Hphi}{\Hx_i}})
+        + \epsilon(\bn)\hat{Q}(\HT)p'  - \frac14g', \label{eq:phase_field_hats} \\
+\end{gather}
+where \(L(T) = h_L(T) - h_S(T)\),
+\begin{equation}\label{eq:Q_function}
+    \hat{Q}(\HT) = \int_0^{\HT} \frac{\Hh_L(\HT) - \Hh_S(\HT)}{\qty(1+\dots\xi)^2} \dd\xi,
+\end{equation}
+\begin{equation}\label{eq:g_function}
+    g = \phi^2(1-\phi)^2,
+\end{equation}
+and \(p(\phi)\) are arbitrary functions defining the particular phase-field model
+with the following normalization:
+\begin{equation}\label{eq:p_function}
+    p(0) = p(1) = 0, \quad p'(0) = p'(1) = 0.
+\end{equation}
+The simplest model that ensures spatially local positive entropy production is as follows:
+\begin{equation}\label{eq:p_model}
+    p = \frac{\int_0^\phi g(\zeta) \dd\zeta}{\int_0^1 g(\zeta) \dd\zeta} = \phi^3 \qty( 10 - 15\phi + 6\phi^2 ).
+\end{equation}
+
+Generalized Gibbs--Thomson condition:
+\begin{equation}\label{eq:gibbs-thomson}
+    T = \fusion{T} - \frac{\sigma \fusion{T}}{\fusion{h}}\kappa - \frac1\mu v_I, \quad
+    m = \frac{\mu\sigma\fusion{T}t_0}{R^2\fusion{h}}.
+\end{equation}
+
+
+\section{Numerical methods}\label{sec:numerics}
 
 Parallel Adaptive Wavelet Collocation Method (PAWCM)~\cite{Vasilyev2015} is employed for numerical solution of the problem
 in order to capture solid--liquid interface with high accuracy while preserving computational efficiency.
