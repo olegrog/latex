@@ -1,0 +1,4 @@
+-- Discrete-velocity and lattice-Boltzmann methods is effectively coupled
+-- Hermite expansion is a suitable solution approximation in the buffer layer
+-- High-order and regularized lattice-Boltzmann models improve the hybrid solution
+-- Deviation from the Navier--Stokes--Fourier norm can play role a breakdown criterion
