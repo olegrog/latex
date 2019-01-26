@@ -1,0 +1,400 @@
+\RequirePackage{amsmath}
+\documentclass{aip-cp}
+
+\usepackage[numbers]{natbib}
+\usepackage{rotating}
+\usepackage{graphicx}
+
+% Authors' packages
+\usepackage{bm}
+\usepackage{comment}
+
+% user commands
+\newcommand{\Kn}{\mathrm{Kn}}
+\newcommand{\Ma}{\mathrm{Ma}}
+\newcommand{\dd}{\:\mathrm{d}}
+\newcommand{\der}[2][]{\frac{\dd#1}{\dd#2}}
+\newcommand{\derdual}[2][]{\frac{\dd^2#1}{\dd#2^2}}
+\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
+\newcommand{\pderder}[2][]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\Pder}[2][]{\partial#1/\partial#2}
+\newcommand{\dxi}{\dd\boldsymbol{\xi}}
+\newcommand{\bxi}{\boldsymbol{\xi}}
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\Nu}{\mathcal{N}}
+\newcommand{\OO}[1]{O(#1)}
+\newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
+
+\newcommand{\FigWidth}{0.7}
+
+% Document starts
+\begin{document}
+
+% Title portion
+\title{Regularization and modeling of the Boltzmann collisional operator:
+    Tcheremissine and Shakhov approaches}
+
+\author[aff1,aff2]{Oleg A. Rogozin\corref{cor1}}
+\author[aff2]{Vladimir V. Aristov}
+\author[aff3,aff4]{Aoping Peng}
+\author[aff3,aff4]{Zhihui Li}
+
+\affil[aff1]{Center for Design, Manufacturing and Materials,
+    Skolkovo Institute of Science and Technology,
+    3 Nobel, Moscow 143026, Russia}
+\affil[aff2]{Dorodnicyn Computing Center,
+    Federal Research Center ``Computing Science and Control'' of Russian~Academy~of~Sciences,
+    40 Vavilova, Moscow 119333, Russia}
+\affil[aff3]{Hypervelocity Aerodynamics Institute,
+    China Aerodynamics Research and Development Center,
+    6 South Section, 2 Ring, Mianyang, Sichuan 621000, China}
+\affil[aff4]{National Laboratory for Computational Fluid Dynamics,
+    Beihang University,
+    37 Xueyuan, Beijing 100191, China}
+\corresp[cor1]{Corresponding author: oleg.rogozin@phystech.edu}
+
+\maketitle
+
+\begin{abstract}
+Solution of the Boltzmann equation involves many difficulties
+mainly associated with the nonlinear and nonlocal multidimensional nature of the collision term.
+To overcome them, two different strategies are commonly used:
+1) highly efficient numerical algorithms
+and 2) simplified collision operators capable of reproducing the desired properties of the Boltzmann dynamics.
+In this work, two corresponding approaches proposed many years ago are considered and compared for some numerical examples.
+The Tcheremissine regularization method provides a flexible framework for designing conservative discrete-velocity methods.
+The Shakhov relaxation model is able to mimic the viscosity and thermal conductivity preserving the computational simplicity.
+The obtained results are in very good agreement, but, due to uncontrollable inaccuracy of relaxation models,
+some subtle discrepancies arise in regions where the velocity distribution function is far from equilibrium.
+\end{abstract}
+
+% Head 1
+\section{INTRODUCTION}
+
+%%% Relevance of the problem
+The Boltzmann equation describes the gas transport phenomena for the full spectrum of flow regimes
+and acts as the main foundation for the study of complex gas dynamics including spacecraft re-entering Earth’s atmosphere.
+Efficient unified numerical algorithms are especially in demand in the re-entering aerodynamics,
+due to the wide range of the gas rarefaction for the considered flow regimes.
+
+%%% Classification of numerical methods for the Boltzmann equation
+A huge amount of research is devoted to the numerical solution of the Boltzmann equation.
+The diversity of the proposed computational methods is so wide that it is hardly amenable to a clear classification.
+However, it is possible to identify three main directions
+depending on the method of approximation of the velocity distribution function (VDF)
+for the further evaluation of the Boltzmann collision integral:
+\begin{itemize}
+    \item \emph{statistical simulation} methods are designed on the basis of some Markov-type random process,
+    \item \emph{discrete velocity (DV)} methods imply a fixed set of allowed molecular velocities,
+    \item \emph{projection (weighted residual)} methods work within a certain function space.
+\end{itemize}
+Due to the overwhelming popularity of the direct simulation Monte-Carlo (DSMC) method from the first family,
+the separation of the numerical methods into the stochastic and deterministic ones is widespread~\cite{Mieussens2014}.
+This traditional opposition seems to have a weak rationale from the practical point of view,
+since introduction of the stochastic techniques is the classical approach for improving the purely deterministic method,
+particularly, for the high-dimensional numerical integration~\cite{Dick2013}.
+
+%%% More detailed classification for projection methods
+While historically the DSMC and DV methods were the first that used for practical applications~\cite{Bird1963, Nordsieck1966},
+currently, development of the projection methods are the most active area of research.
+The Hermite basis is most appropriate, when the VDF is close to Maxwellian~\cite{Gobbert2007}.
+The Sonine (associated Laguerre) basis demonstrates the best convergence for the isotropic VDF~\cite{Fonn2014}.
+In the absence of a priori information about the VDF,
+it is possible to design a fast algorithm for an arbitrary molecular potential based on the Fourier expansion~\cite{Wu2015}.
+The discrete Galerkin formulation is widely used for the compactly supported basis functions~\cite{Majorana2011, Alekseenko2014, Kitzler2015}.
+Finally, the wavelet-based methods are promising for the efficient approximation of the multi-scale VDF~\cite{Tran2013}.
+
+%%% Requirements for methods
+Among the many properties of the robust and efficient computational method for solving the Boltzmann equation,
+there are three important ones that are usually emphasized in the literature~\cite{Dimarco2014}:
+\begin{itemize}
+    \item conservation of mass, momentum, and kinetic energy (\emph{conservation properties});
+    \item \(\mathcal{H}\) theorem holds (\emph{entropy properties});
+    \item \emph{positivity} of the VDF.
+\end{itemize}
+Violation of all the listed properties is possible, but usually requires special care.
+
+%%% Regularization of the collisional operator
+The DV methods are often associated directly with the \emph{discrete-collision models}
+that allow only discrete set of post-collisional velocities~\cite{Goldstein1989}.
+The conservation and entropy properties that are inherent at the microscopic level are considered as their fundamental advantage.
+However, the disappointing result on the convergence rate of these models~\cite{Palczewski1997}
+stimulated the search for a method of \emph{collisional operator regularization}
+in order to relax the severe restriction on the collisional set
+and achieve the second-order convergence with the mentioned properties.
+Three different approaches were put forward immediately as a dialectical answer for the problem posed.
+\begin{itemize}
+    \item \citet{Buet1998} considered several mollified operators preserving the conservation properties
+    in the weak (\emph{macroscopic}) form (for the collision operator as a whole).
+    \item \citet{Babovsky1998} designed a simple conservative scheme on the \emph{mesoscopic} level
+    (for the whole collisional sphere). His approach was later developed by \citet{Goersch2002}.
+    \item \citet{Tcheremissine1998} proposed a new class of \emph{microscopically} conservative DV methods
+    based on the splitting of scattered particles.
+    The entropic properties were ensured by the special interpolation procedure~\cite{Tcheremissine2006}.
+\end{itemize}
+The last approach is turned to be the most flexible and efficient from the computational point of view.
+The multipoint projection~\cite{Beylich2000, Varghese2007} gives extra freedom to extend the Tcheremissine method
+for mixtures~\cite{Dodulad2012} and nonuniform grids~\cite{Rogozin2016}.
+
+%%% Modeling of the collisional operator
+Despite the significant progress in the numerical methods for the Boltzmann equation,
+the \emph{collisional operator modeling} still remains effective for reducing computational cost
+and designing implicit and asymptotic-preserving schemes~\cite{Jin1999}.
+Currently, the \emph{relaxation} models are widespread since they are able to reproduce many properties of the Boltzmann equation.
+\citet{Holway1966} and~\citet{Shakhov1968} introduced extra freedom to make the Prandlt number
+an arbitrary parameter in contrast to the original Krook--Welander model~\cite{Krook1954, Welander1954}.
+While the Holway model is more suitable for the temperature-driven flows, since it corrects the stress tensor,
+the Shakhov model is known to describe the velocity-driven flows better, because it adjusts only the heat-flux term.
+However, until now, it is not possible to make any a priori estimates of the difference
+between the relaxation models and Boltzmann solutions.
+Therefore, a comparative analysis between them for the crucial flow regimes
+is important for the validation of the collisional operator modeling.
+
+%%% Aim of the study
+In the present paper, an analysis of this kind is carrying out
+for the Tcheremissine method and Shakhov model.
+The latter is presented in the gas-kinetic unified algorithm (GKUA)~\cite{Li2004},
+established and used to simulate the re-entering aerodynamics
+from the highly rarefied free-molecular flow regimes to slightly rarefied continuum ones.
+
+\section{COLLISIONAL OPERATOR MODELING}
+
+%%% Boltzmann equation
+Evolution of the VDF \(f(\bx,\bxi, t)\) is governed by the Boltzmann equation
+\begin{equation}\label{eq:Boltzmann}
+    \pder[f]{t} + \xi_i\pder[f]{x_i} = \frac1k J(f),
+\end{equation}
+where \(J(f)\) is the collisional operator, \(\Kn=2k/\sqrt\pi\) is the Knudsen number,
+\(\bx\), \(\bxi\), and \(t\) are the physical, velocity, and time coordinates, respectively.
+
+%%% Collisional term modeling
+The original Boltzmann collision integral
+\begin{equation}\label{eq:ci}
+    J_B(f) = \int_{\mathbb{R}^3\times S^2} (f'f'_* - ff_*) B \dd \Omega(\boldsymbol{\alpha}) \dxi_*,
+\end{equation}
+where \(B(|\alpha_i V_i|/V,V)\) is the collision kernel, \(\dd \Omega(\boldsymbol{\alpha})\) is an element of solid angle
+in the direction of the unit vector \(\boldsymbol{\alpha}\), determining the velocities after collision:
+\begin{equation}\label{eq:after_collision}
+    \xi_i' = \xi_i + \alpha_i\alpha_j V_j, \quad \xi_{i*}' = \xi_{i*} - \alpha_i\alpha_j V_j, \quad
+    \boldsymbol{V} = \bxi_*-\bxi, \quad V = |\boldsymbol{V}|,
+\end{equation}
+and the following notation is used:
+\begin{equation}\label{eq:Boltzmann_notation}
+    f = f(\bx,\bxi,t), \quad f_* = f(\bx,\bxi_*,t), \quad
+    f' = f(\bx,\bxi',t), \quad f'_* = f(\bx,\bxi'_*,t),
+\end{equation}
+with the variable hard sphere (VHS) kernel~\cite{Bird1981vhs}
+\begin{equation}\label{eq:ci_kernel_vhs}
+    B_\mathrm{VHS} = \frac{|\alpha_i V_i|}{4\sqrt{2\pi}\Gamma(2.5-\omega)}\left(\frac{V}2\right)^{1-2\omega},
+\end{equation}
+where \(\omega\) is the temperature exponent of the viscosity coefficient,
+\(\Gamma(z) = \int_0^\infty t^{z-1}e^{-t}\dd{t}\) is the gamma function,
+can be modeled by the Shakhov collisional operator
+\begin{equation}\label{eq:shakhov}
+    J_S(f) = \frac{\rho T^{1-\omega}}{\gamma_1}\left(f^{\mathrm{(eq)}} - f\right), \quad
+    f^{\mathrm{(eq)}} = f_M\left[ 1 + \frac{1-\Pr}5\frac{4c_i q_i}{pT}\left(\frac{c^2}{T}-\frac52\right) \right], \quad
+    f_M = \frac{\rho}{(\pi T)^{3/2}}\exp\left(-\frac{c^2}{T}\right),
+\end{equation}
+where \(c_i = \xi_i - v_i\), \(c = |\boldsymbol{c}|\), \(\Pr=\gamma_1/\gamma_2\) is the Prandtl number,
+\(\gamma_1\) and \(\gamma_2\) are the viscosity and thermal conductivity coefficients for a hard-sphere gas~\cite{Sone2007}:
+\begin{equation}\label{eq:gammas}
+    \gamma_1 = 1.270042427, \quad \gamma_2 = 1.922284066.
+\end{equation}
+Macroscopic variables are calculated as follows:
+\begin{equation}\label{eq:macro}
+    \rho = \int f \dxi, \quad
+    \rho v_i = \int \xi_i f \dxi, \quad
+    p = \rho T = \frac23\int c^2 f \dxi, \quad
+    q_i = \int c_i c^2 f \dxi,
+\end{equation}
+where \(\rho\) is the density, \(v_i\) is the velocity, \(T\) is the temperature, \(p\) is the pressure,
+and \(q_i\) is the heat-flux vector.
+
+\section{COLLISIONAL OPERATOR REGULARIZATION}
+
+%%% Symmetrized collision operator
+The Tcheremissine method is started from the symmetrized Boltzmann collision integral
+\begin{equation}\label{eq:symm_ci}
+    J(f_\gamma) = \frac14\int_{\mathbb{R}^6\times S^2} \left(
+        \delta_\gamma + \delta_{*\gamma} - \delta'_\gamma - \delta'_{*\gamma}
+    \right) (f'f'_* - ff_*)B \dd\Omega(\boldsymbol{\alpha}) \dxi\dxi_*,
+\end{equation}
+where \(f_\gamma = f(\bxi_\gamma)\),
+\(\delta_\gamma = \delta(\bxi-\bxi_\gamma)\) is the Dirac delta function in \(\mathbb{R}^3\)
+and the same notation~\eqref{eq:Boltzmann_notation} is assumed for it.
+If the continuum velocity space \(\mathbb{R}^3\) is discretized
+into net \(\mathcal{V} = \Set{\bxi_\gamma}{\gamma\in\Gamma\subseteq\mathbb{N}}\),
+all the primed variables in~\eqref{eq:symm_ci} require regularization,
+since the post-collisional velocities, \(\bxi'_\nu\) and \(\bxi'_{*\nu}\),
+are included in \(\mathcal{V}\) only for a very small set of the collisional parameters~\cite{Palczewski1997}.
+
+%%% Projection--interpolation regularization
+Regularization of~\eqref{eq:symm_ci} can be, generally, performed by the \emph{projection} procedure:
+\begin{equation}\label{eq:projection}
+    \delta'_\gamma = \sum_{\sigma\in\Gamma} a_\sigma \delta(\bxi_\sigma-\bxi_\gamma) = a_\sigma \delta_{\sigma\gamma}, \quad
+    \delta'_{*\gamma} = \sum_{\sigma\in\Gamma} a_{*\sigma} \delta(\bxi_\sigma-\bxi_\gamma) = a_{*\sigma} \delta_{\sigma\gamma},
+\end{equation}
+and \emph{interpolation} one, written as a weighted Kolmogorov mean:
+\begin{equation}\label{eq:interpolation}
+    f' = \phi^{-1}\left( \sum_{\sigma\in\Gamma} b_\sigma \phi(f_\sigma) \right), \quad
+    f'_* = \phi^{-1}\left( \sum_{\sigma\in\Gamma} b_{*\sigma} \phi(f_\sigma) \right).
+\end{equation}
+The conservation properties can be guaranteed on the microscopic level (for every \(\gamma\in\Gamma\))
+if \(a_\sigma\) and \(a_{*\sigma}\) are satisfy
+\begin{equation}\label{eq:conservation}
+    \int_{\mathbb{R}^3} \psi_s(\bxi_\gamma) \left(
+        \delta'_\gamma + \delta'_{*\gamma} - a_\sigma \delta_{\sigma\gamma} - a_{*\sigma} \delta_{\sigma\gamma}
+    \right) \dxi_\gamma = 0, \quad s = 0,\dots,4,
+\end{equation}
+where set \(\psi_s\) contains all collisional invariants:
+\begin{equation}\label{eq:invariants}
+    \psi_0 = 1, \quad \psi_i = \xi_i, \quad \psi_4 = |\bxi|^2.
+\end{equation}
+Set \(\mathcal{S} = \Set{a_\sigma\neq0}{\sigma\in\Gamma}\) is called the \emph{\(|\mathcal{S}|\)-point projection stencil}.
+1-point projection to the nearest node, used in the classical Nordsieck--Yen--Hicks (HYN) method~\cite{Nordsieck1966, Yen1984},
+yields conservation of mass only.
+\citet{Tcheremissine1998} proved that the 2-point projection is sufficient for momentum and energy as well,
+when \(\mathcal{V}\) is a uniform rectangular grid.
+Five points are needed in the general case if requirement~\eqref{eq:conservation} is replaced to the more strict one~\cite{Varghese2007}:
+\begin{equation}\label{eq:conservation2}
+    \int_{\mathbb{R}^3} \psi_s(\bxi_\gamma) \left( \delta'_\gamma - a_\sigma \delta_{\sigma\gamma} \right) \dxi_\gamma = 0, \quad
+    \int_{\mathbb{R}^3} \psi_s(\bxi_\gamma) \left( \delta'_{*\gamma} - a_{*\sigma} \delta_{\sigma\gamma} \right) \dxi_\gamma = 0.
+\end{equation}
+The entropic properties can be achieved also on the microscopic level
+if the geometric mean with corresponding projection weights is taken
+in~\eqref{eq:interpolation}~\cite{Tcheremissine2006, Dodulad2013}:
+\begin{equation}\label{eq:geometric_mean}
+   \phi(x) = \log(x), \quad b_\sigma = a_\sigma, \quad b_{*\sigma} = a_{*\sigma}.
+\end{equation}
+
+\section{COMPUTATIONAL METHODS}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\FigWidth\linewidth, clip=true, trim = 90 30 75 50 mm]%
+        {cylinder-90km/mach-dsmc}
+    \caption{Contours of Mach number for \(\Ma=2.4\), \(\Kn=0.13\).
+        Upper and lower halves correspond to the different solvers.}
+    \label{fig:90:dsmc}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\FigWidth\linewidth, clip=true, trim = 90 30 75 50 mm]%
+        {cylinder-90km/mach-gkua}
+    \caption{Contours of Mach number for \(\Ma=2.4\), \(\Kn=0.13\).
+        Upper and lower halves correspond to the different solvers.}
+    \label{fig:90:gkua}
+\end{figure}
+
+%%% Splitting scheme and discretization in the physical space
+The both solvers employed for the present comparative study solve the kinetic equation
+by the second-order operator-splitting scheme into the collisionless transport equation and space-homogeneous Boltzmann equation.
+The Tcheremissine method is supplemented by the finite-volume method to preserve the conservation properties
+over the whole computational domain, while the GKUA is based on the finite-difference one.
+
+%%% Discretization in the velocity space
+Within the DV approximation, the three-dimensional integration with respect to the molecular velocity \(\bxi\)
+is approximated as
+\begin{equation}\label{eq:xi_cubature}
+    \int_{\mathbb{R}^3} F(\bxi) \dxi \approx \sum_{\gamma\in\Gamma} F_\gamma w_\gamma, \quad
+    F_\gamma = F(\bxi_\gamma),
+\end{equation}
+where \(F\) is an arbitrary function, \(\Gamma\) is some index set of the velocity grid,
+\(\Set{(\bxi_\gamma,w_\gamma)}{\gamma\in\Gamma}\) is the set of discrete velocities and corresponding weights,
+determined by the specific three-dimensional cubature.
+For the supersonic flows considered below, the Gauss--Hermite quadrature is used for each axis.
+
+%%% 8D cubature
+The eight-dimensional cubature rule is needed for the evaluation of~\eqref{eq:symm_ci}.
+For the present study, the optimal Korobov lattice rules~\cite{Dick2013},
+randomly shifted for each time step, is employed.
+In order to achieve a high accuracy for the steady state, time averaging is used.
+
+\section{NUMERICAL EXAMPLES}
+
+%%% Formulation of the problem
+A steady-state flow around a cylinder is considered under two different conditions corresponding to the free fall at 90 and 70 km altitude.
+The complete-diffusion boundary condition is assumed on the boundary surface,
+which temperature is assumed to be constant and equal to the stagnation temperature
+\begin{equation}\label{eq:stagnation}
+    T_B = 1 + \frac{\gamma-1}2 \Ma^2.
+\end{equation}
+VHS model with \(\omega=0.81\) is used to simulate an argon flow.
+
+%%% Velocity grids
+The cylinder axis is directed along \(z\).
+The velocity space is discretized to the rectangular grid, which nodes are located as zeros
+of the Hermite polynomials rescaled to interval \(|\xi_i| < \xi_\mathrm{max}\).
+(40, 40, 16) nodes are used for the corresponding axis.
+Cutting the grid by sphere of radius \(\xi_\mathrm{max}\) gives \(|\mathcal{V}| = 25936\).
+\(\xi_\mathrm{max}=7.5\) and \(\xi_\mathrm{max}=8.5\) used for 90 and 70 km, respectively.
+Finally, note that the relaxation models allow to reduce the considered 5-dimensional problem to the 4-dimensional one.
+
+\subsection{Cylinder at 90 km altitude}
+
+When the Knudsen number is close to unity, the considered problem can be easily solved by the DSMC method.
+Despite the visible statistical noise, there is an almost perfect coincidence between solutions obtained by the Bird's solver
+and Tcheremissine method in Fig.~\ref{fig:90:dsmc}.
+The GKUA solution is also very close to the reference one (Fig.~\ref{fig:90:gkua}),
+however, has a longer shock tail, which is a well-known defect of the relaxation models, including the Shakhov one.
+
+\subsection{Cylinder at 70 km altitude}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\FigWidth\linewidth, clip=true, trim = 90 30 75 50 mm]%
+        {cylinder-70km/mach-gkua}
+    \caption{Contours of Mach number for \(\Ma=3.0\), \(\Kn=0.0055\).
+        Upper and lower halves correspond to the different solvers.}
+    \label{fig:70:gkua}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\FigWidth\linewidth, clip=true, trim = 90 30 75 50 mm]%
+        {cylinder-70km/uz-gkua}
+    \caption{Contours of \(v_z\) for \(\Ma=3.0\), \(\Kn=0.0055\).
+        Upper and lower halves correspond to the different solvers.}
+    \label{fig:70:U_z}
+\end{figure}
+
+A DSMC solution becomes too expensive for small Knudsen numbers;
+therefore, the presented comparison is limited to Fig.~\ref{fig:70:gkua}.
+As for the previous case, there is a good agreement between the results,
+along with the same remark about the shock approximation.
+
+Fig.~\ref{fig:70:U_z} illustrates the accuracy obtained by the Tcheremissine method.
+Since integral~\eqref{eq:symm_ci} is computed approximately,
+the deviation from the exact solution \(v_z=0\) can be served as an indirect indicator of the numerical error.
+The largest residual is observed in the center of the shock;
+however, there are also several local maxima in the wake region.
+All of them can be reduced by the appropriate mesh refinement~\cite{Kolobov2013}.
+Note that the time-averaged value is shown in Fig.~\ref{fig:70:U_z},
+which is smaller than the corresponding value after a single iteration.
+
+\section{CONCLUDING REMARKS}
+
+In summary, the following points can be emphasized:
+\begin{itemize}
+    \item The Shakhov model with the appropriate temperature exponent for the viscosity and thermal conductivity
+    is a reliable engineering-level model for the re-entering aerodynamics,
+    including the hypersonic flows~\cite{Titarev2018, Frolova2018}.
+    \item The Tcheremissine regularization method is a promising framework for robust DV algorithms and high-accuracy simulations.
+    \item Stochastic computational techniques can improve pure deterministic methods.
+    \item The conservation properties are important for crude meshes and internal flows.
+    Lack of them is not the issue for external flows.
+    \item The ray effect can noticeably distort a solution in the wake region near the boundary.
+    Refinement of the velocity grid near the origin helps to reduce the relevant numerical error.
+\end{itemize}
+
+\section{ACKNOWLEDGMENTS}
+The work was supported by Russian Foundation for Basic Research (Grants 18-01-00899, 18-07-01500),
+Chinese 973 Program (2014CB744100), NSFC (No. 91530319).
+
+% References
+
+\bibliographystyle{aipnum-cp}%
+\bibliography{manuscript}%
+
+
+\end{document}
