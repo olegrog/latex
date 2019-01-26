@@ -1,0 +1,112 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{mathtools, amssymb, amsthm}
+\usepackage{fullpage}
+\usepackage{physics}
+\usepackage{siunitx}
+\usepackage{comment}
+\usepackage{subcaption}
+
+\usepackage{graphicx} % [draft]
+
+\usepackage[
+    pdfusetitle,
+    colorlinks
+]{hyperref}
+
+\title{Laboratory Setup for Powder Bed Fusion Technology}
+\date{\today}
+\author{A. Dyakov, O.A.~Rogozin, I.V.~Shishkovsky}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+
+%%% Current problems
+The powder bed fusion (PBF) process on every industrial installation goes in a closed regime without any operator intervention.
+In fact, it is a precisely and excessively high added value of powders for the PBF that the manufacturers' costs for the choice of powder materials
+and the selection of optimal technological regimes.
+Therefore, multi-parametrical theoretical modeling of the PBF processes allows minimizing these costs both in time and money.
+The laboratory setup (LS) allows to conduct multivariate analysis and determine the range of laser influence parameters
+(energy power, scanning speed, laser beam diameter, etc.) and requirements for powder compositions
+(dispersion, content, alloying elements, methods of preparation and laying, etc.).
+Multifactorial optimization of the PBF processes on the LS will allow to identify the main (leading) processes
+and accelerate the validation of the CAD--CAM--CAE models.
+
+%%% Aim
+The current project aims at \emph{design} of the LS for the comprehensive optimization of the PBF technology
+and diagnostics of the physical and mechanical properties of \emph{new powder materials} during their 3D printing.
+Data to be obtained on the LS will form the basis for \emph{validation}
+of the hierarchical multi-physics model for selective laser melting (SLM).
+
+\section{Requirements}
+
+\begin{figure}
+    \newcommand{\picwidth}{0.7\textwidth}
+    \centering
+    \begin{subfigure}{\picwidth}
+        \includegraphics[width=\textwidth]{full}
+        \caption{full}
+        \label{fig:full}
+    \end{subfigure}\\
+    \begin{subfigure}{\picwidth}
+        \includegraphics[width=\textwidth]{front}
+        \caption{front}
+        \label{fig:front}
+    \end{subfigure}\\
+    \begin{subfigure}{\picwidth}
+        \includegraphics[width=\textwidth]{side}
+        \caption{side}
+        \label{fig:side}
+    \end{subfigure}
+    \caption{The general view of the LS}
+    \label{fig:ls}
+\end{figure}
+
+The principal advantage of the proposed LS from well-known industrial PBF equipment will be ability in the laboratory configuration:
+\begin{enumerate}
+    \item To stop the synthesis process at any stage in order to change the technical process parameters on the fly, for example,
+    add (or remove) powders, mix disparate materials (the so-called ``multi-material approach'', which is only planned in foreign installations),
+    change the composition of the protective gas mixture, enable (disable) the processing zone heating.
+    \item To carry out the process temperature diagnostics (thermocouple measurement over the powder volume, pyrometer measurements from the surface).
+    \item 3D scanning system with ``flat-top'' shape beam.
+    \item To determine the deviation of the layer shape from the CAD model.
+    \item To evaluate the microelement composition of the surface layer (diagnostics by induction-coupled plasma spectroscopy).
+    \item To evaluate stresses and deformations (from the surface by the laser speckle holography, or by volume via ultrasonic diagnostics).
+    \item \dots (input into the chamber of an additional energy source, evaluation of the phase composition
+    and transformation during 3D part fabrication, etc.).
+\end{enumerate}
+
+There capabilities make is possible to reduce drastically time for searching and optimizing regimes of PBF manufacturing
+and significantly save on consumable powder materials, since the results of the synthesis and the prospects for creating
+a future 3D parts are already visible on the first 1--5 layers.
+
+\section{Design}
+
+The preliminary LS project is designed and shown in Fig.~\ref{fig:ls}.
+The laser source, printing chamber, powder cylinders, and inert chamber are arranged one above the other.
+The central cylinder is used for printing, while the input and output powders are stored in the left and right ones, respectively.
+There is a control unit in the left rack.
+A close-up of the printing chamber is shown in Fig.~\ref{fig:chamber}.
+The sealed chamber can be filled with an inert gas and preheated.
+
+\begin{figure}
+    \newcommand{\picwidth}{0.5\textwidth}
+    \centering
+    \begin{subfigure}{\picwidth}
+        \includegraphics[width=\textwidth]{inside}
+        \caption{inside the chamber}
+        \label{fig:inside}
+    \end{subfigure}\:
+    \begin{subfigure}{\picwidth}
+        \includegraphics[width=\textwidth]{door}
+        \caption{the door}
+        \label{fig:door}
+    \end{subfigure}
+    \caption{The chamber of the LS}
+    \label{fig:chamber}
+\end{figure}
+
+\end{document}

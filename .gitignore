@@ -65,5 +65,9 @@ _*
 # Precompiled files
 *.pyc
 
+# Raster graphics
+*.jpg
+*.png
+
 # Nested repositories
 phd_thesis
