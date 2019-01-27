@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+\usepackage{amssymb, amsmath}
+\usepackage[normalem]{ulem}         % for \sout
+\usepackage{fullpage}
+
+\title{Referee report on \\ "Slip/Jump Coefficients and Knudsen-Layer Corrections for the Shakhov Model
+    Occuring in the Generalized Slip-Flow Theory" by M.~Hattori and S.~Takata}
+\date{}
+
+\newcommand{\Kn}{\mathrm{Kn}}
+\newcommand{\Ma}{\mathrm{Ma}}
+
+\begin{document}
+
+\maketitle
+
+%%% What is this about? What was done?
+In the presented manuscript, the linear second-order Knudsen-layer problem is solved numerically with a high accuracy
+for unsteady monatomic gas obeying the Shakhov model of the Boltzmann equation.
+The obtained data are used for quantitative description of the gas behavior
+within the generalized slip-flow theory, developed by the authors in the recent years.
+
+%%% Why is the topic important? Key result.
+The relaxation models of the Boltzmann equation are widely used for simulation of rarefied gas flows,
+especially for engineering applications.
+However, there is no any apriori estimates on their predictive capabilities.
+This work provides important insights into influence of relaxation model on the gas behaviour in the Knudsen layer.
+
+%%% How results was presented?
+It is worth emphasizing that the manuscript is well-organized.
+A quite complicated material is presented in a clear and self-consistent manner.
+The referee hopes that the following optional minor comments could help authors to polish their manuscript.
+Some of them are related to the style of presentation and represent the view from the side, rather that an objective facts.
+\begin{enumerate}
+    \item The diffusive time scale is assumed for the generalized slip-flow theory;
+    however, the same slip/jump coefficients and Knudsen-layer corrections seem to be valid in the acoustic regime as well.
+    Clarification of this point may increase the relevance of the obtained results.
+
+    \item Some words about difference between ``elemental'' and ``elementary''.
+    The former is mainly chemistry-related, while the latter is widely used for mathematical objects.
+    To the referee's aware, term ``elemental'' was introduced into the field by one of the authors more that decade ago,
+    however, still sounds dissonant.
+    Moreover, ``elemental functions'' and ``elemental solutions'' looks confusing
+    in comparison to classical ``solutions to the elementary half-space problems''.
+    The Green's functions considered in [Takata09] are also formulated for \emph{elementary} sources,
+    as would be commonly mentioned in the community.
+
+    \item Typo after Eq.~(3): \(Lx_{xi}\) is the position o\sout{n}f the boundary.
+
+    \item It should be mentioned in the text that the linearized scattering operator \(\mathcal{K}\)
+    is associated with the kinetic boundary conditions.
+    The expression of diffuse-reflection \(\mathcal{K}\) is also missing,
+    however is assumed for the presented numerical results.
+
+    \item Knudsen-layer function \(H_2^{(1)}\) is not used in the paper and can be easily removed from Eq.~(6).
+
+    \item ``... because \(c_3^{(0)}\) is positive, irrespective of the gas model (see Table 1)''.
+    To be exact, there is no proof that \(c_3^{(0)}\) is positive for all possible gas models.
+    Instead, there is an evidence that it is positive for the considered models for \(\Pr=2/3\).
+
+    \item ``... \(F_T\), which involves a second order jump coefficient, depends strongly on the molecular model''.
+    This claim sounds unfounded, since in fact only one molecular model is being considered (hard spheres).
+    The BGK-type models, on the other hand, are collision operator models.
+
+    \item One of the important results of the present work is the provided opportunity
+    to compare ES and Shakhov models quantitatively. It is seen that all slip/jump coefficients
+    computed for the Shakhov model are closer to the hard-sphere ones in comparison to the ES model.
+    \(b_8^{(1)}\) is the only exception. Is it a pure accident or has some explanation?
+
+    \item Finally, the abstract lacks explicit words about the computational problem,
+    which, nevertheless, has been solved skillfully and accurately.
+    The modest word ``obtain'' can form a misconception about the main challanges associated with the problem,
+    especially for readers who are not familiar with the details of the previous authors' papers.
+    It seems worth to mention that the presented work is essentially about sophisticated computations.
+\end{enumerate}
+
+%%% Conclusions
+In summary, the work is accomplished and presented at a high scientific level.
+The obtained results are of wide interest and certainly deserve to be published.
+
+\end{document}
