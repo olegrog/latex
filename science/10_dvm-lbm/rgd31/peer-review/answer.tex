@@ -1,0 +1,148 @@
+\documentclass{article}
+\usepackage{a4wide}
+\usepackage[english]{babel}
+
+%%% functional packages
+\usepackage{amssymb, mathtools, amsthm, mathrsfs}
+\usepackage{framed}                % for leftbar
+\usepackage[%
+    font={bfseries},
+    leftmargin=0.1\textwidth,
+    indentfirst=false
+]{quoting}
+
+\usepackage{lipsum}
+\usepackage{graphicx}
+\def\asterism{\par\vspace{1em}{\centering\scalebox{1}{\bfseries *~*~*}\par}\vspace{.5em}\par}
+
+\usepackage[
+    backend=biber,
+    style=numeric,
+    sorting=none,
+    maxbibnames=99, minbibnames=99,
+    natbib=true,
+    url=false,
+    eprint=true,
+    pagetracker,
+    giveninits]{biblatex}
+\bibliography{../../dvm-lbm}
+
+\title{Response to the Reviewers' Comments}
+
+\begin{document}
+
+\maketitle
+
+We thank the Reviewers for the comments and suggestions.
+Our answer and changes are presented below.
+The reviewers' words are shown in bold.
+Individual parts of the corrected version of the manuscript
+can be recognized by the bold lateral line.
+
+\section*{Referee report \#1}
+
+\begin{quoting}
+    1. There are a lot of literatures on the coupling of the kinetic method and the LB method.
+    The authors should make a more comprehensive review on the existing literatures on this topic.
+    The comparison and the comments should also be made.
+\end{quoting}
+
+As far as the authors are aware, these is no examples of coupling methods (based on the domain-decomposition approach)
+of the deterministic models of the Boltzmann equation and LB models in the literature.
+We would be very grateful if the reviewer provides us with the correspoding citations.
+Our awareness are represented now by the following paragraph added in the introduction.
+
+\begin{leftbar}
+    ... This fundamental affinity suggests us to propose new variants of the hybrid schemes
+    based on the domain decomposition approach and use the best properties of the both methods for rarefied and continuum regions.
+    The kinetic mapping scheme for coupling the different order LB models is presented in~\cite{Meng2011},
+    while the possibility of merging the DV and LB methods was noticed in~\cite{Succi2016}.
+\end{leftbar}
+
+\begin{quoting}
+    2. In the second equation below the line ``for the DV difference scheme on the Grad...'',
+    there is a typo: \(H_j\) should be \(H_{\alpha}\).
+\end{quoting}
+
+Corrected.
+
+\begin{quoting}
+    3. As the author pointed out, in Fig.~1a, there is some discrepancy between the DV and the benchmark profiles.
+    The local refinement should be made to eliminate this discrepancy.
+\end{quoting}
+
+We decided to restrict ourselves to the case of the uniform velocity grid within the current conference paper.
+In the same time, we have already extended our results for the nonuniform grid with local mesh refinement in the full paper.
+Therefore, the following remark is added in the considered paragraph.
+\begin{leftbar}
+    The corresponding results for nonuniform velocity grid are presented in~\cite{Aristov2019}.
+\end{leftbar}
+
+\section*{Referee report \#2}
+
+\begin{quoting}
+    It is known that BGK fails to give a correct Prandtl number, which is about 2/3 for monatomic gas, but BGK gives 1.
+    Meanwhile, the LBM can give a good Prandtl number.
+    When Kn is not large, whether the Prandtl number is correct really matters.
+    So it may be not a good choice to combine BGK and LBM.
+    An option is Shakhov or ES-BGK equation.
+    Based on the authors' current work, it would be not hard to extend the hybrid method of Shakhov and LBM.
+\end{quoting}
+
+We thank the reviewer for the suggestion and believe that more complicated LB schemes, for instance,
+the thermal models with correct half-fluxes~\cite{Ambrus2016mixed}, can be also implemented,
+however such kind of investigation is beyond the current topic of the manuscript.
+
+The idea of the extension of the presented scheme is based on the change of the Hermite basis by the Laguerre basis.
+Assume that the matching point for the two methods (BGK or S-BGK and LB) the gas distribution function can be expressed
+in the form of the finite Laguerre expansions up to the moments of some order which is sufficient
+for the reproduction of thermal properties of the gas.
+
+Having the BGK VDF, the projection step (from BGK to LB) can be performed in two steps:
+\begin{enumerate}
+    \item The Laguerre expansion coefficients are calculated from the BGK DV changing integrals by sums, as a result
+    the Laguerre expansion df is recovered.
+    \item The Gauss--Laguerre quadratures are applied and appropriate boundary LB distribution is derived.
+\end{enumerate}
+Now assume that LB distribution is known and now the reconstruction of the BGK DV distribution function is required.
+The coefficients of the Laguerre expansion are calculated using LB scheme
+(simply as a sum of LB VDF weighted by Laguerre polynomials over the lattice velocity nodes),
+and as a result the Laguerre expansion function is recovered.
+Next, this function is discretized at the velocity nodes of the BGK scheme.
+
+It is worth to mention that the discussed tailoring scheme is slightly more complicated than in the paper
+since it requires more moments to be viable.
+
+\begin{quoting}
+    In Figure 2, there is a discontinuity in the profile of \(q_x\), which is caused by the boundary condition of the interface.
+    The authors claim that its amplitude is proportional to the non-equilibrium part of the VDF. It may be true.
+    But the fact is that, the two model used in this paper are not consistent.
+    For example, they give different Prandtl number.
+    If the VDF is not very close to the equilibrium, there is an error between these two models.
+    But if the VDF is close to the equilibrium, it is a trivial case.
+    The authors might be interesting in choosing a better model to suppress the oscillation.
+\end{quoting}
+
+The reproduction of \(q_x\) can be challenging for any LB method
+since this heat flux is significantly non-equilibrium and has non-hydrodynamic nature.
+Thus, our explanation is that the jump in \(q_x\) is not attributed to the Prandtl mis-reproduction
+but reflects the fact that LB can not reproduce the beyond-Navier--Stokes regime.
+We have extended discussion on this problem:
+
+\begin{leftbar}
+    Due to the diffuse-reflection boundary condition, there is a discontinuity of the VDF on the boundary,
+    which decays monotonically and faster than any inverse power of distance from the boundary.
+    Therefore, all the breakdown parameters reach their maximum on the boundary;
+    however, \(E_\infty\) relaxes in a nonmonotonic way.
+    This is probably due to crude approximation of the sharp variations of the VDF in the Knudsen layer.
+    For the D3Q96 model, \(E_\infty\) noticeably exceeds \(E_{1,2}\) (Fig.~3b),
+    which can be explained by its peculiar properties minimizing the wall moment errors.
+    The hermite-based coupling induces oscillations (Fig.~3c,~3d),
+    since it is unable to reconstruct nonequilibrium part of the VDF.
+    The sharp drop in Fig.~3c indicates that the coupling interface is too close to the boundary,
+    while the smoother transition in Fig.~3d can be considered as more acceptable.
+\end{leftbar}
+
+\printbibliography
+
+\end{document}

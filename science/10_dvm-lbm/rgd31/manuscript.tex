@@ -4,7 +4,7 @@
 \usepackage[numbers]{natbib}
 \usepackage{rotating}
 \usepackage{graphicx}
-\graphicspath{{../pics/}}
+\graphicspath{{../_pics/}}
 
 % for subfloats
 \usepackage[caption=false]{subfig}
@@ -57,7 +57,7 @@
 
 \affil[aff1]{Center for Design, Manufacturing and Materials,
     Skolkovo Institute of Science and Technology,
-    3 Nobel, Moscow 143026, Russia}
+    30 Bolshoy Boulevard, Moscow 121205, Russia}
 \affil[aff2]{Dorodnicyn Computing Center,
     Federal Research Center ``Computing Science and Control'' of Russian~Academy~of~Sciences,
     40 Vavilova, Moscow 119333, Russia}
@@ -80,10 +80,15 @@ The test problem solution shows good accuracy and efficiency of the proposed alg
 
 \section{INTRODUCTION}\label{sec:intro}
 
+%%% Affinity of DV and LB methods
 The DV approximation is employed by many numerical methods of direct solving the kinetic equations~\cite{Cercignani2000}
 and also in the popular modern LB methods, in which the mentioned discretization is extended to the physical and
 time coordinates~\cite{Succi2018}. This fundamental affinity suggests us to propose new variants of the hybrid schemes
-and use the best properties of the both methods for rarefied and continuum regions respectively.
+based on the domain decomposition approach and use the best properties of the both methods for rarefied and continuum regions.
+The kinetic mapping scheme for coupling the different order LB models is presented in~\cite{Meng2011},
+while the possibility of merging the DV and LB methods was noticed in~\cite{Succi2016}.
+
+%%% Coupling
 To construct a coupling algorithm in the buffer layer,
 we started from the successful approach implemented for DSMC and LB scheme~\cite{Staso2016long}.
 We assume that the velocity distribution function (VDF) is close to the equilibrium state with zero
@@ -92,9 +97,11 @@ Under this condition it is feasible to represent the solution in the form of the
 which is used for reconstruction of the both solutions in the buffer layer.
 In particular, the LB distribution is turned out to be exactly the Gauss--Hermite quadrature
 and the kinetic distribution on the uniform velocity grid is computed analytically from the Grad expansion.
-To ensure the conservation laws, the reconstructed kinetic solution should be corrected in some manner.
-%Some test problems including the Couette-flow problem are solved.
-The acceleration of the proposed hybrid scheme in comparison with the full BGK scheme for the whole computational domain is demonstrated.
+To ensure the conservation laws, the reconstructed kinetic solution is corrected in the appropriate manner.
+
+%%% Overview of results
+The proposed hybrid scheme is tested for the Couette-flow problem.
+The resulting acceleration in comparison with the full BGK scheme for the whole computational domain is demonstrated.
 More complicated LB models~\cite{Feuchter2016} are also considered
 and the obtained results are compared with the standard well-known LBGK schemes containing a small number of the velocity nodes.
 Namely, the lattice models D3V64, D3V96 and D3V121 are examined along with the classical D3Q19.
@@ -176,8 +183,11 @@ Several approaches can be applied for the construction of LB models like Gauss--
 and the entropic method~\cite{Chikatamarla2006}.
 Finally, the kinetic boundary conditions (diffuse reflection)~\cite{Ansumali2002} is used for LB models in the present paper.
 
-%Since for LB models the local equilibrium takes a polynomial form on the bulk velocity the conservation of mass, momentum and energy can be achieved with much less effort than for the conventional DV method.
-%The LB is less computationally demanding than DV method. On the other hand, conventional LB is aimed to reproduce only the lowest moments of VDF  in slow regimes whereas DV is able to cope with strong nonequilibrium effects.
+%Since for LB models the local equilibrium takes a polynomial form on the bulk velocity,
+%the conservation of mass, momentum and energy can be achieved with much less effort than for the conventional DV method.
+%The LB is less computationally demanding than DV method.
+%On the other hand, conventional LB is aimed to reproduce only the lowest moments of VDF
+%in slow regimes whereas DV is able to cope with strong nonequilibrium effects.
 
 %We do not discuss the numerical aproximation of the transport (advective) part of the kinetic equation here,
 %since this question is not related with the discretization methods of the velocity space.
@@ -204,12 +214,15 @@ $$
  The coefficients $a, a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma}$ depend on $\bx$ (the point in the overlapping domain).
  We will use the function \eqref{grad} for the transfer of the data between the LB and the BGK models. We will discuss this procedure in turn.
 
-For the sake of clarity we assume that the flow depends only on one of the coordinates of the vector $\bx$, we denote it by $x$.
+For the sake of clarity, we assume that the flow depends only on one of the coordinates of the vector $\bx$, we denote it by $x$.
 
-At the first step we update the DV VDF $f_\mathrm{DV}(x,\bxi)$ for the discrete velocities $\bxi_n$ such that $(\bxi_n,\mathbf{e})<0$ , where $\mathbf{e}$ is the outer normal to the overlapping domain, we start from the spatial nodes at the wall and move towards the overlapping zone.
-In the spatial domain (physical domain) where the DV method overlaps the LB method we map the DV VDF for the DV difference scheme on the Grad VDF by calculating the following coefficients:
+At the first step we update the DV VDF $f_\mathrm{DV}(x,\bxi)$ for $\bxi_n$ such that $(\bxi_n,\mathbf{e})<0$,
+where $\mathbf{e}$ is the outer normal to the overlapping domain,
+we start from the spatial nodes at the wall and move towards the overlapping zone.
+In the spatial domain (physical domain) where the DV method overlaps the LB method we map the DV VDF
+for the DV difference scheme on the Grad VDF by calculating the following coefficients:
 $$
-a(x)=\sum_{m=1}^M f_\mathrm{DV}(x,\bxi_m),   \quad a_\alpha(x)=\sum_{m=1}^Mf_\mathrm{DV}(x,\bxi_m)H_\alpha(\bxi_m),
+a(x)=\sum_{m=1}^M f_\mathrm{DV}(x,\bxi_m), \quad a_\alpha(x)=\sum_{m=1}^Mf_\mathrm{DV}(x,\bxi_m)H_\alpha(\bxi_m),
 $$
 $$
 a_{\alpha\beta }(x)=\sum_{m=1}^Mf_\mathrm{DV}(x,\bxi_m)H_{\alpha\beta}(\bxi_m), \quad
@@ -218,7 +231,7 @@ $$
 where $\bxi_m, m=1 \ldots M$ are the velocities of the DV difference scheme.
 The Grad VDF \eqref{grad} is recovered in the overlapping spatial domain.
 
-Next we will map the velocity distribution \eqref{grad} on the LB distribution using the Gauss--Hermite quadrature method.
+Next, we will map the velocity distribution \eqref{grad} on the LB distribution using the Gauss--Hermite quadrature method.
 The idea of the method is based on the fact that the representation of the VDF in the Grad form
 is equivalent to the LB method~\cite{He1997, Shan1998}.
 We consider the first moments $a,a_{\alpha},a_{\alpha\beta}, a_{\alpha\beta \gamma}$ in the integral form
@@ -261,8 +274,6 @@ the non-equilibrium part of LB VDF will be projected in a finite-dimensional vel
 Then the equivalence between the calculated LB distribution and
 the expansion of the Grad type can be achieved; therefore, the proposed mapping method can be applied.
 
-\section{NUMERICAL RESULTS}\label{sec:results}
-
 \begin{figure}
     \begin{subfigures}
     \centering
@@ -281,6 +292,8 @@ the expansion of the Grad type can be achieved; therefore, the proposed mapping 
         The black boxes correspond to the tabulated solutions~\cite{Luo2015, Luo2016}.
     }\label{fig:pure}
 \end{figure}
+
+\section{NUMERICAL RESULTS}\label{sec:results}
 
 \begin{figure}
     \begin{subfigures}
@@ -328,7 +341,7 @@ which has been solved with high accuracy in~\cite{Luo2015, Luo2016}.
 
 %%% Formulation of the problem, grids
 Let plates be placed at $y = \pm 1/2$ with constant temperature $T = 1$ and velocities ($\pm\Delta v/2,0,0$), where $\Delta v=0.02$.
-A complete diffuse reflection are assumed at the plates.
+A complete diffuse reflection is assumed at the plates.
 The average density is equal to unity $\int_{-1/2}^{1/2}\rho dy=1$.
 The physical space $0 < y < 1/2$ is divided into $N_x = 40$ nonuniform cells refined near $y = 1/2$.
 For the DV approximation, the uniform Cartesian lattice with $c=0.5$ is cut off by the sphere with radius $\xi^{(\mathrm{cut})}=4$.
@@ -339,7 +352,8 @@ The numerical results for the pure DV and LB methods are showed in Fig.~\ref{fig
 There is a small discrepancy between the DV and benchmark profiles.
 Mainly, this is due to inaccurate approximation of sharp variations of the VDF near plane \(\xi_y=0\).
 They can be efficiently captured by the DV method by employing significantly nonuniform velocity grid
-with local refinement~\cite{Ohwada1990, Rogozin2016}.
+with local refinement~\cite{Ohwada1990, Wu2014, Rogozin2016}.
+The corresponding results for nonuniform velocity grid are presented in~\cite{Aristov2019}.
 
 %%% Pure LBM results
 As for LB method, in the present paper, we consider the classical 5-order D3Q19 model, 9-order D3Q121 model~\cite{Shan2010},
@@ -353,8 +367,10 @@ However, the LB models augmented by special groups of velocities are capable to 
 Ability to capture kinetic effects arising from the diffuse-reflection boundary condition
 is clearly observed from the profile of the longitudinal heat flux \(q_x\).
 The D3Q19 model does not describe the third-order moments of the VDF.
-Its heat flux is \(\OO{\Delta v^3}\) and tightly connected with the stress tensor and velocity, but is not zero exactly in Fig.~\ref{fig:pure}b.
-D3Q121 describes the heat flux in the continuum zone most accurately, while the D3Q96 profile is quite close to the exact one in the Knudsen layer.
+Its heat flux is \(\OO{\Delta v^3}\) and tightly connected with the stress tensor and velocity,
+but is not zero exactly in Fig.~\ref{fig:pure}b.
+D3Q121 describes the heat flux in the continuum zone most accurately,
+while the D3Q96 profile is quite close to the exact one in the Knudsen layer.
 
 %%% Hybrid results
 The numerical results for the hybrid schemes are shown in Fig.~\ref{fig:hybrid}.
@@ -378,25 +394,25 @@ Quantity \(E_p=\|f-f^{\mathrm{NSF}}\|_p/\|f\|_p\), the deviation from the Navier
         1 + \frac{\cai\caj P_{\alpha\beta}}{2pT} + \frac{2\cai q_\alpha}{5pT}\br{\frac{\caj^2}{2T} - \frac52} },
 \end{equation}
 where \(P_{\alpha\beta} = p_{\alpha\beta} - \rho T\delta_{\alpha\beta}\) and \(\cai = \xiai - v_\alpha\),
-is demonstrated in Fig.~\ref{fig:norms} for the following norms in the discrete velocity space:
+is demonstrated in Fig.~\ref{fig:norms} for the following norms in the DV space:
 \begin{equation}\label{eq:norms}
     \|f\|_p = \bigg(\sum_j |f_j|^p \bigg)^\frac1p, \quad p=1,2, \quad \|f\|_\infty = \max_j |f_j|.
 \end{equation}
-The D3Q19 model produce an almost constant profile (Fig.~\ref{fig:norms:d3q19-hyb}),
+The D3Q19 model produces an almost constant profile (Fig.~\ref{fig:norms}c),
 since it describes nothing beyond the NSF level.
-The D3Q96 profile (Fig.~\ref{fig:norms:d3q96}) is close to the DV one (Fig.~\ref{fig:norms:dvm}),
+The D3Q96 profile (Fig.~\ref{fig:norms}b) is close to the DV one (Fig.~\ref{fig:norms}a),
 which indirectly indicates that this LB model gives an acceptable approximation for the Couette-flow problem.
 Due to the diffuse-reflection boundary condition, there is a discontinuity of the VDF on the boundary,
 which decays monotonically and faster than any inverse power of distance from the boundary.
 Therefore, all the breakdown parameters reach their maximum on the boundary;
 however, \(E_\infty\) relaxes in a nonmonotonic way.
 This is probably due to crude approximation of the sharp variations of the VDF in the Knudsen layer.
-For the D3Q96 model, \(E_\infty\) noticeably exceeds \(E_{1,2}\) (Fig.~\ref{fig:norms:d3q96}),
+For the D3Q96 model, \(E_\infty\) noticeably exceeds \(E_{1,2}\) (Fig.~\ref{fig:norms}b),
 which can be explained by its peculiar properties minimizing the wall moment errors.
-The hermite-based coupling induces oscillations (Fig.~\ref{fig:norms:d3q19-hyb},~\ref{fig:norms:d3q96-hyb}),
+The hermite-based coupling induces oscillations (Fig.~\ref{fig:norms}c,~\ref{fig:norms}d),
 since it is unable to reconstruct nonequilibrium part of the VDF.
-The sharp drop in Fig.~\ref{fig:norms:d3q19-hyb} indicates that the coupling interface is too close to the boundary,
-while the smoother transition in Fig.~\ref{fig:norms:d3q96-hyb} can be considered as more acceptable.
+The sharp drop in Fig.~\ref{fig:norms}c indicates that the coupling interface is too close to the boundary,
+while the smoother transition in Fig.~\ref{fig:norms}d can be considered as more acceptable.
 
 \begin{figure}
     \centering

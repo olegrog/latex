@@ -214,10 +214,11 @@ which use a small number of discrete velocities to reproduce some relevant featu
 Thus, the DV approximation is a natural basis for construction of a hybrid multiscale model.
 
 %%% Known coupling schemes for LB
-The mapping scheme for coupling of the solutions for low-order and high-order LB models is presented in \cite{Meng2011},
-while the possibility of merging the DV and LB methods was noticed in \cite{Succi2016}.
+The mapping scheme for coupling the low-order and high-order LB models is presented in~\cite{Meng2011},
+while the possibility of merging the DV and LB methods was noticed in~\cite{Succi2016}.
 The methods of DSMC type in the kinetic zones and the Euler or NS equations in the continuum are well developed by now,
-but the usual statistical modeling in the buffer zone yields some statistical noise especially for subsonic flows, which complicates calculations.
+but the usual statistical modeling in the buffer zone yields some statistical noise especially for subsonic flows,
+which complicates calculations.
 This hybrid approach has been suggested in~\cite{Staso2016short, Staso2016long} and in the recent paper~\cite{Staso2018},
 where the solution is obtained by means of coupling the DSMC and LB methods.
 The first results on coupling of the LB an DV models for the one-dimensional case
@@ -973,7 +974,7 @@ are shown in Fig.~\ref{fig:norms} for the following norms in the discrete veloci
 \begin{equation}\label{eq:norms}
     \|f\|_p = \bigg(\sum_j |f_j|^p \bigg)^\frac1p, \quad p=1,2, \quad \|f\|_\infty = \max_j |f_j|.
 \end{equation}
-The D3Q19 model produce an almost constant profile (Fig.~\ref{fig:norms:d3q19-hyb}),
+The D3Q19 model produces an almost constant profile (Fig.~\ref{fig:norms:d3q19-hyb}),
 since it describes nothing beyond the NSF level.
 The D3Q96 profile (Fig.~\ref{fig:norms:d3q96}) is close to the DV one (Fig.~\ref{fig:norms:dvm}),
 which indirectly indicates that this LB model gives an acceptable approximation for the Couette-flow problem.
