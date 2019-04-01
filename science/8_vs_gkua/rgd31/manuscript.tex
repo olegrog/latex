@@ -23,6 +23,7 @@
 \newcommand{\bxi}{\boldsymbol{\xi}}
 \newcommand{\bx}{\boldsymbol{x}}
 \newcommand{\Nu}{\mathcal{N}}
+\newcommand{\Mu}{\mathcal{M}}
 \newcommand{\OO}[1]{O(#1)}
 \newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
 
@@ -42,7 +43,7 @@
 
 \affil[aff1]{Center for Design, Manufacturing and Materials,
     Skolkovo Institute of Science and Technology,
-    3 Nobel, Moscow 143026, Russia}
+    30 Bolshoy Boulevard, Moscow 121205, Russia}
 \affil[aff2]{Dorodnicyn Computing Center,
     Federal Research Center ``Computing Science and Control'' of Russian~Academy~of~Sciences,
     40 Vavilova, Moscow 119333, Russia}
@@ -97,7 +98,7 @@ particularly, for the high-dimensional numerical integration~\cite{Dick2013}.
 
 %%% More detailed classification for projection methods
 While historically the DSMC and DV methods were the first that used for practical applications~\cite{Bird1963, Nordsieck1966},
-currently, development of the projection methods are the most active area of research.
+currently, development of the projection methods is the most active area of research.
 The Hermite basis is most appropriate, when the VDF is close to Maxwellian~\cite{Gobbert2007}.
 The Sonine (associated Laguerre) basis demonstrates the best convergence for the isotropic VDF~\cite{Fonn2014}.
 In the absence of a priori information about the VDF,
@@ -191,7 +192,7 @@ with the variable hard sphere (VHS) kernel~\cite{Bird1981vhs}
 where \(\omega\) is the temperature exponent of the viscosity coefficient,
 \(\Gamma(z) = \int_0^\infty t^{z-1}e^{-t}\dd{t}\) is the gamma function,
 can be modeled by the Shakhov collisional operator
-\begin{equation}\label{eq:shakhov}
+\begin{equation}\label{eq:Shakhov}
     J_S(f) = \frac{\rho T^{1-\omega}}{\gamma_1}\left(f^{\mathrm{(eq)}} - f\right), \quad
     f^{\mathrm{(eq)}} = f_M\left[ 1 + \frac{1-\Pr}5\frac{4c_i q_i}{pT}\left(\frac{c^2}{T}-\frac52\right) \right], \quad
     f_M = \frac{\rho}{(\pi T)^{3/2}}\exp\left(-\frac{c^2}{T}\right),
@@ -235,7 +236,8 @@ Regularization of~\eqref{eq:symm_ci} can be, generally, performed by the \emph{p
     \delta'_\gamma = \sum_{\sigma\in\Gamma} a_\sigma \delta(\bxi_\sigma-\bxi_\gamma) = a_\sigma \delta_{\sigma\gamma}, \quad
     \delta'_{*\gamma} = \sum_{\sigma\in\Gamma} a_{*\sigma} \delta(\bxi_\sigma-\bxi_\gamma) = a_{*\sigma} \delta_{\sigma\gamma},
 \end{equation}
-and \emph{interpolation} one, written as a weighted Kolmogorov mean:
+where \(\delta_{\sigma\gamma}\) is the Kronecker symbol,
+and the \emph{interpolation} one, written as a weighted Kolmogorov mean:
 \begin{equation}\label{eq:interpolation}
     f' = \phi^{-1}\left( \sum_{\sigma\in\Gamma} b_\sigma \phi(f_\sigma) \right), \quad
     f'_* = \phi^{-1}\left( \sum_{\sigma\in\Gamma} b_{*\sigma} \phi(f_\sigma) \right).
@@ -272,7 +274,7 @@ in~\eqref{eq:interpolation}~\cite{Tcheremissine2006, Dodulad2013}:
 
 \begin{figure}
     \centering
-    \includegraphics[width=\FigWidth\linewidth, clip=true, trim = 90 30 75 50 mm]%
+    \includegraphics[width=\FigWidth\linewidth, clip, trim={90 30 75 50 mm}]%
         {cylinder-90km/mach-dsmc}
     \caption{Contours of Mach number for \(\Ma=2.4\), \(\Kn=0.13\).
         Upper and lower halves correspond to the different solvers.}
@@ -280,7 +282,7 @@ in~\eqref{eq:interpolation}~\cite{Tcheremissine2006, Dodulad2013}:
 \end{figure}
 \begin{figure}
     \centering
-    \includegraphics[width=\FigWidth\linewidth, clip=true, trim = 90 30 75 50 mm]%
+    \includegraphics[width=\FigWidth\linewidth, clip, trim={90 30 75 50 mm}]%
         {cylinder-90km/mach-gkua}
     \caption{Contours of Mach number for \(\Ma=2.4\), \(\Kn=0.13\).
         Upper and lower halves correspond to the different solvers.}
@@ -305,16 +307,81 @@ where \(F\) is an arbitrary function, \(\Gamma\) is some index set of the veloci
 determined by the specific three-dimensional cubature.
 For the supersonic flows considered below, the Gauss--Hermite quadrature is used for each axis.
 
-%%% 8D cubature
-The eight-dimensional cubature rule is needed for the evaluation of~\eqref{eq:symm_ci}.
+%%% Evaluation of the collision integral
+Based on cubature~\eqref{eq:xi_cubature}, the collision integral~\eqref{eq:symm_ci} is evaluated in a quasi-Monte Carlo way:
+\begin{equation}\label{eq:J_cubature}
+    J(f_\gamma) \approx \frac{\pi V_\Gamma^2}{\displaystyle\sum_{\nu\in\Nu} w_{\nu}w_{*\nu}}
+        \sum_{\nu\in\Nu} \left(
+            \delta_{\gamma\nu} + \delta_{*\gamma\nu} - \delta'_{\gamma\nu} - \delta'_{*\gamma\nu}
+        \right)\left(
+            \frac{w_{\nu}w_{*\nu}}{w'_{\nu}w'_{*\nu}} f'_{\nu} f'_{*\nu} -  f_{\nu} f_{*\nu}
+        \right)B_\nu.
+\end{equation}
+Set of cubature points \(\{\bxi_\nu, \bxi_{*\nu}, \boldsymbol{\alpha}_\nu\}_{\nu\in\Nu}\)
+is defined by the specific eight-dimensional cubature rule.
 For the present study, the optimal Korobov lattice rules~\cite{Dick2013},
 randomly shifted for each time step, is employed.
-In order to achieve a high accuracy for the steady state, time averaging is used.
+In order to improve accuracy for steady-state problems, time averaging is used.
+
+%%% Solution of the Cauchy problem
+Now, let \(f_\gamma^n\) denote the approximate solution of the space-homogeneous Boltzmann equation
+for velocity \(\bxi_\gamma\) at time \(t_n\), \(n\in\mathbb{N}\).
+Approximation~\eqref{eq:J_cubature}, rewritten as
+\begin{equation}\label{eq:J_cubature_short}
+    J_\gamma^n = \sum_{j=1}^N \Delta_\gamma^{n+(j-1)/N},
+\end{equation}
+is transformed to a numerical scheme in fractional steps:
+\begin{equation}\label{eq:time_integration_scheme}
+     f_\gamma^{n+j/N} =  f_\gamma^{n+(j-1)/N} + \frac{\Delta{t}}{N}\Delta_{\gamma}^{n+(j-1)/N}
+    \quad (j = 1,\dotsc,N), \quad \Delta{t} = t_{n+1}-t_n.
+\end{equation}
+Each \(j\) step preserves mass, momentum, kinetic energy and does not decrease entropy
+if positivity of the VDF is maintained.
+
+%%% Positivity
+In practice, all terms in~\eqref{eq:time_integration_scheme} that violate positivity can be excluded:
+\begin{equation}\label{eq:exclusion_scheme}
+    J_\gamma = \sum_{\nu\in\Nu\setminus\Mu} \Delta_{\gamma\nu},
+\end{equation}
+where \(\Mu\) is the set of cubature points corresponding to the excluded terms.
+To achieve the desired accuracy, a smallness of the following value is under control:
+\begin{equation}\label{eq:epsilon_J}
+    \epsilon_J = \frac{\pi V_\Gamma^2}{\rho\sum_{\nu\in\Nu} w_{\nu}w_{*\nu}}
+        \sum_{\nu\in\Mu} \left|f_{\lambda_\nu}f_{\mu_\nu} - f_{\nu}f_{*\nu}\right|B_\nu,
+\end{equation}
+where \(\bxi_{\lambda_\nu}\) and \(\bxi_{\mu_\nu}\) are the closest grid velocities
+to \(\bxi'_\nu\) and \(\bxi'_{*\nu}\), respectively.
+
+%%% Computational costs
+Finally, let us compare the computational cost of the two methods considered.
+The model collision term~\eqref{eq:Shakhov} requires macroscopic variables
+and, therefore, \(\OO{|\mathcal{V}|}\) operations.
+In contrast, complexity of evaluating~\eqref{eq:J_cubature} is equal to \(\OO{|\Nu|}\).
+Values \(|\mathcal{V}|\) and \(|\Nu|\) are independent in general.
+However, the number of cubature points providing the desired accuracy are strongly correlated with the Knudsen number.
+For instance, a low cardinality of \(\Nu\) can be sufficient for a highly rarefied gas,
+and, therefore, evaluating the Boltzmann collision integral can be much cheaper than its relaxation model
+(similar to the DSMC method).
+It is worth noting that the construction of the implicit schemes is straightforward for the BGK-type models,
+but is a not a trivial problem for the Boltzmann equation~\cite{Aristov1980}.
+This property is usually very attractive from the computational point of view.
 
 \section{NUMERICAL EXAMPLES}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=\FigWidth\linewidth, clip, trim={120 30 107 50 mm}]%
+        {cylinder-90km/temp-gkua-behind}
+    \caption{Contours of temperature for \(\Ma=2.4\), \(\Kn=0.13\).
+        A close-up behind the cylinder is shown.
+        Arrows shows the selected directions of the gas flow due to the DV model of the diffuse reflection.
+        Upper and lower halves correspond to the different solvers.}
+    \label{fig:90:temp_behind}
+\end{figure}
+
 %%% Formulation of the problem
-A steady-state flow around a cylinder is considered under two different conditions corresponding to the free fall at 90 and 70 km altitude.
+A steady-state flow around a cylinder is considered under two different conditions
+corresponding to the free fall at 90 and 70 km altitude.
 The complete-diffusion boundary condition is assumed on the boundary surface,
 which temperature is assumed to be constant and equal to the stagnation temperature
 \begin{equation}\label{eq:stagnation}
@@ -328,7 +395,10 @@ The velocity space is discretized to the rectangular grid, which nodes are locat
 of the Hermite polynomials rescaled to interval \(|\xi_i| < \xi_\mathrm{max}\).
 (40, 40, 16) nodes are used for the corresponding axis.
 Cutting the grid by sphere of radius \(\xi_\mathrm{max}\) gives \(|\mathcal{V}| = 25936\).
-\(\xi_\mathrm{max}=7.5\) and \(\xi_\mathrm{max}=8.5\) used for 90 and 70 km, respectively.
+\(\xi_\mathrm{max}=7.5\) and \(\xi_\mathrm{max}=8.5\) are used for 90 and 70 km, respectively.
+Regarding the number of cubature points for eight-dimensional integration,
+\(|\mathcal{V}| \approx 5\cdot10^4\) and \(|\mathcal{V}| \approx 2.5\cdot10^5\)
+are used for 90 and 70 km, respectively.
 Finally, note that the relaxation models allow to reduce the considered 5-dimensional problem to the 4-dimensional one.
 
 \subsection{Cylinder at 90 km altitude}
@@ -339,11 +409,18 @@ and Tcheremissine method in Fig.~\ref{fig:90:dsmc}.
 The GKUA solution is also very close to the reference one (Fig.~\ref{fig:90:gkua}),
 however, has a longer shock tail, which is a well-known defect of the relaxation models, including the Shakhov one.
 
+%%% Ray effect
+The discrete-velocity methods have a well-known drawback in comparison with the particle-based methods.
+Due to a fixed discretization of the velocity space, the isotropic scattering from the boundary
+is distorted by distinctive directions for a gas flow.
+The so-called ray effect occurs in the highly rarefied regions
+and can be observed in Fig.~\ref{fig:90:temp_behind}.
+
 \subsection{Cylinder at 70 km altitude}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\FigWidth\linewidth, clip=true, trim = 90 30 75 50 mm]%
+    \includegraphics[width=\FigWidth\linewidth, clip, trim={90 30 75 50 mm}]%
         {cylinder-70km/mach-gkua}
     \caption{Contours of Mach number for \(\Ma=3.0\), \(\Kn=0.0055\).
         Upper and lower halves correspond to the different solvers.}
@@ -351,11 +428,18 @@ however, has a longer shock tail, which is a well-known defect of the relaxation
 \end{figure}
 \begin{figure}
     \centering
-    \includegraphics[width=\FigWidth\linewidth, clip=true, trim = 90 30 75 50 mm]%
-        {cylinder-70km/uz-gkua}
+    \includegraphics[width=\FigWidth\linewidth, clip, trim={30 10 5 20 mm}]%
+        {cylinder-70km/uz}
     \caption{Contours of \(v_z\) for \(\Ma=3.0\), \(\Kn=0.0055\).
-        Upper and lower halves correspond to the different solvers.}
+        The exact solution is \(v_z=0\), but an approximate evaluation of the collision integral yields a nonzero field.}
     \label{fig:70:U_z}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\FigWidth\linewidth, clip, trim={30 10 5 20 mm}]%
+        {cylinder-70km/log_excluded}
+    \caption{Contours of \(\log_{10}\left(\epsilon_J + 10^{-6}\right)\) for \(\Ma=3.0\), \(\Kn=0.0055\).}
+    \label{fig:70:log_excluded}
 \end{figure}
 
 A DSMC solution becomes too expensive for small Knudsen numbers;
@@ -363,26 +447,35 @@ therefore, the presented comparison is limited to Fig.~\ref{fig:70:gkua}.
 As for the previous case, there is a good agreement between the results,
 along with the same remark about the shock approximation.
 
+%%% Indicator of the numerical error
 Fig.~\ref{fig:70:U_z} illustrates the accuracy obtained by the Tcheremissine method.
 Since integral~\eqref{eq:symm_ci} is computed approximately,
 the deviation from the exact solution \(v_z=0\) can be served as an indirect indicator of the numerical error.
-The largest residual is observed in the center of the shock;
+The largest error is observed in the center of the shock;
 however, there are also several local maxima in the wake region.
-All of them can be reduced by the appropriate mesh refinement~\cite{Kolobov2013}.
-Note that the time-averaged value is shown in Fig.~\ref{fig:70:U_z},
-which is smaller than the corresponding value after a single iteration.
+All of them can be potentially reduced by the adaptive mesh refinement techniques~\cite{Kolobov2013}.
+Another indicator of the systematic error in evaluation of the collision integral is \(\epsilon_J\)
+calculated using~\eqref{eq:epsilon_J}. It is seen that \(\epsilon_J\) does not exceed \(10^{-4}\)
+and also reaches its maximum inside the shock.
+
+%%% Time-averaging
+Note that the time-averaged fields are shown in Fig.~\ref{fig:70:U_z} and~\ref{fig:70:log_excluded},
+which are almost free from stochastic noise.
+Moreover, the former is significantly smaller than the corresponding field after a single iteration.
 
 \section{CONCLUDING REMARKS}
 
-In summary, the following points can be emphasized:
+In summary, some points, which follow from the excellent agreement of the presented results, can be emphasized.
 \begin{itemize}
     \item The Shakhov model with the appropriate temperature exponent for the viscosity and thermal conductivity
     is a reliable engineering-level model for the re-entering aerodynamics,
     including the hypersonic flows~\cite{Titarev2018, Frolova2018}.
     \item The Tcheremissine regularization method is a promising framework for robust DV algorithms and high-accuracy simulations.
     \item Stochastic computational techniques can improve pure deterministic methods.
-    \item The conservation properties are important for crude meshes and internal flows.
-    Lack of them is not the issue for external flows.
+    Here, the randomly shifted cubature rule with time averaging considerably improves accuracy for steady-state problems.
+    \item It is known that the conservation properties are important for crude meshes and/or internal flows.
+    However, lack of them is not the issue for detailed meshes and external flows. The present comparison of
+    the non-conservative GKUA and fully conservative finite-volume discrete-velocity method provides evidence.
     \item The ray effect can noticeably distort a solution in the wake region near the boundary.
     Refinement of the velocity grid near the origin helps to reduce the relevant numerical error.
 \end{itemize}
@@ -390,11 +483,11 @@ In summary, the following points can be emphasized:
 \section{ACKNOWLEDGMENTS}
 The work was supported by Russian Foundation for Basic Research (Grants 18-01-00899, 18-07-01500),
 Chinese 973 Program (2014CB744100), NSFC (No. 91530319).
+The research is carried out using the computational facilities of Joint Supercomputing Center of Russian Academy of Sciences.
 
 % References
 
 \bibliographystyle{aipnum-cp}%
 \bibliography{manuscript}%
-
 
 \end{document}

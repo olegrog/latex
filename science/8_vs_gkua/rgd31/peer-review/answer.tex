@@ -1,0 +1,196 @@
+\documentclass{article}
+\usepackage{a4wide}
+\usepackage[english]{babel}
+
+%%% functional packages
+\usepackage{amssymb, mathtools, amsthm, mathrsfs}
+\usepackage{framed}                % for leftbar
+\usepackage[%
+    font={bfseries},
+    leftmargin=0.1\textwidth,
+    indentfirst=false
+]{quoting}
+
+\usepackage{lipsum}
+\usepackage{graphicx}
+\def\asterism{\par\vspace{1em}{\centering\scalebox{1}{\bfseries *~*~*}\par}\vspace{.5em}\par}
+
+\usepackage[
+    backend=biber,
+    style=numeric,
+    sorting=none,
+    maxbibnames=99, minbibnames=99,
+    natbib=true,
+    url=false,
+    eprint=true,
+    pagetracker,
+    giveninits]{biblatex}
+\bibliography{../manuscript}
+
+\graphicspath{{../}}
+
+% user commands
+\newcommand{\Kn}{\mathrm{Kn}}
+\newcommand{\Ma}{\mathrm{Ma}}
+\newcommand{\dd}{\:\mathrm{d}}
+\newcommand{\der}[2][]{\frac{\dd#1}{\dd#2}}
+\newcommand{\derdual}[2][]{\frac{\dd^2#1}{\dd#2^2}}
+\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
+\newcommand{\pderder}[2][]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\Pder}[2][]{\partial#1/\partial#2}
+\newcommand{\dxi}{\dd\boldsymbol{\xi}}
+\newcommand{\bxi}{\boldsymbol{\xi}}
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\Nu}{\mathcal{N}}
+\newcommand{\Mu}{\mathcal{M}}
+\newcommand{\OO}[1]{O(#1)}
+\newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
+
+\newcommand{\FigWidth}{0.7}
+
+\title{Response to the Reviewers' Comments}
+
+\begin{document}
+
+\maketitle
+
+We thank the reviewers for the comments and suggestions.
+Thanks to them, the manuscript was revised and extended by 2 pages.
+Our answer and changes are presented below.
+The reviewers' words are shown in bold.
+Individual parts of the corrected version of the manuscript
+can be recognized by the bold lateral line.
+
+\section*{Referee report \#1}
+
+\begin{quoting}
+    1. What is the time discretization used in Tcheremissine's method? Is it explicit or implicit?
+\end{quoting}
+
+The explicit time integration scheme was employed for the current study.
+The following paragraphs has been added to clarify this point.
+
+\begin{leftbar}
+    %%% Evaluation of the collision integral
+    Based on cubature~\eqref{eq:xi_cubature}, the collision integral~\eqref{eq:symm_ci} is evaluated in a quasi-Monte Carlo way:
+    \begin{equation}\label{eq:J_cubature}
+        J(f_\gamma) \approx \frac{\pi V_\Gamma^2}{\displaystyle\sum_{\nu\in\Nu} w_{\nu}w_{*\nu}}
+            \sum_{\nu\in\Nu} \left(
+                \delta_{\gamma\nu} + \delta_{*\gamma\nu} - \delta'_{\gamma\nu} - \delta'_{*\gamma\nu}
+            \right)\left(
+                \frac{w_{\nu}w_{*\nu}}{w'_{\nu}w'_{*\nu}} f'_{\nu} f'_{*\nu} -  f_{\nu} f_{*\nu}
+            \right)B_\nu.
+    \end{equation}
+    Set of cubature points \(\{\bxi_\nu, \bxi_{*\nu}, \boldsymbol{\alpha}_\nu\}_{\nu\in\Nu}\)
+    is defined by the specific eight-dimensional cubature rule.
+
+    \asterism
+
+    %%% Solution of the Cauchy problem
+    Now, let \(f_\gamma^n\) denote the approximate solution of the space-homogeneous Boltzmann equation
+    for velocity \(\bxi_\gamma\) at time \(t_n\), \(n\in\mathbb{N}\).
+    Approximation~\eqref{eq:J_cubature}, rewritten as
+    \begin{equation}\label{eq:J_cubature_short}
+        J_\gamma^n = \sum_{j=1}^N \Delta_\gamma^{n+(j-1)/N},
+    \end{equation}
+    is transformed to a numerical scheme in fractional steps:
+    \begin{equation}\label{eq:time_integration_scheme}
+         f_\gamma^{n+j/N} =  f_\gamma^{n+(j-1)/N} + \frac{\Delta{t}}{N}\Delta_{\gamma}^{n+(j-1)/N}
+        \quad (j = 1,\dotsc,N), \quad \Delta{t} = t_{n+1}-t_n.
+    \end{equation}
+    Each \(j\) step preserves mass, momentum, kinetic energy and does not decrease entropy
+    if positivity of the VDF is maintained.
+
+    \asterism
+
+    It is worth noting that the construction of the implicit schemes is straightforward for the BGK-type models,
+    but is a not a trivial problem for the Boltzmann equation~\cite{Aristov1980}.
+    This property is usually very attractive from the computational point of view.
+\end{leftbar}
+
+\begin{quoting}
+    2. I don't understand the bottom half of Figure 4. The GKUA does not give a reasonable solution in this case?
+\end{quoting}
+
+We have removed the meaningless bottom half of Figure 4. Additionally, we have extended the caption for this figure.
+\begin{leftbar}
+    FIGURE 5. \dots
+    The exact solution is \(v_z=0\), but an approximate evaluation of the collision integral yields a nonzero field.
+\end{leftbar}
+
+\begin{quoting}
+    3. Some further discussion regarding the results in Figure 1-4 are necessary.
+    The current conclusion remarks are somehow detached from the numerical section.
+    That is, I don’t see how the conclusion is directly related to what was observed in numerical results.
+\end{quoting}
+
+We agree that connection between some points of the concluding remarks and the presented results was unclear,
+however, indeed, all of mentioned points just follow from the excellent agreement of the presented results.
+This is a list of conclusions.
+\begin{itemize}
+    \item The Shakhov model with the appropriate temperature exponent for the viscosity and thermal conductivity
+    is a reliable engineering-level model for the re-entering aerodynamics,
+    including the hypersonic flows~\cite{Titarev2018, Frolova2018}.
+    \item The Tcheremissine regularization method is a promising framework for robust DV algorithms and high-accuracy simulations.
+    \item Stochastic computational techniques can improve pure deterministic methods.
+    Here, the randomly shifted cubature rule with time averaging considerably improves accuracy for steady-state problems.
+    \item It is known that the conservation properties are important for crude meshes and/or internal flows.
+    However, lack of them is not the issue for detailed meshes and external flows. The present comparison of
+    the non-conservative GKUA and fully conservative finite-volume discrete-velocity method provides evidence.
+    \item The ray effect can noticeably distort a solution in the wake region near the boundary.
+    Refinement of the velocity grid near the origin helps to reduce the relevant numerical error.
+\end{itemize}
+
+We hope that the first two points does not require additional discussion.
+They are just consequence of the successful results.
+Description of the third and forth points have been extended.
+To clarify the fifth point, we have added the missed figure and paragraph (see the answer for the Referee report \#2).
+
+\section*{Referee report \#2}
+
+\begin{quoting}
+    1. Please comment on the computational cost of these models.
+    The Tcheremissine approach needs eight-dimensional numerical integration, whose efficiency should be commented.
+\end{quoting}
+
+We hope that the following paragraph is sufficient to cover the question.
+\begin{leftbar}
+    Finally, let us compare the computational cost of the two methods considered.
+    The model collision term~\eqref{eq:Shakhov} requires macroscopic variables
+    and, therefore, \(\OO{|\mathcal{V}|}\) operations.
+    In contrast, complexity of evaluating~\eqref{eq:J_cubature} is equal to \(\OO{|\Nu|}\).
+    Values \(|\mathcal{V}|\) and \(|\Nu|\) are independent in general.
+    However, the number of cubature points providing the desired accuracy are strongly correlated with the Knudsen number.
+    For instance, a low cardinality of \(\Nu\) can be sufficient for a highly rarefied gas,
+    and, therefore, evaluating the Boltzmann collision integral can be much cheaper than its relaxation model
+    (similar to the DSMC method).
+\end{leftbar}
+
+\begin{quoting}
+    2. The ray effect is mentioned in the concluding remarks, but is not clear in the numerical results.
+\end{quoting}
+
+We have included the missed figure and paragraph to clarify this issue.
+\begin{leftbar}
+    The discrete-velocity methods have a well-known drawback in comparison with the particle-based methods.
+    Due to a fixed discretization of the velocity space, the isotropic scattering from the boundary
+    is distorted by distinctive directions for a gas flow.
+    The so-called ray effect occurs in the highly rarefied regions
+    and can be observed in Fig.~\ref{fig:90:temp_behind}.
+\end{leftbar}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\FigWidth\linewidth, clip, trim={120 30 107 50 mm}]%
+        {cylinder-90km/temp-gkua-behind}
+    \caption{Contours of temperature for \(\Ma=2.4\), \(\Kn=0.13\).
+        A close-up behind the cylinder is shown.
+        Arrows shows the selected directions of the gas flow due to the DV model of the diffuse reflection.
+        Upper and lower halves correspond to the different solvers.}
+    \label{fig:90:temp_behind}
+\end{figure}
+
+\printbibliography
+
+\end{document}

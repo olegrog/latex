@@ -113,6 +113,8 @@ Next, this function is discretized at the velocity nodes of the BGK scheme.
 It is worth to mention that the discussed tailoring scheme is slightly more complicated than in the paper
 since it requires more moments to be viable.
 
+As for C
+
 \begin{quoting}
     In Figure 2, there is a discontinuity in the profile of \(q_x\), which is caused by the boundary condition of the interface.
     The authors claim that its amplitude is proportional to the non-equilibrium part of the VDF. It may be true.
@@ -142,6 +144,16 @@ We have extended discussion on this problem:
     The sharp drop in Fig.~3c indicates that the coupling interface is too close to the boundary,
     while the smoother transition in Fig.~3d can be considered as more acceptable.
 \end{leftbar}
+
+Finally, all LB models considered in the manuscript are one-parameter single-relaxation models;
+therefore, they can have only the same Prandlt number as the BGK equation
+and be consistent with it in this sense.
+
+% As for Couette problem, the ratio between the terms related to viscosity and thermal conductivity
+% (as determined by the Prandtl number) is not so important.
+% Indeed, in this problem the main role is played by viscous terms, and the heat transfer is of little interest.
+% Here in the BGK model equation the frequency is expressed through the correct viscosity coefficient.
+% Therefore, it can be expected that the processes of transfer of viscous stresses are described correctly.
 
 \printbibliography
 
