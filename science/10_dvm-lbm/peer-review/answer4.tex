@@ -1,0 +1,215 @@
+\documentclass{article}
+\usepackage{a4wide}
+\usepackage[english]{babel}
+
+%%% functional packages
+\usepackage{amssymb, mathtools, amsthm, mathrsfs}
+\usepackage{framed}                % for leftbar
+\usepackage[%
+    font={bfseries},
+    leftmargin=0.1\textwidth,
+    indentfirst=false
+]{quoting}
+
+\usepackage{lipsum}
+\usepackage{graphicx}
+\def\asterism{\par\vspace{1em}{\centering\scalebox{1}{\bfseries *~*~*}\par}\vspace{.5em}\par}
+
+\usepackage[
+    backend=biber,
+    style=numeric,
+    sorting=none,
+    maxbibnames=99, minbibnames=99,
+    natbib=true,
+    url=false,
+    eprint=true,
+    pagetracker,
+    giveninits]{biblatex}
+\bibliography{../dvm-lbm}
+
+\title{Response to Reviewers' Comments}
+
+\begin{document}
+
+\maketitle
+
+We are grateful to the Reviewers for their very fruitful comments and suggestions.
+Our answer and changes are presented below.
+The reviewers' words are shown in bold.
+Individual parts of the corrected version of the manuscript
+can be recognized by the bold lateral line.
+
+\section*{Referee report \#1}
+
+\begin{quoting}
+    1. It is not clear to me what this paper brings in addition to the work of Di Staso et al.
+    Please, be specific on this point.
+\end{quoting}
+
+...
+
+insert answers here
+
+\begin{leftbar}
+    ...
+
+    insert quotes from the manuscript here
+\end{leftbar}
+
+\begin{quoting}
+    2. It would be very useful if the authors could comment a bit more specifically
+    on the potential competitivity with DSMC for the problems they mention in the conclusions
+    (supersonic, highly thermal, \dots because this is the real issue at stake).
+\end{quoting}
+
+...
+
+\begin{quoting}
+    3. Please take a look at recent work of Aiguo Xu (soft matter, PRE) on DVM for
+    thermal and multiphase non-equil flows. I think they belong and should be cited.
+\end{quoting}
+
+...
+
+\section*{Referee report \#2}
+
+\begin{quoting}
+    1. My greatest concern is related to the idea of coupling
+    DVM with LB. Especially in the context of Couette flow,
+    there are already published pure LB implementations which
+    are significantly more efficient and even more accurate
+    than the DVM employed in this paper. Thus, further
+    motivation should be provided for introducing this scheme,
+    perhaps by identifying a fundamental flaw of the LB
+    approach which mandates the use of DVM.
+\end{quoting}
+
+...
+
+\begin{quoting}
+    2. The coupling between the LB and DVM regions is not
+    smooth, suggesting that the coupling procedure is not
+    fully compatible with the idea of this multi-solver.
+    In particular, is there any reason why the series in
+    Eq. (13) is truncated at third order with respect to
+    the Hermite polynomials? Can this coupling be improved?
+    If it can, I recommend that a definitive implementation
+    of the coupling is provided in this manuscript; otherwise,
+    a convincing proof / argument should be provided why this
+    coupling cannot be improved.
+\end{quoting}
+
+...
+
+\begin{quoting}
+    3. The numerical results indicate that the ``special''
+    7th order D3Q96 model performs better than the
+    ``non-augmented'' models, even than the 9th order
+    D3Q121 model. This improvement can be attributed to
+    the half-range capabilities of the augmented models.
+    Page 10 contains the remark that ``increasing order of
+    the LB model [...] failed to describe its high-order
+    relaxation correctly.'' - an important addition should
+    be made here, namely that the higher order model is
+    ``non-augmented.'' Does the quoted sentence hold when
+    a higher order model which is augmented is employed?
+\end{quoting}
+
+...
+
+\begin{quoting}
+    4. Fig. 5 indicates that the deviation norms are
+    non-monotonous in the vicinity of the coupling
+    interface - more strikingly on the DVM side of this
+    interface. The interface essentially provides boundary
+    conditions for the DVM, which are based on the
+    full-range Hermite expansion of the Boltzmann
+    distribution, given in Eq. (13). It can be seen that
+    the augmented model provides a smoother transition than
+    the non-augmented ones - this may be due to the
+    half-range capabilities of the former. If this is
+    the case, can a mapping at the level of a half-range
+    expansion of the distribution be more appropriate?
+\end{quoting}
+
+...
+
+\begin{quoting}
+    5. In this paper, the advection is computed using
+    the MCD flux limiter scheme. Is there any reason why
+    a linear (first order) extrapolation given in
+    Eq. (31) is preferred for the computation of the
+    flux at the wall interface? Are there other viable
+    extrapolation schemes available?
+\end{quoting}
+
+...
+
+\begin{quoting}
+    6. The numerical scheme presented in Sec. 5.1 is
+    second order by design. Is this order preserved
+    when boundary conditions are imposed? In particular,
+    can second order convergence be proven with respect
+    to the benchmark solution?
+\end{quoting}
+
+...
+
+\begin{quoting}
+    7. At the coupling, it can be seen that the
+    macroscopic profiles exhibit jumps. Are the
+    amplitudes of these jumps affected by the spatial
+    discretisation? If they remain finite as the
+    mesh is refined, the stationary state displays
+    a standing discontinuity, which clearly is not
+    present in the solution of the kinetic equation -
+    this point should be addressed. Also, the stability
+    of the scheme should be discussed in this context,
+    e.g. by checking if there exists a maximum
+    resolution after which the scheme becomes unstable.
+\end{quoting}
+
+...
+
+\begin{quoting}
+    8. Results should be presented for larger values of
+    $k$. The numerical results indicate that the
+    discontinuity between the LB and DVM regions increases
+    with $k$. Is there a maximum value of $k$ for which
+    the scheme is stable?
+\end{quoting}
+
+...
+
+\begin{quoting}
+    9. Can the scheme be employed for higher Mach number flows?
+\end{quoting}
+
+...
+
+\begin{quoting}
+    10. There are insufficient details regarding the scheme
+    the results to be reproduced - in particular, it is not
+    clear how the flux rescaling in Eq. (34) works, i.e. on
+    which interfaces it is applied, and whether this affects
+    the order of the numerical scheme. In my opinion, the
+    readers will benefit from a short summary of the main
+    steps, while ensuring that the scheme can be implemented
+    based on the details provided in the manuscript.
+\end{quoting}
+
+...
+
+\begin{quoting}
+    11. Results obtained in the linearised regime are
+    reported for the longitudinal heat flux. Since this
+    quantity is not covered in Ref.~\cite{Luo2016}, an important
+    appendix should be added, detailing the main steps
+    taken in deriving these results.
+\end{quoting}
+
+...
+
+\printbibliography
+
+\end{document}
