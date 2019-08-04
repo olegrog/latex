@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys, argparse, threading, logging, traceback, vgrid
 import numpy as np
 from functools import partial
@@ -398,13 +398,16 @@ def transport(domain, bc, solution, delta_t):
     mask, _mask = lambda sgn, N: sgn*xi_y[0:N] > 0, lambda sgn: sgn*_xi_y > 0
     def calc_F(h, f, idx, F, Idx, mask, low_order=False):
         logging.debug(' - calc_F')
-        g = np.einsum('i,a', gamma, 1/h[idx])[mask]
+        g = np.einsum('i,a', np.abs(gamma), 1/h[idx])[mask]
         d1, d2 = f[idx+1] - f[idx], f[idx] - f[idx-1]
         h1, h2 = (h[idx+1] + h[idx])/2, (h[idx] + h[idx-1])/2
         D = lambda d, h: np.einsum('ai,a->ai', np.abs(d), 1/h)[mask]
         H = np.einsum('a,ai->ai', h[idx], np.sign(d1))[mask]
         lim = {
             'none': 0,
+            'lax-wendroff': D(d1, h1),
+            'beam-warming': D(d2, h2),
+            'fromm': D(d1+d2, h1+h2),
             'minmod': np.minimum(D(d1, h1), D(d2, h2)),
             'mc': np.minimum(D(d1+d2, h1+h2), 2*np.minimum(D(d1, h1), D(d2, h2))),
             'superbee': np.maximum(np.minimum(2*D(d1, h1), D(d2, h2)), np.minimum(D(d1, h1), 2*D(d2, h2)))
@@ -413,8 +416,8 @@ def transport(domain, bc, solution, delta_t):
     def calc2N(h, f, F, sgn, bc):
         logging.debug(' - calc2N %+d', sgn)
         m0, m1, m2, mN = _mask(sgn), mask(sgn, 1), mask(sgn, 2), mask(sgn, N-2)
-        f3[:2][m2], h3[:2] = f[-2:][m2], h[-2:]
-        h3[2] = bc.last_cell(h3, f3, f, m0)
+        f3[:2], h3[:2] = f[-2:], h[-2:]
+        h3[2] = bc.last_cell(h3, f3, m0)
         calc_F(h3, f3, np.array([1]), F, slice(-1, None), m1)   # last flux
         bc.last_flux_is_calculated()
         calc_F(h, f, np.arange(1, N-1), F, slice(2, -1), mN)    # interior fluxes
@@ -422,10 +425,9 @@ def transport(domain, bc, solution, delta_t):
     def calc01(h, f, F, sgn, bc):
         logging.debug(' - calc01 %+d', sgn)
         m0, m1, m2 = _mask(sgn), mask(sgn, 1), mask(sgn, 2)
-        f2, h2 = f[:2], h[:2]
-        bc.first_flux(h2, f2, F, m0, calc_F)                    # first flux
-        f3[1:][m2], h3[1:] = f2[m2], h2
-        h3[0] = bc.first_cell(h3, f3, f, m0)
+        bc.first_flux(h[0], f[0], F, m0, calc_F)                # first flux
+        f3[1:], h3[1:] = f[:2], h[:2]
+        h3[0] = bc.first_cell(h3, f3, m0)
         calc_F(h3, f3, np.array([1]), F, slice(1, 2), m1)       # second flux
         check(F[:2][m2], flux=True) # after calc01
     f, F, f3, h3 = solution.f, solution.F, solution.f3, np.empty(3)
@@ -458,8 +460,8 @@ def bgk(domain, bc, solution, delta_t):
 class Boundary(object):
     def __init__(self, n):
         pass
-    def _new_f3(self, h2, f2):
-        return np.tile(f2[0], (3,1)), np.tile(h2[0], 3)
+    def _new_f3(self, h, f):
+        return np.tile(f, (3,1)), np.tile(h, 3)
     def _calc_flux(self, F, mask, calc_F, h3, f3, low_order=False):
         calc_F(h3, f3, np.array([1]), F, slice(1), np.array([mask]), low_order)
     def last_flux_is_calculated(self):
@@ -472,40 +474,31 @@ class Boundary(object):
         pass
     def connect(self, solution):
         pass
-    def last_cell(self, h3, f3, f, mask):           # last ghost cell
-        f3[2][mask] = (2*f[-1] - f[-2])[mask]       # extrapolation by default
+    def last_cell(self, h3, f3, mask):              # last ghost cell
+        f3[2][mask] = (2*f3[1] - f3[0])[mask]       # extrapolation by default
         return h3[0]
-    def first_flux(self, h2, f2, F, mask, calc_F):
-        self(F[0], F[0], mask)
-    def first_cell(self, h3, f3, f, mask):          # first ghost cell
-        self(f3[0], f[0], mask)
+    def first_flux(self, h1, f1, F, mask, calc_F):  # inflow flux
+        F[0][mask] = self(F[0], mask)
+    def first_cell(self, h3, f3, mask):             # first ghost cell
+        f3[0][mask] = self(f3[1], mask)
         return h3[1]
 
 class Symmetry(Boundary):
-    def __call__(self, F, F0, mask):
-        F[mask] = F0[::-1][mask]
-    def first_flux(self, h2, f2, F, mask, calc_F):
-        #return self(F[0], F[0], mask)               # uncomment to check mass conservation
-        f3, h3 = self._new_f3(h2, f2)
-        f3[:2] = f2[::-1,::-1]
-        h3[:2] = h2[::-1]
-        self._calc_flux(F, mask, calc_F, h3, f3)
-    def last_cell(self, h3, f3, f, mask):
-        self(f3[2], f[-1], mask)
+    def __call__(self, F, mask):
+        return F[::-1][mask]
+    def last_cell(self, h3, f3, mask):
+        f3[2][mask] = self(f3[1], mask)
         return h3[1]
-    def correct_first_flux(self, xi_y, F, mask):
-        corr = -np.sum((xi_y*F)[~mask]) / np.sum((xi_y*F)[mask])
-        logging.debug('Symmetry BC correction %.10e' % corr)
-        F[mask] *= corr
 
 class Diffuse(Boundary):
     def __init__(self, n):
         self._model = domains[n].model
         self._xi_y = self._model.xi()[...,1]
         self._half_M = half_M(self._model)
-    def __call__(self, F, F0, mask):
-        rho = np.sum(self._xi_y[::-1][mask]*F0[::-1][mask])/self._half_M
-        F[mask] = self._model.Maxw(Macro(rho, args.U*e_x/2, fixed.T_B))[mask]
+    def __call__(self, F, mask):
+        rho = np.sum(self._xi_y[::-1][mask]*F[::-1][mask])/self._half_M
+        return self._model.Maxw(Macro(rho, args.U*e_x/2, fixed.T_B))[mask]
+    # define first_cell
 
 class Couple(Boundary):
     def __init__(self, n, n_partner, idx_partner):
@@ -525,7 +518,7 @@ class Couple(Boundary):
     def connect(self, solution):
         self._f_partner = solution[self._n_partner].f
         self._F_partner = solution[self._n_partner].F
-    def first_flux(self, h2, f2, F, mask, calc_F):
+    def first_flux(self, h1, f1, F, mask, calc_F):
         self._lock_F.wait()
         self._lock_F.clear()
         model, model_partner = domains[self._n].model, domains[self._n_partner].model
@@ -534,14 +527,14 @@ class Couple(Boundary):
             F[0][mask] = self._F_partner[self._idx_partner][mask]
         else:
             # reconstruct a flux from the partner distribution function (2 cells)
-            f3, h3 = self._new_f3(h2, f2)
+            f3, h3 = self._new_f3(h1, f1)
             idx = 1 + 2*self._idx_partner # -1 or 1
             f3[:2] = reconstruct(model_partner, model, self._f_partner[::-idx][-2:])
             h3[:2] = delta_y(domains[self._n_partner])[::-idx][-2:]
             self._calc_flux(F, mask, calc_F, h3, f3)
-    def first_cell(self, h3, f3, f, mask):
+    def first_cell(self, h3, f3, mask):
         return self(f3[0], mask)
-    def last_cell(self, h3, f3, f, mask):
+    def last_cell(self, h3, f3, mask):
         return self(f3[2], mask)
     def correct_first_flux(self, xi_y, F, mask):
         model, model_partner = domains[self._n].model, domains[self._n_partner].model
