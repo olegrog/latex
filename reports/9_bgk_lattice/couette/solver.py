@@ -17,7 +17,7 @@ parser.add_argument('--w-min', type=float, default=0.1, metavar='<float>', help=
 parser.add_argument('--poly', type=float, default=2, metavar='<float>', help='power for the polynomial grid')
 parser.add_argument('-e', '--end', type=int, default=int(1e2), metavar='<int>', help='maximum total time')
 parser.add_argument('-w', '--width', type=str, default='2.4/np.sqrt(np.pi)', metavar='<expr>', help='width of the right domain in terms of the Knudsen number')
-parser.add_argument('-s', '--step', type=float, default=1.5, metavar='<float>', help='reduce timestep in given times')
+parser.add_argument('-s', '--step', type=float, default=1.0, metavar='<float>', help='reduce timestep in given times')
 parser.add_argument('-R', '--radius', type=float, default=4., metavar='<float>', help='radius of the velocity grid')
 parser.add_argument('-r', '--refinement', type=float, default=2., metavar='<float>', help='ratio of maximum and minumum cell width')
 parser.add_argument('-m1', '--model1', default='lbm', metavar='dvm|lbm', help='type of velocity model in the first domain')
@@ -427,7 +427,7 @@ def transport(domain, bc, solution, delta_t):
         m0, m1, m2 = _mask(sgn), mask(sgn, 1), mask(sgn, 2)
         bc.first_flux(h[0], f[0], F, m0, calc_F)                # first flux
         f3[1:], h3[1:] = f[:2], h[:2]
-        h3[0] = bc.first_cell(h3, f3, m0)
+        h3[0] = bc.first_cell(h3, f3, F[0], np.abs(gamma)/h[0], m0)
         calc_F(h3, f3, np.array([1]), F, slice(1, 2), m1)       # second flux
         check(F[:2][m2], flux=True) # after calc01
     f, F, f3, h3 = solution.f, solution.F, solution.f3, np.empty(3)
@@ -460,6 +460,8 @@ def bgk(domain, bc, solution, delta_t):
 class Boundary(object):
     def __init__(self, n):
         pass
+    def __call__(self, F0, mask):                   # boundary condition, F0 = f{1/2}
+        pass
     def _new_f3(self, h, f):
         return np.tile(f, (3,1)), np.tile(h, 3)
     def _calc_flux(self, F, mask, calc_F, h3, f3, low_order=False):
@@ -474,18 +476,18 @@ class Boundary(object):
         pass
     def connect(self, solution):
         pass
-    def last_cell(self, h3, f3, mask):              # last ghost cell
+    def last_cell(self, h3, f3, mask):              # last ghost cell, f3 = f{M-1, M, ghost}
         f3[2][mask] = (2*f3[1] - f3[0])[mask]       # extrapolation by default
         return h3[0]
-    def first_flux(self, h1, f1, F, mask, calc_F):  # inflow flux
+    def first_flux(self, h1, f1, F, mask, calc_F):  # inflow flux, f1 = f{1}
         F[0][mask] = self(F[0], mask)
-    def first_cell(self, h3, f3, mask):             # first ghost cell
+    def first_cell(self, h3, f3, F0, gamma1, mask): # first ghost cell, f3 = f{ghost, 1, 2}
         f3[0][mask] = self(f3[1], mask)
         return h3[1]
 
 class Symmetry(Boundary):
-    def __call__(self, F, mask):
-        return F[::-1][mask]
+    def __call__(self, F0, mask):
+        return F0[::-1][mask]
     def last_cell(self, h3, f3, mask):
         f3[2][mask] = self(f3[1], mask)
         return h3[1]
@@ -495,10 +497,12 @@ class Diffuse(Boundary):
         self._model = domains[n].model
         self._xi_y = self._model.xi()[...,1]
         self._half_M = half_M(self._model)
-    def __call__(self, F, mask):
-        rho = np.sum(self._xi_y[::-1][mask]*F[::-1][mask])/self._half_M
+    def __call__(self, F0, mask):
+        rho = np.sum(self._xi_y[::-1][mask] * F0[::-1][mask]) / self._half_M
         return self._model.Maxw(Macro(rho, args.U*e_x/2, fixed.T_B))[mask]
-    # define first_cell
+    def first_cell(self, h3, f3, F0, gamma1, mask):
+        f3[0][mask] = ((2*F0 - (1-gamma1)*f3[1])/(1+gamma1))[mask]
+        return h3[1]
 
 class Couple(Boundary):
     def __init__(self, n, n_partner, idx_partner):
@@ -507,7 +511,7 @@ class Couple(Boundary):
         self._idx_partner = idx_partner
         self._lock_F = threading.Event()
         self._lock_f = threading.Event()
-    def __call__(self, f, mask):
+    def _partner_cell(self, f, mask):
         model, model_partner = domains[self._n].model, domains[self._n_partner].model
         f_partner = self._f_partner[self._idx_partner]
         if model == model_partner:
@@ -532,10 +536,10 @@ class Couple(Boundary):
             f3[:2] = reconstruct(model_partner, model, self._f_partner[::-idx][-2:])
             h3[:2] = delta_y(domains[self._n_partner])[::-idx][-2:]
             self._calc_flux(F, mask, calc_F, h3, f3)
-    def first_cell(self, h3, f3, mask):
-        return self(f3[0], mask)
+    def first_cell(self, h3, f3, F0, gamma1, mask):
+        return self._partner_cell(f3[0], mask)
     def last_cell(self, h3, f3, mask):
-        return self(f3[2], mask)
+        return self._partner_cell(f3[2], mask)
     def correct_first_flux(self, xi_y, F, mask):
         model, model_partner = domains[self._n].model, domains[self._n_partner].model
         if model != model_partner:
@@ -599,7 +603,7 @@ def solve_bgk():
         run_threads(solution, transport, delta_t)
         run_threads(solution, bgk, 2*delta_t)
         run_threads(solution, transport, delta_t)
-        [ check(s.f) for s in solution ]
+        [ check(s.f) for s in solution ]    # to stop iteration process in case of negative values
         if args.plot and not i % args.plot:
             y, h, m = calc_macro(solution)
             rho_disp, pxy_mean = sum(h*(m.rho-m0.rho)**2), np.sum(h*m.tau[:,2])
