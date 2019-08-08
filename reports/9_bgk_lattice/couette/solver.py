@@ -23,7 +23,7 @@ parser.add_argument('-r', '--refinement', type=float, default=2., metavar='<floa
 parser.add_argument('-m1', '--model1', default='lbm', metavar='dvm|lbm', help='type of velocity model in the first domain')
 parser.add_argument('-m2', '--model2', default='dvm', metavar='dvm|lbm', help='type of velocity model in the second domain')
 parser.add_argument('-l', '--lattice', default='d3q19', metavar='d3q15|19|27', help='type of velocity lattice')
-parser.add_argument('-i', '--limiter', default='mc', metavar='none|minmod|mc|superbee', help='type of limiter')
+parser.add_argument('-i', '--limiter', default='wide-third', metavar='none|minmod|mc|superbee|...', help='type of limiter')
 parser.add_argument('-c', '--correction', default='poly', metavar='none|poly|entropy|lagrange', help='type of correction for construction of discrete Maxwellian')
 parser.add_argument('-o', '--reconstruction', default='hermite40', metavar='grad13|hermite40', help='type of reconstruction in the buffer layer')
 parser.add_argument('-n', '--norm', default='L2', metavar='L1|L2|Linf', help='norm for distance between solutions')
@@ -398,21 +398,25 @@ def transport(domain, bc, solution, delta_t):
     mask, _mask = lambda sgn, N: sgn*xi_y[0:N] > 0, lambda sgn: sgn*_xi_y > 0
     def calc_F(h, f, idx, F, Idx, mask, low_order=False):
         logging.debug(' - calc_F')
-        g = np.einsum('i,a', np.abs(gamma), 1/h[idx])[mask]
+        g = np.einsum('i,a', np.abs(gamma), 1/h[idx])
         d1, d2 = f[idx+1] - f[idx], f[idx] - f[idx-1]
         h1, h2 = (h[idx+1] + h[idx])/2, (h[idx] + h[idx-1])/2
         D = lambda d, h: np.einsum('ai,a->ai', np.abs(d), 1/h)[mask]
+        DD = lambda d, h, C: np.einsum('ai,a,ai->ai', np.abs(d), 1/h, C)[mask]
         H = np.einsum('a,ai->ai', h[idx], np.sign(d1))[mask]
+        small = np.finfo(float).eps
         lim = {
-            'none': 0,
-            'lax-wendroff': D(d1, h1),
-            'beam-warming': D(d2, h2),
-            'fromm': D(d1+d2, h1+h2),
-            'minmod': np.minimum(D(d1, h1), D(d2, h2)),
-            'mc': np.minimum(D(d1+d2, h1+h2), 2*np.minimum(D(d1, h1), D(d2, h2))),
-            'superbee': np.maximum(np.minimum(2*D(d1, h1), D(d2, h2)), np.minimum(D(d1, h1), 2*D(d2, h2)))
-        }[args.limiter] * (0 if low_order else 1)
-        F[Idx][mask] = f[idx][mask] + (1-g)*H/2 * np.where(d1[mask]*d2[mask] > 0, lim, 0)
+            'none': lambda: 0,
+            'lax-wendroff': lambda: D(d1, h1),
+            'beam-warming': lambda: D(d2, h2),
+            'fromm': lambda: D(d1+d2, h1+h2),
+            'minmod': lambda: np.minimum(D(d1, h1), D(d2, h2)),
+            'mc': lambda: np.minimum(D(d1+d2, h1+h2), 2*np.minimum(D(d1, h1), D(d2, h2))),
+            'wide-third': lambda: np.minimum((DD(d1, h1, 2-g) + DD(d2, h2, 1+g))/3,
+                np.minimum(DD(d1, h1, 2/(1-g)), DD(d2, h2, 2/(g + small)))),
+            'superbee': lambda: np.maximum(np.minimum(2*D(d1, h1), D(d2, h2)), np.minimum(D(d1, h1), 2*D(d2, h2)))
+        }[args.limiter]() * (0 if low_order else 1)
+        F[Idx][mask] = f[idx][mask] + (1-g[mask])*H/2 * np.where(d1[mask]*d2[mask] > 0, lim, 0)
     def calc2N(h, f, F, sgn, bc):
         logging.debug(' - calc2N %+d', sgn)
         m0, m1, m2, mN = _mask(sgn), mask(sgn, 1), mask(sgn, 2), mask(sgn, N-2)
@@ -619,8 +623,8 @@ def solve_bgk():
     else:
         names = [ 'vel_x', 'p_xy', 'q_x' ]
         result = [ m.vel[:,0], m.tau[:,2], m.qflow[:,0] ]
-    np.savetxt(sys.stdout, np.transpose([y] + result), fmt='%1.4e',
-        header='%10s'*(len(names) + 1) % tuple(['y'] + names))
+    np.savetxt(sys.stdout, np.transpose([y] + result), fmt='%1.5e',
+        header='%11s'*(len(names) + 1) % tuple(['y'] + names))
     #splot(domains[-1].model, solution[-1].f[-1])
     #splot(domains[0].model, solution[0].f[0])
     if args.plot:
