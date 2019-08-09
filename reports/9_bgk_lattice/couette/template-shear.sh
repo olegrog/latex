@@ -5,7 +5,7 @@ set out "<name>.tex"
 set key center top
 
 set xlabel '$y$' offset graph 0.48, 0.15
-set ylabel '$p_{xy} - p^{\mathrm{(ex)}}_{xy}$' offset graph 0.54, 0.46 rotate by 0
+set ylabel '$p_{xy} - p^{\mathrm{(ex)}}_{xy}$' offset graph 0.29, 0.46 rotate by 0
 set colors classic
 
 set border 3
@@ -18,7 +18,7 @@ set lmargin 7
 set bmargin 2
 
 set xrange [0:.5]
-set yrange [-0.0004:0.0004]
+#set yrange [-0.0004:0.0004]
 
 our_width = 2
 our_point = 6
