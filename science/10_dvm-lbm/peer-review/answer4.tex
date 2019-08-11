@@ -46,30 +46,40 @@ can be recognized by the bold lateral line.
     Please, be specific on this point.
 \end{quoting}
 
-...
-
-insert answers here
+Ideologically, the present work is similar to the work of Di Staso et al. But there are significant
+differences. The present paper introduces (in particular as a perspective) a hybrid approach by
+means of DVM, keeping in mind that LB models have been created on the basis of the special
+systems of regular discrete velocities. DSMC schemes is in fact of the other nature, they use the
+stochastic (dynamically changed in the process of computation) system of discrete velocities.
+This can in principle lead to the noise in the interface boundary. Of course, in our hybrid method
+some important tasks of matching should be resolved.
 
 \begin{leftbar}
-    ...
-
-    insert quotes from the manuscript here
 \end{leftbar}
 
 \begin{quoting}
     2. It would be very useful if the authors could comment a bit more specifically
     on the potential competitivity with DSMC for the problems they mention in the conclusions
-    (supersonic, highly thermal, \dots because this is the real issue at stake).
+    (supersonic, highly thermal, because this is the real issue at stake).
 \end{quoting}
 
-...
+There are complex LB models with large numbers of discrete nodes fit to simulate supersonic
+flows. In this case the near-continuum part of the region under consideration could be covered by
+this LB model and in the narrow Knudsen layers DVM could be used. Then potentially this
+hybrid method could be competitive with DSMC schemes.
+
+\begin{leftbar}
+\end{leftbar}
 
 \begin{quoting}
     3. Please take a look at recent work of Aiguo Xu (soft matter, PRE) on DVM for
     thermal and multiphase non-equil flows. I think they belong and should be cited.
 \end{quoting}
 
-...
+The references added to the text of the manuscript.
+
+\begin{leftbar}
+\end{leftbar}
 
 \section*{Referee report \#2}
 
@@ -79,12 +89,28 @@ insert answers here
     there are already published pure LB implementations which
     are significantly more efficient and even more accurate
     than the DVM employed in this paper. Thus, further
-    motivation should be provided for introducing this scheme,
-    perhaps by identifying a fundamental flaw of the LB
-    approach which mandates the use of DVM.
+    motivation should be provided for introducing this scheme, perhaps by identifying a fundamental flaw of the LB approach which mandates the use of DVM.
 \end{quoting}
 
-...
+The presented method gives accurate results for the hydrodynamic quantites.
+For instance, the longitudal velocity $v_x$ results for the hybrid method
+are very close to the tabulated results for $k=0.1$ (Fig.~2).
+
+Nevertheless, the longitudinal heat flux is not reproduced with a good precision.
+This feature is anticipated. As was mentioned in the Comment, LB has fundamental flaws.
+In the present case this flaw is inability of the applied LB models to reproduce the highest moments,
+moreover LB models in the paper do not even reproduce fully thermohydrodynamics.
+
+We should also emphasize that longitudinal heat flux in the Couette flow has nonequilibrium nature
+and to our knowledge this flux can be observed if at least the Burnett equations are considered.
+As a result, we need the LB model which is able
+\begin{itemize}
+    \item to reproduce Burnett thermohydrodynamics,
+    \item to reproduce some lowest Maxwell half-moments.
+\end{itemize}
+
+\begin{leftbar}
+\end{leftbar}
 
 \begin{quoting}
     2. The coupling between the LB and DVM regions is not
@@ -99,7 +125,29 @@ insert answers here
     coupling cannot be improved.
 \end{quoting}
 
-...
+The non-smooth behavior is observed mostly for the longitudinal heat flux.
+We need to emphasize that the matching of the heat flux is continuous
+(the heat flux is the same for the BGK and LB at the matching interface)
+and the jumps happen in the adjacent points
+since LB is unable to reproduce the heat flux and distorts the heat flux profile.
+These jumps in the heat flux show the limits of applicability of the method.
+The longitudal heat flux $q_x$ is caused by the non-hydrodynamic effects
+(potentially by the moments of all orders):
+the part of the heat flux proportional to $k^2$ can be recovered at the Burnett level,
+while the second part is attributable to the diffuse-reflection boundary conditions.
+Therefore, the conventional LB models can not cope with $q_x$
+(though isothermal D3Q96 can give qualitatively correct profile for the diffuse part).
+
+As a result, we can conclude that the improvements in LB method should be directed
+to the better reproduction of the highest Maxwell moments (Burnett level)
+accompanied with the better reproduction of the wall moments.
+The mapping method can be potentially improved with the involvement of the fourth-order moments
+and the inclusion of the enhanced LB models.
+
+Additional explanations are added to the Figure captions and to the text.
+
+\begin{leftbar}
+\end{leftbar}
 
 \begin{quoting}
     3. The numerical results indicate that the ``special''
@@ -115,7 +163,29 @@ insert answers here
     a higher order model which is augmented is employed?
 \end{quoting}
 
-...
+Yes, the model D3Q121 is outperformed by D3Q96
+since D3Q96 better reproduces the Maxwell half moments (or wall moment).
+Moreover, one can say that the models with even number of velocities usually show better results
+than the models with odd number of velocities.
+The models with odd number velocities contains zero velocity in the lattice,
+which has non-small lattice weight.
+This lattice weight does not contribute in the Maxwell half moments
+which in turn results in bad reproduction of the diffusive boundary condtitions.
+In addition, zero velocity means that the model can have velocity directions parallel to the wall
+which cause ``ballistic streamers'' problems.
+
+Regarding the question, one can say that the straightforward increase of the quadrature order
+(without consideration of the half-moment properties)
+yields relatively slow convergence to exact results.
+Here we can mention the paper~\cite{Meng2011accuracy},
+where the plane Poiseuille flow was considered.
+The Knudsen minimum was observed only for the D2Q4624 model (even velocity model)
+with extremely high order quadrature.
+
+Additional comments about ``augmentation property'' are added to the text of the paper.
+
+\begin{leftbar}
+\end{leftbar}
 
 \begin{quoting}
     4. Fig. 5 indicates that the deviation norms are
@@ -134,6 +204,9 @@ insert answers here
 
 ...
 
+\begin{leftbar}
+\end{leftbar}
+
 \begin{quoting}
     5. In this paper, the advection is computed using
     the MCD flux limiter scheme. Is there any reason why
@@ -145,8 +218,11 @@ insert answers here
 
 ...
 
+\begin{leftbar}
+\end{leftbar}
+
 \begin{quoting}
-    6. The numerical scheme presented in Sec. 5.1 is
+    6. The numerical scheme presented in Sec.~5.1 is
     second order by design. Is this order preserved
     when boundary conditions are imposed? In particular,
     can second order convergence be proven with respect
@@ -154,6 +230,9 @@ insert answers here
 \end{quoting}
 
 ...
+
+\begin{leftbar}
+\end{leftbar}
 
 \begin{quoting}
     7. At the coupling, it can be seen that the
@@ -169,7 +248,13 @@ insert answers here
     resolution after which the scheme becomes unstable.
 \end{quoting}
 
-...
+Yes, the the longitudinal heat flux results exhibit oscillation behavior
+(the other low-order moments are smooth). As was mentioned before,
+this is due to the inability of the present LB models to reproduce this moment correctly.
+This effect does not disappear when the mesh is refined and does not affect the stability.
+
+\begin{leftbar}
+\end{leftbar}
 
 \begin{quoting}
     8. Results should be presented for larger values of
@@ -181,11 +266,20 @@ insert answers here
 
 ...
 
+\begin{leftbar}
+\end{leftbar}
+
 \begin{quoting}
     9. Can the scheme be employed for higher Mach number flows?
 \end{quoting}
 
-...
+The limitations on the Mach number for the present scheme are attributed to the applied LB models.
+Formally the applied high-order LB models (which describe correctly isothermal hydrodynamics correctly)
+are applicable for non-negligible Mach numbers if for such flows the equilibrium remains non-negative,
+the flow is isothermal.
+
+\begin{leftbar}
+\end{leftbar}
 
 \begin{quoting}
     10. There are insufficient details regarding the scheme
@@ -198,7 +292,21 @@ insert answers here
     based on the details provided in the manuscript.
 \end{quoting}
 
-...
+The correction of fluxes according to Eq. (34) is performed in the interface
+between the regions where DVM and LBM are applied.
+About the influence of this correction on the accuracy of the numerical scheme.
+The correction of the fluxes inserts the addition error,
+this error depends on the flux related to the accuracy in coordinate space.
+But it is easy to see that the relative error in this correction
+depends on only the character of the system of discrete velocities,
+i.e. on the accuracy in velocity space.
+So the total error due to the correction depends on both coordinate and velocity accuracy.
+Therefore the convergence of the numerical solution should be realized in the consistent manner,
+namely when both steps in coordinate and velocity spaces tend to zero.
+Now the main stages of the algorithm are emphasized in the new variant of the paper.
+
+\begin{leftbar}
+\end{leftbar}
 
 \begin{quoting}
     11. Results obtained in the linearised regime are
@@ -209,6 +317,9 @@ insert answers here
 \end{quoting}
 
 ...
+
+\begin{leftbar}
+\end{leftbar}
 
 \printbibliography
 

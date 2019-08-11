@@ -17,10 +17,8 @@ clean:
 	rm -f $(PROJECT).{spl,bbl}
 
 pics:
-	mkdir -p $(PICS)/nonuniform
 	cd $(PICS) && ln -sf ../$(COUETTE)/*.pdf .
 	cd $(PICS) && ln -sf ../$(COUETTE)/acceleration/*.pdf .
-	cd $(PICS)/nonuniform && ln -sf ../../$(COUETTE)/nonuniform/*.pdf .
 	cd $(PICS) && ln -sf ../$(POISEUILLE)/*.pdf
 
 zip: $(SOURCES) highlights.txt

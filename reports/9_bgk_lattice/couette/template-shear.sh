@@ -18,7 +18,7 @@ set lmargin 7
 set bmargin 2
 
 set xrange [0:.5]
-#set yrange [-0.0004:0.0004]
+set yrange [-0.0004:0.0004]
 
 our_width = 2
 our_point = 6
