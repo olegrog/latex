@@ -5,7 +5,7 @@ set out "<name>.tex"
 set key center bottom
 
 set xlabel '$N_0$' offset graph 0.47, 0.15
-set ylabel '$\displaystyle\frac{t_\mathrm{DV}}{t_\mathrm{hyb}}$' offset graph 0.32, 0.44 rotate by 0
+set ylabel '$\displaystyle\frac{t_\mathrm{DV}}{t_\mathrm{hyb}}$' offset graph 0.13, 0.44 rotate by 0
 set colors classic
 
 set border 3

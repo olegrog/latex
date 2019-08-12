@@ -89,7 +89,9 @@ The references added to the text of the manuscript.
     there are already published pure LB implementations which
     are significantly more efficient and even more accurate
     than the DVM employed in this paper. Thus, further
-    motivation should be provided for introducing this scheme, perhaps by identifying a fundamental flaw of the LB approach which mandates the use of DVM.
+    motivation should be provided for introducing this scheme,
+    perhaps by identifying a fundamental flaw of the LB approach,
+    which mandates the use of DVM.
 \end{quoting}
 
 The presented method gives accurate results for the hydrodynamic quantites.
@@ -110,6 +112,36 @@ As a result, we need the LB model which is able
 \end{itemize}
 
 \begin{leftbar}
+\end{leftbar}
+
+First, ...
+% Some text in introduction that LB can advance into  and takes into account some rarefied gas effects,
+% however up to now does not provide universal tool for solution of the Boltzmann equation.
+
+Second, to be more specific on peculiarities of the VDF arised in boundary-value problems,
+we have introduced the following subsection into the manuscript:
+\begin{leftbar}
+    \subsection*{Mesh refinement}
+    The diffuse-reflection boundary conditions introduce several singularities into the VDF
+    both in the velocity space and in the physical one.
+    First, the discontinuity exists along the plane \(\bxi\bn=0\) and directly on the boundary surface (\(\bx=\bx_B\)).
+    For a convex domain, this discontinuity does not penetrate into the gas region~\cite{Kim2011, Guo2017},
+    since characteristics do not enter into the gas region.
+    Nevertheless, sharp variations of the solution near \(\bxi\bn=0\) requires a strong mesh refinement
+    in order to achieve a high-accuracy approximation.
+    Moreover, it is necessary to resolve the logarithmic singularity of the form~\cite{Takata2016}
+    \begin{equation}\label{eq:xi_singularity}
+        \pder[f]{\bxi}\bn = C_1\ln\bxi\bn + \OO{1}, \quad (\bxi\bn<0, \quad \bx=\bx_B).
+    \end{equation}
+    Second, another logarithmic singularity arises in the physical space along \(\bn\)~\cite{Takata2014}:
+    \begin{equation}\label{eq:x_singularity}
+        \pder[f]{\bx}\bn = \frac{C_2}{k}\ln\frac{(\bx-\bx_B)\bn}{k} + \OO{1}.
+    \end{equation}
+    Here, \(C_1\) and \(C_2\) are some positive constants.
+    It is seen from~\eqref{eq:x_singularity} that the logarithmic singularity of the VDF
+    --- and all macroscopic variables as well --- takes place for all Knudsen numbers;
+    however, for small \(k\), it becomes highly localized in the Knudsen layer.
+    Therefore, the physical grid should be refined exponentially as \(\bx\) goes to \(\bx_B\).
 \end{leftbar}
 
 \begin{quoting}
@@ -216,7 +248,16 @@ Additional comments about ``augmentation property'' are added to the text of the
     extrapolation schemes available?
 \end{quoting}
 
-...
+The linear extrapolation for the \emph{outflow} boundary conditions
+does not violate the second-order approximation
+and, actually, is the optimal choise for the current stencil.
+Incidentally, zeroth-order extrapolation \(f_{M+1} = f_M\) yields
+the first-order upwind scheme. It is well-known result from the FVM theory,
+so we have restricted ourselves to addition of a couple of words
+and the reference to the classical textbook~\cite{LeVeque2002}.
+
+Moreover, we have rewritten subsection ``Finite-volume formulation'' completely
+in order to improve the description and, hopefully, avoid other possible ambiguities.
 
 \begin{leftbar}
 \end{leftbar}
@@ -229,7 +270,16 @@ Additional comments about ``augmentation property'' are added to the text of the
     to the benchmark solution?
 \end{quoting}
 
-...
+The presented numerical scheme has the second-order approximation by design,
+including boundary condition
+However, the referee turns out to be correct that our scheme demonstrated the first-order approximation
+on the boundary, which can be observed in Fig.~4 of the previous version of the manuscript,
+where the numerical error increases significantly in the vicinity of the diffuse-reflection boundary.
+The origin of the approximation loss was in inaccurate formula for \(f^n_0\).
+Now, we have inserted the correct one and recomputed all data presented in figures.
+It is worth noting that the additional numerical error introduced previously is rather small
+due to strong mesh refinement near the boundary. It is possible to observe the difference
+in the results only in Fig.~5 of the current version of the manuscript.
 
 \begin{leftbar}
 \end{leftbar}

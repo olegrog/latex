@@ -94,6 +94,14 @@
   address   = {Oxford},
 }
 
+@book{LeVeque2002,
+  title={Finite volume methods for hyperbolic problems},
+  author={LeVeque, Randall J and others},
+  volume={31},
+  year={2002},
+  publisher={Cambridge university press}
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%   Review articles   %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -501,6 +509,18 @@
   publisher = {APS},
 }
 
+@article{Meng2011accuracy,
+  title={Gauss-Hermite quadratures and accuracy of lattice Boltzmann models for nonequilibrium gas flows},
+  author={Meng, Jianping and Zhang, Yonghao},
+  journal={Physical Review E},
+  volume={83},
+  number={3},
+  pages={036704},
+  year={2011},
+  doi={10.1103/PhysRevE.83.036704},
+  publisher={APS}
+}
+
 @Article{Feuchter2016,
   author    = {Feuchter, Claus and Schleifenbaum, Wolfgang},
   title     = {High-order lattice Boltzmann models for wall-bounded flows at finite Knudsen numbers},
@@ -786,29 +806,21 @@
   publisher = {Elsevier},
 }
 
-%%%%%%%%%%%%%%%%%
-%%%   Other   %%%
-%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Discontinuity of VDF %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-@Article{Bobylev2001,
-  author    = {Bobylev, Alexander V and Ohwada, Taku},
-  title     = {The error of the splitting scheme for solving evolutionary equations},
-  journal   = {Appl. Math. Lett.},
-  year      = {2001},
-  volume    = {14},
-  number    = {1},
-  pages     = {45--48},
-  doi       = {10.1016/S0893-9659(00)00110-5},
-  publisher = {Elsevier},
-}
-
-@article{Aristov2019,
-  title={Kinetic multiscale scheme based on the discrete-velocity and lattice-Boltzmann methods},
-  author={Aristov, V V and Ilyin, O V and Rogozin, O A},
-  volume={1806.09225},
-  journal={ArXiv},
-  langid={english},
-  year={2018}
+@Article{Kim2011,
+  author    = {Kim, Chanwoo},
+  title     = {Formation and propagation of discontinuity for Boltzmann equation in non-convex domains},
+  journal   = {Commun. Math. Phys.},
+  year      = {2011},
+  volume    = {308},
+  number    = {3},
+  pages     = {641--701},
+  doi       = {10.1007/s00220-011-1355-1},
+  langid    = {english},
+  publisher = {Springer},
 }
 
 % boundary logarithmic singularity in physical space
@@ -837,16 +849,53 @@
   langid  = {english},
 }
 
-@article{Meng2011accuracy,
-  title={Gauss-Hermite quadratures and accuracy of lattice Boltzmann models for nonequilibrium gas flows},
-  author={Meng, Jianping and Zhang, Yonghao},
-  journal={Physical Review E},
-  volume={83},
-  number={3},
-  pages={036704},
-  year={2011},
-  doi={10.1103/PhysRevE.83.036704},
-  publisher={APS}
+@Article{Guo2017,
+  author    = {Guo, Yan and Kim, Chanwoo and Tonon, Daniela and Trescases, Ariane},
+  title     = {Regularity of the Boltzmann equation in convex domains},
+  journal   = {Inventiones mathematicae},
+  year      = {2017},
+  volume    = {207},
+  number    = {1},
+  pages     = {115--290},
+  doi       = {10.1007/s00222-016-0670-8},
+  langid    = {english},
+  publisher = {Springer},
+}
+
+%%%%%%%%%%%%%%%%%
+%%%   Other   %%%
+%%%%%%%%%%%%%%%%%
+
+@Article{Bobylev2001,
+  author    = {Bobylev, Alexander V and Ohwada, Taku},
+  title     = {The error of the splitting scheme for solving evolutionary equations},
+  journal   = {Appl. Math. Lett.},
+  year      = {2001},
+  volume    = {14},
+  number    = {1},
+  pages     = {45--48},
+  doi       = {10.1016/S0893-9659(00)00110-5},
+  publisher = {Elsevier},
+}
+
+@article{Aristov2019,
+  title={Kinetic multiscale scheme based on the discrete-velocity and lattice-Boltzmann methods},
+  author={Aristov, V V and Ilyin, O V and Rogozin, O A},
+  volume={1806.09225},
+  journal={ArXiv},
+  langid={english},
+  year={2018}
+}
+
+@article{Baranger2019,
+  title={Numerical boundary conditions in Finite Volume and Discontinuous Galerkin schemes for the simulation of rarefied flows along solid boundaries},
+  author={Baranger, C{\'e}line and H{\'e}rouard, Nicolas and Mathiaud, Julien and Mieussens, Luc},
+  journal={Mathematics and Computers in Simulation},
+  volume={159},
+  pages={136--153},
+  year={2019},
+  doi={10.1016/j.matcom.2018.11.011},
+  publisher={Elsevier}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%
