@@ -3,6 +3,7 @@ import sys, argparse, threading, logging, traceback, vgrid
 import numpy as np
 from functools import partial
 from collections import namedtuple
+from scipy import optimize
 
 parser = argparse.ArgumentParser(description='Solver for the plane Couette-flow problem')
 parser.add_argument('-U', type=float, default=2e-2, metavar='<float>', help='difference in velocity of plates')
@@ -24,7 +25,8 @@ parser.add_argument('-m1', '--model1', default='lbm', metavar='dvm|lbm', help='t
 parser.add_argument('-m2', '--model2', default='dvm', metavar='dvm|lbm', help='type of velocity model in the second domain')
 parser.add_argument('-l', '--lattice', default='d3q19', metavar='d3q15|19|27', help='type of velocity lattice')
 parser.add_argument('-i', '--limiter', default='wide-third', metavar='none|minmod|mc|superbee|...', help='type of limiter')
-parser.add_argument('-c', '--correction', default='poly', metavar='none|poly|entropy|lagrange', help='type of correction for construction of discrete Maxwellian')
+parser.add_argument('-c', '--correction', default='poly', metavar='none|poly|entropic', help='type of correction for construction of discrete Maxwellian')
+parser.add_argument('--exact-grad13', action='store_true', help='generate Grad13 distribution with exact moments')
 parser.add_argument('-o', '--reconstruction', default='hermite40', metavar='grad13|hermite40', help='type of reconstruction in the buffer layer')
 parser.add_argument('-n', '--norm', default='L2', metavar='L1|L2|Linf', help='norm for distance between solutions')
 parser.add_argument('-p', '--plot', type=int, default=10, metavar='<int>', help='plot every <int> steps')
@@ -60,11 +62,12 @@ e_x, e_y, e_z = np.eye(fixed.D)
 delta_y0 = lambda d: d.L/d.N if d.q == 1 else d.L*(1-d.q)/(1-d.q**d.N)
 delta_y = lambda d: delta_y0(d) * d.q**np.arange(d.N)
 cells = lambda d: d.y0 + np.cumsum(delta_y(d) + np.roll(np.append(delta_y(d)[:-1], 0), 1))/2
-half_M = lambda m: -np.sum(m.xi()[...,1] * m.Maxw(Macro(vel=args.U*e_x/2, temp=fixed.T_B)) * (m.xi()[...,1] < 0))
+half_M = lambda m: -np.sum(m.c()[...,1] * m.Maxw(Macro(vel=args.U*e_x/2, temp=fixed.T_B)) * (m.c()[...,1] < 0))
 _to_arr = lambda vel: np.atleast_2d(vel)
 to_arr = lambda macro: macro if hasattr(macro.rho, '__len__') else Macro(*[ np.array([m]) for m in macro._asdict().values() ])
 _from_arr = lambda vel: slice(None) if len(vel.shape) > 1 else 0
 from_arr = lambda macro: slice(None) if hasattr(macro.rho, '__len__') else 0
+multicell_adapter = lambda func, macro: func(to_arr(macro))[from_arr(macro)]
 
 def poly_correction(moments, energy_moments, delta, xi):
     m0, m1_i, m2, m2_ij, m3_i, m4 = moments()
@@ -88,7 +91,7 @@ def poly_correct_moments(model, F, mask, M0, M1_i, M2):
         lambda: (m0, m1_i, m2, m2_ij, m3_i, m4),
         lambda: (m2, m3_i, m4),
         np.hstack(( _(M0), M1_i, _(M2) )),
-        model.xi()[mask,:]
+        model.c()[mask,:]
     )[_from_arr(F)]
 
 def poly_correct(f, macro, xi):
@@ -101,7 +104,9 @@ def poly_correct(f, macro, xi):
     M3_i = np.einsum('ai,ai,il->al', f, sqr_c, xi)
     M4 = np.einsum('ai,ai,i->a', f, sqr_c, sqr_xi)
     _ = lambda v: v.reshape((-1,1))
-    exact = np.einsum('a,al->al', macro.rho, np.hstack(( _(np.ones_like(macro.rho)), macro.vel, fixed.D*_(macro.temp)/2. )))
+    exact = np.einsum('a,al->al', macro.rho, np.hstack((
+        _(np.ones_like(macro.rho)), macro.vel, fixed.D*_(macro.temp)/2
+    )))
     real = np.hstack(( _(m0), m1_i, _(M2) ))
     return f * (1 + poly_correction(
         lambda: (m0, m1_i, m2, m2_ij, m3_i, m4),
@@ -109,35 +114,20 @@ def poly_correct(f, macro, xi):
         exact - real, xi
     ))
 
-def entropy_correct(f, macro, xi):
-    # see Mieussens 2000
-    raise NotImplementedError()
-
-def lagrange_correct(f, macro, xi):
-    # see Gamba, Tharkabhushanam 2009
-    raise NotImplementedError()
-
-correct_vdf = lambda func, macro, xi: {
-    'none': lambda f, m, xi0: f,
-    'poly': poly_correct,
-    'entropy': entropy_correct,
-    'lagrange': lagrange_correct
-}[args.correction](func(to_arr(macro)), to_arr(macro), xi)[from_arr(macro)]
-
 vgrid_params = {
     'polynomial': { 'w_min': args.w_min, 'p': args.poly },
     'geometric': { 'q': args.ratio },
 }
 
+# 1d packing, symm=1 for antisymmetry, symm=-1 for specular reflection
+def dvm_ball(symm, xi, sqr_xi):
+    xi_y = xi[...,1]
+    p = np.where((xi_y > 0)*(sqr_xi <= args.radius**2))
+    n = np.where((xi_y < 0)*(sqr_xi <= args.radius**2))
+    return np.hstack((n[0], p[0][::symm])), np.hstack((n[1], p[1])), np.hstack((n[2], p[2]))
+
 ### DVM velocity grid
 def dvm_grid():
-    # 1d packing, symm=1 for antisymmetry, symm=-1 for specular reflection
-    def dvm_ball(symm):
-        _xi_y = _xi[...,1]
-        p = np.where((_xi_y > 0)*(_sqr_xi <= args.radius**2))
-        n = np.where((_xi_y < 0)*(_sqr_xi <= args.radius**2))
-        return np.hstack((n[0], p[0][::symm])), np.hstack((n[1], p[1])), np.hstack((n[2], p[2]))
-
     ygrid = getattr(vgrid, args.grid.capitalize())(args.radius, args.M*args.My, **vgrid_params.get(args.grid, {}))
     grid = getattr(vgrid, 'Hermite')(args.radius, args.M)
     _Xi = lambda a: ygrid.x if a==1 else grid.x
@@ -146,29 +136,111 @@ def dvm_grid():
     _G = lambda a: np.roll((_Xi(a), _I(a), _I(a)), a, axis=0)
     _xi = np.einsum('li,lj,lk->ijkl', _G(0), _G(1), _G(2))
     _sqr_xi = np.einsum('ijkl,ijkl->ijk', _xi, _xi)
-    _ball = dvm_ball(1)
+    _shape = _sqr_xi.shape
+    _ball = dvm_ball(1, _xi, _sqr_xi)
+    _xi, _sqr_xi = _xi[_ball], _sqr_xi[_ball]
     _w = np.einsum('i,j,k->ijk', _W(0), _W(1), _W(2))[_ball]
 
-    I = lambda v, a: np.ones((v.shape[0], _W(a).size))
-    G = lambda v, a: np.roll((np.einsum('a,i', np.ones(v.shape[0]), _Xi(a))
-        - np.einsum('a,i', v[:,a], _I(a)), I(v, a), I(v, a)), a, axis=0)
+    c = lambda v: np.einsum('il,al->ail', _xi, np.ones_like(v)) - np.einsum('al,i', v, np.ones_like(_sqr_xi))
+    sqr_c = lambda v: np.einsum('ail->ai', np.square(c(v)))
+    _c = lambda v: np.einsum('il,l->il', _xi, np.ones(fixed.D)) - np.einsum('l,i', v, np.ones_like(_sqr_xi))
+    _sqr_c  = lambda v: np.einsum('il->i', np.square(_c(v)))
+    _ones, _vzeros = np.ones_like(_sqr_xi), np.ones_like(_xi)
+    _ = lambda v: v.reshape(v.shape + (-1,))
 
-    xi = lambda v: np.einsum('lai,laj,lak->aijkl', G(v, 0), G(v, 1), G(v, 2))[(slice(None),) + _ball]
-    sqr_xi = lambda v: np.einsum('ail,ail->ai', xi(v), xi(v))
+    maxw = lambda m: m[0] * (np.pi*m[4])**(-fixed.D/2) * _w * np.exp(-_sqr_c(m[1:4]) / m[4])
+    g_tau = lambda m: np.einsum('il,im,n,lmn->i', _c(m[1:4]), _c(m[1:4]), m[5:8], hodge) / m[0] / m[4]**2
+    g_qflow = lambda m: 4 * np.einsum('l,il', m[8:11], _c(m[1:4])) / m[0] / m[4]**2 * \
+        (_sqr_c(m[1:4]) / m[4] / (fixed.D+2) - .5)
+    grad13 = lambda m: maxw(m) * (1 + g_tau(m) + g_qflow(m))
+    maxw_jac = lambda m: np.hstack((
+        _(_ones) / m[0],
+        2 * _c(m[1:4]) / m[4],
+        _(_sqr_c(m[1:4]) / m[4] - fixed.D/2) / m[4]
+    ))
+
     Maxw = lambda m: np.einsum('a,i,ai->ai', m.rho*(np.pi*m.temp)**(-fixed.D/2), _w,
-            np.exp(np.einsum('ai,a->ai', -sqr_xi(m.vel), 1./m.temp)))
-
-    G_tau = lambda m: np.einsum('ail,aim,an,lmn,a->ai', xi(m.vel), xi(m.vel), m.tau, hodge, 1/m.rho/m.temp**2)
-    G_qflow = lambda m: 4 * np.einsum('ail,al,ai,a->ai', xi(m.vel), m.qflow,
-            np.einsum('ai,a->ai', sqr_xi(m.vel), 1/m.temp/(fixed.D+2)) - .5, 1/m.rho/m.temp**2)
+        np.exp(np.einsum('ai,a->ai', -sqr_c(m.vel), 1./m.temp)))
+    G_tau = lambda m: np.einsum('ail,aim,an,lmn,a->ai', c(m.vel), c(m.vel), m.tau, hodge, 1/m.rho/m.temp**2)
+    G_qflow = lambda m: 4 * np.einsum('ail,al,ai,a->ai', c(m.vel), m.qflow,
+        np.einsum('ai,a->ai', sqr_c(m.vel), 1/m.temp/(fixed.D+2)) - .5, 1/m.rho/m.temp**2)
     Grad13 = lambda m: Maxw(m) * (1 + G_tau(m) + G_qflow(m))
 
+    def exact_vdf(macro, use_11_moments=False, do_maxwell=False):
+        xi_ = c(np.zeros_like(macro.vel))
+        c_ = c(macro.vel)
+        sqr_c_ = np.einsum('ail,ail->ai', c_, c_)
+        csqr_c_ = np.einsum('ai,ail->ail', sqr_c_, c_)
+        cc_ij_ = np.einsum('ail,aim->ailm', c_, c_)
+        cc_ = np.einsum('ailm,lmn', cc_ij_, hodge)    # summation with hodge gives double quantity
+        ones_ = np.ones_like(sqr_c_)
+        zz = np.zeros_like(macro.vel)
+
+        # Use only first 5 moments by default
+        psi = np.dstack(( _(ones_), xi_,  _(sqr_c_) ))
+        moments = np.einsum('a,al->al', macro.rho, np.hstack((
+            _(np.ones_like(macro.rho)), macro.vel, _(fixed.D/2*macro.temp)
+        )))
+        mm = np.hstack(( _(macro.rho), macro.vel, _(macro.temp) ))
+        vdf = maxw
+        vdf_jac = lambda m: np.einsum('i,il->il', maxw(m), maxw_jac(m))
+
+        if use_11_moments:
+            if macro.vel.shape != macro.tau.shape:
+                macro = Macro(macro.rho, macro.vel, macro.temp, zz, zz)
+            psi = np.dstack(( psi, cc_, csqr_c_ ))
+            moments = np.hstack(( moments, macro.tau, macro.qflow ))
+            mm = np.hstack(( mm, macro.tau, macro.qflow ))
+            vdf = grad13
+            # Approximate jacobian
+            vdf_jac = lambda m: np.einsum('i,il->il', grad13(m), np.hstack((
+                maxw_jac(m), _vzeros, _vzeros
+            ))) + np.einsum('i,il->il', maxw(m), np.hstack((
+                -_(g_tau(m) + g_qflow(m)) * m[4]**2,
+                (
+                    - 2 * np.einsum('im,n,lmn->il', _c(m[1:4]), m[5:8], hodge)
+                    - 4 * np.einsum('l,i', m[8:11], _sqr_c(m[1:4]) / m[4] / (fixed.D+2) - .5)
+                    - 8 * np.einsum('im,m,il->il', _c(m[1:4]), m[8:11], _c(m[1:4])) / m[4] / (fixed.D+2)
+                ),
+                _(
+                    - 2 * (g_tau(m) + g_qflow(m)) * m[0] * m[4]
+                    - 4 * np.einsum('l,il', m[8:11], _c(m[1:4])) * _sqr_c(m[1:4]) / (fixed.D+2) / m[4]**2
+                ),
+                np.einsum('im,in,lmn->il', _c(m[1:4]), _c(m[1:4]), hodge),
+                4 * np.einsum('il,i->il', _c(m[1:4]), _sqr_c(m[1:4]) / m[4] / (fixed.D+2) - .5)
+            )) / m[0] / m[4]**2)
+
+        for k in range(macro.rho.size):
+            sol = optimize.root(
+                fun = lambda m, psi, moments: np.einsum('il,i', psi, vdf(m)) - moments,
+                jac = lambda m, psi, _: np.einsum('il,im', psi, vdf_jac(m)),
+                x0 = mm[k], args=(psi[k], moments[k])
+            )
+            mm[k] = sol.x
+            #print(sol)
+
+        if use_11_moments:
+            macro = Macro(mm[:,0], mm[:,1:4], mm[:,4], mm[:,5:8], mm[:,8:11])
+        else:
+            macro = Macro(mm[:,0], mm[:,1:4], mm[:,4], zz, zz)
+        return Maxw(macro) if do_maxwell else Grad13(macro)
+
+    create_vdf = lambda creator, macro, method=args.correction: multicell_adapter({
+        'none': creator,
+        'poly': lambda m: poly_correct(creator(m), m, _xi),
+        'entropic': lambda m: exact_vdf(m,
+            do_maxwell = (creator == Maxw),
+            use_11_moments = (creator == Grad13)
+        )
+    }[method], macro)
+    grad13_method = 'entropic' if args.exact_grad13 else args.correction
+
     return Model(
-        info = 'DVM: ({}x{}x{})'.format(*_sqr_xi.shape),
+        info = 'DVM: ({}x{}x{})'.format(*_shape),
         weights = _w,
-        xi = lambda vel=zeros: xi(_to_arr(vel))[_from_arr(vel)],
-        Maxw = lambda macro: correct_vdf(Maxw, macro, _xi[_ball]),
-        Grad13 = lambda macro: correct_vdf(Grad13, macro, _xi[_ball])
+        c = lambda vel=zeros: c(_to_arr(vel))[_from_arr(vel)],
+        Maxw = lambda macro: create_vdf(Maxw, macro),
+        Grad13 = lambda macro: create_vdf(Grad13, macro, grad13_method),
     )
 
 ### LBM velocity grid
@@ -209,7 +281,7 @@ def lbm_grid():
     sqr = lambda v: np.einsum('al,al,i->ai', v, v, np.ones_like(_w))/a
     weighted = lambda f: np.einsum('i,ai->ai', _w, f)
     weighted_rho = lambda m, f: np.einsum('a,i,ai->ai', m.rho, _w, f)
-    xi = lambda v: np.einsum('il,a', _xi, np.ones(v.shape[0])) - np.einsum('i,al', np.ones_like(_w), v)
+    c = lambda v: np.einsum('il,a', _xi, np.ones(v.shape[0])) - np.einsum('i,al', np.ones_like(_w), v)
     Tn = lambda n: 1./np.math.factorial(n) * np.heaviside(order-2*n, 1)
 
     T1 = lambda m: xi_v(m.vel) * Tn(1)
@@ -220,21 +292,20 @@ def lbm_grid():
     G3 = lambda m: xi_v(m.qflow) * (sqr_xi/(fixed.D+2)-1) + G2(m)*xi_v(m.vel) \
         - np.einsum('il,am,an,lmn->ai', _xi, m.vel, m.tau, hodge)/a
     Grad13 = lambda m: Maxw(m) + weighted(G2(m) + G3(m))
-    adapter = lambda func, macro: func(to_arr(macro))[from_arr(macro)]
 
     return Model(
         info = 'LBM: %s' % args.lattice,
         weights = _w,
-        xi = lambda vel=zeros: xi(_to_arr(vel))[_from_arr(vel)],
-        Maxw = lambda macro: adapter(Maxw, macro),
-        Grad13 = lambda macro: adapter(Grad13, macro)
+        c = lambda vel=zeros: c(_to_arr(vel))[_from_arr(vel)],
+        Maxw = lambda macro: multicell_adapter(Maxw, macro),
+        Grad13 = lambda macro: multicell_adapter(Grad13, macro)
     )
 
 def splot(model, f):
     import mpl_toolkits.mplot3d.axes3d as p3
     fig = plt.figure()
     ax = p3.Axes3D(fig)
-    xi = model.xi()
+    xi = model.c()
     m = ( xi[:,2] <= (model.weights0[0])**(1./3)/2 ) * ( xi[:,2] >= 0 )
     #ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.weights0())[m])
     ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.Maxw(Macro()))[m])
@@ -283,26 +354,21 @@ def calc_macro0(model, F):
     f = _to_arr(F)
     #TODO: optimize using generators
     rho = np.einsum('ai->a', f)
-    vel = np.einsum('ai,il,a->al', f, model.xi(), 1./rho)
-    c = model.xi(vel)
+    vel = np.einsum('ai,il,a->al', f, model.c(), 1./rho)
+    c = model.c(vel)
     sqr_c = np.einsum('ail,ail->ai', c, c)
     csqr_c = np.einsum('ai,ail->ail', sqr_c, c)
     cc_ij = np.einsum('ail,aim->ailm', c, c)
-    cc = np.einsum('ailm,lmn', cc_ij, hodge)
+    cc = np.einsum('ailm,lmn', cc_ij, hodge)    # summation with hodge gives double quantity
     temp = np.einsum('ai,ai,a->a', f, sqr_c, 2./rho)/fixed.D
     qflow = np.einsum('ai,ail->al', f, csqr_c)
     tau = np.einsum('ai,ail->al', f, cc)
     return Macro(*[ m[_from_arr(F)] for m in (rho, vel, temp, tau, qflow) ])
 
-def calc_moment0(model, F, n):
-    f = _to_arr(F)
-    xi = np.sqrt(np.einsum('il,il->i', model.xi(), model.xi()))
-    return np.einsum('ai,i->a', f, xi**n)
-
 def calc_first_moments0(model, F, mask=slice(None), all=False, xi=None):
     f = _to_arr(F)[:,mask]
     if xi is None:
-        xi = model.xi()[mask,:]
+        xi = model.c()[mask,:]
     sqr_xi = np.einsum('il,il->i', xi, xi)
     m0 = np.einsum('ai->a', f)
     m1_i = np.einsum('ai,il->al', f, xi)
@@ -315,7 +381,7 @@ def calc_first_moments0(model, F, mask=slice(None), all=False, xi=None):
     return m0, m1_i, m2, m2_ij, m3_i, m4
 
 def hermite_polynomials(model):
-    xi, I = model.xi() / np.sqrt(fixed.sqr_a), np.eye(fixed.D)
+    xi, I = model.c() / np.sqrt(fixed.sqr_a), np.eye(fixed.D)
     S = lambda n: 2**(n/2)
     h0 = np.ones_like(xi[:,0]) * S(0)
     h1 = xi * S(1)
@@ -364,14 +430,6 @@ def calc_norm(solution, norm):
     s = lambda m: np.hstack(m)
     return s(y), s(result)
 
-def calc_moment(solution, n):
-    y, result = [], []
-    for d, s in zip(domains, solution):
-        y += [ cells(d) ]
-        result += [ calc_moment0(d.model, s.f, n) ]
-    s = lambda m: np.hstack(m)
-    return s(y), s(result)
-
 def total_values(domains):
     y, h, macro = calc_macro(domains)
     print('Total mass =', 2*sum(h*macro.rho))
@@ -393,7 +451,7 @@ def check(f, flux=False):
 def transport(domain, bc, solution, delta_t):
     np.seterr(all='raise') # for all transport threads
     logging.debug('Starting transfer')
-    N, xi_y, _xi_y = domain.N, domain.model.xi(np.zeros((domain.N, fixed.D)))[...,1], domain.model.xi()[...,1]
+    N, xi_y, _xi_y = domain.N, domain.model.c(np.zeros((domain.N, fixed.D)))[...,1], domain.model.c()[...,1]
     gamma, h = _xi_y * delta_t,  delta_y(domain)
     mask, _mask = lambda sgn, N: sgn*xi_y[0:N] > 0, lambda sgn: sgn*_xi_y > 0
     def calc_F(h, f, idx, F, Idx, mask, low_order=False):
@@ -499,7 +557,7 @@ class Symmetry(Boundary):
 class Diffuse(Boundary):
     def __init__(self, n):
         self._model = domains[n].model
-        self._xi_y = self._model.xi()[...,1]
+        self._xi_y = self._model.c()[...,1]
         self._half_M = half_M(self._model)
     def __call__(self, F0, mask):
         rho = np.sum(self._xi_y[::-1][mask] * F0[::-1][mask]) / self._half_M
@@ -549,7 +607,7 @@ class Couple(Boundary):
         if model != model_partner:
             # conservative correction of the reconstructed flux
             if self._idx_partner:               # correct for both domains
-                xi_y_partner = model_partner.xi()[...,1]
+                xi_y_partner = model_partner.c()[...,1]
                 m0, m1_i, m2 = calc_first_moments0(model_partner, xi_y_partner*self._F_partner[self._idx_partner])
                 M0, M1_i, M2 = calc_first_moments0(model, xi_y*F)
                 logging.debug('Couple BC velocity correction: mass %g, momentum %g, energy %g'
@@ -728,7 +786,7 @@ lattices = {
         [ 7.57516860965017e-2, 6.00912802747447e-2, 3.13606906699535e-3, 3.63392812078012e-2, 1.32169332731492e-2,
         4.48492851172950e-3, 2.48755775808342e-3, 6.07432754970149e-4, 4.64179164402822e-4, 4.51928894609872e-5 ]),
 }
-Model = namedtuple('Model', 'info weights xi Maxw Grad13')
+Model = namedtuple('Model', 'info weights c Maxw Grad13')
 models = {
     'dvm': dvm_grid(),
     'lbm': lbm_grid()
@@ -744,9 +802,9 @@ boundaries = (
 )
 bcs = create_bcs()
 norms = {
-    'L1': lambda f,g: np.einsum('ai->a', np.abs(f-g)),
-    'L2': lambda f,g: np.sqrt(np.einsum('ai->a', (f-g)**2)),
-    'Linf': lambda f,g: np.max(np.abs(f-g), axis=1)
+    'L1': lambda f, g: np.einsum('ai->a', np.abs(f-g)),
+    'L2': lambda f, g: np.sqrt(np.einsum('ai->a', (f-g)**2)),
+    'Linf': lambda f, g: np.max(np.abs(f-g), axis=1)
 }
 
 class Solution(object):
