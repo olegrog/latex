@@ -25,8 +25,9 @@ parser.add_argument('-m1', '--model1', default='lbm', metavar='dvm|lbm', help='t
 parser.add_argument('-m2', '--model2', default='dvm', metavar='dvm|lbm', help='type of velocity model in the second domain')
 parser.add_argument('-l', '--lattice', default='d3q19', metavar='d3q15|19|27', help='type of velocity lattice')
 parser.add_argument('-i', '--limiter', default='wide-third', metavar='none|minmod|mc|superbee|...', help='type of limiter')
-parser.add_argument('-c', '--correction', default='poly', metavar='none|poly|entropic', help='type of correction for construction of discrete Maxwellian')
+parser.add_argument('-c', '--correction', default='entropic', metavar='none|poly|entropic', help='type of correction for construction of discrete Maxwellian')
 parser.add_argument('--exact-grad13', action='store_true', help='generate Grad13 distribution with exact moments')
+parser.add_argument('-a', '--aniso-maxw', action='store_true', help='employ anisotropic form of Maxwellian (useful for anisotropic velocity grids)')
 parser.add_argument('-o', '--reconstruction', default='hermite40', metavar='grad13|hermite40', help='type of reconstruction in the buffer layer')
 parser.add_argument('-n', '--norm', default='L2', metavar='L1|L2|Linf', help='norm for distance between solutions')
 parser.add_argument('-p', '--plot', type=int, default=10, metavar='<int>', help='plot every <int> steps')
@@ -69,9 +70,9 @@ _from_arr = lambda vel: slice(None) if len(vel.shape) > 1 else 0
 from_arr = lambda macro: slice(None) if hasattr(macro.rho, '__len__') else 0
 multicell_adapter = lambda func, macro: func(to_arr(macro))[from_arr(macro)]
 
-def poly_correction(moments, energy_moments, delta, xi):
-    m0, m1_i, m2, m2_ij, m3_i, m4 = moments()
-    M2, M3_i, M4 = energy_moments()
+def poly_correction(xi_moments, c_moments, delta, xi):
+    m0, m1_i, m2, m2_ij, m3_i = xi_moments
+    M2, M3_i, M4 = c_moments
     _ = lambda v: v.reshape((-1,1))
     __ = lambda v: v.reshape((-1,fixed.D,1))
     A = np.hstack((
@@ -84,35 +85,36 @@ def poly_correction(moments, energy_moments, delta, xi):
     psi = np.hstack(( _(np.ones_like(sqr_xi)), xi, _(sqr_xi) ))
     return np.einsum('al,il->ai', alpha, psi)
 
-def poly_correct_moments(model, F, mask, M0, M1_i, M2):
+def poly_correct_moments(model, F, mask, delta):
+    M0, M1_i, M2 = delta
     m0, m1_i, m2, m2_ij, m3_i, m4 = calc_first_moments0(model, F, mask, all=True)
     _ = lambda v: v.reshape((-1,1))
     return poly_correction(
-        lambda: (m0, m1_i, m2, m2_ij, m3_i, m4),
-        lambda: (m2, m3_i, m4),
+        (m0, m1_i, m2, m2_ij, m3_i),
+        (m2, m3_i, m4),
         np.hstack(( _(M0), M1_i, _(M2) )),
         model.c()[mask,:]
     )[_from_arr(F)]
 
-def poly_correct(f, macro, xi):
+def poly_correct_vdf(F, macro, xi):
     # see Aristov, Tcheremissine 1980
-    m0, m1_i, m2, m2_ij, m3_i, m4 = calc_first_moments0(None, f, all=True, xi=xi)
+    f, macro = _to_arr(F), to_arr(macro)
+    m0, m1_i, m2, m2_ij, m3_i, _ = calc_first_moments0(None, f, all=True, xi=xi)
     sqr_xi = np.einsum('il,il->i', xi, xi)
     c = np.einsum('il,a->ail', xi, np.ones_like(macro.rho)) - np.einsum('i,al->ail', np.ones_like(sqr_xi), macro.vel)
-    sqr_c = np.einsum('ail,ail->ai', c, c)
-    M2 = np.einsum('ai,ai->a', f, sqr_c)
-    M3_i = np.einsum('ai,ai,il->al', f, sqr_c, xi)
-    M4 = np.einsum('ai,ai,i->a', f, sqr_c, sqr_xi)
+    cc = np.einsum('ail,ail->ai', c, c)
+    M2 = np.einsum('ai,ai->a', f, cc)
+    M3_i = np.einsum('ai,ai,il->al', f, cc, xi)
+    M4 = np.einsum('ai,ai,i->a', f, cc, sqr_xi)
     _ = lambda v: v.reshape((-1,1))
     exact = np.einsum('a,al->al', macro.rho, np.hstack((
         _(np.ones_like(macro.rho)), macro.vel, fixed.D*_(macro.temp)/2
     )))
     real = np.hstack(( _(m0), m1_i, _(M2) ))
-    return f * (1 + poly_correction(
-        lambda: (m0, m1_i, m2, m2_ij, m3_i, m4),
-        lambda: (M2, M3_i, M4),
+    return (f * (1 + poly_correction(
+        (m0, m1_i, m2, m2_ij, m3_i), (M2, M3_i, M4),
         exact - real, xi
-    ))
+    )))[_from_arr(F)]
 
 vgrid_params = {
     'polynomial': { 'w_min': args.w_min, 'p': args.poly },
@@ -142,74 +144,94 @@ def dvm_grid():
     _w = np.einsum('i,j,k->ijk', _W(0), _W(1), _W(2))[_ball]
 
     c = lambda v: np.einsum('il,al->ail', _xi, np.ones_like(v)) - np.einsum('al,i', v, np.ones_like(_sqr_xi))
-    sqr_c = lambda v: np.einsum('ail->ai', np.square(c(v)))
+    cc = lambda v: np.einsum('ail->ai', c(v)**2)
     _c = lambda v: np.einsum('il,l->il', _xi, np.ones(fixed.D)) - np.einsum('l,i', v, np.ones_like(_sqr_xi))
-    _sqr_c  = lambda v: np.einsum('il->i', np.square(_c(v)))
+    _cc = lambda v: np.einsum('il->i', _c(v)**2)
     _ones, _vzeros = np.ones_like(_sqr_xi), np.ones_like(_xi)
     _ = lambda v: v.reshape(v.shape + (-1,))
 
-    maxw = lambda m: m[0] * (np.pi*m[4])**(-fixed.D/2) * _w * np.exp(-_sqr_c(m[1:4]) / m[4])
-    g_tau = lambda m: np.einsum('il,im,n,lmn->i', _c(m[1:4]), _c(m[1:4]), m[5:8], hodge) / m[0] / m[4]**2
-    g_qflow = lambda m: 4 * np.einsum('l,il', m[8:11], _c(m[1:4])) / m[0] / m[4]**2 * \
-        (_sqr_c(m[1:4]) / m[4] / (fixed.D+2) - .5)
-    grad13 = lambda m: maxw(m) * (1 + g_tau(m) + g_qflow(m))
-    maxw_jac = lambda m: np.hstack((
+    maxw5 = lambda m: m[0] * (np.pi*m[4])**(-fixed.D/2) * _w * np.exp(-_cc(m[1:4]) / m[4])
+    maxw7 = lambda m: m[0] * np.prod(np.pi*m[4:7])**-.5 * _w * \
+        np.exp(-np.einsum('il,l', _c(m[1:4])**2, 1/m[4:7]))
+
+    macro_ = { maxw5: lambda m: Macro(
+        m[0], m[1:4], m[4], m[5:8], m[8:11]
+    ), maxw7: lambda m: Macro(
+        m[0], m[1:4], np.sum(m[4:7])/fixed.D, m[7:10], m[10:13]
+    )}
+
+    g_tau = lambda M: np.einsum('il,im,n,lmn->i', _c(M.vel), _c(M.vel), M.tau, hodge)
+    qccc = lambda M: 4 * np.einsum('l,il', M.qflow, _c(M.vel)) * _cc(M.vel) / M.temp / (fixed.D+2)
+    g_qflow = lambda M: qccc(M) - 2 * np.einsum('l,il', M.qflow, _c(M.vel))
+    grad13 = lambda m, equil, M: equil(m) * (1 + (g_tau(M(m)) + g_qflow(M(m)))
+        / M(m).rho / M(m).temp**2)
+
+    maxw5_jac = lambda m: np.hstack((
         _(_ones) / m[0],
         2 * _c(m[1:4]) / m[4],
-        _(_sqr_c(m[1:4]) / m[4] - fixed.D/2) / m[4]
+        _(_cc(m[1:4]) / m[4] - fixed.D/2) / m[4]
+    ))
+    maxw7_jac = lambda m: np.hstack((
+        _(_ones) / m[0],
+        2 * _c(m[1:4]) / m[4:7],
+        (_c(m[1:4])**2 / m[4:7] - .5) / m[4:7]
     ))
 
-    Maxw = lambda m: np.einsum('a,i,ai->ai', m.rho*(np.pi*m.temp)**(-fixed.D/2), _w,
-        np.exp(np.einsum('ai,a->ai', -sqr_c(m.vel), 1./m.temp)))
-    G_tau = lambda m: np.einsum('ail,aim,an,lmn,a->ai', c(m.vel), c(m.vel), m.tau, hodge, 1/m.rho/m.temp**2)
-    G_qflow = lambda m: 4 * np.einsum('ail,al,ai,a->ai', c(m.vel), m.qflow,
-        np.einsum('ai,a->ai', sqr_c(m.vel), 1/m.temp/(fixed.D+2)) - .5, 1/m.rho/m.temp**2)
-    Grad13 = lambda m: Maxw(m) * (1 + G_tau(m) + G_qflow(m))
-
-    def exact_vdf(macro, use_11_moments=False, do_maxwell=False):
+    def vdf_with_exact_moments(macro, use_NSF_moments=False):
         xi_ = c(np.zeros_like(macro.vel))
         c_ = c(macro.vel)
-        sqr_c_ = np.einsum('ail,ail->ai', c_, c_)
-        csqr_c_ = np.einsum('ai,ail->ail', sqr_c_, c_)
+        cc_ = np.einsum('ail,ail->ai', c_, c_)
+        cc_i_ = np.einsum('ail,ail->ail', c_, c_)
+        ccc_i_ = np.einsum('ai,ail->ail', cc_, c_)
         cc_ij_ = np.einsum('ail,aim->ailm', c_, c_)
-        cc_ = np.einsum('ailm,lmn', cc_ij_, hodge)    # summation with hodge gives double quantity
-        ones_ = np.ones_like(sqr_c_)
+        cc_hodge_i_ = np.einsum('ailm,lmn', cc_ij_, hodge)    # summation with hodge gives double quantity
+        ones_ = np.ones_like(cc_)
         zz = np.zeros_like(macro.vel)
 
-        # Use only first 5 moments by default
-        psi = np.dstack(( _(ones_), xi_,  _(sqr_c_) ))
-        moments = np.einsum('a,al->al', macro.rho, np.hstack((
-            _(np.ones_like(macro.rho)), macro.vel, _(fixed.D/2*macro.temp)
-        )))
-        mm = np.hstack(( _(macro.rho), macro.vel, _(macro.temp) ))
-        vdf = maxw
-        vdf_jac = lambda m: np.einsum('i,il->il', maxw(m), maxw_jac(m))
+        if args.aniso_maxw:
+            # Use 5 moments to construct Maxwellian (conservative DVM)
+            psi = np.dstack(( _(ones_), xi_,  _(cc_) ))
+            moments = np.einsum('a,al->al', macro.rho, np.hstack((
+                _(np.ones_like(macro.rho)), macro.vel, _(fixed.D/2*macro.temp)
+            )))
+            mm = np.hstack(( _(macro.rho), macro.vel, _(macro.temp) ))
+            vdf, vdf_jac = maxw5, lambda m: np.einsum('i,il->il', maxw5(m), maxw5_jac(m))
+            equil, equil_jac = maxw5, maxw5_jac
+        else:
+            # Use 7 moments to ensure T_i = T/D (conservative hybrid as well for anisotropic grids)
+            psi = np.dstack(( _(ones_), xi_, cc_i_ ))
+            moments = np.einsum('a,al->al', macro.rho, np.hstack((
+                _(np.ones_like(macro.rho)), macro.vel, np.einsum('a,l', macro.temp/2, ones)
+            )))
+            mm = np.hstack(( _(macro.rho), macro.vel, np.einsum('a,l', macro.temp, ones) ))
+            vdf, vdf_jac = maxw7, lambda m: np.einsum('i,il->il', maxw7(m), maxw7_jac(m))
+            equil, equil_jac = maxw7, maxw7_jac
 
-        if use_11_moments:
+        if use_NSF_moments:
+            # Use 6 additional moments for reproducing Navier--Stokes--Fourier equations
             if macro.vel.shape != macro.tau.shape:
                 macro = Macro(macro.rho, macro.vel, macro.temp, zz, zz)
-            psi = np.dstack(( psi, cc_, csqr_c_ ))
+            psi = np.dstack(( psi, cc_hodge_i_, ccc_i_ ))
             moments = np.hstack(( moments, macro.tau, macro.qflow ))
             mm = np.hstack(( mm, macro.tau, macro.qflow ))
-            vdf = grad13
-            # Approximate jacobian
-            vdf_jac = lambda m: np.einsum('i,il->il', grad13(m), np.hstack((
-                maxw_jac(m), _vzeros, _vzeros
-            ))) + np.einsum('i,il->il', maxw(m), np.hstack((
-                -_(g_tau(m) + g_qflow(m)) * m[4]**2,
+            M = macro_[equil]
+            vdf = lambda m: grad13(m, equil, M)
+            dtemp = lambda m: -(2*g_tau(M(m)) + 2*g_qflow(M(m)) + qccc(M(m))) / M(m).temp
+            vdf_jac = lambda m: np.einsum('i,il->il', vdf(m), np.hstack((
+                equil_jac(m), _vzeros, _vzeros
+            ))) + np.einsum('i,il->il', equil(m), np.hstack((
+                -_(g_tau(M(m)) + g_qflow(M(m))) / M(m).rho,
                 (
-                    - 2 * np.einsum('im,n,lmn->il', _c(m[1:4]), m[5:8], hodge)
-                    - 4 * np.einsum('l,i', m[8:11], _sqr_c(m[1:4]) / m[4] / (fixed.D+2) - .5)
-                    - 8 * np.einsum('im,m,il->il', _c(m[1:4]), m[8:11], _c(m[1:4])) / m[4] / (fixed.D+2)
+                    - 2 * np.einsum('im,n,lmn->il', _c(M(m).vel), M(m).tau, hodge)
+                    - 4 * np.einsum('l,i', M(m).qflow, _cc(M(m).vel) / M(m).temp / (fixed.D+2) - .5)
+                    - 8 * np.einsum('m,im,il->il', M(m).qflow, _c(M(m).vel), _c(M(m).vel)) / M(m).temp / (fixed.D+2)
                 ),
-                _(
-                    - 2 * (g_tau(m) + g_qflow(m)) * m[0] * m[4]
-                    - 4 * np.einsum('l,il', m[8:11], _c(m[1:4])) * _sqr_c(m[1:4]) / (fixed.D+2) / m[4]**2
-                ),
-                np.einsum('im,in,lmn->il', _c(m[1:4]), _c(m[1:4]), hodge),
-                4 * np.einsum('il,i->il', _c(m[1:4]), _sqr_c(m[1:4]) / m[4] / (fixed.D+2) - .5)
-            )) / m[0] / m[4]**2)
+                _( dtemp(m) ) if equil == maxw5 else np.einsum('i,l', dtemp(m) / M(m).temp, m[4:7] / fixed.D),
+                np.einsum('im,in,lmn->il', _c(M(m).vel), _c(M(m).vel), hodge),
+                4 * np.einsum('il,i->il', _c(M(m).vel), _cc(M(m).vel) / M(m).temp / (fixed.D+2) - .5)
+            )) / M(m).rho / M(m).temp**2)
 
+        result = np.empty_like(cc_)
         for k in range(macro.rho.size):
             sol = optimize.root(
                 fun = lambda m, psi, moments: np.einsum('il,i', psi, vdf(m)) - moments,
@@ -217,20 +239,24 @@ def dvm_grid():
                 x0 = mm[k], args=(psi[k], moments[k])
             )
             mm[k] = sol.x
+            result[k] = vdf(mm[k])
+            #print(' --- my_diag', np.diag(np.linalg.qr(np.einsum('il,im', psi[k], vdf_jac(mm[k])))[0]))
+            #print(' --- exact_diag', np.diag(sol.fjac))
             #print(sol)
+        return result
 
-        if use_11_moments:
-            macro = Macro(mm[:,0], mm[:,1:4], mm[:,4], mm[:,5:8], mm[:,8:11])
-        else:
-            macro = Macro(mm[:,0], mm[:,1:4], mm[:,4], zz, zz)
-        return Maxw(macro) if do_maxwell else Grad13(macro)
+    Maxw = lambda m: np.einsum('a,i,ai->ai', m.rho*(np.pi*m.temp)**(-fixed.D/2), _w,
+        np.exp(np.einsum('ai,a->ai', -cc(m.vel), 1./m.temp)))
+    G_tau = lambda m: np.einsum('ail,aim,an,lmn,a->ai', c(m.vel), c(m.vel), m.tau, hodge, 1/m.rho/m.temp**2)
+    G_qflow = lambda m: 4 * np.einsum('ail,al,ai,a->ai', c(m.vel), m.qflow,
+        np.einsum('ai,a->ai', cc(m.vel), 1/m.temp/(fixed.D+2)) - .5, 1/m.rho/m.temp**2)
+    Grad13 = lambda m: Maxw(m) * (1 + G_tau(m) + G_qflow(m))
 
     create_vdf = lambda creator, macro, method=args.correction: multicell_adapter({
         'none': creator,
-        'poly': lambda m: poly_correct(creator(m), m, _xi),
-        'entropic': lambda m: exact_vdf(m,
-            do_maxwell = (creator == Maxw),
-            use_11_moments = (creator == Grad13)
+        'poly': lambda m: poly_correct_vdf(creator(m), m, _xi),
+        'entropic': lambda m: vdf_with_exact_moments(m,
+            use_NSF_moments = (creator == Grad13)
         )
     }[method], macro)
     grad13_method = 'entropic' if args.exact_grad13 else args.correction
@@ -356,13 +382,13 @@ def calc_macro0(model, F):
     rho = np.einsum('ai->a', f)
     vel = np.einsum('ai,il,a->al', f, model.c(), 1./rho)
     c = model.c(vel)
-    sqr_c = np.einsum('ail,ail->ai', c, c)
-    csqr_c = np.einsum('ai,ail->ail', sqr_c, c)
+    cc = np.einsum('ail,ail->ai', c, c)
+    ccc_i = np.einsum('ai,ail->ail', cc, c)
     cc_ij = np.einsum('ail,aim->ailm', c, c)
-    cc = np.einsum('ailm,lmn', cc_ij, hodge)    # summation with hodge gives double quantity
-    temp = np.einsum('ai,ai,a->a', f, sqr_c, 2./rho)/fixed.D
-    qflow = np.einsum('ai,ail->al', f, csqr_c)
-    tau = np.einsum('ai,ail->al', f, cc)
+    cc_hodge_i = np.einsum('ailm,lmn', cc_ij, hodge)    # summation with hodge gives double quantity
+    temp = np.einsum('ai,ai,a->a', f, cc, 2./rho)/fixed.D
+    qflow = np.einsum('ai,ail->al', f, ccc_i)
+    tau = np.einsum('ai,ail->al', f, cc_hodge_i)
     return Macro(*[ m[_from_arr(F)] for m in (rho, vel, temp, tau, qflow) ])
 
 def calc_first_moments0(model, F, mask=slice(None), all=False, xi=None):
@@ -507,7 +533,6 @@ def transport(domain, bc, solution, delta_t):
     for n, b in enumerate(bc):
         b.correct_first_flux(_xi_y, F[-n], _mask(1-2*n))
     f -= np.einsum('i,a,ai->ai', gamma, 1/h, F[1:] - F[:-1])
-    #print('bflux for y0=%.2f: %.8e, %.8e' % (domain.y0, np.einsum('i,i' , gamma, F[0]), np.einsum('i,i' , gamma, F[-1])))
     check(f) # after transport
 
 def bgk(domain, bc, solution, delta_t):
@@ -526,8 +551,6 @@ class Boundary(object):
         pass
     def _new_f3(self, h, f):
         return np.tile(f, (3,1)), np.tile(h, 3)
-    def _calc_flux(self, F, mask, calc_F, h3, f3, low_order=False):
-        calc_F(h3, f3, np.array([1]), F, slice(1), np.array([mask]), low_order)
     def last_flux_is_calculated(self):
         pass
     def correct_first_flux(self, xi_y, F, mask):
@@ -594,10 +617,10 @@ class Couple(Boundary):
         else:
             # reconstruct a flux from the partner distribution function (2 cells)
             f3, h3 = self._new_f3(h1, f1)
-            idx = 1 + 2*self._idx_partner # -1 or 1
-            f3[:2] = reconstruct(model_partner, model, self._f_partner[::-idx][-2:])
-            h3[:2] = delta_y(domains[self._n_partner])[::-idx][-2:]
-            self._calc_flux(F, mask, calc_F, h3, f3)
+            mirror = 1 + 2*self._idx_partner # -1 or 1
+            f3[:2] = reconstruct(model_partner, model, self._f_partner[::-mirror][-2:])
+            h3[:2] = delta_y(domains[self._n_partner])[::-mirror][-2:]
+            calc_F(h3, f3, np.array([1]), F, slice(1), np.array([mask]))
     def first_cell(self, h3, f3, F0, gamma1, mask):
         return self._partner_cell(f3[0], mask)
     def last_cell(self, h3, f3, mask):
@@ -606,13 +629,13 @@ class Couple(Boundary):
         model, model_partner = domains[self._n].model, domains[self._n_partner].model
         if model != model_partner:
             # conservative correction of the reconstructed flux
-            if self._idx_partner:               # correct for both domains
+            if self._idx_partner:               # correct inflow flux of right domain only
                 xi_y_partner = model_partner.c()[...,1]
                 m0, m1_i, m2 = calc_first_moments0(model_partner, xi_y_partner*self._F_partner[self._idx_partner])
                 M0, M1_i, M2 = calc_first_moments0(model, xi_y*F)
-                logging.debug('Couple BC velocity correction: mass %g, momentum %g, energy %g'
-                    % ((m0-M0)[0], (m1_i-M1_i)[0,0], (m2-M2)[0]))
-                F[mask] *= 1 + poly_correct_moments(model, xi_y*F, mask, m0-M0, m1_i-M1_i, m2-M2)
+                logging.debug('Couple BC correction: mass %.2e, momentum (%.2e,%.2e,%.2e), energy %.2e'
+                    % tuple(np.hstack((m0-M0, (m1_i-M1_i)[0], m2-M2))))
+                F[mask] *= 1 + poly_correct_moments(model, xi_y*F, mask, (m0-M0, m1_i-M1_i, m2-M2))
     def last_flux_is_calculated(self):
         bcs[self._n_partner][self._idx_partner]._lock_F.set()
     def all_fluxes_are_calculated(self):

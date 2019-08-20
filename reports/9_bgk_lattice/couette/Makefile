@@ -17,7 +17,7 @@ options_shear = \
 	--hybrid=1
 
 options_solver = \
-	--plot=0$(call models,$1)$(call lattice,$1) \
+	--plot=0 $(call models,$1) $(call lattice,$1) $(call plot_norms,$1) \
 	-N1=$(N1_$(call knudsen,$1)$(call extension,$1)) \
 	-N2=$(N2_$(call knudsen,$1)$(call extension,$1)) \
 	--refinement=$(refinement_$(call knudsen,$1)$(call extension,$1)) \
@@ -32,7 +32,8 @@ knudsen = $(or $(subst _,.,$(subst k,,$(filter k%,$1))),0.1)
 hybrid = $(if $(findstring hyb,$1),1,0)
 kn_suffix = $(if $(filter-out 0.1,$(call knudsen,$1)),-$1)
 models = $(if $(findstring dvm,$1), --model1=dvm,$(if $(findstring hyb,$1),, --model2=lbm))
-lattice = $(addprefix --lattice=,$(filter d3%,$1))
+lattice = $(addprefix  --lattice=,$(filter d3%,$1))
+plot_norms = $(if $(findstring norms,$1), --plot-norms)
 txt_for_shear = $(addsuffix $(call kn_suffix,$1).txt,$(MODELS_FOR_SHEAR))
 
 buffer_0.1 = 0.36459449994853843
