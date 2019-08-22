@@ -417,6 +417,13 @@ def hermite_polynomials(model):
         - np.einsum('im,ln', xi, I) - np.einsum('in,lm', xi, I)) * S(3)
     return h0, h1, h2, h3
 
+def print_hermite0(model, f):
+    H = hermite_polynomials(model)
+    Idx = [ '', 'l', 'lm', 'lmn' ]
+    for n, (h, idx) in enumerate(zip(H, Idx)):
+        a = np.einsum('ai,i{0}'.format(idx), _to_arr(f), h)
+        print(' -- a_' + idx); print(a)
+
 def hermite_reconstruct(old_model, new_model, f):
     macro = calc_macro0(old_model, f)
     f = _to_arr(f)
@@ -583,6 +590,7 @@ class Diffuse(Boundary):
         self._model = domains[n].model
         self._xi_y = self._model.c()[...,1]
         self._half_M = half_M(self._model)
+
     def __call__(self, F0, mask):
         rho = np.sum(self._xi_y[::-1][mask] * F0[::-1][mask]) / self._half_M
         return self._model.Maxw(Macro(rho, args.U*e_x/2, fixed.T_B))[mask]
