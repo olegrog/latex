@@ -29,6 +29,51 @@
 
 \title{Response to Reviewers' Comments}
 
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\pder}[2][]{\frac{\partial#1}{\partial#2}}
+\newcommand{\pderdual}[2][]{\frac{\partial^2#1}{\partial#2^2}}
+\newcommand{\pderder}[3][]{\frac{\partial^2#1}{\partial#2\partial#3}}
+\newcommand{\Pder}[2][]{\partial#1/\partial#2}
+\newcommand{\Pderdual}[2][]{\partial^2#1/\partial#2^2}
+\newcommand{\Pderder}[3][]{\partial^2#1/\partial#2\partial#3}
+\newcommand{\Set}[2]{\{\,{#1}:{#2}\,\}}
+\newcommand{\OO}[1]{O(#1)}
+\newcommand{\transpose}[1]{#1^\mathsf{T}}
+\DeclarePairedDelimiter\autobracket()       % mathtools are needed
+\newcommand{\br}[1]{\autobracket*{#1}}
+
+% topic-specific
+\newcommand{\dxi}{\dd{\boldsymbol{\xi}}}
+\newcommand{\bxi}{\boldsymbol{\xi}}
+\newcommand{\bpsi}{\boldsymbol{\psi}}
+\newcommand{\bv}{\boldsymbol{v}}
+\newcommand{\bq}{\boldsymbol{q}}
+\newcommand{\bc}{\boldsymbol{c}}
+\newcommand{\bn}{\boldsymbol{n}}
+\newcommand{\be}{\boldsymbol{e}}
+\newcommand{\bm}{\boldsymbol{m}}
+\newcommand{\bT}{\boldsymbol{T}}
+\newcommand{\bdot}{\boldsymbol{\cdot}}
+\newcommand{\dx}{\dd{\boldsymbol{x}}}
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\equil}[1]{#1^\mathrm{(eq)}}
+\newcommand{\refer}[1]{#1_0}
+\newcommand{\LB}{\mathrm{LB}\!}
+\newcommand{\DV}{\mathrm{DV}\!}
+
+\newcommand{\xiai}{\xi_{j \alpha}}
+\newcommand{\xiaj}{\xi_{j \beta}}
+\newcommand{\xiak}{\xi_{j \gamma}}
+\newcommand{\cai}{c_{j \alpha}}
+\newcommand{\caj}{c_{j \beta}}
+\newcommand{\cak}{c_{j \gamma}}
+\newcommand{\ai}{a_{\alpha}}
+\newcommand{\aij}{a_{\alpha\beta}}
+\newcommand{\aijk}{a_{\alpha\beta\gamma}}
+\newcommand{\Hi}{H_{\alpha}}
+\newcommand{\Hij}{H_{\alpha\beta}}
+\newcommand{\Hijk}{H_{\alpha\beta\gamma}}
+
 \begin{document}
 
 \maketitle
@@ -114,11 +159,10 @@ As a result, we need the LB model which is able
 \begin{leftbar}
 \end{leftbar}
 
-First, ...
-% Some text in introduction that LB can advance into  and takes into account some rarefied gas effects,
-% however up to now does not provide universal tool for solution of the Boltzmann equation.
+%%% TODO(olegrog): Some text in introduction that LB can advance beyond NS and takes into account some rarefied gas effects, however up to now does not provide universal tool for solution of the Boltzmann equation.
 
-Second, to be more specific on peculiarities of the VDF arised in boundary-value problems,
+Finally, to be more specific on peculiarities of the VDF arised in boundary-value problems,
+which cannot be correctly described by classical LB methods,
 we have introduced the following subsection into the manuscript:
 \begin{leftbar}
     \subsection*{Mesh refinement}
@@ -131,11 +175,11 @@ we have introduced the following subsection into the manuscript:
     in order to achieve a high-accuracy approximation.
     Moreover, it is necessary to resolve the logarithmic singularity of the form~\cite{Takata2016}
     \begin{equation}\label{eq:xi_singularity}
-        \pder[f]{\bxi}\bn = C_1\ln\bxi\bn + \OO{1}, \quad (\bxi\bn<0, \quad \bx=\bx_B).
+        \pder[f]{\bxi}\bdot\bn = C_1\log\bxi\bdot\bn + \OO{1}, \quad (\bxi\bdot\bn<0, \quad \bx=\bx_B).
     \end{equation}
     Second, another logarithmic singularity arises in the physical space along \(\bn\)~\cite{Takata2014}:
     \begin{equation}\label{eq:x_singularity}
-        \pder[f]{\bx}\bn = \frac{C_2}{k}\ln\frac{(\bx-\bx_B)\bn}{k} + \OO{1}.
+        \pder[f]{\bx}\bdot\bn = \frac{C_2}{k}\log\frac{(\bx-\bx_B)\bdot\bn}{k} + \OO{1}.
     \end{equation}
     Here, \(C_1\) and \(C_2\) are some positive constants.
     It is seen from~\eqref{eq:x_singularity} that the logarithmic singularity of the VDF
@@ -217,6 +261,7 @@ with extremely high order quadrature.
 Additional comments about ``augmentation property'' are added to the text of the paper.
 
 \begin{leftbar}
+Please, insert here, what was added to the paper.
 \end{leftbar}
 
 \begin{quoting}
@@ -271,7 +316,7 @@ in order to improve the description and, hopefully, avoid other possible ambigui
 \end{quoting}
 
 The presented numerical scheme has the second-order approximation by design,
-including boundary condition
+including the boundary conditions.
 However, the referee turns out to be correct that our scheme demonstrated the first-order approximation
 on the boundary, which can be observed in Fig.~4 of the previous version of the manuscript,
 where the numerical error increases significantly in the vicinity of the diffuse-reflection boundary.
@@ -314,7 +359,7 @@ This effect does not disappear when the mesh is refined and does not affect the 
     the scheme is stable?
 \end{quoting}
 
-...
+Results for $k=0.3$ are included in the manuscript.
 
 \begin{leftbar}
 \end{leftbar}
