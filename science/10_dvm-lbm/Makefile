@@ -17,6 +17,7 @@ clean:
 	rm -f $(PROJECT).{spl,bbl}
 
 pics:
+	mkdir -p $(PICS)
 	cd $(PICS) && ln -sf ../$(COUETTE)/*.pdf .
 	cd $(PICS) && ln -sf ../$(COUETTE)/acceleration/*.pdf .
 	cd $(PICS) && ln -sf ../$(POISEUILLE)/*.pdf

@@ -76,10 +76,15 @@
 % topic-specific
 \newcommand{\dxi}{\dd{\boldsymbol{\xi}}}
 \newcommand{\bxi}{\boldsymbol{\xi}}
+\newcommand{\bpsi}{\boldsymbol{\psi}}
 \newcommand{\bv}{\boldsymbol{v}}
 \newcommand{\bq}{\boldsymbol{q}}
 \newcommand{\bc}{\boldsymbol{c}}
 \newcommand{\bn}{\boldsymbol{n}}
+\newcommand{\be}{\boldsymbol{e}}
+\newcommand{\bm}{\boldsymbol{m}}
+\newcommand{\bT}{\boldsymbol{T}}
+\newcommand{\bdot}{\boldsymbol{\cdot}}
 \newcommand{\dx}{\dd{\boldsymbol{x}}}
 \newcommand{\bx}{\boldsymbol{x}}
 \newcommand{\equil}[1]{#1^\mathrm{(eq)}}
@@ -290,7 +295,7 @@ Integration with respect to \(\bxi\) is, hereafter, carried out over \(\mathbb{R
 %%% Boltzmann equation
 The VDF is governed by the Boltzmann equation
 \begin{equation}\label{eq:Boltzmann}
-    \pder[f]{t} + \bxi\pder[f]{\bx} = \frac1kJ(f),
+    \pder[f]{t} + \bxi\bdot\pder[f]{\bx} = \frac1kJ(f),
 \end{equation}
 where \(J(f)\) is the collisional operator with a local Maxwellian as the equilibrium function
 \begin{equation}\label{eq:equilibrium}
@@ -304,7 +309,7 @@ The Knudsen number \(k\) can be expressed in terms of the reference gas viscosit
 %%% BGK equation
 In the present paper, we restrict ourselves to the simplest relaxation model~\cite{Krook1954, Welander1954}
 \begin{equation}\label{eq:bgk_integral}
-    J(f) = \rho\br{\equil{f}-f},
+    J(f)(\bxi) = \rho\br{\equil{f}(\bxi) - f(\bxi)},
 \end{equation}
 often referred as the Bhatnagar--Gross--Krook (BGK) model of the Boltzmann collisional operator.
 The nonlinearity in~\eqref{eq:bgk_integral} is more severe in comparison to the full Boltzmann equation
@@ -314,13 +319,13 @@ but the BGK model is much simpler from the numerical point of view.
 %%% Boundary conditions
 The gas--surface interaction is described via the diffuse-reflection boundary conditions:
 \begin{equation}\label{eq:diffuse}
-    f(t,\bxi) = \equil{f} \br{ \bxi;
-        -2\sqrt\frac\pi{T_B} \int_{\bxi'\bn<0} \bxi'\bn f(t,\bxi')\dxi', \bv_B, T_B
-    } \quad (\bxi\bn>0),
+    f(t,\bx_B,\bxi) = \equil{f} \br{ \bxi;
+        -2\sqrt\frac\pi{T_B} \int_{\bxi'\bdot\bn<0} \bxi'\bdot\bn f(t,\bx_B,\bxi')\dxi', \bv_B, T_B
+    } \quad (\bxi\bdot\bn>0),
 \end{equation}
-where \(\bn\) is the unit vector normal to the boundary, directed into gas.
-\(T_B\) and \(\bv_B\) are the boundary temperature and velocity, respectively.
-It is also assumed that \(\bv_B\bn = 0\).
+where \(\bn\) is the unit vector normal to the boundary, directed into gas,
+\(\bx_B\), \(T_B\), and \(\bv_B\) are the boundary coordinates, temperature, and velocity, respectively.
+It is also assumed that \(\bv_B\bdot\bn = 0\).
 
 % In the present paper we will consider two kinetic models based on the nonlinear Boltzmann equation which will be used in our further computations.
 % Our main object is the Bhatnagar-Gross-Krook (BGK) kinetic model~\cite{Krook1954, Welander1954},
@@ -365,57 +370,58 @@ It is also assumed that \(\bv_B\bn = 0\).
 
 %%% Discretization of the velocity space
 Within the DV framework, the admissible particle velocities are restricted to set \(\Set{\bxi_j}{j=1,\dots,M}\).
-Under this assumption an arbitrary moment \(\phi(\bxi)\) of \(f\) is calculated as
+Under this assumption, an arbitrary moment \(\phi(\bxi)\) of \(f\) is calculated as
 \begin{equation}\label{eq:cubature}
-    \int \phi f\dxi = \sum_j w_j \phi(\bxi_j) f_j.
+    \int \phi f\dxi = \sum_j \phi(\bxi_j) f_j,
 \end{equation}
-It is convenient to deal with weighted values \(\hat{f}_j = w_j f_j\).
-The evolution of \(\hat{f}_j\) is governed by the system of partial differential equations
+where \(f_j/w_j\) is an approximation of \(f(\bxi_j)\), \(w_j\) is a quadrature weight.
+The evolution of \(f_j\) is governed by the system of partial differential equations
 \begin{equation}\label{eq:dvm}
-    \pder[\hat{f}_j]{t} + \bxi_j\pder[\hat{f}_j]{\bx} = \frac1kJ(\hat{f}_j)
+    \pder[f_j]{t} + \bxi_j\bdot\pder[f_j]{\bx} = \frac1k J_M(f_j)
 \end{equation}
 which is called the DV model of~\eqref{eq:Boltzmann}~\cite{Cabannes1980}.
+The \emph{DV method} of solving~\eqref{eq:Boltzmann} is based on a DV model,
+which is consistent with \(J(f)\) when \(M\) goes to infinity~\cite{Aristov2001}.
 
 %%% Conservative and entropic properties
 It is important for a DV model~\eqref{eq:dvm} to preserve conservation and entropy properties
 of the continuous kinetic equation~\eqref{eq:Boltzmann}.
 For the BGK model
 \begin{equation}\label{eq:dvm-bgk}
-    J(\hat{f}_j) = \rho\br{\equil{\hat{f}}_j-\hat{f}_j},
+    J_M(f_j) = \rho\br{\equil{f}_j-f_j},
 \end{equation}
-it can be accomplished when the discrete local equilibrium \(\equil{\hat{f}}_j\)
-is obtained by the maximization of the discrete entropy functional~\cite{Mieussens2000}:
+it can be accomplished when the discrete local equilibrium \(\equil{f}_j\) have the Maxwellian form
 \begin{equation}\label{eq:equilibrium-bgk}
-    \equil{f}_{\DV,j} = \exp\br{\sum_{r=1}^5\beta_r\psi_{jr}}, \quad
-    \psi_{jr} = \transpose{\br{1,\bxi_j,|\bxi|^2}},\end{equation}
-where \(\beta_r\in\mathbb{R}^5\) is the unique solution of
-\begin{equation}\label{eq:beta}
-    \sum_j\psi_{jr}\br{\equil{\hat{f}}_{\DV,j} - \hat{f}_j} = 0, \quad r = 1,\dots,5.
+    \equil{f}_{\DV,j}(\hat\bm) = \frac{\hat\rho w_j}{(2\pi \hat{T})^{3/2}}
+        \exp\br{-\frac{|\bxi-\hat\bv|^2}{2\hat{T}}}, \quad
+    \hat\bm = \transpose{\br{\hat\rho, \hat\bv, \hat{T}}} \in \mathbb{R}^5,
 \end{equation}
-The construction~\eqref{eq:equilibrium-bgk}--\eqref{eq:beta} guarantees that
-the equilibrium state maximizes entropy and the conservation laws are satisfied.
+where vector \(\hat\bm\) is the solution
+(which is proved to exist and be unique under some conditions~\cite{Mieussens2000}) of
+\begin{equation}\label{eq:m_solution}
+    \sum_j\bpsi_j\br{\equil{f}_{\DV,j}(\hat\bm) - f_j} = 0, \quad
+    \bpsi_j = \transpose{\br{1,\bxi_j,|\bxi_j|^2}} \in \mathbb{R}^5.
+\end{equation}
+Discrete equilibrium~\eqref{eq:equilibrium-bgk} is the maximization of the discrete entropy functional
+and guarantees that mass, momentum, and kinetic energy are conserved~\cite{Mieussens2000}.
+Note also that \(\hat\bm\) is not equal to \(\bm = \transpose{\br{\rho, \bv, T}}\),
+but usually is close to it.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% [Rogozin]: I commented out the below incomplete description. There is no information how to calculate macro variables, but there is references to the Newton algorithm.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% the BGK model rewrites as
-% \begin{equation}\label{eq:dvm}
-% \pder[f_j]{t}+ \bxi_j\pder[f_j]{\bx}=\frac{1}{Kn}(f^{(eq)}_j-f_j), \quad j=1 \ldots M,
-% \end{equation}
-% where $\bxi_j$ are the discrete velocities, $M$ is the number of the discrete velocities, $f_j$ are discrete analogs of the distribution functions and $f^{(eq)}_j$ are the discrete approximations of the local Maxwell state.
-% The discrete local equilibrium is usually obtained by the maximization of the discrete entropy function ~\cite{Mieussens2000}, this equilibrium takes the following form:
-% \begin{equation}\label{eq:equilibrium-bgk}
-%   f^{(eq)}_j = \exp(\boldsymbol{\beta}\boldsymbol{\psi}_{j}), \quad
-%   \boldsymbol{\psi}_{j} = \transpose{\br{1,\bxi_j, \xi_j^2}},
-% \end{equation}
-% where \(\boldsymbol{\beta} \in\mathbb{R}^5\) is the unique solution of
-% \begin{equation}\label{eq:beta}
-%     \sum_j \boldsymbol{\psi}_{j}\br{\equil{f}_j - f_j} = 0.
-% \end{equation}
-% The equation \eqref{eq:beta} is solved numerically using Newton algorithm ~\cite{Mieussens2000}.
-% The construction \eqref{eq:equilibrium-bgk}-\eqref{eq:beta} guarantees
-% that the equilibrium state maximizes entropy and the conservation laws are satisfied.
+%%% Anisotropic velocity grids
+When the velocity grid is anisotropic, the diagonal terms of the pressure tensor \(p_{\alpha\beta}\)
+calculated from \(\equil{f}_{\DV,j}\) are not in general equal to each other;
+therefore, mass, momentum, and energy fluxes are not longer direction-independent.
+This asymmetry can be eliminated if the discrete equilibrium is constructed in form
+\begin{equation}\label{eq:equilibrium-bgk-aniso}
+    \equil{f}_{\DV,j}(\hat\bm) = \hat{\rho} w_j \prod_i\br{ 2\pi \hat{T}_i }^{-1/2}
+        \exp\br{-\sum_i\frac{\br{\xi_i-\hat{v}_i}^2}{2\hat{T}_i}}, \quad
+    \hat\bm = \transpose{\br{\hat\rho, \hat\bv, \hat{\bT}}} \in \mathbb{R}^7,
+\end{equation}
+where vector \(\hat\bm\) is the solution of
+\begin{equation}\label{eq:m_solution-aniso}
+    \sum_j\bpsi_j\br{\equil{f}_{\DV,j}(\bm) - f_j} = 0, \quad
+    \bpsi_j = \transpose{\br{1,\bxi_j,\bxi_j^2}}  \in \mathbb{R}^7.
+\end{equation}
 
 %%% LB method
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -423,7 +429,7 @@ the equilibrium state maximizes entropy and the conservation laws are satisfied.
 %%% 1. What is the difference between discrete and lattice velocities?
 %%% 2. Why do you introduce sound speed if c_s=1 under our nondimensional notation?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The LB method can be considered as a special discretization of the BGK model~\cite{Succi2001}.
+The \emph{LB method} can be considered as a special discretization of the BGK model~\cite{Succi2001}.
 We assume that the considered flow is isothermal and slow, i.e., the Mach number is close to zero.
 Then we can expand the local Maxwell state into the Taylor series on the bulk velocity $\bv$
 and keep only the terms of some finite order (at least second).
@@ -435,8 +441,11 @@ Since for LB models the local equilibrium takes a polynomial form on the bulk ve
 the conservation of mass, momentum and energy can be achieved with much less efforts than for the conventional DV method.
 The third-order expansion in $\bv$ yields the following local equilibrium LB state:
 \begin{equation}\label{eq:lbgk}
-    \equil{f}_{\LB,j} = \rho w_j\left(1+ \frac{\bc_j\bv}{c_s^2}+\frac{(\bc_j\bv)^2-c_s^2v^2}{2c_s^4} +
-        \frac{(\bc_j\bv)^3-3c_s^2 v^2(\bc_j\bv)}{6c_s^6}\right), \quad j=1,\ldots,N,
+    \equil{f}_{\LB,j} = \rho w_j\left( 1
+        + \frac{\bc_j\bdot\bv}{c_s^2}
+        + \frac{(\bc_j\bdot\bv)^2-c_s^2v^2}{2c_s^4}
+        + \frac{(\bc_j\bdot\bv)^3-3c_s^2 v^2(\bc_j\bdot\bv)}{6c_s^6}
+    \right), \quad j=1,\ldots,N,
 \end{equation}
 where $\bc_j$ are the lattice velocities, $c_s$ is the isothermal sound velocity defined by $\sum_jw_j\bc^2_j=c_s^2$,
 $N$ is the number of the lattice velocities.
@@ -538,6 +547,8 @@ Then the equivalence between the LB distribution and the expansion of the Grad t
 therefore, the proposed mapping method can be applied.
 
 \section{Numerical method}\label{sec:numerics}
+
+% TODO(olegrog): The equation \eqref{eq:m_solution} is solved numerically using Newton algorithm
 
 %%% DV method
 %Let the molecular velocities \(\bxi_j \) be restricted to a Cartesian %lattice \(X\)
@@ -676,7 +687,7 @@ The inflow boundary conditions are involved into the scheme
 by means of \(f^{n+1/2}_{1/2}\) and \(f^{n+1/2}_{3/2}\).
 For the completely diffuse-reflection boundary condition,
 \begin{equation}\label{eq:first_flux}
-    f^{n+1/2}_{1/2}(\bxi_j) = \displaystyle\frac{\sum_{\bxi'_j\bn>0}f^{n+1/2}_{1/2}(\bxi'_j)}
+    f^{n+1/2}_{1/2}(\bxi_j) = \displaystyle\frac{\sum_{\xi'_j>0}f^{n+1/2}_{1/2}(\bxi'_j)}
         {\sum_{\xi'_j<0}\xi'_j\equil{f}(\bxi'_j; 1, \bv_B, T_B)}
         \equil{f}(\bxi_j; 1, \bv_B, T_B)
 \end{equation}
@@ -767,11 +778,11 @@ Nevertheless, sharp variations of the solution near \(\bxi\bn=0\) requires a str
 in order to achieve a high-accuracy approximation.
 Moreover, it is necessary to resolve the logarithmic singularity of the form~\cite{Takata2016}
 \begin{equation}\label{eq:xi_singularity}
-    \pder[f]{\bxi}\bn = C_1\ln\bxi\bn + \OO{1}, \quad (\bxi\bn<0, \quad \bx=\bx_B).
+    \pder[f]{\bxi}\bdot\bn = C_1\ln\bxi\bdot\bn + \OO{1}, \quad (\bxi\bdot\bn<0, \quad \bx=\bx_B).
 \end{equation}
 Second, another logarithmic singularity arises in the physical space along \(\bn\)~\cite{Takata2014}:
 \begin{equation}\label{eq:x_singularity}
-    \pder[f]{\bx}\bn = \frac{C_2}{k}\ln\frac{(\bx-\bx_B)\bn}{k} + \OO{1}.
+    \pder[f]{\bx}\bdot\bn = \frac{C_2}{k}\ln\frac{(\bx-\bx_B)\bdot\bn}{k} + \OO{1}.
 \end{equation}
 Here, \(C_1\) and \(C_2\) are some positive constants.
 It is seen from~\eqref{eq:x_singularity} that the logarithmic singularity of the VDF
@@ -892,19 +903,25 @@ Therefore, the physical grid should be refined exponentially as \(\bx\) goes to 
 
 \begin{figure}
     \centering
-    \begin{subfigure}[b]{0.5\textwidth}
+    \begin{subfigure}[b]{0.33\textwidth}
+        \includegraphics[width=\textwidth]{shear-k0_3}
+        \caption{\(k=0.3\), \(p^\mathrm{(ex)}_{xy} = -0.1868996702\)}
+        \label{fig:accuracy-k03}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[width=\textwidth]{shear-k0_1}
-        \caption{\(k=0.1\), \(p^\mathrm{(ex)}_{xy} = -0.08311215565\)~\cite{Luo2016}}
+        \caption{\(k=0.1\), \(p^\mathrm{(ex)}_{xy} = -0.08311215565\)}
         \label{fig:accuracy-k01}
     \end{subfigure}%
-    \begin{subfigure}[b]{0.5\textwidth}
+    \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[width=\textwidth]{shear-k0_03}
-        \caption{\(k=0.03\), \(p^\mathrm{(ex)}_{xy} = -0.02827597203\)~\cite{Luo2016}}
+        \caption{\(k=0.03\), \(p^\mathrm{(ex)}_{xy} = -0.02827597203\)}
         \label{fig:accuracy-k003}
     \end{subfigure}
     \caption{
         Absolute numerical error of the shear stress obtained by the pure and hybrid schemes.
         The dash-dotted lines correspond to the coupling interface used for the domain decomposition.
+        The reference values \(p^\mathrm{(ex)}_{xy}\) are taken from~\cite{Luo2016}.
     }\label{fig:accuracy}
 \end{figure}
 
@@ -1148,7 +1165,7 @@ The entropic models are promising due to their enhanced stability for low viscos
 \section*{Acknowledgements}
 
 This work was supported by the Russian Foundation for Basic Research (Grants 18-01-00899, 18-07-01500).
-The authors are grateful to Victor Ambruș, whose comments helped to improve the final version of the manuscript.
+The authors are grateful to Victor Ambru\textcommabelow{s}, whose comments helped to improve the final version of the manuscript.
 
 \appendix
 
