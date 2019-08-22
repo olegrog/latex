@@ -12,6 +12,7 @@ options = \
 
 options_shear = \
 	--buffer=$(call buffer,$1) \
+	--kn=$(call knudsen,$1) \
 	--exact=$(exact_$(call knudsen,$1)) \
 	--suffix=$(call kn_suffix,$1) \
 	--hybrid=1

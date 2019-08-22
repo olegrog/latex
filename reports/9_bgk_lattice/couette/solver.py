@@ -177,7 +177,7 @@ def dvm_grid():
         (_c(m[1:4])**2 / m[4:7] - .5) / m[4:7]
     ))
 
-    def vdf_with_exact_moments(macro, use_NSF_moments=False):
+    def vdf_with_exact_moments(macro, use_NSF_moments=False, build_Maxwell=False):
         xi_ = c(np.zeros_like(macro.vel))
         c_ = c(macro.vel)
         cc_ = np.einsum('ail,ail->ai', c_, c_)
@@ -209,7 +209,7 @@ def dvm_grid():
 
         if use_NSF_moments:
             # Use 6 additional moments for reproducing Navier--Stokes--Fourier equations
-            if macro.vel.shape != macro.tau.shape:
+            if macro.vel.shape != macro.tau.shape or build_Maxwell:
                 macro = Macro(macro.rho, macro.vel, macro.temp, zz, zz)
             psi = np.dstack(( psi, cc_hodge_i_, ccc_i_ ))
             moments = np.hstack(( moments, macro.tau, macro.qflow ))
@@ -256,6 +256,7 @@ def dvm_grid():
         'none': creator,
         'poly': lambda m: poly_correct_vdf(creator(m), m, _xi),
         'entropic': lambda m: vdf_with_exact_moments(m,
+            build_Maxwell = (creator == Maxw),
             use_NSF_moments = (creator == Grad13)
         )
     }[method], macro)
