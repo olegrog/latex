@@ -91,6 +91,8 @@
 \newcommand{\refer}[1]{#1_0}
 \newcommand{\LB}{\mathrm{LB}\!}
 \newcommand{\DV}{\mathrm{DV}\!}
+\newcommand{\Herm}{\mathcal{H}}
+\newcommand{\cut}{{(\mathrm{cut})}}
 
 \newcommand{\xiai}{\xi_{j \alpha}}
 \newcommand{\xiaj}{\xi_{j \beta}}
@@ -790,7 +792,67 @@ It is seen from~\eqref{eq:x_singularity} that the logarithmic singularity of the
 however, for small \(k\), it becomes highly localized in the Knudsen layer.
 Therefore, the physical grid should be refined exponentially as \(\bx\) goes to \(\bx_B\).
 
-\section{Results and discussions}\label{sec:results}
+\section{Results and discussion}\label{sec:results}
+
+\subsection{Couette-flow problem}
+
+%%% Couette-flow problem & benchmark
+The proposed numerical method is tested for the plane Couette-flow problem,
+where a gas is embraced between the two parallel plates with non-zero relative velocity.
+The hybrid approach assumes that a highly nonequlibrium gas in the Knudsen layer
+is described using the BGK equation, while the LBGK model is employed for the internal zone.
+For the BGK model of the Boltzmann equation, the plane Couette-flow problem can be reduced
+to a one-dimensional integral equation, which has been solved very accurately in~\cite{Luo2015, Luo2016}.
+Due to the lack of data on longitudinal heat flux in the mentioned works, we have re-implemented (in Python)
+the adaptive collocation method based on the generalized Gauss quadratures presented in~\cite{Luo2016}
+for computing the benchmark solutions (see~\ref{sec:benchmark_solution} for details).
+
+%%% Physical grid
+Let the plates be placed at \(y = \pm 1/2\) with constant temperature \(T = 1\)
+and velocities (\(\pm\Delta v/2,0,0\)), where \(\Delta v=0.02\),
+which is small enough to consider the Couette-flow problem as linear.
+A completely diffuse reflection is assumed at the plates.
+The average density is equal to unity: \(\int_{-1/2}^{1/2}\rho dy=1\).
+The physical space \(0 < y < 1/2\) is divided in two subdomains: \(0 < y < y_I\) and \(y_I < y < 1/2\).
+The first one consists of identical cells,
+while the nonuniform mesh in the second one refines as a geometrical sequence near \(y = 1/2\).
+The total number of cells depends on \(k\) and varies from 28 to 35.
+
+%%% Velocity grid
+The VDF in the velocity space varies from discontinuous sum of two half-Maxwellians at the boundary
+with complete diffuse-reflection condition to the near-equilibrium form in the vicinity of \(y=0\).
+Such diversity can be efficiently approximated under the fixed DV set by employing
+a significantly nonuniform velocity grid with local refinement near \(\xi_y=0\)~\cite{Ohwada1990, Wu2014, Rogozin2016}.
+In the present paper, the nonuniform Cartesian lattice is cut off by the sphere of radius \(\xi^\cut=4\).
+Along \(\xi_x\) and \(\xi_z\) axis, the nodes are distributed as the scaled roots of the Hermite polynomials:
+\begin{equation}\label{eq:vgrid_hermite}
+    \xi_{\alpha,j} = x_{\Herm j} R, \quad w_{\alpha,j} = w_{\Herm j}\exp\br{x_{\Herm j}^2}R, \quad
+    R = 2\xi^\cut \br{ \sum_{i=1}^{2N_{\alpha}} w_{\Herm i} \exp\br{x_{\Herm i}^2} }^{-1}, \quad
+    j = 1,\dots,2N_{\alpha},
+\end{equation}
+where \(x_{\Herm j}\) and \(w_{\Herm j}\) are nodes and weights of the \((2N_{\alpha})\)-point Gauss--Hermite quadrature.
+Along \(\xi_y>0\) semiaxis, the nodes are distributed as a polynomial (particularly, quadratic \(p=2\)) sequence:
+\begin{equation}\label{eq:vgrid_polynomial}
+    w_{y,j} = w_{y,1} + (j-1)^p \br{\xi^\cut - N_y w_{y,1}} \br{\sum_{i=1}^{N_y} (i-1)^p}^{-1}, \quad
+    \xi_{y,j} = \sum_{i=0}^{j-1} \frac{w_{y,i} + w_{y,i+1}}2, \quad
+    j = 1,\dots,N_y,
+\end{equation}
+where \(w_{y,0}=0\), \(w_{y,1}=0.1\) is the minimal width of cell in the velocity space.
+The quarature weight in \(\mathbb{R}^3\) of discrete velocity \(\bxi_j \equiv \xi_{\alpha,j}\)
+is equal to \(\prod_\alpha w_{\alpha,j}\).
+For all the presented DVM solutions, \(N_{x/z}=8\) and \(N_y=16\) are chosen.
+The discrete velocities with \(|\bxi_j| > \xi^\cut\) are excluded from the velocity grid;
+therefore the total number of discrete velocities \(N_\DV=5928\).
+
+%%% Preliminary discussion on longitudinal heat flux
+Here it is important to mention that the longitudinal heat flux $q_x$ exists in the linear Couette-flow problem,
+particularly, in the Knudsen layer only and, therefore, decays exponentially with the distance from the boundary.
+This heat flux is caused by the diffuse-reflection boundary conditions and has non-polar singularity on $k$ at the boundary.
+Hence, it cannot be reproduced by the Navier--Stokes or any other high-order fluid-dynamic-type equations
+obtained from the Hilbert or Chapman--Enskog expansions.
+Obviously, the classical LB models are unable to describe the Knudsen layer accurately and cope with \(q_x\) as a result.
+
+\subsection{Numerical analysis}
 
 \begin{figure}
     \centering
@@ -831,7 +893,7 @@ Therefore, the physical grid should be refined exponentially as \(\bx\) goes to 
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{hyb-d3v96}
         \caption{hybrid: DV and D3Q96}
-        \label{fig:hyb:d3v96}
+        \label{fig:hyb:d3q96}
     \end{subfigure}
     \caption{
         Numerical solution of the Couette-flow problem for \(k=0.1\) obtained by the proposed hybrid method.
@@ -846,29 +908,29 @@ Therefore, the physical grid should be refined exponentially as \(\bx\) goes to 
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{d3q19-k0_03}
         \caption{LB method: D3Q19}
-        \label{fig:d3q19-k003}
+        \label{fig:d3q19-k0_03}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{d3v96-k0_03}
         \caption{LB method: D3Q96}
-        \label{fig:d3v96-k003}
+        \label{fig:d3q96-k0_03}
     \end{subfigure}\\
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{hyb-d3q19-k0_03}
         \caption{hybrid: DV and D3Q19}
-        \label{fig:hyb:d3q19-k003}
+        \label{fig:hyb:d3q19-k0_03}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{hyb-d3v96-k0_03}
         \caption{hybrid: DV and D3Q96}
-        \label{fig:hyb:d3v96-k003}
+        \label{fig:hyb:d3q96-k0_03}
     \end{subfigure}
     \caption{
         Numerical solution of the Couette-flow problem for \(k=0.03\) obtained by the proposed hybrid method.
         There are \(3\) mean free paths between the boundary and coupling interface marked with the dash-dotted line.
         The black lines are the high-accuracy benchmark solution.
         The black boxes correspond to the tabulated values from~\cite{Luo2016}.
-    }\label{fig:hybrid-k003}
+    }\label{fig:k0_03}
 \end{figure}
 
 \begin{figure}
@@ -876,29 +938,39 @@ Therefore, the physical grid should be refined exponentially as \(\bx\) goes to 
    \begin{subfigure}[b]{0.5\textwidth}
        \includegraphics[width=\textwidth]{d3q19-k0_3}
        \caption{LB method: D3Q19}
-       \label{fig:d3q19-k03}
+       \label{fig:d3q19-k0_3}
    \end{subfigure}%
    \begin{subfigure}[b]{0.5\textwidth}
        \includegraphics[width=\textwidth]{d3v96-k0_3}
        \caption{LB method: D3Q96}
-       \label{fig:d3v96-k03}
+       \label{fig:d3q96-k0_3}
    \end{subfigure}\\
+   \begin{subfigure}[b]{0.5\textwidth}
+       \includegraphics[width=\textwidth]{dvm-k0_3}
+       \caption{DV method}
+       \label{fig:dvm-k0_3}
+   \end{subfigure}%
    \begin{subfigure}[b]{0.5\textwidth}
        \includegraphics[width=\textwidth]{hyb-d3q19-k0_3}
        \caption{hybrid: DV and D3Q19}
-       \label{fig:hyb:d3q19-k03}
+       \label{fig:hyb:d3q19-k0_3}
+   \end{subfigure}\\
+   \begin{subfigure}[b]{0.5\textwidth}
+       \includegraphics[width=\textwidth]{hyb-d3q121-k0_3}
+       \caption{hybrid: DV and D3Q121}
+       \label{fig:hyb:d3q121-k0_3}
    \end{subfigure}%
    \begin{subfigure}[b]{0.5\textwidth}
        \includegraphics[width=\textwidth]{hyb-d3v96-k0_3}
        \caption{hybrid: DV and D3Q96}
-       \label{fig:hyb:d3v96-k03}
+       \label{fig:hyb:d3q96-k0_3}
    \end{subfigure}
    \caption{
        Numerical solution of the Couette-flow problem for \(k=0.3\) obtained by the proposed hybrid method.
        There are \(0.8\) mean free paths between the boundary and coupling interface marked with the dash-dotted line.
        The black lines are the high-accuracy benchmark solution.
        The black boxes correspond to the tabulated values from~\cite{Luo2016}.
-   }\label{fig:hybrid03}
+   }\label{fig:k0_3}
 \end{figure}
 
 \begin{figure}
@@ -906,17 +978,17 @@ Therefore, the physical grid should be refined exponentially as \(\bx\) goes to 
     \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[width=\textwidth]{shear-k0_3}
         \caption{\(k=0.3\), \(p^\mathrm{(ex)}_{xy} = -0.1868996702\)}
-        \label{fig:accuracy-k03}
+        \label{fig:accuracy-k0_3}
     \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[width=\textwidth]{shear-k0_1}
         \caption{\(k=0.1\), \(p^\mathrm{(ex)}_{xy} = -0.08311215565\)}
-        \label{fig:accuracy-k01}
+        \label{fig:accuracy-k0_1}
     \end{subfigure}%
     \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[width=\textwidth]{shear-k0_03}
         \caption{\(k=0.03\), \(p^\mathrm{(ex)}_{xy} = -0.02827597203\)}
-        \label{fig:accuracy-k003}
+        \label{fig:accuracy-k0_03}
     \end{subfigure}
     \caption{
         Absolute numerical error of the shear stress obtained by the pure and hybrid schemes.
@@ -925,63 +997,19 @@ Therefore, the physical grid should be refined exponentially as \(\bx\) goes to 
     }\label{fig:accuracy}
 \end{figure}
 
-%%% Couette-flow problem & benchmark
-First, we apply the proposed hybrid method to the plane Couette-flow problem,
-where a gas is placed between the two parallel plates, which have non-zero relative velocity.
-A highly nonequlibrium gas in the Knudsen layer is described using the BGK equation,
-while the LBGK model is employed for the internal zone.
-For the BGK model, this problem can be reduced to a one-dimensional integral equation,
-which has been solved with high accuracy in~\cite{Luo2015, Luo2016}.
-Due to the lack of data on longitudinal heat flux in the mentioned works, we have re-implemented (in Python)
-the adaptive collocation method based on the generalized Gauss quadratures presented in~\cite{Luo2016}
-for computing the benchmark solutions.
-
-%%% Physical grid
-Let the plates be placed at \(y = \pm 1/2\) with constant temperature \(T = 1\) and velocities (\(\pm\Delta v/2,0,0\)),
-where \(\Delta v=0.02\). A completely diffuse reflection is assumed at the plates.
-The average density is equal to unity: \(\int_{-1/2}^{1/2}\rho dy=1\).
-The physical space \(0 < y < 1/2\) is divided into \(N_x = 40\) nonuniform cells refined near \(y = 1/2\).
-
-%%% Velocity grid
-The VDF in the velocity space varies from discontinuous sum of two half-Maxwellians at the boundary
-with complete diffuse-reflection condition to the near-equilibrium form in the vicinity of \(y=0\).
-Such diversity can be efficiently approximated under the fixed DV set by employing
-a significantly nonuniform velocity grid with local refinement near \(\xi_y=0\)~\cite{Ohwada1990, Wu2014, Rogozin2016}.
-In the present paper, the nonuniform Cartesian lattice is cut off by the sphere of radius \(\xi^{(\mathrm{cut})}=4\).
-The nodes are distributed as the scaled roots of the Hermite polynomials along \(\xi_x\) and \(\xi_z\) axis,
-but as a geometric sequence with the ratio \(r = 1.15\) along \(\xi_y\) axis.
-The maximum number of discrete velocities along each axis is equal to \(16\), \(32\) and \(16\), respectively.
-Their total number is \(N_\xi=5928\).
-
-%%% Ilyin: More about longitudinal heat flux
-% The heat flux $q_x$ shows the limits of applicability of the present method.
-% The heat flux $q_x$ is not well reproduced by the method since the longitudinal heat flux has non-thermohydrodynamic nature.
-Here it is important to mention that the longitudinal heat flux $q_x$ exists in the Couette problem.
-This heat flux cannot be reproduced at the Navier--Stokes level and consists of two components.
-The first component is proportional to $k^2$, this part of the flux can be obtained at the Burnett level.
-The second part is caused by the diffuse boundary conditions and has non-polar singularity on $k$ at origin.
-Obviously, it is very challenging for LB method to cope with $q_x$.
-As a result, we can conclude that the improvements in LB method should be directed
-to the better reproduction of the highest Maxwell moments (Burnett level)
-accompanied with the better reproduction of the wall moments.
-In this case, the mapping method can be improved with the involvement of the fourth-order moments
-and the inclusion of the enhanced LB models.
-
 %%% Pure DV and LB results
 The numerical results obtained by the pure DV and LB methods for \(k=0.1\) are showed in Fig.~\ref{fig:pure}.
-The nonuniform velocity grid refined at the sharp variations of the VDF yields a very small discrepancy
-between the DV and benchmark profiles (Fig.~\ref{fig:dvm}).
-As for LB method, in the present paper, the classical 5-order D3Q19 model and 9-order D3Q121 model~\cite{Shan2010} are considered,
-along with special 7-order D3Q96 model developed for the boundary-value problems driven by the diffuse boundary condition~\cite{Feuchter2016}.
-Obviously, the LB models are unable to describe the Knudsen layer accurately.
-Ability to capture kinetic effects arising from the diffuse-reflection boundary condition
+The nonuniform velocity grid refined at the sharp variations of the VDF
+yields a very small discrepancy between the DV and benchmark profiles (Fig.~\ref{fig:dvm}).
+As for LB method, in the present paper, the 5-order D3Q19 model and 9-order D3Q121 model~\cite{Shan2010}
+based on the Gauss--Hermite quadratures are considered, along with special 7-order D3Q96 model
+developed for the boundary-value problems driven by the diffuse-reflection boundary condition~\cite{Feuchter2016}.
+Ability to capture rarefied-gas effects arising from the kinetic boundary conditions
 is clearly observed from the profile of the longitudinal heat flux \(q_x\).
 In particular, models of the Navier--Stokes level do not capture it due to lack of additional degrees of freedom,
 e.g., the D3Q19 model does not cover the third-order moments of the VDF (Fig.~\ref{fig:d3q19}).
-Instead, there is a small spurious positive heat flux in Fig.~\ref{fig:d3q19}.
-%%% Ilyin: it is not true
-%Indeed, although the third moment is equal to zero %for D3Q19,
-%the heat flux is \(\OO{\Delta v^3}\) and closely %associated with the stress tensor and velocity.
+Instead, there is a small spurious positive heat flux in Fig.~\ref{fig:d3q19},
+which is \(\OO{\Delta v^3}\) and closely associated with the stress tensor and velocity.
 The model D3Q121 describes the heat flux in the continuum zone most accurately (Fig.~\ref{fig:d3q121}),
 while the D3Q96 profile is quite close to the exact one in the Knudsen layer (Fig.~\ref{fig:d3q96}).
 
@@ -989,49 +1017,70 @@ while the D3Q96 profile is quite close to the exact one in the Knudsen layer (Fi
 Increasing order of the LB model helps to capture the corresponding low-order moments of the VDF,
 but failed to describe its high-order relaxation correctly.
 However, the LB models augmented by special groups of velocities are capable to reproduce the Knudsen layer to some extent.
-%%% Ilyin: extended remark
 The augmented model D3Q96 reproduces the Maxwell half-range (or wall) moments better than D3Q121,
-which results in better reproduction of the diffuse boundary conditions and the overall better precision near walls.
-The model D3Q96 shows qualitatively correct results for the longitudinal heat flux,
-although this model does not recover thermo-hydrodynamics.
-This model obviously captures diffuse-reflection part of the heat-flux,
-which has non-thermo-hydrodynamical nature.
+which results in better reproduction of the diffuse-reflection boundary conditions.
+As a result, D3Q96 produces qualitatively correct results for the longitudinal heat flux,
+which has non-thermo-hydrodynamical nature, although does not recover thermo-hydrodynamics.
 
 %%% Hybrid results
 The numerical results for the hybrid schemes are shown in Fig.~\ref{fig:hybrid}.
 Quantities \(v_x\) and \(p_{xy}\) are close to the exact solution,
 but there is a noticeable distortion behind the coupling interface in the D3Q19 velocity profile.
 Hybrid \(q_x\) is close to the pure DV one only in the kinetic region (the DV part of the hybrid solution).
-There are small oscillations of macroscopic variables in the buffer zone and they are particularly noticeable for \(q_x\).
+There are small oscillations of macroscopic variables in the buffer zone,
+and they are particularly noticeable for \(q_x\), since its profile is multiplied by factor 40.
 The amplitude of these oscillations is proportional to the high-order terms of the Hermite expansion of the VDF
 that are not included the employed mapping method.
 These terms decrease exponentially as the coupling interface moves away from \(y=1/2\).
-The numerical results for \(k=0.03\) shown in Fig.~\ref{fig:hybrid-k003} clearly illustrate this fact.
+The numerical results for \(k=0.03\) shown in Fig.~\ref{fig:k0_03},
+where 3 mean free paths (in contrast to 1.2 for \(k=0.1\)) are covered by DV method, clearly illustrate this fact.
 
-\begin{comment}
-\begin{table}
-    \centering
-    \caption{
-        Absolute numerical error of the shear stress obtained by the pure and hybrid schemes near \(y=0\).
-    }\label{table:accuracy}
-    \centering
-    \begin{tabular}{|c|c|c|c|c|c|}\hline
-        \(k\) & DVM & D3Q19 & D3Q96 & hybrid D3Q19 & hybrid D3Q96 \\\hline
-        0.03 & -0.000022 & 0.00032 & 0.000020 & -0.0000030 & -0.000014 \\
-        0.1  & -0.00010  & 0.0027  & 0.000012 &  0.000052  & -0.00022  \\\hline
-    \end{tabular}
-\end{table}
-\end{comment}
+%%% Case k=0.3
+For larger Knudsen numbers, the advantage of the DV method over the LB one in terms of accuracy becomes more evident,
+since rarefied-gas effects amplify considerably (Fig.~\ref{fig:k0_3}).
+The D3Q19 model loses its accuracy most of all:
+there is a large deviation from the benchmark profiles of \(p_{xy}\) and \(v_x\) in Fig.~\ref{fig:d3q19-k0_3}.
+Despite the fact that D3Q96 is able to reproduce half-range (wall) moments most accurately within the given order,
+it fails to reproduce the complex structure of a highly nonequlibrium VDF with sharp variations
+around plane \(\xi_y=0\) (Fig.~\ref{fig:d3q96-k0_3}).
+In contrast, the DV method with velocity grid refined near \(\xi_y=0\) fully copes with this task.
+One cannot conclude the same for the results obtained by hybrid schemes.
+There is a noticable error for \(q_x\) and a kink for \(v_x\) in Fig.~\ref{fig:hyb:d3q19-k0_3}--\subref{fig:hyb:d3q96-k0_3}.
+The proximity of the coupling interface to the boundary in terms of mean free path is the primary reason
+for the observed lack of accuracy. Note also that hybrid method based on the D3Q96 model has a minimal kinking
+of the velocity profile in comparison to D3Q19 and D3Q121.
 
 %%% Accuracy of results
-The shear stress profiles look constant in Figs.~\ref{fig:hybrid} and~\ref{fig:hybrid-k003},
-since the absolute error is everywhere smaller than 0.0003, which is easily seen in Fig.~\ref{fig:accuracy}.
-The largest error is observed in the point closest to boundary and some points in the vicinity of the coupling interface.
-The first one is due to numerical error inherent to the FV approximation,
-while the second one is due to the employed mapping method.
-The obtained numerical accuracy is sufficient to distinguish between molecular potentials~\cite{Sharipov2013, Su2018}.
+The shear stress profiles look constant in Figs.~\ref{fig:hybrid},~\ref{fig:k0_03} and~\ref{fig:k0_3},
+since the absolute error is everywhere smaller than \(0.06k^2\), which is easily seen in Fig.~\ref{fig:accuracy}.
+The largest error is observed in the points in the vicinity of the coupling interface.
+In the absence of conservative correction of fluxes on the coupling interface~\eqref{eq:poly_correction},
+these oscillations turn into monotonic jumps, which introduce much more error into results.
+This fact clearly confirms the well-known importance of preserving conservation properties by a numerical method.
+Incidentally, let us note that the obtained numerical accuracy is sufficient
+to distinguish molecular potentials~\cite{Sharipov2013, Su2018}.
 
 %%% [Aristov]: We compared our results with available data on the benchmark problem [Phys. Fluids 25, 027101 (2013)] devoted to the computation ab initio by DSMC for the Couette flow problem. In [1] for U/u0=0.2 the values for comparison of only the shear stress are given (the temperature and the velocity gradient are not presented). These results ab initio are compared with the analogous calculations for HS and from Table IV in [1] one can see that the relative difference is of 0.3% (the column concerning C=0 or C=1). Our value of the shear stress for the hybrid scheme is 0.83 and differs from the tabulated values for the Couette flow is of the same order, namely 0.3%. So we conclude that the difference between the hybrid shear stress results and the value of the benchmark results ab initio is in the range of the computational error.
+
+%%% Efficiency
+Finally, let us touch upon the efficiency of the proposed hybrid scheme.
+The computational speed-up with respect to the pure DV scheme is shown in Fig.~\ref{fig:speed-up} as a ratio of the corresponding CPU times,
+while the ratio of cells in the kinetic and bulk regions remains constant.
+One can see that efficiency of the hybrid method achieves the optimum value when number of cells in the kinetic region is more than $10^2$.
+Note that the asymptotic speed-up can be slightly higher than the optimum one (12--13 versus 11 in Fig.~\ref{fig:speed-up}).
+It is mainly due to memory saving, which results in fewer cache misses.
+
+\subsection{Breakdown criterion}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{acceleration}
+    \caption{
+        Computational speed-up yielded by the hybrid method for different CPUs and operational systems.
+        $N_0$ is the number of cells in the kinetic zone, $10N_0$ is the number of cells in the bulk region,
+        $t_\DV$ and $t_\mathrm{hyb}$ are the total CPU times elapsed by the DV and hybrid methods, respectively.
+    }\label{fig:speed-up}
+\end{figure}
 
 \begin{figure}
     \centering
@@ -1060,12 +1109,20 @@ The obtained numerical accuracy is sufficient to distinguish between molecular p
     }\label{fig:norms}
 \end{figure}
 
-%%% Breakdown criteria
-A multiscale hybrid method based on the domain decomposition procedure should be supplied with the so-called equilibrium breakdown criteria.
-\(q_x\) appears only in the Knudsen layer and, therefore, can serve as an equilibrium breakdown parameter
+%%% Breakdown criterion and adaptive algorithm
+A multiscale hybrid method based on the domain decomposition procedure should be supplied
+with the so-called equilibrium breakdown criterion, which determines the position of the coupling interface
+between different models for approximation of the VDF. The common way to quantify this criterion is
+to introduce an appropriate equilibrium breakdown parameter \(E\) and compare it with some predefined value \(\epsilon_E\).
+The DV method is used only in nonequlibrium regions, specifically in cells, where \(E>\epsilon_E\),
+while the LB method is employed in the others.
+
+%%% Breakdown parameters
+Longitudinal heat flux \(q_x\) appears only in the Knudsen layer and, therefore, can serve as an equilibrium breakdown parameter
 for the investigated Couette-flow problem, but not in the general case.
 Criteria based on deviation of the VDF from the truncated Chapman--Enskog expansion is natural for kinetic schemes.
-Quantities \(E_p=\|f-f^{\mathrm{NSF}}\|_p/\|f\|_p\), the deviation from the Navier--Stokes--Fourier (NSF) order of approximation~\cite{Zhang2014}:
+For instance, quantities \(E_p=\|f-f^{\mathrm{NSF}}\|_p/\|f\|_p\),
+the deviation from the Navier--Stokes--Fourier (NSF) order of approximation~\cite{Zhang2014}:
 \begin{gather}
     f^{\mathrm{NSF}}_{\DV,j} = \equil{f}_{\DV,j}\br{
         1 + \frac{\cai\caj P_{\alpha\beta}}{2pT} + \frac{\cai q_\alpha}{pT}\br{ \frac{c_j^2}{5T} - 1 } }, \label{eq:NSF_DV} \\
@@ -1077,6 +1134,8 @@ are shown in Fig.~\ref{fig:norms} for the following norms in the discrete veloci
 \begin{equation}\label{eq:norms}
     \|f\|_p = \bigg(\sum_j |f_j|^p \bigg)^\frac1p, \quad p=1,2, \quad \|f\|_\infty = \max_j |f_j|.
 \end{equation}
+
+%%% Discussion on figures
 The D3Q19 model produces an almost constant profile (Fig.~\ref{fig:norms:d3q19-hyb}),
 since it describes nothing beyond the NSF level.
 The D3Q96 profile (Fig.~\ref{fig:norms:d3q96}) is close to the DV one (Fig.~\ref{fig:norms:dvm}),
@@ -1084,7 +1143,7 @@ which indirectly indicates that this LB model gives an acceptable approximation 
 Due to the diffuse-reflection boundary condition, there is a discontinuity of the VDF on the boundary,
 which decays monotonically and faster than any inverse power of distance from the boundary.
 Therefore, all the breakdown parameters reach their maximum on the boundary;
-however, \(E_\infty\) relaxes in a nonmonotonic way.
+however, \(E_\infty\) relaxes in a non-smooth way.
 This is probably due to crude approximation of the sharp variations of the VDF in the Knudsen layer.
 For the D3Q96 model, \(E_\infty\) noticeably exceeds \(E_{1,2}\) (Fig.~\ref{fig:norms:d3q96}),
 which can be explained by its peculiar properties minimizing the wall moment errors.
@@ -1092,6 +1151,7 @@ The Hermite-based coupling induces oscillations (Fig.~\ref{fig:norms:d3q19-hyb},
 since it is unable to reconstruct nonequilibrium part of the VDF.
 The sharp drop in Fig.~\ref{fig:norms:d3q19-hyb} indicates that the coupling interface is too close to the boundary,
 while the smoother transition in Fig.~\ref{fig:norms:d3q96-hyb} can be considered as more acceptable.
+Nevertheless, both hybrid schemes have almost the same DV part of the solution.
 
 \begin{comment}% [POISEUILLE]
 
@@ -1114,24 +1174,6 @@ It is clearly seen from Fig.~\ref{fig:poiseuille} that the application of the re
 can positively affect the solution accuracy in comparison to the conventional LB models.
 
 \end{comment}
-
-\begin{figure}
-    \centering
-    \includegraphics{acceleration}
-    \caption{
-        Computational speed-up yielded by the hybrid method for different CPUs and operational systems.
-        $N_0$ is the number of cells in the kinetic zone, $10N_0$ is the number of cells in the bulk region,
-        $t_\DV$ and $t_\mathrm{hyb}$ are the total CPU times elapsed by the DV and hybrid methods, respectively.
-    }\label{fig:speed-up}
-\end{figure}
-
-%%% Efficiency
-Finally, let us touch upon the efficiency of the proposed hybrid scheme.
-The computational speed-up with respect to the pure DV scheme is shown in Fig.~\ref{fig:speed-up} as a ratio of the corresponding CPU times,
-while the ratio of cells in the kinetic and bulk regions remains constant.
-One can see that efficiency of the hybrid method achieves the optimum value when number of cells in the kinetic region is more than $10^2$.
-Note that the asymptotic speed-up can be slightly higher than the optimum one (12--13 versus 11 in Fig.~\ref{fig:speed-up}).
-It is mainly due to memory saving, which results in fewer cache misses.
 
 \section{Conclusion}\label{sec:summary}
 
@@ -1162,6 +1204,12 @@ The entropic models are promising due to their enhanced stability for low viscos
 
 % We emphasize that LB is less computationally demanding than DV method. On the other hand, conventional LB is aimed to reproduce only the lowest moments of VDF in slow regimes whereas DV is able to cope with strong nonequilibrium effects.
 
+%%% TODO(olegrog): rework from discussion to future
+One can conclude that the improvements in LB method should be directed
+to the better reproduction of the higher Maxwell moments and half-range (wall) moments as well.
+In this case, the mapping method can be improved by involving fourth-order moments
+and including the enhanced LB models.
+
 \section*{Acknowledgements}
 
 This work was supported by the Russian Foundation for Basic Research (Grants 18-01-00899, 18-07-01500).
@@ -1170,6 +1218,9 @@ The authors are grateful to Victor Ambru\textcommabelow{s}, whose comments helpe
 \appendix
 
 \section{Third-order TVD limiter}\label{sec:limiter}
+...
+
+\section{Benchmark solution of the Couette-flow problem}\label{sec:benchmark_solution}
 ...
 
 \section*{References}
