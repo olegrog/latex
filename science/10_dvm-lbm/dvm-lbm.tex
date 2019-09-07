@@ -89,8 +89,8 @@
 \newcommand{\bx}{\boldsymbol{x}}
 \newcommand{\equil}[1]{#1^\mathrm{(eq)}}
 \newcommand{\refer}[1]{#1_0}
-\newcommand{\LB}{\mathrm{LB}\!}
-\newcommand{\DV}{\mathrm{DV}\!}
+\newcommand{\LB}{\mathrm{LB}}
+\newcommand{\DV}{\mathrm{DV}}
 \newcommand{\Herm}{\mathcal{H}}
 \newcommand{\cut}{{(\mathrm{cut})}}
 
@@ -640,7 +640,7 @@ where \(\Delta{x_m}\) is the width of \(m\) cell in the physical space (\(\bx\in
 \begin{equation}\label{eq:vdf_fv}
     f^n_m(\bxi_j) = f\br{
         t = t_n \equiv n\Delta{t}, \;
-        x = \frac{\Delta{x_m}}2 + \sum_{k=1}^{m-1}\Delta{x_k}, \;
+        x = x_m \equiv \frac{\Delta{x_m}}2 + \sum_{k=1}^{m-1}\Delta{x_k}, \;
         \bxi = \bxi_j
     }
 \end{equation}
@@ -697,10 +697,11 @@ approximates~\eqref{eq:diffuse} and ensures conservation of mass on the boundary
 For the ghost cell \(m=0\), used for calculation \(f^{n+1/2}_{3/2}\) via~\eqref{eq:internal_fluxes},
 the linear extrapolation of the form
 \begin{equation}\label{eq:first_ghost}
-    f^n_0 = \frac2{1+\gamma_m}f^{n+1/2}_{1/2} - \frac{1-\gamma_m}{1+\gamma_m}f^n_1, \quad
+    f^n_0 = \frac2{1+\gamma_1}f^{n+1/2}_{1/2} - \frac{1-\gamma_1}{1+\gamma_1}f^n_1, \quad
     \Delta{x}_0 = \Delta{x}_1,
 \end{equation}
-also preserves the second-order accuracy~\cite{LeVeque2002}.
+also preserves the second-order accuracy, since it is a linear extrapolation of two values at \(t=t_n\):
+\(f^n_1\) and \(f^{n+1/2}_{1/2} \equiv f(t_n+\Delta{t}/2, 0, \bxi_j) = f(t_n, -\gamma_1\Delta{x_1}/2, \bxi_j)\).
 It is worth emphasizing that the presented numerical scheme for the boundary-value problem
 possesses the second-order accuracy along with conservation of mass
 in contrast to the FV scheme used in~\cite{Baranger2019}.
@@ -846,7 +847,7 @@ therefore the total number of discrete velocities \(N_\DV=5928\).
 
 %%% Preliminary discussion on longitudinal heat flux
 Here it is important to mention that the longitudinal heat flux $q_x$ exists in the linear Couette-flow problem,
-particularly, in the Knudsen layer only and, therefore, decays exponentially with the distance from the boundary.
+particularly, in the Knudsen layer only and, therefore, decays exponentially with the distance from the boundary~\cite{Sone2007}.
 This heat flux is caused by the diffuse-reflection boundary conditions and has non-polar singularity on $k$ at the boundary.
 Hence, it cannot be reproduced by the Navier--Stokes or any other high-order fluid-dynamic-type equations
 obtained from the Hilbert or Chapman--Enskog expansions.
@@ -1218,12 +1219,51 @@ The authors are grateful to Victor Ambru\textcommabelow{s}, whose comments helpe
 \appendix
 
 \section{Third-order TVD limiter}\label{sec:limiter}
-...
+
+%%% Internal scheme
+Let us approximate the one-dimensional transport equation \(\Pder[f]{t} + \xi\Pder[f]{x}\)
+in the FV manner with constant mesh (\(\Delta{x}\)) and time (\(\Delta{t}\)) steps:
+\begin{equation}\label{eq:fv:scheme}
+    f^{n+1}_m = f^n_m - \gamma\br{f^{n+1/2}_{m+1/2} - f^{n+1/2}_{m-1/2}}, \quad
+    \gamma = \frac{\xi\Delta{t}}{\Delta{x}} \geq 0, \quad
+    m = 1,\dots,M, \quad n\in\mathbb{N},
+\end{equation}
+where the reconstructed edge values for the third-point stencil are written in the following form:
+\begin{equation}\label{eq:fv:flux}
+    f^{n+1/2}_{m+1/2} = f^n_m + \frac{1-\gamma}2\phi\br{\frac{\Delta_-}{\Delta_+}}\Delta_+, \quad m = 1,\dots,M,
+\end{equation}
+where \(\Delta_\pm = \pm\br{f^n_{m\pm1} - f^n_m}\), function \(\phi(\theta)\) is usually called a flux limiter.
+Within the one-point stencil for positive velocities \(\xi_j>0\),
+it is possible to construct the first-order (upwind) scheme only (\(\phi=0\)).
+The second-order accuracy can be achieved, if \(\phi(1+x) = 1 + \OO{x}\).
+For the third-order accuracy, the following condition is sufficient:
+\begin{equation}\label{eq:fv:third_order}
+    \phi(1+x) = 1 + \frac{1+\gamma}3x + \OO{x^2}.
+\end{equation}
+Taking into account the Courant--Friedrichs--Lewy (CFL) condition \(\gamma\leq1\)
+and non-negativity of the limiter for monotonic functions \(\phi(\theta\geq0)\geq0\),
+one can obtain the following sufficient conditions for the TVD property of the numerical scheme:
+\begin{equation}\label{eq:fv:tvd}
+    \begin{cases}
+        \phi(\theta) = 0, \quad \theta < 0, \\
+        \phi(\theta) \leq \dfrac{2}{\gamma}\theta, \quad \theta \geq 0, \\
+        0 \leq \phi(\theta) \leq \dfrac2{1-\gamma}.
+    \end{cases}
+\end{equation}
+Combining~\eqref{eq:fv:third_order} and~\eqref{eq:fv:tvd}, one can construct a third-order TVD limiter:
+\begin{equation}\label{eq:fv:limiter}
+    \phi(\theta) = \begin{cases}
+        0, &\quad \theta < 0, \\
+        \min\br{ \dfrac{2}{\gamma}\theta, \dfrac{1+\gamma}3\theta + \dfrac{2-\gamma}3, \dfrac2{1-\gamma}},
+            &\quad \theta \geq 0,
+    \end{cases}
+\end{equation}
+which is used in the present study, but for nonuniform mesh step~\eqref{eq:limiter}.
+Note that inequalities~\eqref{eq:fv:tvd} are often replaced by stronger ones, independent of \(\gamma\),
+especially when nonlinear transport equation is considered.
 
 \section{Benchmark solution of the Couette-flow problem}\label{sec:benchmark_solution}
 ...
-
-\section*{References}
 
 \bibliography{dvm-lbm}
 
