@@ -97,9 +97,9 @@
 \newcommand{\xiaj}{\xi_{\alpha,j}}
 \newcommand{\xibj}{\xi_{\beta,j}}
 \newcommand{\xigj}{\xi_{\gamma,j}}
-\newcommand{\cai}{c_{j \alpha}}
-\newcommand{\caj}{c_{j \beta}}
-\newcommand{\cak}{c_{j \gamma}}
+\newcommand{\caj}{c_{\alpha,j}}
+\newcommand{\cbj}{c_{\beta,j}}
+\newcommand{\cgj}{c_{\gamma,j}}
 \newcommand{\ai}{a_{\alpha}}
 \newcommand{\aij}{a_{\alpha\beta}}
 \newcommand{\aijk}{a_{\alpha\beta\gamma}}
@@ -447,7 +447,7 @@ The \emph{LB method} can be considered as a special discretization of the BGK mo
 We assume that the considered flow is isothermal and slow, i.e., the Mach number is close to zero.
 Then we can expand the local Maxwell state into the Taylor series on the bulk velocity $\bv$
 and keep only the terms of some finite order (at least second).
-Moreover, we assume that the particle can travel with the velocities $\bc_{j}, j=1 \ldots N$
+Moreover, we assume that the particle can travel with the velocities $\bc_j, j=1 \ldots N$
 from a finite discrete set of possible velocities
 and the values of absolute Maxwellian are changed by the lattice weights $w_j$ in a such way
 that the conservation properties are satisfied.
@@ -1138,14 +1138,14 @@ For instance, quantities \(E_p=\|f-f^{\mathrm{NSF}}\|_p/\|f\|_p\),
 the deviation from the Navier--Stokes--Fourier (NSF) order of approximation~\cite{Zhang2014}:
 \begin{gather}
     f^{\mathrm{NSF}}_{\DV,j} = \equil{f}_{\DV,j}\br{
-        1 + \frac{\cai\caj P_{\alpha\beta}}{2pT} + \frac{\cai q_\alpha}{pT}\br{ \frac{c_j^2}{5T} - 1 } }, \label{eq:NSF_DV} \\
+        1 + \frac{\caj\cbj P_{\alpha\beta}}{2pT} + \frac{\caj q_\alpha}{pT}\br{ \frac{c_j^2}{5T} - 1 } }, \label{eq:NSF_DV} \\
     f^{\mathrm{NSF}}_{\LB,j} = \equil{f}_{\LB,j} + w_j\xiaj\br{
          P_{\alpha\beta}\br{\xibj\br{1 + \xigj v_\gamma} - 2 v_\beta } + q_\alpha\br{ \frac{\xi_j^2}5 - 1 } }, \label{eq:NSF_LB}
 \end{gather}
-where \(P_{\alpha\beta} = p_{\alpha\beta} - \rho T\delta_{\alpha\beta}\) and \(\cai = \xiaj - v_\alpha\),
+where \(P_{\alpha\beta} = p_{\alpha\beta} - \rho T\delta_{\alpha\beta}\) and \(\caj = \xiaj - v_\alpha\),
 are shown in Fig.~\ref{fig:norms} for the following norms in the discrete velocity space:
 \begin{equation}\label{eq:norms}
-    \|f\|_p = \bigg(\sum_j |f_j|^p \bigg)^\frac1p, \quad p=1,2, \quad \|f\|_\infty = \max_j |f_j|.
+    \|f\|_p = \bigg(\sum_j |f_j|^p \bigg)^{1/p}, \quad p=1,2, \quad \|f\|_\infty = \max_j |f_j|.
 \end{equation}
 
 %%% Discussion on figures
