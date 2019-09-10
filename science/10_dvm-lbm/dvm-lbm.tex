@@ -94,9 +94,9 @@
 \newcommand{\Herm}{\mathcal{H}}
 \newcommand{\cut}{{(\mathrm{cut})}}
 
-\newcommand{\xiai}{\xi_{j \alpha}}
-\newcommand{\xiaj}{\xi_{j \beta}}
-\newcommand{\xiak}{\xi_{j \gamma}}
+\newcommand{\xiaj}{\xi_{\alpha,j}}
+\newcommand{\xibj}{\xi_{\beta,j}}
+\newcommand{\xigj}{\xi_{\gamma,j}}
 \newcommand{\cai}{c_{j \alpha}}
 \newcommand{\caj}{c_{j \beta}}
 \newcommand{\cak}{c_{j \gamma}}
@@ -274,21 +274,21 @@ In section~\ref{sec:summary}, perspectives of the kinetic multiscale DV-LB metho
 
 %%% Nondimensional variables
 We first introduce the notation for describing a dilute gas.
-Let \(L\), \(\refer\rho\), \(\refer{T}\), \(V = \sqrt{R\refer{T}}\) and \(\refer{p} = \refer{\rho}R\refer{T}\) be
+Let \(L\), \(\refer\rho\), \(\refer{T}\), \(\refer{c} = \sqrt{R\refer{T}}\) and \(\refer{p} = \refer{\rho}R\refer{T}\) be
 the reference length, density, temperature, velocity, and pressure, respectively.
 The specific gas constant \(R = k_B/m\), where \(k_B\) is the Boltzmann constant and \(m\) is the molar mass.
-Then, \(f\refer{\rho}/V^3\) is the one-particle velocity distribution function (VDF)
-defined in seven-dimensional space \((tL/V, \bx L, \bxi V)\) and
+Then, \(f\refer{\rho}/\refer{c}^3\) is the one-particle velocity distribution function (VDF)
+defined in seven-dimensional space \((tL/\refer{c}, \bx L, \bxi \refer{c})\) and
 the macroscopic variables take the following form:
-\(\rho\refer{\rho}\) is the density, \(\bv V\) is the velocity, \(T\refer{T}\) is the temperature,
-\(p_{\alpha\beta}\refer{p}\) is the stress tensor, \(\bq\refer{p}V\) is the heat flux.
+\(\rho\refer{\rho}\) is the density, \(\bv\refer{c}\) is the velocity, \(T\refer{T}\) is the temperature,
+\(p_{\alpha\beta}\refer{p}\) is the stress tensor, \(\bq\refer{p}\refer{c}\) is the heat flux.
 In the dimensionless form, they are calculated as polynomial moments of the VDF:
 \begin{equation}\label{eq:macro}
     \begin{gathered}
     \rho = \int f \dxi, \quad
     \bv = \frac1{\rho} \int \bxi f \dxi, \quad
     T = \frac{1}{3\rho}\int|\bxi-\bv|^2f \dxi = \frac{p_{\alpha\alpha}}{3\rho}, \\
-    p_{\alpha\beta} = \int(\xi_{\alpha}-v_{\alpha})(\xi_{\beta}-v_{\beta}) f \dxi, \quad
+    p_{\alpha\beta} = \int(\xi_\alpha - v_\alpha)(\xi_\beta - v_\beta) f \dxi, \quad
     \bq = \frac12\int(\bxi-\bv)|\bxi-\bv|^2 f \dxi.
     \end{gathered}
 \end{equation}
@@ -297,15 +297,16 @@ Integration with respect to \(\bxi\) is, hereafter, carried out over \(\mathbb{R
 %%% Boltzmann equation
 The VDF is governed by the Boltzmann equation
 \begin{equation}\label{eq:Boltzmann}
-    \pder[f]{t} + \bxi\bdot\pder[f]{\bx} = \frac1kJ(f),
+    \pder[f]{t} + \bxi\bdot\pder[f]{\bx} = \frac{\sqrt2}k J(f),
 \end{equation}
 where \(J(f)\) is the collisional operator with a local Maxwellian as the equilibrium function
 \begin{equation}\label{eq:equilibrium}
     \equil{f}\br{\bxi; \rho, \bv, T} = \frac{\rho}{(2\pi T)^{3/2}}\exp\br{-\frac{|\bxi-\bv|^2}{2T}}.
 \end{equation}
-The Knudsen number \(k\) can be expressed in terms of the reference gas viscosity \(\refer\mu\)~\cite{Sharipov1998}:
+The Knudsen number \(k=\ell_0\sqrt\pi/2L\), where \(\ell_0\) is the mean free path,
+can be expressed in terms of the reference gas viscosity \(\refer\mu\)~\cite{Cercignani2000}:
 \begin{equation}\label{eq:Knudsen_number}
-    k = \frac{\refer\mu V}{\refer{p}L}.
+    k = \frac{\sqrt2\refer\mu\refer{c}}{\refer{p}L}.
 \end{equation}
 
 %%% BGK equation
@@ -322,7 +323,7 @@ but the BGK model is much simpler from the numerical point of view.
 The gas--surface interaction is described via the diffuse-reflection boundary conditions:
 \begin{equation}\label{eq:diffuse}
     f(t,\bx_B,\bxi) = \equil{f} \br{ \bxi;
-        -2\sqrt\frac\pi{T_B} \int_{\bxi'\bdot\bn<0} \bxi'\bdot\bn f(t,\bx_B,\bxi')\dxi', \bv_B, T_B
+        -\sqrt\frac{2\pi}{T_B} \int_{\bxi'\bdot\bn<0} \bxi'\bdot\bn f(t,\bx_B,\bxi')\dxi', \bv_B, T_B
     } \quad (\bxi\bdot\bn>0),
 \end{equation}
 where \(\bn\) is the unit vector normal to the boundary, directed into gas,
@@ -371,59 +372,70 @@ It is also assumed that \(\bv_B\bdot\bn = 0\).
 \section{Discrete-velocity approximation}\label{sec:dv}
 
 %%% Discretization of the velocity space
-Within the DV framework, the admissible particle velocities are restricted to set \(\Set{\bxi_j}{j=1,\dots,M}\).
-Under this assumption, an arbitrary moment \(\phi(\bxi)\) of \(f\) is calculated as
+Within the DV framework, the admissible particle velocities are restricted to set \(\Set{\bxi_j}{j=1,\dots,N}\).
+Under this assumption, an arbitrary moment \(\phi(\bxi)\) of \(f\) is approximated as
 \begin{equation}\label{eq:cubature}
     \int \phi f\dxi = \sum_j \phi(\bxi_j) f_j,
 \end{equation}
 where \(f_j/w_j\) is an approximation of \(f(\bxi_j)\), \(w_j\) is a quadrature weight.
 The evolution of \(f_j\) is governed by the system of partial differential equations
 \begin{equation}\label{eq:dvm}
-    \pder[f_j]{t} + \bxi_j\bdot\pder[f_j]{\bx} = \frac1k J_M(f_j)
+    \pder[f_j]{t} + \bxi_j\bdot\pder[f_j]{\bx} = \frac1k J_N(f_j)
 \end{equation}
 which is called the DV model of~\eqref{eq:Boltzmann}~\cite{Cabannes1980}.
 The \emph{DV method} of solving~\eqref{eq:Boltzmann} is based on a DV model,
-which is consistent with \(J(f)\) when \(M\) goes to infinity~\cite{Aristov2001}.
+which is consistent with \(J(f)\) when \(N\) goes to infinity~\cite{Aristov2001}.
 
 %%% Conservative and entropic properties
 It is important for a DV model~\eqref{eq:dvm} to preserve conservation and entropy properties
 of the continuous kinetic equation~\eqref{eq:Boltzmann}.
 For the BGK model
 \begin{equation}\label{eq:dvm-bgk}
-    J_M(f_j) = \rho\br{\equil{f}_j-f_j},
+    J_N(f_j) = \rho\br{\equil{f}_j-f_j},
 \end{equation}
-it can be accomplished when the discrete local equilibrium \(\equil{f}_j\) have the Maxwellian form
+it can be accomplished when the discrete local equilibrium \(\equil{f}_j\) has the Maxwellian form
 \begin{equation}\label{eq:equilibrium-bgk}
     \equil{f}_{\DV,j}(\hat\bm) = \frac{\hat\rho w_j}{(2\pi \hat{T})^{3/2}}
-        \exp\br{-\frac{|\bxi-\hat\bv|^2}{2\hat{T}}}, \quad
+        \exp\br{-\frac{|\bxi_j-\hat\bv|^2}{2\hat{T}}}, \quad
     \hat\bm = \transpose{\br{\hat\rho, \hat\bv, \hat{T}}} \in \mathbb{R}^5,
 \end{equation}
-where vector \(\hat\bm\) is the solution
-(which is proved to exist and be unique under some conditions~\cite{Mieussens2000}) of
+where vector \(\hat\bm\) is the solution of
 \begin{equation}\label{eq:m_solution}
-    \sum_j\bpsi_j\br{\equil{f}_{\DV,j}(\hat\bm) - f_j} = 0, \quad
-    \bpsi_j = \transpose{\br{1,\bxi_j,|\bxi_j|^2}} \in \mathbb{R}^5.
+    \sum_j \bpsi_j \br{ \equil{f}_{\DV,j}(\hat\bm) - f_j } = 0, \quad
+    \bpsi_j = \transpose{\br{1, \bxi_j,| \bxi_j|^2}} \in \mathbb{R}^5.
 \end{equation}
-Discrete equilibrium~\eqref{eq:equilibrium-bgk} is the maximization of the discrete entropy functional
+For a uniform lattice in the velocity space,
+it is proved that there exists a unique discrete equilibrium~\eqref{eq:equilibrium-bgk},
+which is the maximization of the discrete entropy functional
 and guarantees that mass, momentum, and kinetic energy are conserved~\cite{Mieussens2000}.
-Note also that \(\hat\bm\) is not equal to \(\bm = \transpose{\br{\rho, \bv, T}}\),
-but usually is close to it.
+Note also that moments of~\eqref{eq:equilibrium-bgk} are not associated with \(\hat\bm\):
+\begin{equation}\label{eq:equilibrium-bgk-moments}
+    \sum_j \bpsi_j \equil{f}_{\DV,j}(\hat\bm) = \rho\transpose{\br{1, \bv, |\bv|^2 + 3T}}, \quad
+    \bm = \transpose{\br{\rho, \bv, T}} \in \mathbb{R}^5.
+\end{equation}
+Vector \(\bm\) is not equal to \(\hat\bm\), but is quite close to it in practice.
 
 %%% Anisotropic velocity grids
 When the velocity grid is anisotropic, the diagonal terms of the pressure tensor \(p_{\alpha\beta}\)
-calculated from \(\equil{f}_{\DV,j}\) are not in general equal to each other;
-therefore, mass, momentum, and energy fluxes are not longer direction-independent.
-This asymmetry can be eliminated if the discrete equilibrium is constructed in form
+calculated from \(\equil{f}_{\DV,j}\) are not in general equal to each other.
+Hence, the discrete equilibrium~\eqref{eq:equilibrium-bgk} has at least a direction-dependent momentum flux
+\(p_{\alpha\beta}n_\alpha \neq \rho T n_\beta\) across an arbitrary interface with unit normal \(\bn\).
+Thus, 5-moment Maxwellian~\eqref{eq:equilibrium-bgk} is sufficient to construct the conservative DV method
+even for nonuniform anisotropic grids in the velocity space, but not for hybrid numerical method
+based on coupling of DV approximations with different degrees of \(p_{\alpha\beta}\) anisotropy.
+This anisotropy can be eliminated if the discrete equilibrium is constructed in the form
 \begin{equation}\label{eq:equilibrium-bgk-aniso}
-    \equil{f}_{\DV,j}(\hat\bm) = \hat{\rho} w_j \prod_i\br{ 2\pi \hat{T}_i }^{-1/2}
-        \exp\br{-\sum_i\frac{\br{\xi_i-\hat{v}_i}^2}{2\hat{T}_i}}, \quad
+    \equil{f}_{\DV,j}(\hat\bm) = \hat{\rho} w_j \prod_\alpha\br{ 2\pi \hat{T}_\alpha }^{-1/2}
+        \exp\br{-\sum_\alpha\frac{\br{\xiaj-\hat{v}_\alpha}^2}{2\hat{T}_\alpha}}, \quad
     \hat\bm = \transpose{\br{\hat\rho, \hat\bv, \hat{\bT}}} \in \mathbb{R}^7,
 \end{equation}
-where vector \(\hat\bm\) is the solution of
+where \(\xiaj \equiv \bxi_j\), vector \(\hat\bm\) is the solution of
 \begin{equation}\label{eq:m_solution-aniso}
-    \sum_j\bpsi_j\br{\equil{f}_{\DV,j}(\bm) - f_j} = 0, \quad
-    \bpsi_j = \transpose{\br{1,\bxi_j,\bxi_j^2}}  \in \mathbb{R}^7.
+    \sum_j \bpsi_j \br{ \equil{f}_{\DV,j}(\hat\bm) - f_j } = 0, \quad
+    \bpsi_j = \transpose{\br{1, \bxi_j, \bxi_j^2}} \in \mathbb{R}^7.
 \end{equation}
+The 7-moment Maxwellian~\eqref{eq:equilibrium-bgk-aniso} can also be obtained
+from generalized minimum entropy principle~\cite{Charrier1999}.
 
 %%% LB method
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -443,13 +455,13 @@ Since for LB models the local equilibrium takes a polynomial form on the bulk ve
 the conservation of mass, momentum and energy can be achieved with much less efforts than for the conventional DV method.
 The third-order expansion in $\bv$ yields the following local equilibrium LB state:
 \begin{equation}\label{eq:lbgk}
-    \equil{f}_{\LB,j} = \rho w_j\left( 1
+    \equil{f}_{\LB,j}(\bm) = \rho w_j\left( 1
         + \frac{\bc_j\bdot\bv}{c_s^2}
         + \frac{(\bc_j\bdot\bv)^2-c_s^2v^2}{2c_s^4}
         + \frac{(\bc_j\bdot\bv)^3-3c_s^2 v^2(\bc_j\bdot\bv)}{6c_s^6}
     \right), \quad j=1,\ldots,N,
 \end{equation}
-where $\bc_j$ are the lattice velocities, $c_s$ is the isothermal sound velocity defined by $\sum_jw_j\bc^2_j=c_s^2$,
+where $\bc_j$ are the lattice velocities, $c_s$ is the isothermal sound velocity defined by $\sum_jw_j\bc^2_j=3c_s^2$,
 $N$ is the number of the lattice velocities.
 %In the case of low-order lattices, like D3Q19, the third-order terms are truncated in \eqref{eq:lbgk}.
 Several approaches can be applied for the construction of LB models
@@ -482,7 +494,7 @@ The polynomials are defined by
 \end{equation}
 and
 \begin{equation}
-    \omega(\bxi) = \frac{1}{\sqrt{(2\pi})^3}\exp\br{ -\frac{\bxi^2}{2} }.
+    \omega(\bxi) = \frac{1}{(2\pi)^{3/2}}\exp\br{ -\frac{\bxi^2}{2} },
 \end{equation}
 The coefficients $a, \ai,\aij, \aijk$ depend on $\bx$ (the point in the overlapping domain).
 We will use the function \eqref{eq:grad} for the transfer of the data between the LB and the BGK models.
@@ -497,7 +509,7 @@ by calculating the following coefficients:
 \begin{equation}
     \begin{gathered}
         a(x)=\sum_{m=1}^M f_\DV(x,\bxi_m), \quad
-        \ai(x)=\sum_{m=1}^Mf_\DV(x,\bxi_m)H_j(\bxi_m), \\
+        \ai(x)=\sum_{m=1}^Mf_\DV(x,\bxi_m)\Hi(\bxi_m), \\
         \aij(x)=\sum_{m=1}^Mf_\DV(x,\bxi_m)\Hij(\bxi_m), \quad
         \aijk(x)=\sum_{m=1}^Mf_\DV(x,\bxi_m)\Hijk(\bxi_m),
     \end{gathered}
@@ -580,10 +592,10 @@ therefore, the proposed mapping method can be applied.
 %%% Gauss--Hermite
 %In the present paper, we employ LBGK models based on the %projection of the VDF onto Hermite basis~\cite{Shan2006}:
 %\begin{multline}\label{eq:gauss-hermite}
-%    \equil{f}_\alpha = \rho\Bigg\{ 1 + 2\xiai v_i + %\overbrace{
-%        2\br{\xiai v_i}^2 - v_i^2 + (T-1)\br{\xiai^2 - %\frac{D}2}
+%    \equil{f}_\alpha = \rho\Bigg\{ 1 + 2\xiaj v_i + %\overbrace{
+%        2\br{\xiaj v_i}^2 - v_i^2 + (T-1)\br{\xiaj^2 - %\frac{D}2}
 %    }^\text{second order} + \\ \underbrace{
-%        \frac{2\xiaj v_j}3\left[ 2\br{\xiai v_i}^2 - 3v_i^2 %+ 3(T-1)\br{\xiai^2 - 1 - \frac{D}2}\right]
+%        \frac{2\xibj v_j}3\left[ 2\br{\xiaj v_i}^2 - 3v_i^2 %+ 3(T-1)\br{\xiaj^2 - 1 - \frac{D}2}\right]
 %    }_\text{third order} + \cdots \Bigg\}.
 %\end{multline}
 %Truncating of~\eqref{eq:gauss-hermite} compromises the %positivity condition and,
@@ -827,19 +839,19 @@ a significantly nonuniform velocity grid with local refinement near \(\xi_y=0\)~
 In the present paper, the nonuniform Cartesian lattice is cut off by the sphere of radius \(\xi^\cut=4\).
 Along \(\xi_x\) and \(\xi_z\) axis, the nodes are distributed as the scaled roots of the Hermite polynomials:
 \begin{equation}\label{eq:vgrid_hermite}
-    \xi_{\alpha,j} = x_{\Herm j} R, \quad w_{\alpha,j} = w_{\Herm j}\exp\br{x_{\Herm j}^2}R, \quad
+    \xiaj = x_{\Herm j} R, \quad w_{\alpha,j} = w_{\Herm j}\exp\br{x_{\Herm j}^2}R, \quad
     R = 2\xi^\cut \br{ \sum_{i=1}^{2N_{\alpha}} w_{\Herm i} \exp\br{x_{\Herm i}^2} }^{-1}, \quad
     j = 1,\dots,2N_{\alpha},
 \end{equation}
 where \(x_{\Herm j}\) and \(w_{\Herm j}\) are nodes and weights of the \((2N_{\alpha})\)-point Gauss--Hermite quadrature.
 Along \(\xi_y>0\) semiaxis, the nodes are distributed as a polynomial (particularly, quadratic \(p=2\)) sequence:
 \begin{equation}\label{eq:vgrid_polynomial}
-    w_{y,j} = w_{y,1} + (j-1)^p \br{\xi^\cut - N_y w_{y,1}} \br{\sum_{i=1}^{N_y} (i-1)^p}^{-1}, \quad
     \xi_{y,j} = \sum_{i=0}^{j-1} \frac{w_{y,i} + w_{y,i+1}}2, \quad
+    w_{y,j} = w_{y,1} + (j-1)^p \br{\xi^\cut - N_y w_{y,1}} \br{\sum_{i=0}^{N_y-1} i^p}^{-1}, \quad
     j = 1,\dots,N_y,
 \end{equation}
 where \(w_{y,0}=0\), \(w_{y,1}=0.1\) is the minimal width of cell in the velocity space.
-The quarature weight in \(\mathbb{R}^3\) of discrete velocity \(\bxi_j \equiv \xi_{\alpha,j}\)
+The quarature weight in \(\mathbb{R}^3\) of discrete velocity \(\bxi_j\)
 is equal to \(\prod_\alpha w_{\alpha,j}\).
 For all the presented DVM solutions, \(N_{x/z}=8\) and \(N_y=16\) are chosen.
 The discrete velocities with \(|\bxi_j| > \xi^\cut\) are excluded from the velocity grid;
@@ -1127,10 +1139,10 @@ the deviation from the Navier--Stokes--Fourier (NSF) order of approximation~\cit
 \begin{gather}
     f^{\mathrm{NSF}}_{\DV,j} = \equil{f}_{\DV,j}\br{
         1 + \frac{\cai\caj P_{\alpha\beta}}{2pT} + \frac{\cai q_\alpha}{pT}\br{ \frac{c_j^2}{5T} - 1 } }, \label{eq:NSF_DV} \\
-    f^{\mathrm{NSF}}_{\LB,j} = \equil{f}_{\LB,j} + w_j\xiai\br{
-         P_{\alpha\beta}\br{\xiaj\br{1 + \xiak v_\gamma} - 2 v_\beta } + q_\alpha\br{ \frac{\xi_j^2}5 - 1 } }, \label{eq:NSF_LB}
+    f^{\mathrm{NSF}}_{\LB,j} = \equil{f}_{\LB,j} + w_j\xiaj\br{
+         P_{\alpha\beta}\br{\xibj\br{1 + \xigj v_\gamma} - 2 v_\beta } + q_\alpha\br{ \frac{\xi_j^2}5 - 1 } }, \label{eq:NSF_LB}
 \end{gather}
-where \(P_{\alpha\beta} = p_{\alpha\beta} - \rho T\delta_{\alpha\beta}\) and \(\cai = \xiai - v_\alpha\),
+where \(P_{\alpha\beta} = p_{\alpha\beta} - \rho T\delta_{\alpha\beta}\) and \(\cai = \xiaj - v_\alpha\),
 are shown in Fig.~\ref{fig:norms} for the following norms in the discrete velocity space:
 \begin{equation}\label{eq:norms}
     \|f\|_p = \bigg(\sum_j |f_j|^p \bigg)^\frac1p, \quad p=1,2, \quad \|f\|_\infty = \max_j |f_j|.
