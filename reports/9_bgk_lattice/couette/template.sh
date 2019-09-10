@@ -26,18 +26,17 @@ exact_width = 1
 exact_point = 5
 exact_color = 0
 factor = sqrt(2)
-qflow = <qflow>
 
 x_0 = <buffer>
 if (<hybrid>) set arrow from x_0, graph 0 to x_0, graph 1 nohead dt 4 lc 0 lw 3
 
 plot \
     "<name>.txt" using 1:($2/U) title '$v_x/\Delta v$' w lp lw our_width pt our_point, \
-    "<name>.txt" using 1:(-$3/U/factor) title '$-p_{xy}/\Delta v$' w lp lw our_width pt our_point, \
-    "<name>.txt" using 1:(-qflow*$4/U) title sprintf('$-%dq_x/\Delta v$', qflow) w lp lw our_width pt our_point, \
+    "<name>.txt" using 1:(-<shear_factor>*$3/U/<kn>) title sprintf('$-%gp_{xy}/k\Delta v$', <shear_factor>) w lp lw our_width pt our_point, \
+    "<name>.txt" using 1:(-<qflow_factor>*$4/U/<kn>) title sprintf('$-%gq_x/k\Delta v$', <qflow_factor>) w lp lw our_width pt our_point, \
     1/0 title 'benchmark' w lp lc exact_color lw exact_width pt exact_point, \
     "k<kn>-my.txt" using 1:2 notitle w l lc exact_color lw exact_width, \
-    "k<kn>-my.txt" using 1:($3/factor) notitle w l lc exact_color lw exact_width, \
-    "k<kn>-my.txt" using 1:(qflow*$4) every 1 notitle w l lc exact_color lw exact_width, \
+    "k<kn>-my.txt" using 1:(<shear_factor>*$3/<kn>/factor) notitle w l lc exact_color lw exact_width, \
+    "k<kn>-my.txt" using 1:(<qflow_factor>*$4/<kn>) every 1 notitle w l lc exact_color lw exact_width, \
     "k<kn>.txt" using 1:2 notitle w p pt exact_point lc exact_color, \
-    "k<kn>.txt" using 1:(-2*$3/factor) notitle w p pt exact_point lc exact_color
+    "k<kn>.txt" using 1:(-<shear_factor>*$3/<kn>*factor) notitle w p pt exact_point lc exact_color

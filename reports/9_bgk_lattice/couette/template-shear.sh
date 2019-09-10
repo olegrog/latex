@@ -25,9 +25,7 @@ our_point = 6
 
 U = 0.02
 factor = sqrt(2)
-exact = <exact>
-func(x) = (x/U - 2*exact)/(2*exact)
-func(x) = (x/U - 2*exact)/<kn>**2
+func(x) = (x/U - <exact>*factor)/<kn>**2
 
 x_0 = <buffer>
 if (<hybrid>) set arrow from x_0, graph 0 to x_0, graph 1 nohead dt 4 lc 0 lw 3
