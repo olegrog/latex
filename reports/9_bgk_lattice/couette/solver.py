@@ -69,7 +69,7 @@ e_x, e_y, e_z = np.eye(fixed.D)
 delta_y0 = lambda d: d.L/d.N if d.q == 1 else d.L*(1-d.q)/(1-d.q**d.N)
 delta_y = lambda d: delta_y0(d) * d.q**np.arange(d.N)
 cells = lambda d: d.y0 + np.cumsum(delta_y(d) + np.roll(np.append(delta_y(d)[:-1], 0), 1))/2
-half_M = lambda m: -np.sum(m.c()[...,1] * m.Maxw(Macro(vel=args.U*e_x/2, temp=fixed.T_B)) * (m.c()[...,1] < 0))
+half_M = lambda m: -np.sum(m.xi[...,1] * m.Maxw(Macro(vel=args.U*e_x/2, temp=fixed.T_B)) * (m.xi[...,1] < 0))
 _to_arr = lambda vel: np.atleast_2d(vel)
 to_arr = lambda macro: macro if hasattr(macro.rho, '__len__') else Macro(*[ np.array([m]) for m in macro._asdict().values() ])
 _from_arr = lambda vel: slice(None) if len(vel.shape) > 1 else 0
@@ -99,7 +99,7 @@ def poly_correct_moments(model, F, mask, delta):
         (m0, m1_i, m2, m2_ij, m3_i),
         (m2, m3_i, m4),
         np.hstack(( _(M0), M1_i, _(M2) )),
-        model.c()[mask,:]
+        model.xi[mask,:]
     )[_from_arr(F)]
 
 def poly_correct_vdf(F, macro, xi):
@@ -272,8 +272,8 @@ def dvm_grid():
 
     return Model(
         info = 'DVM: ({}x{}x{})'.format(*_shape),
-        weights = _w,
-        c = lambda vel=zeros: c(_to_arr(vel))[_from_arr(vel)],
+        weights = _w, xi = _xi,
+        c = lambda vel: c(_to_arr(vel))[_from_arr(vel)],
         Maxw = lambda macro: create_vdf(Maxw, macro),
         Grad13 = lambda macro: create_vdf(Grad13, macro, grad13_method),
     )
@@ -329,7 +329,7 @@ def lbm_grid():
 
     return Model(
         info = 'LBM: %s' % args.lattice,
-        weights = _w,
+        weights = _w, xi = _xi,
         c = lambda vel=zeros: c(_to_arr(vel))[_from_arr(vel)],
         Maxw = lambda macro: multicell_adapter(Maxw, macro),
         Grad13 = lambda macro: multicell_adapter(Grad13, macro)
@@ -339,7 +339,7 @@ def splot(model, f):
     import mpl_toolkits.mplot3d.axes3d as p3
     fig = plt.figure()
     ax = p3.Axes3D(fig)
-    xi = model.c()
+    xi = model.xi
     m = ( xi[:,2] <= (model.weights0[0])**(1./3)/2 ) * ( xi[:,2] >= 0 )
     #ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.weights0())[m])
     ax.scatter(xi[:,0][m], xi[:,1][m], (f/model.Maxw(Macro()))[m])
@@ -395,7 +395,7 @@ def calc_macro0(model, F):
     f = _to_arr(F)
     #TODO: optimize using generators
     rho = np.einsum('ai->a', f)
-    vel = np.einsum('ai,il,a->al', f, model.c(), 1./rho)
+    vel = np.einsum('ai,il,a->al', f, model.xi, 1./rho)
     c = model.c(vel)
     cc = np.einsum('ail,ail->ai', c, c)
     ccc_i = np.einsum('ai,ail->ail', cc, c)
@@ -409,7 +409,7 @@ def calc_macro0(model, F):
 def calc_first_moments0(model, F, mask=slice(None), all=False, xi=None):
     f = _to_arr(F)[:,mask]
     if xi is None:
-        xi = model.c()[mask,:]
+        xi = model.xi[mask,:]
     sqr_xi = np.einsum('il,il->i', xi, xi)
     m0 = np.einsum('ai->a', f)
     m1_i = np.einsum('ai,il->al', f, xi)
@@ -422,7 +422,7 @@ def calc_first_moments0(model, F, mask=slice(None), all=False, xi=None):
     return m0, m1_i, m2, m2_ij, m3_i, m4
 
 def hermite_polynomials(model):
-    xi, I = model.c(), np.eye(fixed.D)
+    xi, I = model.xi, np.eye(fixed.D)
     h0 = np.ones_like(xi[:,0])
     h1 = xi
     h2 = (np.einsum('il,im->ilm', xi, xi) - np.einsum('i,lm', h0, I))
@@ -498,7 +498,7 @@ def check(f, flux=False):
 def transport(domain, bc, solution, delta_t):
     np.seterr(all='raise') # for all transport threads
     logging.debug('Starting transfer')
-    N, xi_y, _xi_y = domain.N, domain.model.c(np.zeros((domain.N, fixed.D)))[...,1], domain.model.c()[...,1]
+    N, xi_y, _xi_y = domain.N, domain.model.c(np.zeros((domain.N, fixed.D)))[...,1], domain.model.xi[...,1]
     gamma, h = _xi_y * delta_t,  delta_y(domain)
     mask, _mask = lambda sgn, N: sgn*xi_y[0:N] > 0, lambda sgn: sgn*_xi_y > 0
     def calc_F(h, f, idx, F, Idx, mask, low_order=False):
@@ -601,7 +601,7 @@ class Symmetry(Boundary):
 class Diffuse(Boundary):
     def __init__(self, n):
         self._model = domains[n].model
-        self._xi_y = self._model.c()[...,1]
+        self._xi_y = self._model.xi[...,1]
         self._half_M = half_M(self._model)
 
     def __call__(self, F0, mask):
@@ -618,46 +618,53 @@ class Couple(Boundary):
         self._idx_partner = idx_partner
         self._lock_F = threading.Event()
         self._lock_f = threading.Event()
+        self._mirror = 1 + 2*self._idx_partner # -1 or 1
+        self._reconstructed_h = delta_y(domains[self._n_partner])[::-self._mirror][-2:]
+        self._is_reconstructed = False
+        self._model = domains[self._n].model
+        self._model_partner = domains[self._n_partner].model
     def _partner_cell(self, f, mask):
-        model, model_partner = domains[self._n].model, domains[self._n_partner].model
-        f_partner = self._f_partner[self._idx_partner]
-        if model == model_partner:
+        if self._model == self._model_partner:
+            f_partner = self._f_partner[self._idx_partner]
             f[mask] = f_partner[mask]
         else:
-            f[mask] = reconstruct(model_partner, model, f_partner)[mask]
+            f[mask] = self._reconstruct_partner_f()[1][mask]
         return delta_y(domains[self._n_partner])[self._idx_partner]
+    def _reconstruct_partner_f(self):
+        if not self._is_reconstructed:
+            self._reconstructed_f = \
+                reconstruct(self._model_partner, self._model, self._f_partner[::-self._mirror][-2:])
+            self._is_reconstructed = True
+        return self._reconstructed_f
     def connect(self, solution):
         self._f_partner = solution[self._n_partner].f
         self._F_partner = solution[self._n_partner].F
     def first_flux(self, h1, f1, F, mask, calc_F):
         self._lock_F.wait()
         self._lock_F.clear()
-        model, model_partner = domains[self._n].model, domains[self._n_partner].model
-        if model == model_partner:
+        if self._model == self._model_partner:
             # take the prepared flux from the partner
             F[0][mask] = self._F_partner[self._idx_partner][mask]
         else:
             # reconstruct a flux from the partner distribution function (2 cells)
             f3, h3 = self._new_f3(h1, f1)
-            mirror = 1 + 2*self._idx_partner # -1 or 1
-            f3[:2] = reconstruct(model_partner, model, self._f_partner[::-mirror][-2:])
-            h3[:2] = delta_y(domains[self._n_partner])[::-mirror][-2:]
+            f3[:2] = self._reconstruct_partner_f()
+            h3[:2] = self._reconstructed_h
             calc_F(h3, f3, np.array([1]), F, slice(1), np.array([mask]))
     def first_cell(self, h3, f3, F0, gamma1, mask):
         return self._partner_cell(f3[0], mask)
     def last_cell(self, h3, f3, mask):
         return self._partner_cell(f3[2], mask)
     def correct_first_flux(self, xi_y, F, mask):
-        model, model_partner = domains[self._n].model, domains[self._n_partner].model
-        if model != model_partner:
+        if self._model != self._model_partner:
             # conservative correction of the reconstructed flux
             if self._idx_partner:               # correct inflow flux of right domain only
-                xi_y_partner = model_partner.c()[...,1]
-                m0, m1_i, m2 = calc_first_moments0(model_partner, xi_y_partner*self._F_partner[self._idx_partner])
-                M0, M1_i, M2 = calc_first_moments0(model, xi_y*F)
+                xi_y_partner = self._model_partner.xi[...,1]
+                m0, m1_i, m2 = calc_first_moments0(self._model_partner, xi_y_partner*self._F_partner[self._idx_partner])
+                M0, M1_i, M2 = calc_first_moments0(self._model, xi_y*F)
                 logging.debug('Couple BC correction: mass %.2e, momentum (%.2e,%.2e,%.2e), energy %.2e'
                     % tuple(np.hstack((m0-M0, (m1_i-M1_i)[0], m2-M2))))
-                F[mask] *= 1 + poly_correct_moments(model, xi_y*F, mask, (m0-M0, m1_i-M1_i, m2-M2))
+                F[mask] *= 1 + poly_correct_moments(self._model, xi_y*F, mask, (m0-M0, m1_i-M1_i, m2-M2))
     def last_flux_is_calculated(self):
         bcs[self._n_partner][self._idx_partner]._lock_F.set()
     def all_fluxes_are_calculated(self):
@@ -665,6 +672,7 @@ class Couple(Boundary):
     def wait_for_update(self):
         self._lock_f.wait()
         self._lock_f.clear()
+        self._is_reconstructed = False
 
 def create_bcs():
     bcs = []
@@ -834,7 +842,7 @@ lattices = {
         [ 7.57516860965017e-2, 6.00912802747447e-2, 3.13606906699535e-3, 3.63392812078012e-2, 1.32169332731492e-2,
         4.48492851172950e-3, 2.48755775808342e-3, 6.07432754970149e-4, 4.64179164402822e-4, 4.51928894609872e-5 ]),
 }
-Model = namedtuple('Model', 'info weights c Maxw Grad13')
+Model = namedtuple('Model', 'info weights xi c Maxw Grad13')
 models = {
     'dvm': dvm_grid(),
     'lbm': lbm_grid()
