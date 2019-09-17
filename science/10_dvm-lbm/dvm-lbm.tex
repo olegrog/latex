@@ -297,17 +297,19 @@ Integration with respect to \(\bxi\) is, hereafter, carried out over \(\mathbb{R
 %%% Boltzmann equation
 The VDF is governed by the Boltzmann equation
 \begin{equation}\label{eq:Boltzmann}
-    \pder[f]{t} + \bxi\bdot\pder[f]{\bx} = \frac{\sqrt2}k J(f),
+    \pder[f]{t} + \bxi\bdot\pder[f]{\bx} = \frac1\tau J(f),
 \end{equation}
 where \(J(f)\) is the collisional operator with a local Maxwellian as the equilibrium function
 \begin{equation}\label{eq:equilibrium}
     \equil{f}\br{\bxi; \rho, \bv, T} = \frac{\rho}{(2\pi T)^{3/2}}\exp\br{-\frac{|\bxi-\bv|^2}{2T}}.
 \end{equation}
-The Knudsen number \(k=\ell_0\sqrt\pi/2L\), where \(\ell_0\) is the mean free path,
-can be expressed in terms of the reference gas viscosity \(\refer\mu\)~\cite{Cercignani2000}:
-\begin{equation}\label{eq:Knudsen_number}
-    k = \frac{\sqrt2\refer\mu\refer{c}}{\refer{p}L}.
+The characteristic relaxation time of collisions to equilibrium \(\tau\)
+can be expressed in terms of the reference gas viscosity \(\refer\mu\)~\cite{Cercignani2000, Sone2007},
+\begin{equation}\label{eq:tau}
+    \tau = \frac{\refer\mu\refer{c}}{\refer{p}L},
 \end{equation}
+and is related to the modified Knudsen number \(k=\ell_0\sqrt\pi/2L\), where \(\ell_0\) is the mean free path,
+as \(\tau = k / \sqrt2\).
 
 %%% BGK equation
 In the present paper, we restrict ourselves to the simplest relaxation model~\cite{Krook1954, Welander1954}
@@ -330,45 +332,6 @@ where \(\bn\) is the unit vector normal to the boundary, directed into gas,
 \(\bx_B\), \(T_B\), and \(\bv_B\) are the boundary coordinates, temperature, and velocity, respectively.
 It is also assumed that \(\bv_B\bdot\bn = 0\).
 
-% In the present paper we will consider two kinetic models based on the nonlinear Boltzmann equation which will be used in our further computations.
-% Our main object is the Bhatnagar-Gross-Krook (BGK) kinetic model~\cite{Krook1954, Welander1954},
-% which takes the following nondimensional form:
-% \begin{equation}\label{eq:bgk}
-%     \pder[f]{t} + \bxi\pder[f]{\bx} = \frac{\rho}{k}\br{\equil{f}-f}, \quad
-%     \equil{f} = \frac{\rho}{(2\pi T)^{3/2}}\exp\br{ -\frac{(\bxi-\bv)^2}{2T} },
-% \end{equation}
-% where \(f(t,\bx,\bxi)\) is the VDF of a dilute gas, \(\equil{f}\) is the local equilibrium state (local Maxwell distribution),
-% \(k\) is the Knudsen number, \(\rho,\bv,T\) are the density, bulk velocity, and temperature, respectively.
-% The assumption of constant relaxation time is acceptable for many cases, for instance, a good precision can be obtained for the Poiseuille and Couette flows \cite{Cerc2004,Luo2015,Luo2016}.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% [Rogozin]: this is a wrong citation. They studied the linear Couette flow, where Ma->0. In this limit, the relaxation time \tau=k is constant, since \rho=1.
-%% - Это верное цитирование, как будто у нас Мах %5 - большой
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% We also denote the stress tensor and heat flux as \(p_{\alpha\beta}\), \(\bq\).
-
-% In the present paper we deal with the plane Couette flow. The conversion to the dimensional variables for this problem can be performed as follows. Assume that $H$ is the distance between the plates, $T_0$ is the temperature of the plates, $U_0$ is the velocity of the plates,
-%$\tau$ is the average time between collisions which in practice can be measured from the viscosity $\mu$ and average pressure $P_0$ of the gas placed between the walls using the formula $\frac{\sqrt{\pi}\mu}{2 P_0}\sqrt{2RT_0}$ \cite{Sharipov1998}, where $R$ is the universal gas constant. Then the dimensional variables (with overbars) are defined as
-% $$
-% \overline{x}=Hx, \quad \overline{\xi}=\sqrt{RT_0} \xi , \quad \overline{t}=\frac{H}{\sqrt{RT_0}}t , \quad \overline{f}=\frac{n_0}{(2RT_0)^{3/2}} f,
-% $$
-% where $n_0 \sim 1/\tau$ is the average concentration,
-% moreover for the Knudsen number we have the following expression
-% $$
-% Kn=\frac{\tau\sqrt{2RT_0}}{H} ,
-% $$
-% we also introduce the Mach number
-% $$
-% Ma=U_0/\sqrt{RT_0}.
-% $$
-
-%%% Why BGK model?
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% [Rogozin]: seems too obvious for the whole paragraph
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%The nonlinearity in the BGK model is more severe than in the Boltzmann equation since $\equil{f}$ depends on $f$
-%via the moments $\rho,\bv,T$, but the BGK model is simpler for the numerical study.
-%The BGK equation is capable to reproduce strongly non-equilibrium effects in a dilute gas.
-
 \section{Discrete-velocity approximation}\label{sec:dv}
 
 %%% Discretization of the velocity space
@@ -384,7 +347,7 @@ The evolution of \(f_j\) is governed by the system of partial differential equat
 \end{equation}
 which is called the DV model of~\eqref{eq:Boltzmann}~\cite{Cabannes1980}.
 The \emph{DV method} of solving~\eqref{eq:Boltzmann} is based on a DV model,
-which is consistent with \(J(f)\) when \(N\) goes to infinity~\cite{Aristov2001}.
+which is consistent with~\eqref{eq:Boltzmann} when \(N\) goes to infinity~\cite{Aristov2001}.
 
 %%% Conservative and entropic properties
 It is important for a DV model~\eqref{eq:dvm} to preserve conservation and entropy properties
@@ -408,6 +371,7 @@ For a uniform lattice in the velocity space,
 it is proved that there exists a unique discrete equilibrium~\eqref{eq:equilibrium-bgk},
 which is the maximization of the discrete entropy functional
 and guarantees that mass, momentum, and kinetic energy are conserved~\cite{Mieussens2000}.
+For computations, a finite number of discrete velocities is used: \(N = N_\DV < \infty\).
 Note also that moments of~\eqref{eq:equilibrium-bgk} are not associated with \(\hat\bm\):
 \begin{equation}\label{eq:equilibrium-bgk-moments}
     \sum_j \bpsi_j \equil{f}_{\DV,j}(\hat\bm) = \rho\transpose{\br{1, \bv, |\bv|^2 + 3T}}, \quad
@@ -459,7 +423,7 @@ The third-order expansion in $\bv$ yields the following local equilibrium LB sta
         + \frac{\bc_j\bdot\bv}{c_s^2}
         + \frac{(\bc_j\bdot\bv)^2-c_s^2v^2}{2c_s^4}
         + \frac{(\bc_j\bdot\bv)^3-3c_s^2 v^2(\bc_j\bdot\bv)}{6c_s^6}
-    \right), \quad j=1,\ldots,N,
+    \right), \quad j = 1,\ldots,N_\LB,
 \end{equation}
 where $\bc_j$ are the lattice velocities, $c_s$ is the isothermal sound velocity defined by $\sum_jw_j\bc^2_j=3c_s^2$,
 $N$ is the number of the lattice velocities.
@@ -493,7 +457,7 @@ The polynomials are defined by
     \Hijk(\bxi) = \frac{(-1)}{\omega(\bxi)}\pderderder{\xi_\alpha}{\xi_\beta}{\xi_\gamma}\omega(\bxi),
 \end{equation}
 and
-\begin{equation}
+\begin{equation}\label{eq:omega}
     \omega(\bxi) = \frac{1}{(2\pi)^{3/2}}\exp\br{ -\frac{\bxi^2}{2} },
 \end{equation}
 The coefficients $a, \ai,\aij, \aijk$ depend on $\bx$ (the point in the overlapping domain).
@@ -610,7 +574,7 @@ Equation~\eqref{eq:Boltzmann} is solved by the symmetric Strang's splitting sche
 \begin{equation}\label{eq:Strang}
     S^{\Delta{t}}_{A+B}(f_0) = S^{\Delta{t}/2}_A \br{S^{\Delta{t}}_B \br{S^{\Delta{t}/2}_A(f_0)} } + \OO{\Delta{t}^3},
 \end{equation}
-where \(A(f) = -\bxi\nabla{f}\), \(B(f) = J(f)/k\), \(\Delta{t}\) is the time step.
+where \(A(f) = -\bxi\nabla{f}\), \(B(f) = J(f)/\tau\), \(\Delta{t}\) is the time step.
 \(S^t_P (f_0)\) denotes the solution of the Cauchy problem
 \begin{equation}\label{eq:Cauchy}
     \pder[f]{t} = P(f), \quad f|_{t=0} = f_0.
@@ -636,7 +600,7 @@ and continues until the convergence criterion is met.
 
 %%% General form
 For the sake of simplicity, we consider a one-dimensional physical space
-and introduce \(\xi=\xi_1\), \(x=x_1\).
+and introduce \(\xi = \xi_1\), \(x = x_1\).
 Then, the collisionless Boltzmann equation with discrete velocities
 \begin{equation}\label{eq:transport}
     \pder[f(\bxi_j)]{t} + \xi_j\pder[f(\bxi_j)]{x} = 0
@@ -652,12 +616,12 @@ where \(\Delta{x_m}\) is the width of \(m\) cell in the physical space (\(\bx\in
 \begin{equation}\label{eq:vdf_fv}
     f^n_m(\bxi_j) = f\br{
         t = t_n \equiv n\Delta{t}, \;
-        x = x_m \equiv \frac{\Delta{x_m}}2 + \sum_{k=1}^{m-1}\Delta{x_k}, \;
+        x = x_m \equiv \frac{\Delta{x_m}}2 + \sum_{l=1}^{m-1}\Delta{x_l}, \;
         \bxi = \bxi_j
     }
 \end{equation}
 and \(f^{n+1/2}_{m+1/2}(\bxi_j)\) (\(m = 0,\dots,M\)) are the reconstructed edge values
-defined at \(x_{m+1/2} = \sum_{k=0}^m\Delta{x_k}\).
+defined at \(x_{m+1/2} = \sum_{l=0}^m\Delta{x_l}\).
 Also two ghost cells are introduced and correspond to \(m=0\) and \(m=M+1\).
 Hereinafter, we describe only positive velocities \(\xi_j>0\).
 For \(\xi_j<0\), all expressions are analogous
@@ -815,7 +779,8 @@ where a gas is embraced between the two parallel plates with non-zero relative v
 The hybrid approach assumes that a highly nonequlibrium gas in the Knudsen layer
 is described using the BGK equation, while the LBGK model is employed for the internal zone.
 For the BGK model of the Boltzmann equation, the plane Couette-flow problem can be reduced
-to a one-dimensional integral equation, which has been solved very accurately in~\cite{Luo2015, Luo2016}.
+to a one-dimensional integral equation with a weakly singular kernel,
+which has been solved accurately in~\cite{Luo2015} and, especially, in~\cite{Luo2016}.
 Due to the lack of data on longitudinal heat flux in the mentioned works, we have re-implemented (in Python)
 the adaptive collocation method based on the generalized Gauss quadratures presented in~\cite{Luo2016}
 for computing the benchmark solutions (see~\ref{sec:benchmark_solution} for details).
@@ -1188,7 +1153,7 @@ can positively affect the solution accuracy in comparison to the conventional LB
 
 \end{comment}
 
-\section{Conclusion}\label{sec:summary}
+\section{Conclusions and perspectives}\label{sec:summary}
 
 %%% What have we done?
 In this paper, we have presented a new algorithm for coupling of the DV numerical solutions of the BGK kinetic equation.
@@ -1226,13 +1191,12 @@ and including the enhanced LB models.
 \section*{Acknowledgements}
 
 This work was supported by the Russian Foundation for Basic Research (Grants 18-01-00899, 18-07-01500).
-The authors are grateful to Victor Ambru\textcommabelow{s}, whose comments helped to improve the final version of the manuscript.
+The authors are grateful to referees for many constructive comments improving the quality of the paper.
 
 \appendix
 
 \section{Third-order TVD limiter}\label{sec:limiter}
 
-%%% Internal scheme
 Let us approximate the one-dimensional transport equation \(\Pder[f]{t} + \xi\Pder[f]{x}\)
 in the FV manner with constant mesh (\(\Delta{x}\)) and time (\(\Delta{t}\)) steps:
 \begin{equation}\label{eq:fv:scheme}
@@ -1271,11 +1235,64 @@ Combining~\eqref{eq:fv:third_order} and~\eqref{eq:fv:tvd}, one can construct a t
     \end{cases}
 \end{equation}
 which is used in the present study, but for nonuniform mesh step~\eqref{eq:limiter}.
-Note that inequalities~\eqref{eq:fv:tvd} are often replaced by stronger ones, independent of \(\gamma\),
+Let us note that inequalities~\eqref{eq:fv:tvd} are often replaced by stronger ones, independent of \(\gamma\),
 especially when nonlinear transport equation is considered.
 
 \section{Benchmark solution of the Couette-flow problem}\label{sec:benchmark_solution}
-...
+
+%%% Formulation of the linear Couette-flow problem
+For symmetry reasons, the steady-state behavior of the gas in the Couette flow at \(\Delta{v}\to0\)
+and arbitrary \(k\) is described by the following VDF:
+\begin{equation}\label{eq:exact:vdf}
+    f(\bxi) = \omega(\bxi)\br{ 1 + \Delta{v}\xi_x \Phi(y, \xi_y, \xi) }, \quad \xi = |\bxi|,
+\end{equation}
+where \(\omega(\bxi)\) is defined in~\eqref{eq:omega} and \(\Phi\) is governed by
+\begin{equation}\label{eq:exact:Phi}
+    \tau\xi_y\pder[\Phi]{y} = \frac{v_x}{\Delta{v}} - \Phi, \quad\
+    \Phi\br{ y=\mp\frac12, \xi_y\gtrless0, \xi } = \mp\frac12,
+\end{equation}
+which is derived under the assumption of the BGK model of collisional term~\cite{Sone2007}.
+The macroscopic variables are the following moments of \(\Phi\):
+\begin{equation}\label{eq:exact:macro}
+    v_x = \Delta{v}\int \xi_x^2\Phi\omega\dd\xi, \quad
+    p_{xy} = \Delta{v}\int \xi_x^2\xi_y\Phi\omega\dd\xi, \quad
+    q_x = \frac{\Delta{v}}2 \int \xi_x^2\xi^2\Phi\omega\dd\xi - \frac52v_x.
+\end{equation}
+
+%%% Solution
+The solution of~\eqref{eq:exact:Phi} can be represented as
+\begin{equation}\label{eq:exact:Phi_explicit}
+    \Phi\br{ |y| \leq \frac12, \xi_y\gtrless0, \xi } = \mp\frac12\exp\br{ \mp\frac{1\pm2y}{2\tau\xi_y} } +
+        \frac1{2\tau\xi_y} \int_{\mp\frac12}^y \exp\br{ -\frac{y-s}{\tau\xi_y} } g(s)\dd{s} ,
+\end{equation}
+where \(g(y) = 2v_x/\Delta v\) is obtained from the following integral equation~\cite{Willis1962}:
+\begin{equation}\label{eq:exact:g}
+    \sqrt{\pi} g(y) = \mathcal{J}_0 \left(\frac{1-2y}{2k}\right) - \mathcal{J}_0 \left(\frac{1+2y}{2k}\right)
+        + \frac1k \int_0^{\frac12} \left[ \mathcal{J}_{-1}\left(\frac{|y-s|}{k}\right)
+        - \mathcal{J}_{-1}\left(\frac{y+s}{k}\right) \right] g(s) \dd{s}.
+\end{equation}
+Here, \(\mathcal{J}_n(s)\) are the Abramowitz functions~\cite{Abramowitz1972}:
+\begin{equation}\label{eq:exact:Abramowitz}
+    \mathcal{J}_n(s) = \int_0^\infty t^n \exp\br{ -t^2-\frac{s}{t} } \dd t,
+    \quad s\ge0, \quad n \in \mathbb{Z}.
+\end{equation}
+The remaining macroscopic variables are calculated as follows:
+\begin{gather}
+    \frac{p_{xy}}{\Delta v} = -\frac{\tau}{\sqrt{\pi}} \br{
+        \mathcal{J}_2(0)-\mathcal{J}_2\left(\frac1k\right)
+        + \frac1k\int_0^{\frac12}\left[
+            \mathcal{J}_1\left(\frac{1-2s}{2k}\right)-\mathcal{J}_1\left(\frac{1+2s}{2k}\right)
+        \right]g(s)\dd{s}
+    }, \label{eq:exact:Pxy} \\
+    \begin{aligned}
+    \frac{q_x}{\Delta v} = \frac1{2\sqrt{\pi}} & \left(\vphantom{\int_0^{\frac12}}
+        \mathcal{J}_2\br{ \frac{1-2y}{2k} } - \mathcal{J}_2\br{ \frac{1+2y}{2k} }\right. \\
+        &+\left. \frac1k\int_0^{\frac12}\left[
+            \mathcal{J}_1\br{ \frac{|y-s|}k } - \mathcal{J}_1\br{ \frac{y+s}k }
+        \right]g(s)\dd{s}
+    \right) - \frac{g(y)}4.
+    \end{aligned} \label{eq:exact:qflow}
+\end{gather}
 
 \bibliography{dvm-lbm}
 
