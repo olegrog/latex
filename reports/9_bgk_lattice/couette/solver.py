@@ -3,7 +3,7 @@ import sys, argparse, threading, logging, traceback, vgrid
 import numpy as np
 from functools import partial
 from collections import namedtuple
-from scipy import optimize
+from scipy import optimize, interpolate
 
 parser = argparse.ArgumentParser(description='Solver for the plane Couette-flow problem')
 parser.add_argument('-U', type=float, default=2e-2, metavar='<float>', help='difference in velocity of plates')
@@ -75,6 +75,7 @@ to_arr = lambda macro: macro if hasattr(macro.rho, '__len__') else Macro(*[ np.a
 _from_arr = lambda vel: slice(None) if len(vel.shape) > 1 else 0
 from_arr = lambda macro: slice(None) if hasattr(macro.rho, '__len__') else 0
 multicell_adapter = lambda func, macro: func(to_arr(macro))[from_arr(macro)]
+idx2slice = lambda idx: np.s_[:,ord(idx) - ord('x')]
 
 def poly_correction(xi_moments, c_moments, delta, xi):
     m0, m1_i, m2, m2_ij, m3_i = xi_moments
@@ -363,11 +364,11 @@ def plot_profiles(solution):
     else:
         try:
             Y, Vel, Tau = np.loadtxt('k%g.txt' % args.kn).T
-            plt.plot(Y, Vel, 'rD', Y, -args.shear_factor * Tau * fixed.factor_v / args.kn, 'gD')
+            plt.plot(Y, Vel, 'rD', Y, -2 * args.shear_factor * Tau / fixed.factor_v / args.kn, 'gD')
             Y, Vel, Tau, Qflow = np.loadtxt('k%g-my.txt' % args.kn).T
-            plt.plot(Y, Vel, 'r--', Y, args.shear_factor * Tau * fixed.factor_v / args.kn / 2, 'g--',
+            plt.plot(Y, Vel, 'r--', Y, args.shear_factor * Tau / fixed.factor_v / args.kn, 'g--',
                 Y, args.qflow_factor * Qflow / args.kn, 'b--')
-        except:
+        except IOError:
             if args.verbose:
                 print("Exact solution is absent", file=sys.stderr)
         plt.plot(y, m.vel[:,0] / U, 'r*-', label='velocity/U')
@@ -477,11 +478,44 @@ def calc_norm(solution, norm):
     s = lambda m: np.hstack(m)
     return s(y), s(result)
 
-def total_values(domains):
-    y, h, macro = calc_macro(domains)
+def print_total_values(solution):
+    y, h, macro = calc_macro(solution)
     print('Total mass =', 2*sum(h*macro.rho))
     print('Total half momentum =', np.einsum('a,al', h*macro.rho, macro.vel))
     print('Total energy =', 2*sum(h*macro.rho*(fixed.D*macro.temp/2 + np.einsum('al,al->a', macro.vel, macro.vel))))
+
+def print_error(solution):
+    y, h, macro = calc_macro(solution)
+    err = lambda f, g: np.sqrt(np.sum((h*(f-g))**2))
+    try:
+        Y, Vel, Tau, Qflow = np.loadtxt('k%g-my.txt' % args.kn).T
+        plt.plot(Y, Vel, 'r--', Y, args.shear_factor * Tau * fixed.factor_v / args.kn / 2, 'g--',
+            Y, args.qflow_factor * Qflow / args.kn, 'b--')
+        quantities = [ 'vel', 'tau', 'qflow' ]
+        indices = [ 'x', 'z', 'x' ]
+        factors_real = np.array([ args.kn, -1, -1 ]) / args.U / args.kn
+        factors_exact = np.array([ args.kn, 1 / fixed.factor_v, 1]) / args.kn
+        errors = {}
+        for quantity, idx, factor_real, factor_exact in zip(quantities, indices, factors_real, factors_exact):
+            q = macro._asdict()[quantity][idx2slice(idx)] * factor_real
+            Q = eval(quantity.title()) * factor_exact
+            f = interpolate.interp1d(Y, Q, kind='cubic')
+            errors[f'{quantity}_{idx}'] = err(f(y), q)
+        print(f'Errors in L2 ({",".join(errors.keys())}) = {" ".join([ "{:.2e}".format(v) for v in errors.values()])}')
+    except IOError:
+        if args.verbose:
+            print("Exact solution is absent", file=sys.stderr)
+
+def print_result(solution):
+    y, h, m = calc_macro(solution)
+    if args.plot_norms:
+        names = list(norms.keys())
+        result = [ calc_norm(solution, name)[1] for name in norms.keys() ]
+    else:
+        names = [ 'vel_x', 'p_xy', 'q_x' ]
+        result = [ m.vel[:,0], m.tau[:,2], m.qflow[:,0] ]
+    np.savetxt(sys.stdout, np.transpose([y] + result), fmt='%1.5e',
+        header='%11s'*(len(names) + 1) % tuple(['y'] + names))
 
 def check(f, flux=False):
     if np.sum(np.isnan(f)) > 0:
@@ -709,7 +743,7 @@ def solve_bgk():
     solution = new_solution(lambda y: (1+0*y, U0*np.einsum('a,l', y, e_x), 1+0*y))
     y, h, m0 = calc_macro(solution)
     delta_t = min(h)/args.radius/args.step
-    total_values(solution)
+    print_total_values(solution)
     if args.plot:
         plt.ion()
         plot_profiles(solution)
@@ -726,16 +760,9 @@ def solve_bgk():
             print('%d: err(rho) = %g, p_xy/U = %g, err(p_xy)/U = %g, vel_x[-1]/U = %g, qflow_x[-1]/U = %g'
                 % ( i, rho_disp, pxy_mean/U, pxy_disp/U, m.vel[-1,0]/U, m.qflow[-1,0]/U ))
             plot_profiles(solution)
-    total_values(solution)
-    y, h, m = calc_macro(solution)
-    if args.plot_norms:
-        names = list(norms.keys())
-        result = [ calc_norm(solution, name)[1] for name in norms.keys() ]
-    else:
-        names = [ 'vel_x', 'p_xy', 'q_x' ]
-        result = [ m.vel[:,0], m.tau[:,2], m.qflow[:,0] ]
-    np.savetxt(sys.stdout, np.transpose([y] + result), fmt='%1.5e',
-        header='%11s'*(len(names) + 1) % tuple(['y'] + names))
+    print_total_values(solution)
+    print_error(solution)
+    print_result(solution)
     #splot(domains[-1].model, solution[-1].f[-1])
     #splot(domains[0].model, solution[0].f[0])
     if args.plot:
