@@ -788,10 +788,16 @@ def tests():
             is_almost_equal(m, m0)
     o = lambda y: np.ones_like(y)
     delta = args.U/2
-    rho, vel, temp, tau, qflow = 1 + delta, delta*e_x, 1 + delta**2, delta*e_z, delta*e_x/2
     if args.verbose:
+        # Check all LB quadratures
         for name, lattice in lattices.items():
-            print('Thermal speed squared for %6s:' % name, np.sum(np.einsum('il->i', lattice.xi**2)*lattice.w))
+            m0 = np.sum(lattice.w)
+            m1_i = np.einsum('i,il', lattice.w, lattice.xi)
+            m2 = np.einsum('i,il->', lattice.w, lattice.xi**2)
+            print('First 5 moments of %6s:' % name, m0, m1_i, m2)
+            if not np.allclose(np.hstack((m0, m1_i, m2)), np.hstack((1, zeros, fixed.D))):
+                raise NameError("Wrong LB model!")
+    rho, vel, temp, tau, qflow = 1 + delta, delta*e_x, 1 + delta**2, delta*e_z, delta*e_x/2
     print('Test #1: Maxwell distribution (rho=%g, vel_x=%g, temp=%g)' % (rho, vel[0], temp))
     macro = Macro(rho, vel, temp)
     for name, model in models.items():
@@ -857,8 +863,8 @@ lattices = {
     'd3q27n': lbm_d3(7, 1, [(0,0,0), (r,0,0), (s,s,0), (t,t,t)], [ 8*(90+q)/2205, 2*(135-23*q)/15435, (162+41*q)/6174, (783-202*q)/24696]),
     ### Surmas, Ortiz, Philippi 2009
         # almost 9th order (for moment xi^2 xi_a xi_b)
-    'd3v33n': lbm_d3(8, 1, [(0,0,0), (a1,0,0), (b1,b1,b1), (c1,0,0), (d1,d1,0)],
-        [ 1.69544317872168e-1, 7.53752058968985e-2, 3.90045337112442e-2, 6.86518217744201e-3, 2.08142366598628e-3 ]),
+    #'d3v33n': lbm_d3(8, 1, [(0,0,0), (a1,0,0), (b1,b1,b1), (c1,0,0), (d1,d1,0)],
+    #    [ 1.69544317872168e-1, 7.53752058968985e-2, 3.90045337112442e-2, 6.86518217744201e-3, 2.08142366598628e-3 ]),
     'd3v59': lbm_d3(8, 1.20288512331026, [(0,0,0), (1,0,0), (1,1,0), (1,1,1), (2,0,0), (2,2,0), (2,2,2), (3,0,0)],
         [ 9.58789162377528e-2, 7.31047082129148e-2, 3.46588971093380e-3, 3.66108082044515e-2,
         1.59235232232060e-2, 2.52480845105094e-3, 7.26968662515159e-5, 7.65879439346840e-4 ]),
