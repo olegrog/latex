@@ -335,7 +335,8 @@ It is also assumed that \(\bv_B\bdot\bn = 0\).
 \section{Discrete-velocity approximation}\label{sec:dv}
 
 %%% Discretization of the velocity space
-Within the DV framework, the admissible particle velocities are restricted to set \(\Set{\bxi_j}{j=1,\dots,N}\).
+Within the DV framework, the admissible particle velocities
+are restricted to the discrete set \(\Set{\bxi_j}{j=1,\dots,N}\).
 Under this assumption, an arbitrary moment \(\phi(\bxi)\) of \(f\) is approximated as
 \begin{equation}\label{eq:cubature}
     \int \phi f\dxi = \sum_j \phi(\bxi_j) f_j,
@@ -402,31 +403,26 @@ The 7-moment Maxwellian~\eqref{eq:equilibrium-bgk-aniso} can also be obtained
 from generalized minimum entropy principle~\cite{Charrier1999}.
 
 %%% LB method
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% [Rogozin]: I think this paragraph should be rewtitten, since I have no answers for
-%%% 1. What is the difference between discrete and lattice velocities?
-%%% 2. Why do you introduce sound speed if c_s=1 under our nondimensional notation?
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 The \emph{LB method} can be considered as a special discretization of the BGK model~\cite{Succi2001}.
 We assume that the considered flow is isothermal and slow, i.e., the Mach number is close to zero.
 Then we can expand the local Maxwell state into the Taylor series on the bulk velocity $\bv$
 and keep only the terms of some finite order (at least second).
-Moreover, we assume that the particle can travel with the velocities $\bc_j, j=1 \ldots N$
-from a finite discrete set of possible velocities
-and the values of absolute Maxwellian are changed by the lattice weights $w_j$ in a such way
-that the conservation properties are satisfied.
-Since for LB models the local equilibrium takes a polynomial form on the bulk velocity,
-the conservation of mass, momentum and energy can be achieved with much less efforts than for the conventional DV method.
-The third-order expansion in $\bv$ yields the following local equilibrium LB state:
+The third-order expansion in $\bv$ at unit temperature yields the following local equilibrium LB state:
 \begin{equation}\label{eq:lbgk}
     \equil{f}_{\LB,j}(\bm) = \rho w_j\left( 1
-        + \frac{\bc_j\bdot\bv}{c_s^2}
-        + \frac{(\bc_j\bdot\bv)^2-c_s^2v^2}{2c_s^4}
-        + \frac{(\bc_j\bdot\bv)^3-3c_s^2 v^2(\bc_j\bdot\bv)}{6c_s^6}
+        + \bxi_j\bdot\bv
+        + \frac12\left[ (\bxi_j\bdot\bv)^2 - v^2 \right]
+        + \frac{\bxi_j\bdot\bv}6\left[ (\bxi_j\bdot\bv)^2 - 3v^2 \right]
     \right), \quad j = 1,\ldots,N_\LB,
 \end{equation}
-where $\bc_j$ are the lattice velocities, $c_s$ is the isothermal sound velocity defined by $\sum_jw_j\bc^2_j=3c_s^2$,
-$N$ is the number of the lattice velocities.
+where the discrete velocities \(\bxi_j\) and the corresponding weights \(w_j\) satisfy the following relations:
+\begin{equation}
+    \sum_j w_j = 1, \quad \sum_j w_j \bxi_j = 0, \quad \sum_j w_j \xi_j^2 = 3,
+\end{equation}
+which secure the conservation laws.
+Since the local LB equilibrium takes a polynomial form on the bulk velocity,
+the conservation of mass, momentum and energy is achieved
+with much less computational effort than for the conventional DV method.
 %In the case of low-order lattices, like D3Q19, the third-order terms are truncated in \eqref{eq:lbgk}.
 Several approaches can be applied for the construction of LB models
 like Gauss--Hermite~\cite{He1997, Shan1998, Shan2006, Shan2010}
