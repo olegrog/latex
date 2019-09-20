@@ -768,6 +768,13 @@ def solve_bgk():
     if args.plot:
         plt.ioff(); plt.show()
 
+def check_model(name, w, xi):
+    m0 = np.sum(w)
+    m1_i = np.einsum('i,il', w, xi)
+    m2 = np.einsum('i,il->', w, xi**2) / fixed.D
+    print('First 5 moments of %6s:' % name, m0, m1_i, m2)
+    return np.allclose(np.hstack((m0, m1_i, m2)), np.hstack((1, zeros, 1)))
+
 def tests():
     fmt_float, fmt_str = '%+.2e', '%9s'
     dev2str = lambda x: fmt_str % '0' if np.fabs(x) < 1e1*np.finfo(float).eps else fmt_float % x
@@ -789,13 +796,12 @@ def tests():
     o = lambda y: np.ones_like(y)
     delta = args.U/2
     if args.verbose:
-        # Check all LB quadratures
+        # Check all quadratures
+        m = models['dvm']
+        sqr_xi = np.einsum('il->i', m.xi**2)
+        check_model('DVM', m.weights/(2*np.pi)**(fixed.D/2) * np.exp(-sqr_xi/2), m.xi)
         for name, lattice in lattices.items():
-            m0 = np.sum(lattice.w)
-            m1_i = np.einsum('i,il', lattice.w, lattice.xi)
-            m2 = np.einsum('i,il->', lattice.w, lattice.xi**2)
-            print('First 5 moments of %6s:' % name, m0, m1_i, m2)
-            if not np.allclose(np.hstack((m0, m1_i, m2)), np.hstack((1, zeros, fixed.D))):
+            if not check_model(name, lattice.w, lattice.xi):
                 raise NameError("Wrong LB model!")
     rho, vel, temp, tau, qflow = 1 + delta, delta*e_x, 1 + delta**2, delta*e_z, delta*e_x/2
     print('Test #1: Maxwell distribution (rho=%g, vel_x=%g, temp=%g)' % (rho, vel[0], temp))
