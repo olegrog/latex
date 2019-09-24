@@ -328,10 +328,10 @@ since \(\equil{f}\) depends on \(f\) via its moments,
 but the BGK model is much simpler from the numerical point of view.
 
 %%% Boundary conditions
-The gas--surface interaction is described via the diffuse-reflection boundary conditions:
+The gas--surface interaction is modeled via the diffuse-reflection boundary condition:
 \begin{equation}\label{eq:diffuse}
     f(t,\bx_B,\bxi) = \equil{f} \br{ \bxi;
-        -\sqrt\frac{2\pi}{T_B} \int_{\bxi'\bdot\bn<0} \bxi'\bdot\bn f(t,\bx_B,\bxi')\dxi', \bv_B, T_B
+        -\sqrt\frac{2\pi}{T_B} \int_{\bxi'\bdot\bn<0} \br{ \bxi'\bdot\bn } f(t,\bx_B,\bxi')\dxi', \bv_B, T_B
     } \quad (\bxi\bdot\bn>0),
 \end{equation}
 where \(\bn\) is the unit vector normal to the boundary, directed into gas,
@@ -346,12 +346,12 @@ are restricted to the discrete set \(\Set{\bxi_j}{j=1,\dots,N}\).
 Under this assumption, an arbitrary moment \(\phi(\bxi)\) of \(f\), including~\eqref{eq:macro},
 is approximated as
 \begin{equation}\label{eq:cubature}
-    \int \phi f\dxi = \sum_j \phi(\bxi_j) f_j,
+    \int \phi f\dxi = \sum_{j=1}^{N} \phi(\bxi_j) f_j,
 \end{equation}
 where \(f_j/w_j\) is an approximation of \(f(\bxi_j)\), \(w_j\) is a quadrature weight.
 The evolution of \(f_j\) is governed by the system of partial differential equations
 \begin{equation}\label{eq:dvm}
-    \pder[f_j]{t} + \bxi_j\bdot\pder[f_j]{\bx} = \frac1k J_N(f_j)
+    \pder[f_j]{t} + \bxi_j\bdot\pder[f_j]{\bx} = \frac1\tau J_N(f_j)
 \end{equation}
 which is called the DV model of~\eqref{eq:Boltzmann}~\cite{Cabannes1980}.
 The \emph{DV method} of solving~\eqref{eq:Boltzmann} is based on a DV model,
@@ -413,12 +413,12 @@ from generalized minimum entropy principle~\cite{Charrier1999}.
 %%% LB method
 The \emph{LB method} can be considered as a special discretization of the BGK model~\cite{Succi2001}.
 The investigated gas flow is assumed to be near-isothermal and slow,
-i.e., the Mach number \(\Ma\) is close to zero and \(T = 1 + \OO{\Ma^2}\).
+i.e., the Mach number \(\Ma = |\bv|\) is close to zero and \(T = 1 + \OO{\Ma^2}\).
 Under this restriction, the local Maxwell state is expanded into the Taylor series
 in the bulk velocity \(\bv\) and perturbed temperature \((T-1)\)
 around the absolute Maxwellian
 \begin{equation}\label{eq:omega}
-    \omega(\bxi) = \frac{1}{(2\pi)^{3/2}}\exp\br{ -\frac{\bxi^2}{2} }
+    \omega(\bxi) = \frac{1}{(2\pi)^{3/2}}\exp\br{ -\frac{\xi^2}{2} }, \quad \xi = |\bxi|
 \end{equation}
 with \(\rho=1\), \(\bv=0\), \(T=1\).
 The resulting series is truncated to some finite order of \(\Ma\).
@@ -437,19 +437,42 @@ where the discrete velocities \(\bxi_{\LB,j}\) and the corresponding weights \(w
     \sum_j w_{\LB,j} = 1, \quad \sum_j w_{\LB,j} \bxi_{\LB,j} = 0, \quad \sum_j w_{\LB,j} \xi_{\LB,j}^2 = 3,
 \end{equation}
 which secure the conservation laws.
-Since the local LB equilibrium takes a polynomial form on the bulk velocity,
-the conservation of mass, momentum and energy is achieved
-with much less computational effort than for the conventional DV method.
-%In the case of low-order lattices, like D3Q19, the third-order terms are truncated in \eqref{eq:lbgk}.
+However, truncating of type~\eqref{eq:lbgk} compromises the positivity condition in general
+and, therefore, does not guarantee the entropy properties.
+
+%%% Notation and particular cases
+Hereinafter, a quadrature rule, based on \(\bxi_{\LB,j}\) and \(w_{\LB,j}\),
+together with the discrete operator in form~\eqref{eq:lbgk},
+is referred as the LB model.
 Several approaches can be applied for the construction of LB models
 like Gauss--Hermite~\cite{He1997, Shan1998, Shan2006, Shan2010}
 and the entropic method~\cite{Karlin1999, Chikatamarla2006, Chikatamarla2009}.
+The common notation D3Q\(p\) means \(N_\LB=p\) for the three-dimensional LB model.
 The terms proportional to \((T-1)\) in~\eqref{eq:lbgk} vanish for isothermal LB models.
+For low-order lattices, like D3Q19, the third-order terms are truncated in~\eqref{eq:lbgk}.
+
+%%% Advantages of the LB method over the DV method
+When the VDF is a slightly perturbed equilibrium,
+it can be efficiently approximated using quadratures with small number \(N_\LB\).
+The LB models are capable of reproducing low-order polynomial moments of the VDF accurately and,
+therefore, describing a fluid-dynamic behavior of a gas, including that beyond the NS level.
+Since the local LB equilibrium takes a polynomial form on the bulk velocity,
+the conservation of mass, momentum and energy is achieved
+with much less computational effort than for the conventional DV method.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% [Rogozin]: We do not use this work, since we do not solve classical LBGK
+%%% Rogozin: We do not use this work, since we do not solve classical LBGK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %We apply the kinetic boundary conditions (diffuse reflection)~\cite{Ansumali2002} for LB models in the present paper.
+
+%%% Boundary conditions
+The diffuse-reflection boundary condition~\eqref{eq:diffuse} is discretized as
+\begin{equation}\label{eq:diffuse-dv}
+    f_j(t,\bx_B) = -\frac{\sum_{\bxi_k\bdot\bn<0} \br{ \bxi_k\bdot\bn } f_k(t,\bx_B)}
+        {\sum_{\bxi_k\bdot\bn>0} \br{ \bxi_k\bdot\bn } \equil{f}_k(\bm_B)}
+        \equil{f}_j(\bm_B) \quad \br{ \bxi_j\bdot\bn>0 }, \quad \bm_B = \transpose{\br{1, \bv_B, T_B}},
+\end{equation}
+which preserves conservation of mass.
 
 \section{The mapping method}\label{sec:mapping}
 
@@ -481,9 +504,9 @@ and $\Ha, \Hab, \Habg$ are the Hermite polynomials of the first, second, and thi
 \end{equation}
 where \(\delta_{\alpha\beta}\) is the Kronecker delta.
 
-%%% Discretization of the proposed mapping
-Discretization of~\eqref{eq:grad} and~\eqref{eq:a_coeffs} in the velocity space is pretty straightforward.
-Particularly, the expansion coefficients~\eqref{eq:a_coeffs} are calculated as quadratures~\eqref{eq:cubature},
+%%% Discretization
+The discretization of the proposed mapping in the velocity space is straightforward:
+the expansion coefficients~\eqref{eq:a_coeffs} are calculated as quadratures~\eqref{eq:cubature},
 and the truncated Hermite expansion~\eqref{eq:grad} is approximated as
 \begin{equation}\label{eq:discrete_grad}
     \hermite{f}_j = \equil{f}_j( \bm_0 ) \br{ a
@@ -558,7 +581,7 @@ but not equal to it for the conservative DV method.
 % in the interior of the DV spatial domain.
 
 %%% Naturalness of the mapping method for Gauss--Hermite LB models
-The described mapping method is natural for the Gauss--Hermite LB models.
+It is worth noting that the described mapping method is natural for the Gauss--Hermite LB models.
 Specifically, if the order of truncation used in the Hermite expansion~\eqref{eq:grad}
 coincides (or exceeds) with the order of the Gauss--Hermite LB model,
 all nonequilibrium information that can be contained within this LB model
@@ -572,75 +595,40 @@ Then the equivalence between the LB VDF and the expansion of type~\eqref{eq:grad
 
 \section{Numerical method}\label{sec:numerics}
 
-% TODO(olegrog): The equation \eqref{eq:m_solution} is solved numerically using Newton algorithm
-
-%%% DV method
-%Let the molecular velocities \(\bxi_j \) be restricted to a Cartesian %lattice \(X\)
-%with uniform spacing \(c\), called the lattice speed.
-%The classical DV method of solving~\eqref{eq:bgk} is based on such approximations \(J(\hat{f}_j)\)
-%that are consistent with \(J(f)\) when \(c\) goes to zero~\cite{Aristov2001}.
-%Due to exponential decay of the VDF, the given accuracy can be achieved
-%by cutting off all velocities that satisfy condition \(|\bxi_j| > \xi^{(\mathrm{cut})}\) from \(X\).
-
-%%% LB method
-%A set of velocities with the corresponding weights \(\Set{(\bxi_j,w_j)}{j=1,\dots,Q}\)
-%is called the quadrature rule~\cite{Stroud1971}.
-%A common notation D\(n\)Q\(m\) means \(D=n\) and \(Q=m\).
-%Hereinafter, a quadrature rule, together with the discrete operator in %form~\eqref{eq:dvm-bgk},
-%is referred as the lattice-BGK (LBGK) model.
-%When the VDF is close to equilibrium, it can be acceptably approximated using quadratures with small number \(Q\).
-%LBGK models are capable of reproducing low-order polynomial moments of the VDF accurately and,
-%therefore, describing a fluid-dynamic behavior of a gas, including that beyond the NS level.
-
-%%% Difference between DV and LB
-%Within the introduced terminology, the only difference between the DV and LB methods is an ultimate goal.
-%The former one strives to capture kinetic properties of highly nonequilibrium flows and, therefore,
-%forced to have a quite large dimension of the approximation space \(Q\).
-%The latter one, on the contrary, is based on the assumption of a slightly perturbed equilibrium and, therefore,
-%tends to describe it in the most efficient way.
-
-%%% Gauss--Hermite
-%In the present paper, we employ LBGK models based on the %projection of the VDF onto Hermite basis~\cite{Shan2006}:
-%\begin{multline}\label{eq:gauss-hermite}
-%    \equil{f}_\alpha = \rho\Bigg\{ 1 + 2\xiaj v_i + %\overbrace{
-%        2\br{\xiaj v_i}^2 - v_i^2 + (T-1)\br{\xiaj^2 - %\frac{D}2}
-%    }^\text{second order} + \\ \underbrace{
-%        \frac{2\xibj v_j}3\left[ 2\br{\xiaj v_i}^2 - 3v_i^2 %+ 3(T-1)\br{\xiaj^2 - 1 - \frac{D}2}\right]
-%    }_\text{third order} + \cdots \Bigg\}.
-%\end{multline}
-%Truncating of~\eqref{eq:gauss-hermite} compromises the %positivity condition and,
-%therefore, these LBGK models are not entropic, but the %conservation properties are preserved.
-
 \subsection{Time-integration method}\label{sec:numerics:splitting}
 
 %%% Splitting scheme
 For the present study, we start from the simplest numerical algorithm providing the second-order accuracy
 for both time and physical coordinates.
-Equation~\eqref{eq:Boltzmann} is solved by the symmetric Strang's splitting scheme~\cite{Bobylev2001}
+Equation~\eqref{eq:Boltzmann} is solved by the symmetric Strang's splitting scheme
 \begin{equation}\label{eq:Strang}
     S^{\Delta{t}}_{A+B}(f_0) = S^{\Delta{t}/2}_A \br{S^{\Delta{t}}_B \br{S^{\Delta{t}/2}_A(f_0)} } + \OO{\Delta{t}^3},
 \end{equation}
-where \(A(f) = -\bxi\nabla{f}\), \(B(f) = J(f)/\tau\), \(\Delta{t}\) is the time step.
-\(S^t_P (f_0)\) denotes the solution of the Cauchy problem
+where \(A(f) = -\bxi\bdot\nabla{f}\), \(B(f) = J(f)/\tau\), \(\Delta{t}\) is the time step.
+\(S^t_P(f_0)\) denotes the solution of the Cauchy problem
 \begin{equation}\label{eq:Cauchy}
     \pder[f]{t} = P(f), \quad f|_{t=0} = f_0.
 \end{equation}
+Scheme~\eqref{eq:Strang} preserves the second-order accuracy if \(S^t_A\) and \(S^t_B\)
+are approximated with the same convergence properties individually~\cite{Bobylev2001}.
 
-%%% Space-homogeneous
-Important advantage of the splitting procedure is that the space-homogeneous BGK equation
-\begin{equation}\label{eq:bgk_homogeneous}
-    \pder[f]{t} = \frac1\tau \br{\equil{f}-f}
-\end{equation}
-has the exact solution
+%%% Solutions of individual problems
+An important advantage of the splitting procedure is that the spatially homogeneous Boltzmann equation
+has an exact solution for the BGK collision model:
 \begin{equation}\label{eq:bgk_exact}
-    f(t) = \equil{f} + \br{f(t_0)-\equil{f}}\exp\br{-\frac{t-t_0}\tau}.
+    S^t_B(f_0) = \equil{f} + \br{f_0-\equil{f}}\exp\br{-\frac\rho\tau t};
 \end{equation}
-Moreover, generalization of this algorithm to the original Boltzmann equation is straightforward.
+however, the generalization to the original Boltzmann equation is straightforward.
+For the collisionless Boltzmann equation, the desired second-order accuracy of \(S^t_A(f_0)\)
+is archived by means of the finite-volume scheme described below.
 
 %%% Steady-state solution
 To find a steady-state solution of the boundary-value problem,
 the time-marching process is started from some initial approximation
 and continues until the convergence criterion is met.
+For the DV method, the discrete equilibrium \(\equil{f}_{\DV,j}\) is obtained as a solution
+of the nonlinear equations~\eqref{eq:m_solution} or \eqref{eq:m_solution-aniso} at each time step.
+For this purpose, some root-finding algorithm should be harnessed.
 
 \subsection{Finite-volume formulation}\label{sec:numerics:fv}
 
@@ -700,33 +688,40 @@ where
 \end{equation}
 
 %%% Boundary conditions
-The outflow boundary conditions are expressed in terms of edge values \(f^{n+1/2}_{M+1/2}(\bxi_j)\),
+The outflow boundary condition are expressed in terms of edge values \(f^{n+1/2}_{M+1/2}(\bxi_j)\),
 which are obtained from~\eqref{eq:internal_fluxes}
 and the linear extrapolation for the ghost cell \(m=M+1\):
 \begin{equation}\label{eq:last_ghost}
     f^n_{M+1} = 2f^n_M - f^n_{M-1}, \quad \Delta{x}_{M+1} = \Delta{x}_{M-1},
 \end{equation}
 which preserve the second-order accuracy~\cite{LeVeque2002}.
-The inflow boundary conditions are involved into the scheme
+The inflow boundary condition are involved into the scheme
 by means of \(f^{n+1/2}_{1/2}\) and \(f^{n+1/2}_{3/2}\).
-For the completely diffuse-reflection boundary condition,
+In particular, the DV diffuse-reflection boundary condition~\eqref{eq:diffuse-dv} yields
 \begin{equation}\label{eq:first_flux}
-    f^{n+1/2}_{1/2}(\bxi_j) = \displaystyle\frac{\sum_{\xi_k>0}f^{n+1/2}_{1/2}(\bxi_k)}
-        {\sum_{\xi_k<0}\xi_k\equil{f}_{\DV,k}(\bm_B)}
-        \equil{f}_{\DV,j}(\bm_B), \quad \bm_B = \transpose{\br{1, \bv_B, T_B}},
+    f^{n+1/2}_{1/2}(\bxi_j) = -\frac{\sum_{\xi_k>0} \xi_k f^{n+1/2}_{1/2}(\bxi_k)}
+        {\sum_{\xi_k<0} \xi_k \equil{f}_k(\bm_B)}
+        \equil{f}_j(\bm_B).
 \end{equation}
-approximates~\eqref{eq:diffuse} and ensures conservation of mass on the boundary.
 For the ghost cell \(m=0\), used for calculation \(f^{n+1/2}_{3/2}\) via~\eqref{eq:internal_fluxes},
 the linear extrapolation of the form
 \begin{equation}\label{eq:first_ghost}
     f^n_0 = \frac2{1+\gamma_1}f^{n+1/2}_{1/2} - \frac{1-\gamma_1}{1+\gamma_1}f^n_1, \quad
-    \Delta{x}_0 = \Delta{x}_1,
+    \Delta{x}_0 = \Delta{x}_1
 \end{equation}
 also preserves the second-order accuracy, since it is a linear extrapolation of two values at \(t=t_n\):
 \(f^n_1\) and \(f^{n+1/2}_{1/2} \equiv f(t_n+\Delta{t}/2, 0, \bxi_j) = f(t_n, -\gamma_1\Delta{x_1}/2, \bxi_j)\).
 It is worth emphasizing that the presented numerical scheme for the boundary-value problem
 possesses the second-order accuracy along with conservation of mass
-in contrast to the FV scheme used in~\cite{Baranger2019}.
+(in contrast to the FV scheme used in~\cite{Baranger2019}).
+
+%%% Stability
+The maximum value of the time step \(\Delta{t}\) for the described explicit scheme
+is limited by the Courant--Friedrichs--Lewy (CFL) condition:
+\(\gamma_m(\bxi_j)\leq1\) for all \(m\) and \(j\), which is equivalent to
+\begin{equation}\label{eq:CFL}
+    \Delta{t} \leq \min_{m,j} \frac{\Delta{x_m}}{\xi_j}.
+\end{equation}
 
 %%% Why half-integer lattice?
 The boundary conditions also dictate a way of discretization in the velocity space.
@@ -749,52 +744,49 @@ exactly~\cite{Ambrus2014, Ambrus2016}.
 
 \subsection{Coupling algorithm}\label{sec:numerics:coupling}
 
-%%% Homogeneous domain decomposition problem
+%%% Domain decomposition
 The mapping approach presented in Section~\ref{sec:mapping} can be implemented within the FV framework.
-Divide our computational domain in the physical space into subdomains, each employing its own DV model.
-The coupling conditions at the interface between subdomains can be considered as virtual boundary conditions.
-They are symmetric due to unified formulation in the physical space.
-
-%%% Projection and reconstruction procedures
-The concept of ghost cells suggests the simplest (from the algorithmic point of view) coupling strategy.
-If the interface between subdomains lies in the near-continuum region,
-it is admissible to exchange information only within a Hilbert subspace
-spanned by the truncated Hermite polynomials.
-Then, all that we need is to supplement each DV model with a mapping to this subspace.
-
-%%% Conservative scheme
-The proposed mapping procedure is conservative,
-because all moments required for the equilibrium function are calculated exactly.
-However, the FV scheme deals separately with velocities
-directed in the opposite half-spaces with respect to the interface.
-For this reason, mass, momentum, and energy fluxes across the coupling interface
-are slightly different for each DV model.
-In order to guarantee conservation properties, the polynomial correction (like in~\cite{Aristov1980})
-of edge values is harnessed in the present study:
-\begin{equation}\label{eq:poly_correction}
-    \tilde{f}^{n+1/2}_{\DV,j} = f^{n+1/2}_{\DV,j}(1 + \kappa_r\psi_{jr}), \quad
-    \sum_{j=1}^{Q_{\DV}} \tilde{f}^{n+1/2}_{\DV,j}\psi_{jr} =
-    \sum_{j=1}^{Q_{\LB}} f^{n+1/2}_{\LB,j}\psi_{jr},
-\end{equation}
-where \({f}^{n+1/2}_{(M),j}\) and \(Q_{(M)}\) are the reconstructed edge values
-and number of velocities of \((M)\) model, respectively,
-\(\tilde{f}^{n+1/2}_{\DV,j}\) are the corrected edge values,
-\(\psi_{jr}\) is defined in~\eqref{eq:equilibrium-bgk}.
-In practice, each component of \(\kappa_r\in\mathbb{R}^5\) is significantly less than unity;
-therefore, the positivity is also preserved.
+Let us divide our computational domain in the physical space into the DV and LB subdomains.
+The coupling condition at the interface between these subdomains can be considered as a virtual boundary condition.
+The concept of ghost cells provides the simplest (from the algorithmic point of view) coupling strategy.
 
 %%% 1D example
-Finally, let us return to the one-dimensional example outlined in Sec.~\ref{sec:numerics:fv}
-and suppose that \(x=0\) is the coordinate of the coupling interface.
-In order to use~\eqref{eq:internal_fluxes}, the VDF should be reconstructed in the ghost cells.
-In case of the second-order TVD scheme, \(f^n_0\) is used for all \(\bxi_j\) and, additionally,
-\(f^n_{-1}\) is required when \(\xi_j>0\).
+Let us return to the one-dimensional case described in Sec.~\ref{sec:numerics:fv}
+and suppose that \(x=0\) is the coordinate of the coupling interface,
+\(x<0\) and \(x>0\) are covered by the LB and DV models, respectively.
+As before, only the positive velocities \(\xi_j>0\) are described.
+Negative velocities \(\xi_j<0\) are treated in the same manner due to
+symmetric coupling based on the unified DV representation in the velocity space.
+In order to use~\eqref{eq:internal_fluxes} for calculating \(f^{n+1/2}_{1/2}(\bxi_{\DV,j})\)
+and \(f^{n+1/2}_{3/2}(\bxi_{\DV,j})\),
+the VDF should be mapped from LB to DV model in the ghost cells \(m=-1\) and \(m=0\).
+Conversely, \(f^n_1(\bxi_{\LB,j})\) is reconstructed from \(f^n_1(\bxi_{\DV,j})\)
+and substituted in~\eqref{eq:internal_fluxes} to obtain \(f^{n+1/2}_{1/2}(\bxi_{\LB,j})\).
 
-%In case of the first-order upwind scheme, \(f^n_0(\xi_j>0)\) is sufficient.
+%%% Conservative scheme
+The proposed Hermite-based mapping method preserves all conservation properties,
+because all moments required for the equilibrium function are calculated exactly.
+However, the FV scheme deals separately with velocities
+directed in the opposite half-spaces with respect to the coupling interface.
+For this reason, mass, momentum, and energy fluxes across the coupling interface
+depend on quadrature rule and, therefore, are not exactly equal for the LB and DV models.
+In the present study, the polynomial correction (like in~\cite{Aristov1980})
+of edge values is employed to recover conservation properties.
+Specifically, edge values \(f^{n+1/2}_{1/2}(\bxi_{\DV,j})\) are replaced by the corrected ones
+\begin{equation}\label{eq:poly_correction}
+    \tilde{f}^{n+1/2}_{1/2}(\bxi_{\DV,j}) = f^{n+1/2}_{1/2}(\bxi_{\DV,j}) \br{ 1 + \bm_C\bdot\bpsi_{\DV,j} },
+\end{equation}
+where \(\bpsi_j\) is defined in~\eqref{eq:m_solution} and \(\bm_C\) is found from
+\begin{equation}\label{eq:m_correction}
+    \sum_{j=1}^{N_{\DV}} \tilde{f}^{n+1/2}_{\DV,j}\bpsi_{\DV,j} =
+        \sum_{j=1}^{N_{\LB}} f^{n+1/2}_{\LB,j}\bpsi_{\DV,j}.
+\end{equation}
+In practice, each component of \(\bm_C\in\mathbb{R}^5\) is significantly less than unity;
+therefore, the positivity is also preserved.
 
 \subsection{Mesh refinement}\label{sec:numerics:refinement}
 
-The diffuse-reflection boundary conditions introduce several singularities into the VDF
+The diffuse-reflection boundary condition introduces several singularities into the VDF
 both in the velocity space and in the physical one.
 First, the discontinuity exists along the plane \(\bxi\bn=0\) and directly on the boundary surface (\(\bx=\bx_B\)).
 For a convex domain, this discontinuity does not penetrate into the gas region~\cite{Kim2011, Guo2017},
@@ -823,7 +815,7 @@ Therefore, the physical grid should be refined exponentially as \(\bx\) goes to 
 The proposed numerical method is tested for the plane Couette-flow problem,
 where a gas is embraced between the two parallel plates with non-zero relative velocity.
 The hybrid approach assumes that a highly nonequlibrium gas in the Knudsen layer
-is described using the BGK equation, while the LBGK model is employed for the internal zone.
+is described using the BGK equation, while the LB model is employed for the internal zone.
 For the BGK model of the Boltzmann equation, the plane Couette-flow problem can be reduced
 to a one-dimensional integral equation with a weakly singular kernel,
 which has been solved accurately in~\cite{Luo2015} and, especially, in~\cite{Luo2016}.
@@ -871,7 +863,7 @@ therefore the total number of discrete velocities \(N_\DV=5928\).
 %%% Preliminary discussion on longitudinal heat flux
 Here it is important to mention that the longitudinal heat flux $q_x$ exists in the linear Couette-flow problem,
 particularly, in the Knudsen layer only and, therefore, decays exponentially with the distance from the boundary~\cite{Sone2007}.
-This heat flux is caused by the diffuse-reflection boundary conditions and has non-polar singularity on $k$ at the boundary.
+This heat flux is caused by the diffuse-reflection boundary condition and has non-polar singularity on $k$ at the boundary.
 Hence, it cannot be reproduced by the Navier--Stokes or any other high-order fluid-dynamic-type equations
 obtained from the Hilbert or Chapman--Enskog expansions.
 Obviously, the classical LB models are unable to describe the Knudsen layer accurately and cope with \(q_x\) as a result.
@@ -1042,7 +1034,7 @@ Increasing order of the LB model helps to capture the corresponding low-order mo
 but failed to describe its high-order relaxation correctly.
 However, the LB models augmented by special groups of velocities are capable to reproduce the Knudsen layer to some extent.
 The augmented model D3Q96 reproduces the Maxwell half-range (or wall) moments better than D3Q121,
-which results in better reproduction of the diffuse-reflection boundary conditions.
+which results in better reproduction of the diffuse-reflection boundary condition.
 As a result, D3Q96 produces qualitatively correct results for the longitudinal heat flux,
 which has non-thermo-hydrodynamical nature, although does not recover thermo-hydrodynamics.
 
@@ -1262,7 +1254,7 @@ For the third-order accuracy, the following condition is sufficient:
 \begin{equation}\label{eq:fv:third_order}
     \phi(1+x) = 1 + \frac{1+\gamma}3x + \OO{x^2}.
 \end{equation}
-Taking into account the Courant--Friedrichs--Lewy (CFL) condition \(\gamma\leq1\)
+Taking into account the CFL condition \(\gamma\leq1\)
 and non-negativity of the limiter for monotonic functions \(\phi(\theta\geq0)\geq0\),
 one can obtain the following sufficient conditions for the TVD property of the numerical scheme:
 \begin{equation}\label{eq:fv:tvd}
