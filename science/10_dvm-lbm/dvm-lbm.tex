@@ -317,7 +317,7 @@ Integration with respect to \(\bxi\) is, hereafter, carried out over \(\mathbb{R
 %%% Boltzmann equation
 The VDF is governed by the Boltzmann equation
 \begin{equation}\label{eq:Boltzmann}
-    \pder[f]{t} + \bxi\bdot\pder[f]{\bx} = \frac1\tau J(f),
+    \pder[f]{t} + \bxi\bdot\pder[f]{\bx} = \frac{1}{\tau} J(f),
 \end{equation}
 where \(J(f)\) is the collisional operator with a local Maxwellian as the equilibrium function
 \begin{equation}\label{eq:equilibrium}
@@ -365,7 +365,7 @@ is approximated as
 where \(f_j/w_j\) is an approximation of \(f(\bxi_j)\), \(w_j\) is a quadrature weight.
 The evolution of \(f_j\) is governed by the system of partial differential equations
 \begin{equation}\label{eq:dvm}
-    \pder[f_j]{t} + \bxi_j\bdot\pder[f_j]{\bx} = \frac1\tau J_N(f_j)
+    \pder[f_j]{t} + \bxi_j\bdot\pder[f_j]{\bx} = \frac{1}{\tau} J_N(f_j)
 \end{equation}
 which is called the DV model of~\eqref{eq:Boltzmann}~\cite{Cabannes1980}.
 The \emph{DV method} of solving~\eqref{eq:Boltzmann} is based on a DV model,
@@ -861,7 +861,7 @@ exactly~\cite{Ambrus2014, Ambrus2016}.
         The red arrows represent the dependency relations
         among the set of nodes in the extended \(\Omega\) for \(\xi_j>0\).
         The values in nodes pointed out by these arrows are calculated from the provided references.
-        The dashed red arrows correspond to projection of the solution onto the truncated Hermite basis.
+        The dashed red arrows correspond to the projection of the solution onto the truncated Hermite basis.
     }
     \label{fig:coupling_scheme}
 \end{figure}
@@ -886,23 +886,25 @@ Conversely, \(f^n_{M+1}(\bxi_{\LB,j})\) is reconstructed from \(f^n_1(\bxi_{\DV,
 and substituted in~\eqref{eq:internal_fluxes} to obtain \(f^{n+1/2}_{M+1/2}(\bxi_{\LB,j})\).
 
 %%% Conservative scheme
-The proposed Hermite-based mapping method preserves all conservation properties,
+The proposed Hermite-based mapping method preserves all the conservation properties,
 because all moments required for the equilibrium function are calculated exactly.
 However, the FV scheme deals separately with velocities
 directed in the opposite half-spaces with respect to the coupling interface.
 For this reason, mass, momentum, and energy fluxes across the coupling interface
 depend on quadrature rule and, therefore, are not exactly equal for the LB and DV models.
 In the present study, the polynomial correction (like in~\cite{Aristov1980})
-of edge values is employed to recover conservation properties.
+of the flux through the coupling interface is employed to recover the conservation properties.
 Specifically, edge values \(f^{n+1/2}_{1/2}(\bxi_{\DV,j})\) are replaced by the corrected ones
 \begin{equation}\label{eq:poly_correction}
-    \tilde{f}^{n+1/2}_{1/2}(\bxi_{\DV,j}) = f^{n+1/2}_{1/2}(\bxi_{\DV,j}) \br{ 1 + \bm_C\bdot\bpsi_{\DV,j} },
+    \tilde{f}^{n+1/2}_{1/2}(\bxi_{\DV,j}) = f^{n+1/2}_{1/2}(\bxi_{\DV,j}) \br{ 1 + \bm_C\bdot\bpsi_{\DV,j} }
+        \quad (\xi_{\DV,j} > 0),
 \end{equation}
 where \(\bpsi_j\) is defined in~\eqref{eq:m_solution} and \(\bm_C\) is found from
 \begin{equation}\label{eq:m_correction}
-    \sum_{j=1}^{N_{\DV}} \tilde{f}^{n+1/2}_{\DV,j}\bpsi_{\DV,j} =
-        \sum_{j=1}^{N_{\LB}} f^{n+1/2}_{\LB,j}\bpsi_{\DV,j}.
+    \sum_{j=1}^{N_{\DV}} \xi_{\DV,j} \bpsi_{\DV,j} \tilde{f}^{n+1/2}_{\DV,j} =
+        \sum_{j=1}^{N_{\LB}} \xi_{\LB,j} \bpsi_{\LB,j} f^{n+1/2}_{\LB,j}.
 \end{equation}
+The DV solution for negative velocities (\(\xi_{\DV,j} < 0\)) remains unchanged as well as the LB one.
 In practice, each component of \(\bm_C\in\mathbb{R}^5\) is significantly less than unity;
 therefore, the positivity is also preserved.
 
@@ -1194,7 +1196,7 @@ since the absolute error is everywhere smaller than \(0.06k^2\), which is easily
 The largest error is observed in the points in the vicinity of the coupling interface.
 In the absence of conservative correction of fluxes on the coupling interface~\eqref{eq:poly_correction},
 these oscillations turn into monotonic jumps, which introduce much more error into results.
-This fact clearly confirms the well-known importance of preserving conservation properties by a numerical method.
+This fact clearly confirms the well-known importance of preserving the conservation properties by a numerical method.
 Incidentally, let us note that the obtained numerical accuracy is sufficient
 to distinguish molecular potentials~\cite{Sharipov2013, Su2018}.
 
