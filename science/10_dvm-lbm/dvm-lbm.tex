@@ -446,13 +446,13 @@ Particularly, the third-order expansion yields the following local equilibrium L
     \bigg), \quad j = 1,\ldots,N_\LB,
     \end{aligned}
 \end{equation}
-where the discrete velocities \(\bxi_{\LB,j}\) and the corresponding weights \(w_{\LB,j}\) satisfy the following relations:
+where the discrete velocities \(\bxi_{\LB,j}\) and the corresponding weights \(w_{\LB,j}\)
+satisfy the following normalization conditions:
 \begin{equation}
-    \sum_j w_{\LB,j} = 1, \quad \sum_j w_{\LB,j} \bxi_{\LB,j} = 0, \quad \sum_j w_{\LB,j} \xi_{\LB,j}^2 = 3,
+    \sum_j w_{\LB,j} = 1, \quad \sum_j w_{\LB,j} \bxi_{\LB,j} = 0, \quad \sum_j w_{\LB,j} \xi_{\LB,j}^2 = 3.
 \end{equation}
-which secure the conservation laws.
-However, truncating of type~\eqref{eq:lbgk} compromises the positivity condition in general
-and, therefore, does not guarantee the entropy properties.
+The LB models are designed to enforce conservation laws
+and guarantee that \(\equil{f}_{\LB,j}\) is at least an attractor~\cite{Luo2000}.
 
 %%% Notation and particular cases
 Hereinafter, a quadrature rule, based on \(\bxi_{\LB,j}\) and \(w_{\LB,j}\),
