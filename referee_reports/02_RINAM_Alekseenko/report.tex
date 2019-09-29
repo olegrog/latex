@@ -1,0 +1,173 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+\usepackage{amssymb, amsmath}
+\usepackage{physics}
+\usepackage[normalem]{ulem}         % for \sout
+\usepackage{fullpage}
+\usepackage{hyperref}
+
+\title{Referee report on \\
+"An ultra-sparse approximation of kinetic solutions to spatially homogeneous flows of non-continuum gas"
+by A.~Alekseenko, A.~Grandilli, and A.~Wood}
+\date{}
+
+\newcommand{\Kn}{\mathrm{Kn}}
+\newcommand{\Ma}{\mathrm{Ma}}
+\newcommand{\bxi}{\vb*{\xi}}
+
+\usepackage[
+    backend=biber,
+    sorting=none,
+    giveninits,
+]{biblatex}
+\bibliography{report}
+
+\begin{document}
+
+\maketitle
+
+%%% What is this about? What was done?
+The present manuscript is devoted to sparse approximations of the space-homogeneous Boltzmann equation (BE).
+The velocity distribution function (VDF) is represented in form of 2-3 Max\-wellians.
+The coefficients of this approximation are obtained from a regression analysis of the BE.
+The authors try to capture rarefied gas effects to some extent, but number of degrees of freedom is too small
+and it seems that it can be significantly increased only at high computational costs.
+Therefore, the presented ideas cannot serve as a foundation for a numerical method for solving the BE.
+However, the aim of this paper is different.
+The authors just try to analyze capability of the ultra-sparse Maxwellian-based approximation
+to describe the behavior of a rarefied gas. It is not a new, but a promising idea.
+
+%%% Why major revision?
+The major disadvantage of the presented manuscript is that it is not based on the previous works on this topic.
+The Soviet scientists Enders (husband and wife), together with their colleagues, published a series of papers in the 1980s,
+where they developed several numerical methods based on the expansion of the VDF into the Maxwellian series
+for the analysis of the spacially homogeneous relaxation problem, especially the isotropic case.
+It seems that the authors are not aware of these studies,
+many of which, however, go far beyond the scope of the authors' work.
+Unfortunately, the pioneer Enders' papers are written in Russian, but some of them are translated
+and can be definetely found nowadays, e.g.~\cite{Ender1988}.
+
+Futhermore, there are some points in the paper that can be improved and/or clarified:
+\begin{enumerate}
+    \item The authors claim that ``\emph{Our model ... is related to the method of moments.}''
+    However, their method is closer to the collocation family, since the residual of the VDF approximation
+    are equated in the set of collocation points $\bxi_j$.
+    Term~\emph{method of moments} is referred when sequences of the polynomial moments are equated to zero
+    for the residual of the approximation in order to find the expansion coefficients.
+    The Grad thirteen-moment method and Mott-Smith solution for the normar shock wave (SW) problem,
+    mentioned in the paper, are indeed the moment methods~\cite{Sone2007}.
+
+    \item The conclusion about applicability and accuracy of the method is made only
+    for the narrow class of initial-value problems (IVP), associated with the SW problem,
+    which is, moreover, quite natural for the Gaussian-based approximation.
+    In contrast, the majority of the boundary-value problems (BVP) deals with a discontinuous VDF.
+    It is obvious that the sum of smooth Maxwellians is bad suited for such cases,
+    but the problem of stability with respect to the initial conditions is quite intriguing.
+    Furthermore, the standard Bobylev--Krook--Wu (BKW) testing is also very desirable.
+
+    %%% The situation is correct in the paper since \rho and T is normalized to unity.
+    % \item The authors provide a comparison with the BGK model, but do not specify the exact form of the collision term.
+    % It is essential for high-\(\Ma\) flows. For example, the classical BGK dimensionless collision term
+    % is \(J = \rho(M[f]-f)\)~\cite{Sone2007}, where \(\rho\) is the density, \(f\) is the VDF, \(M[f]\) is the equilibrium VDF
+    % with the same density, velocity, and temperature as for \(f\). In contrast, the mathematicians obtained many results
+    % for the linear BGK model \(J = M[f]-f\). The BGK model is usually dimensionalized though the viscosity
+    % at the reference temperature. However, high-\(\Ma\) flows are accompanied with a wide range of temperatures.
+    % Therefore, it is important to preserve the equality of viscosities for models that are compared.
+    % It is known that viscosity \(\mu=\mu_0\sqrt{T}\) for the hard-sphere (HS) model
+    % and \(\mu=\mu_0T\) for the \(J = \rho(M[f]-f)\).
+    % Therefore, it is more correct to use BGK model \(J = \rho(M[f]-f)/\sqrt{T}\),
+    % which has the same viscosity as for HS model for all temperatures~\cite{Mieussens2000}.
+    % The ES-BGK model will have the same viscosity and thermal conductivity for all temperatures.
+
+    \item There are many references to the Grad's moment method and its regularized variants in the manuscript.
+    Moreover, one of the goals of the paper is the competition with this approach.
+    However, no relevant comparison is provided. The R13 and R26 models are very simple in the spacially homogeneous case.
+    Therefore, it does not require much effort to incorporate the related profiles into the figures.
+    Relaxation of shear stress and heat flow is constant as for the BGK model,
+    but the higher moments of the R26 system do not decay exactly exponentially in general.
+    It would be interesting to include these results in the comparison list.
+
+    \item The linear least squares problem is solved based on the random set of collocation points.
+    The authors present the results for various number of these points $N$,
+    but do not provide any convergence information with respect to $N$.
+    It is interesting to analyze some figures, where $N$ corresponds to the abscissa axis.
+    If genuine random numbers are used, dependences of $N^{-1/2}$ are probably expected.
+    Moreover, quasi-random sequences can be employed to improve the convergence order~\cite{Dick2013}.
+
+    \item Three different algorithms are used to sample random points in the paper.
+    However, all of them are far from the optimal one. The are some variance reduction techniques,
+    which are used to improve the random sampling~\cite{Dick2013}.
+    For example, the classical DSMC method employs the strategy of importance sampling,
+    which is also used for dicrete-velocity solutions of the BE~\cite{Varghese1994, Kolobov2013}.
+    It is also advisable to compare the sampling algorithms in some figure, where $N$ corresponds to the abscissa axis.
+
+    \item In contrast, it is very difficult to distinguish curves in Fig.~1 and, especially, to determine, which algorithm is best.
+    From Fig.~1, one can admit that algorithms are almost identical.
+
+    \item In the third sampling approach presented in the paper, $\rho$ is used as a scaling parameter,
+    but there is no information on what values of $\rho$ is used in the numerical experiments.
+
+    \item Every time-integration step is followed by a conservative correction procedure.
+    There are many approaches on how to handle the latter task.
+    Some of them do not preserve positivity and, therefore, can lead to the stability issues.
+    Consequently, the method of conservative correction should be specified in the formulas
+    and justified at best.
+
+    \item ``\emph{Substituting (1) into (2) and using the chain rule,
+    we obtain the following overdetermined functional equation (3).}''
+    Rigorously speaking, it is not correct to say about overdetermination for $\bxi\in\mathbb{R}^D$.
+    Instead the system of functional equations can become overdetermined
+    if (3) is replaced by the discrete-velocity analog (as in case of the collocation method)
+    for $\bxi_j$, $j=1,\dots,r$ and $r>5k$.
+    It is also worth emphasizing that the least squares problem (4) is well posed only if $r>5k$.
+
+    \item The caption of Fig.~1 comprises some unclear points. First, which quadratures are used to compute the moments?
+    Second, form of $f(t=0)$ is specified only in the next section and there is no reference to exact formula.
+
+    \item Dimensioned quantites are redundant within the scope of the paper.
+
+    \item Axes should be signed in Fig.~7 and colorbars should be provided.
+
+    \item ``\emph{Our ultra-sparse approximation model provides a convenient mechanism
+    to explore the process of relaxation in non-continuum gases.}''
+    It is a confusing statement. First, the presented method cannot serve for accurate numerical analysis
+    of spacially homogeneous relaxation, but can only be considered as efficient crude approximation.
+    There is no evidence in the paper that Maxwellian-based approximation converge fast to the exact solution
+    even for the considered class of problems.
+    As for inhomogeneous problem, it is too early to give a positive conclusion.
+
+    \item The abstract can also be improved in term of clearness for the general reader.
+    The following comments can be taken into account:
+    \begin{itemize}
+        \item Term \emph{macro-parameter} is kind of jargon.
+        Macroscopic variables/quantities/parameters are used instead.
+        \item Term \emph{approximating stream} is also not established.
+        \emph{Gaussians} or \emph{Maxwellians} are more common.
+        \item ``\emph{... small to medium deviations ...}''. Sounds too vaguely.
+        Instead it can be specified quantitavely, perhaps in terms of the Mach number.
+        For instance, the supersonic and hypersonic cases are considered in the results.
+        \item Terms \emph{equilibrium} or \emph{continuum limit}~\cite{Sone2007} is preferable over \emph{continuum}.
+    \end{itemize}
+
+    \item Finally, some typos are detected:
+    \begin{itemize}
+        \item Page 1, paragraph 2: ``intr\sout{i}oducing``
+        \item Abbreviation \emph{MoM} is not transcripted.
+        \item Legend for Fig.~3 informs that $P=5$ and $P=40$ are used, but $P=80$ is mentioned in the text.
+    \end{itemize}
+\end{enumerate}
+
+
+
+%%% Conclusions
+In summary, the submitted manuscript is recommended for a major revision
+in order to examine the mentioned Enders' work~\cite{Ender1988},
+compare with it, and, perhaps, incorporate some of findings.
+In addition, the manuscript is deserved to be polished, according to the comments listed above.
+
+\printbibliography
+
+\end{document}
