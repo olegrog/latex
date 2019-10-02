@@ -93,7 +93,6 @@
 \newcommand{\bpsi}{\boldsymbol{\psi}}
 \newcommand{\bv}{\boldsymbol{v}}
 \newcommand{\bq}{\boldsymbol{q}}
-\newcommand{\bc}{\boldsymbol{c}}
 \newcommand{\bn}{\boldsymbol{n}}
 \newcommand{\be}{\boldsymbol{e}}
 \newcommand{\bm}{\boldsymbol{m}}
@@ -237,12 +236,13 @@ Finally, the lattice-gas model based on the BGK equation was proposed in the beg
 It gave rise to a wide class of numerical methods called lattice-Boltzmann (LB) methods~\cite{Higuera1989, Benzi1992, Succi2001}.
 
 %%% Kinetic schemes for fluid dynamics beyond the NS level
-Many recent works are devoted to the extension of the applicability...
-As for the LB method, the 5-order D3Q19 model and 7-order D3Q39 model~\cite{Shan2006}
-based on the Gauss--Hermite quadratures are considered, along with special 7-order D3Q96 model
-developed for the boundary-value problems driven by the diffuse-reflection boundary condition~\cite{Feuchter2016}.
-thermal 9-order D3Q121 model~\cite{Shan2010}.
+\todo{
+Many recent works are devoted to extending the applicability of the LB method beyond the Navier--Stokes level.
+... isothemal Gauss--Hermite: 5-order D3Q19 model and 7-order D3Q39 model~\cite{Shan2006} ...
+... thermal Gauss--Hermite: 9-order D3Q121 model~\cite{Shan2010}...
+... augmented: 7-order D3Q96 model~\cite{Feuchter2016} ...
 The LB models that correctly describe all the Burnett-level moments are considered in~\cite{Xu2018, Xu2019}.
+}
 
 %%% Relation to Broadwell-type DV models
 It is worth emphasizing that there is a fundamental relationship between the LB and DV methods.
@@ -350,7 +350,7 @@ as \(\tau = k / \sqrt2\).
 %%% BGK equation
 In the present paper, we restrict ourselves to the simplest relaxation model~\cite{Krook1954, Welander1954}
 \begin{equation}\label{eq:bgk_integral}
-    J(f)(\bxi) = \rho\br{\equil{f}(\bxi) - f(\bxi)},
+    J(f)(\bxi) = \equil{f}(\bxi) - f(\bxi),
 \end{equation}
 often referred as the Bhatnagar--Gross--Krook (BGK) model of the Boltzmann collisional operator.
 The nonlinearity in~\eqref{eq:bgk_integral} is more severe in comparison to the full Boltzmann equation
@@ -392,7 +392,7 @@ It is important for a DV model~\eqref{eq:dvm} to preserve conservation and entro
 of the continuous kinetic equation~\eqref{eq:Boltzmann}.
 For the BGK model
 \begin{equation}\label{eq:dvm-bgk}
-    J_N(f_j) = \rho\br{\equil{f}_j-f_j},
+    J_N(f_j) = \equil{f}_j - f_j,
 \end{equation}
 it can be accomplished when the discrete local equilibrium \(\equil{f}_j\) has the Maxwellian form
 \begin{equation}\label{eq:equilibrium-bgk}
@@ -441,54 +441,47 @@ The 7-moment Maxwellian~\eqref{eq:equilibrium-bgk-aniso} can also be obtained
 from generalized minimum entropy principle~\cite{Charrier1999}.
 
 %%% LB method
-The \emph{LB method} can be considered as a special discretization of the BGK model~\cite{Succi2001}.
-The investigated gas flow is assumed to be near-isothermal and slow,
-i.e., the Mach number \(\Ma = |\bv|\) is close to zero and \(T = 1 + \OO{\Ma^2}\).
-Under this restriction, the local Maxwell state is expanded into the Taylor series
-in the bulk velocity \(\bv\) and perturbed temperature \((T-1)\)
-around the absolute Maxwellian
-\begin{equation}\label{eq:omega}
-    \omega(\bxi) = \frac{1}{(2\pi)^{3/2}}\exp\br{ -\frac{\xi^2}{2} }, \quad \xi = |\bxi|
-\end{equation}
-with \(\rho=1\), \(\bv=0\), \(T=1\).
-The resulting series is truncated to some finite order of \(\Ma\).
-Particularly, the third-order expansion yields the following local equilibrium LB state:
-\begin{equation}\label{eq:lbgk}
-    \begin{aligned}
-    \equil{f}_{\LB,j}(\bm) = \rho w_{\LB,j}\bigg( 1
-        &+ \bxi_{\LB,j}\bdot\bv
-        + \frac12\left[ (\bxi_{\LB,j}\bdot\bv)^2 - v^2 + (T-1)(\xi_{\LB,j}^2 - 3) \right] \\
-        &+ \frac{\bxi_{\LB,j}\bdot\bv}6\left[ (\bxi_{\LB,j}\bdot\bv)^2 - 3v^2 + 3(T-1)(\xi_{\LB,j}^2-5) \right]
-    \bigg), \quad j = 1,\ldots,N_\LB,
-    \end{aligned}
-\end{equation}
-where the discrete velocities \(\bxi_{\LB,j}\) and the corresponding weights \(w_{\LB,j}\)
-satisfy the following normalization conditions:
-\begin{equation}
-    \sum_j w_{\LB,j} = 1, \quad \sum_j w_{\LB,j} \bxi_{\LB,j} = 0, \quad \sum_j w_{\LB,j} \xi_{\LB,j}^2 = 3.
-\end{equation}
-The LB models are designed to enforce conservation laws
-and guarantee that \(\equil{f}_{\LB,j}\) is at least an attractor~\cite{Luo2000}.
+The \emph{LB method} can be considered as a special discretization of the BGK model~\cite{Succi2001, Kruger2017}.
+We assume that the considered flow is isothermal and slow, i.e., the Mach number is close to zero.
+Then we can expand the local Maxwell state into the Taylor series on the bulk velocity $\bv$
+and keep only the terms of some finite order (at least second).
+Moreover, we assume that the particle can travel with the velocities $\bxi_{\LB,j}, j = 1 \ldots N_\LB$.
+The values of absolute Maxwellian are changed by the lattice weights $w_{\LB,j}$ in such a way that the first moments
+(up to the second order for low-order LB models and at least up to the third order for high order LB models)
+of the local equilibrium state are the same as for the Maxwell distribution.
+For the LB models, the local equilibrium takes a polynomial form on the bulk velocity,
+and the requirement of the conservation of mass, momentum, and energy yields the algebraic equations
+for the lattice weights and velocities, which can be solved explicitly.
+Therefore the conservation properties for LB method are achieved with much less efforts than for the conventional DV method.
 
-%%% Notation and particular cases
-Hereinafter, a quadrature rule, based on \(\bxi_{\LB,j}\) and \(w_{\LB,j}\),
-together with the discrete operator in form~\eqref{eq:lbgk},
-is referred as the LB model.
-Several approaches can be applied for the construction of LB models
-like Gauss--Hermite~\cite{He1997, Shan1998, Shan2006, Shan2010}
-and the entropic method~\cite{Karlin1999, Chikatamarla2006, Chikatamarla2009}.
+%%% The equilibrium state
+The third-order expansion in $\bv$ yields the following local equilibrium LB state:
+\begin{equation}\label{eq:lbgk}
+    \equil{f}_{\LB,j}(\bm) = \rho w_{LB,j}\left( 1
+        + \frac{\bxi_{\LB,j}\bdot\bv}{c_s^2}
+        + \frac{(\bxi_{\LB,j}\bdot\bv)^2-c_s^2v^2}{2c_s^4} + \frac{(\bxi_{\LB,j}\bdot\bv)^3-3c_s^2 v^2(\bxi_{\LB,j}\bdot\bv)}{6c_s^6}
+    \right),
+\end{equation}
+where $c_s$ is the constant sound velocity defined by $\sum_jw_j\bxi^2_{\LB,j} = 3c_s^2$.
+In the present study, the value of $c_s$ is calibrated to unity for the all LB models.
 The common notation D3Q\(p\) means \(N_\LB=p\) for the three-dimensional LB model.
-The terms proportional to \((T-1)\) in~\eqref{eq:lbgk} vanish for isothermal LB models.
-For low-order lattices, like D3Q19, the third-order terms are truncated in~\eqref{eq:lbgk}.
+% The sound velocity $c_s$ is linearly dependent on $\Delta x/\Delta t$,
+% where $\Delta x, \Delta t$ are the distance between the lattice  nodes and lattice time step respectively
+% (for instance, for D3Q19 model one has $c_s=\sqrt{1/3} \Delta x/\Delta t$),
+% therefore $c_s$ can be calibrated by the choice of $\Delta x, \Delta t$,
+% in the present study the value of $c_s$ equals unity is adopted for the all considered LB models.
+In the case of low-order lattices like D3Q19, the third-order terms are truncated in \eqref{eq:lbgk}.
+Hereinafter, a quadrature rule, based on \(\bxi_{\LB,j}\) and \(w_{\LB,j}\),
+together with the discrete operator in form~\eqref{eq:lbgk}, is referred as the LB model.
 
 %%% Advantages of the LB method over the DV method
 When the VDF is a slightly perturbed equilibrium,
 it can be efficiently approximated using quadratures with small number \(N_\LB\).
 The LB models are capable of reproducing low-order polynomial moments of the VDF accurately and,
 therefore, describing a fluid-dynamic behavior of a gas, including that beyond the NS level.
-Since the local LB equilibrium takes a polynomial form on the bulk velocity,
-the conservation of mass, momentum and energy is achieved
-with much less computational effort than for the conventional DV method.
+Several approaches can be applied for the construction of LB models
+like Gauss--Hermite~\cite{He1997, Shan1998, Shan2006, Shan2010}
+and the entropic method~\cite{Karlin1999, Chikatamarla2006, Chikatamarla2009}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Rogozin: We do not use this work, since we do not solve classical LBGK
@@ -506,122 +499,103 @@ which preserves conservation of mass.
 
 \section{The mapping method}\label{sec:mapping}
 
-%%% Hermite expansion for transfering information between models
-The mapping method between LB and DV models have to be introduced in the spatial overlapping zone
-for the bidirectional transfer of information between subdomains with different types of discretization.
-In the overlapping (or buffer) zone, the VDF is assumed to be close to~\eqref{eq:omega}
-and, therefore, can be approximated by a three-dimensional Hermite expansion
-truncated, in particular, to the third order:
+We will introduce the mapping method in the spatial overlapping zone of the BGK and LB models.
+First of all, we assume that in this domain the VDF of the gas is close to the Maxwell state with zero bulk velocity and unit temperature.
+Therefore, VDF can be represented in the form of the truncated Grad expansion up to the third order terms on the velocity
 \begin{equation}\label{eq:grad}
-    \hermite{f}(t,\bx,\bxi) = \omega(\bxi)\br{ a(t,\bx)
-        + \sum_{\alpha} \Aa(t,\bx) \Ha
-        + \frac12 \sum_{\alpha,\beta} \Aab(t,\bx) \Hab
-        + \frac16 \sum_{\alpha,\beta,\gamma} \Aabg(t,\bx) \Habg
-    },
+    f_H(\bx,\bxi) = \omega(\bxi)\left(
+        a(\bx) + \sum_{\alpha}\Aa(\bx)\Ha +
+        \frac{1}{2!}\sum_{\alpha\beta}\Aab(\bx)\Hab +
+        \frac{1}{3!}\sum_{\alpha\beta \gamma}\Aabg(\bx)\Habg
+    \right),
 \end{equation}
-where \(a, \Aa, \Aab, \Aabg\) are the first coefficients of the projection of the VDF onto the Hermite basis:
-\begin{equation}\label{eq:a_coeffs}
-    a = \int f\dxi, \quad \Aa = \int \Ha f\dxi, \quad \Aab = \int \Hab f\dxi, \quad \Aabg = \int \Habg f\dxi,
+where $\Ha, \Hab, \Habg$ are the Hermite polynomials of the first, second, and third order
+(in the case of low-order LB models only the terms up to the second order are retained).
+The polynomials are defined by
+\begin{equation}\label{eq:hermite}
+    H_\alpha(\bxi) = \frac{(-1)}{\omega(\bxi)}\pder{\xi_\alpha}\omega(\bxi), \quad
+    \Hab(\bxi) = \frac{1}{\omega(\bxi)}\pderder{\xi_\alpha}{\xi_\beta}\omega(\bxi), \quad
+    \Habg(\bxi) = \frac{(-1)}{\omega(\bxi)}\pderderder{\xi_\alpha}{\xi_\beta}{\xi_\gamma}\omega(\bxi),
 \end{equation}
-and $\Ha, \Hab, \Habg$ are the Hermite polynomials of the first, second, and third order, respectively:
-\begin{equation}\label{eq:Hermite_polynomials}
-    \begin{gathered}
-    \Ha(\bxi) = \frac{(-1)}{\omega(\bxi)}\pder{\xia}\omega(\bxi) = \xia, \quad
-    \Hab(\bxi) = \frac{1}{\omega(\bxi)}\pderder{\xia}{\xib}\omega(\bxi) = \xia\xib - \delta_{\alpha\beta}, \\
-    \Habg(\bxi) = \frac{(-1)}{\omega(\bxi)}\pderderder{\xia}{\xib}{\xig}\omega(\bxi)
-        = \xia\xib\xig - \xia\delta_{\beta\gamma} - \xib\delta_{\alpha\gamma} - \xig\delta_{\alpha\beta},
+and
+\begin{equation}\label{eq:omega}
+    \omega(\bxi) = \frac{1}{(2\pi)^{3/2}}\exp\br{ -\frac{\bxi^2}{2} }.
+\end{equation}
+The coefficients $a, \Aa, \Aab, \Aabg$ depend on $\bx$ (the point in the overlapping domain).
+We will use the function \eqref{eq:grad} for the transfer of the data between the LB and the BGK models.
+
+In the overlapping spatial domain, where two methods (LB and DV) are applied,
+one needs to introduce the procedure of the data exchange between LB and DV methods.
+It consists of the two parts: the mapping from DV to LB and the mapping from LB to DV.
+These steps are discussed below.
+
+%At the first step, we update the DV VDF $f_\DV(x,\bxi)$ for the discrete velocities $\bxi_n$
+%such that $(\bxi_n,\mathbf{e})<0$, where $\mathbf{e}$ is the outer normal to the overlapping domain.
+%We start from the spatial nodes at the wall and move towards the overlapping zone.
+{\bf DV to LB.}
+Similarly to~\cite{Staso2016long} this step can be termed as \emph{projection},
+since the DV VDF, which contains information about all the moments,
+is mapped on LB VDF which describes correctly only some low-order moments.
+
+Firstly, in the overlapping spatial domain (physical domain), we map the DV VDF on the Grad VDF
+by calculating the following coefficients:
+$$
+   \begin{gathered}
+        a=\sum_{j=1}^{N_{\DV}} f_{\DV,j}, \quad
+        \Aa=\sum_{j=1}^{N_{\DV}}f_{\DV,j}\Ha(\bxi_{\DV,j}), \quad
+        \Aab=\sum_{j=1}^{N_{\DV}}f_{\DV,j}\Hab(\bxi_{\DV,j}), \quad
+        \Aabg=\sum_{j=1}^{N_{\DV}}f_{\DV,j}\Habg(\bxi_{\DV,j}).
     \end{gathered}
+$$
+%where $\bxi_{DV,j}, m=1 \ldots N_{DV}$ are the velocities of the DV difference scheme.
+Now the Grad VDF \eqref{eq:grad} is recovered in the overlapping spatial domain.
+
+Next we will map~\eqref{eq:grad} on the LB distribution function using the Gauss--Hermite quadrature method.
+The idea of the method is based on the fact that the representation of the VDF in the Grad form
+is equivalent to the LB method~\cite{He1997, Shan1998, Shan2006}.
+%We consider the first moments $a, \Aa, \Aab, \Aabg$ in the integral form
+%and then calculate them using Gauss--Hermite quadratures
+%\begin{equation}
+%    \{ a, \Aa, \Aab, \Aabg \}=\int f(\bxi)\{ 1, \Ha, %\Hab, \Habg \}(\bxi)d\bxi =
+%    \sum_{j=1}^N w_j\frac{f_H(\bc_j)}{\omega(\bc_j)} \{ %1, \Ha(\bc_j), \Hab(\bc_j), \Habg(\bc_j) \},
+%\end{equation}
+%where $w_j, \bc_j$ are the weights and the nodes of the %Gauss--Hermite quadrature respectively.
+%The nodes $\bc_j$ can be considered as the LB %velocities,
+%while $ w_j\frac{f(\bc_j)}{\omega(\bv_j)}$ are the LB %VDF values
+%and $w_j$ are the LB analog of the Maxwell distribution.
+Then the formula
+\begin{equation}\label{eq:grad_to_latt}
+    f_{\LB,j} = w_j\frac{f_H(\bxi_{\LB,j})}{\omega(\bxi_{\LB,j})}
 \end{equation}
-where \(\delta_{\alpha\beta}\) is the Kronecker delta.
+gives the mapping of $f_H$ to $f_{\LB,j}$.
+% for the corresponding velocities $\bxi_{LB,j}, j=1 \ldots N_{LB}$.
 
-%%% Discretization
-The discretization of the proposed mapping in the velocity space is straightforward:
-the expansion coefficients~\eqref{eq:a_coeffs} are calculated as quadratures~\eqref{eq:cubature},
-and the truncated Hermite expansion~\eqref{eq:grad} is approximated as
-\begin{equation}\label{eq:discrete_grad}
-    \hermite{f}_j = \equil{f}_j( \bm_0 ) \br{ a
-        + \sum_{\alpha} \Aa \Ha(\bxi_j)
-        + \frac12 \sum_{\alpha,\beta} \Aab \Hab(\bxi_j)
-        + \frac16 \sum_{\alpha,\beta,\gamma} \Aabg \Habg(\bxi_j)
-    },
-\end{equation}
-where \(\bm_0 = \transpose{\br{1, \boldsymbol{0}, 1}}\),
-\(\equil{f}_{\LB,j}(\bm_0) = w_{\LB,j}\), which is seen from~\eqref{eq:lbgk},
-and \(\equil{f}_{\DV,j}(\bm_0)\) is close to \(w_{\DV,j}\omega(\bxi_{\DV,j})\),
-but not equal to it for the conservative DV method.
+{\bf LB to DV.}
+Following~\cite{Staso2016long}, this step can be termed as \emph{reconstruction},
+since one needs to find DV VDF having only the LB VDF,
+which has less information about the moments than DV VDF.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Rogozin: I commented out the following text as redundant.
-%%%     In this section, the mapping method should be described only.
-%%%     Details of the numerical algorithm should be given in section "Numerical method"
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Using LB VDF we evaluate the moments $a, \Aa, \Aab, \Aabg$  using the formulas
+$$
+\begin{gathered}
+    a=\sum_{j=1}^{N_{\LB}} f_{\LB,j}, \quad
+    \Aa=\sum_{j=1}^{N_{\LB}} f_{\LB,j}\Ha(\bxi_{\LB,j}), \quad
+    \Aab=\sum_{j=1}^{N_{\LB}} f_{\LB,j}\Hab(\bxi_{\LB,j}), \quad
+    \Aabg=\sum_{j=1}^{N_{\LB}} f_{\LB,j}\Habg(\bxi_{\LB,j})
+\end{gathered}
+$$
+and recover Grad distribution function \eqref{eq:grad}.
+Finally, the  DV VDF is obtained by appropriate discretization of the Grad VDFs.
 
-%%% From LB to DV
-% At the first step, we update the DV VDF $f_\DV(x,\bxi)$ for the discrete velocities $\bxi_n$
-% such that $(\bxi_n,\be)<0$, where $\be$ is the outer normal to the overlapping zone.
-% We start from the spatial nodes at the wall and move towards the overlapping zone.
-% In the overlapping spatial domain (physical domain), we map the DV VDF on the Grad VDF
-% by calculating the following coefficients:
-% \begin{equation}
-%     \begin{gathered}
-%         a(x)=\sum_{m=1}^M f_\DV(x,\bxi_m), \quad
-%         \Aa(x)=\sum_{m=1}^Mf_\DV(x,\bxi_m)\Ha(\bxi_m), \\
-%         \Aab(x)=\sum_{m=1}^Mf_\DV(x,\bxi_m)\Hab(\bxi_m), \quad
-%         \Aabg(x)=\sum_{m=1}^Mf_\DV(x,\bxi_m)\Habg(\bxi_m),
-%     \end{gathered}
-% \end{equation}
-% where $\bxi_m, m=1 \ldots M$ are the velocities of the DV difference scheme.
-% The Grad VDF \eqref{eq:grad} is recovered in the overlapping spatial domain.
-%
-% Next we will map~\eqref{eq:grad} on the LB distribution using the Gauss--Hermite quadrature method.
-% The idea of the method is based on the fact that the representation of the VDF in the Grad form
-% is equivalent to the LB method~\cite{He1997, Shan1998, Shan2006}.
-% We consider the first moments $a,\Aa,\Aab,\Aabg$ in the integral form
-% and then calculate them using Gauss--Hermite quadratures
-% \begin{equation}
-%     \{ a, \Aa, \Aab, \Aabg \}=\int f(\bxi)\{ 1, \Ha, \Hab, \Habg \}(\bxi)d\bxi =
-%     \sum_{j=1}^N w_j\frac{f_H(\bc_j)}{\omega(\bc_j)} \{ 1, \Ha(\bc_j), \Hab(\bc_j), \Habg(\bc_j) \},
-% \end{equation}
-% where $w_j, \bc_j$ are the weights and the nodes of the Gauss--Hermite quadrature respectively.
-% The nodes $\bc_j$ can be considered as the LB velocities,
-% while $ w_j\frac{f(\bc_j)}{\omega(\bv_j)}$ are the LB VDF values
-% and $w_j$ are the LB analog of the Maxwell distribution.
-% Then the formula
-% \begin{equation}\label{eq:grad_to_latt}
-%     f_{\LB,j} = w_j\frac{f_H(\bc_j)}{\omega(\bc_j)}
-% \end{equation}
-% gives the mapping of $f_H$ to $f_{\LB,j}$ for the corresponding velocities $\bc_j$.
-% Now having the values in the overlapping zone, we update $f_{\LB,j}$ for the velocities $\bc_j$
-% directed from the overlapping zone into the interior of the LB domain.
-%
-% %%% From DV to LB
-% The second step consists of the evaluation of the LB distribution for the lattice velocities $\bc_j$
-% such that $(\bc_j,\be)<0$, where $\be$ is the outer normal to the overlapping zone.
-% We evaluate the moments $a,\Aa,\Aab,\Aabg$ and finally update again the Grad VDF in the overlapping zone.
-% The coefficients $a,\Aa,\Aab, \Aabg$ are calculated using the formulas
-% \begin{equation}
-%     a=\sum_{j=1}^N f_{\LB,j}, \quad
-%     \Aa=\sum_{j=1}^N f_{\LB,j}\Ha(\bc_j), \quad
-%     \Aab=\sum_{j=1}^N f_{\LB,j}\Hab(\bc_j), \quad
-%     \Aabg=\sum_{j=1}^N f_{\LB,j}\Habg(\bc_j).
-% \end{equation}
-% Now we derive the DV VDF in the DV and LB overlapping zone.
-% This can be made by a simple discretization of the Grad VDFs at the nodes of the DV scheme.
-% Finally, we evaluate the DV VDF for the all velocities $(\bxi_j,\be)<0$
-% in the interior of the DV spatial domain.
-
-%%% Naturalness of the mapping method for Gauss--Hermite LB models
-It is worth noting that the described mapping method is natural for the Gauss--Hermite LB models.
-Specifically, if the order of truncation used in the Hermite expansion~\eqref{eq:grad}
-coincides (or exceeds) with the order of the Gauss--Hermite LB model,
-all nonequilibrium information that can be contained within this LB model
-is transmitted unchanged through this Hermite-based mapping.
-Nevertheless, this method can be used for the LB models
-that are not derived on the basis of the Gauss--Hermite quadratures.
-For instance, the nonequilibrium part of LB VDF can be projected onto the basis
-spanned by Hermite polynomials after the regularization procedure~\cite{Latt2006, Chen2006}
-and~\cite{Zhang2006, Mont2015, Mattila2017}.
-Then the equivalence between the LB VDF and the expansion of type~\eqref{eq:grad} is achieved.
+%%% Extension to the regularized models
+The described mapping method can be generalized for the LB models
+which are not derived on the basis of the Gauss--Hermite quadratures.
+We assume that after the regularization procedure~\cite{Latt2006, Chen2006}
+and~\cite{Zhang2006, Mont2015, Mattila2017}
+the non-equilibrium part of LB VDF will be projected into a velocity space
+with a basis spanned by Hermite polynomials of the appropriate order.
+Then the equivalence between the LB VDF and the expansion of the Grad type can be achieved;
+therefore, the proposed mapping method can be applied.
 
 \section{Numerical method}\label{sec:numerics}
 
@@ -886,9 +860,21 @@ exactly~\cite{Ambrus2014, Ambrus2016}.
 
 %%% Domain decomposition
 The mapping approach presented in Sec.~\ref{sec:mapping} can be implemented within the FV framework.
-Let us divide our computational domain in the physical space into the LB and DV subdomains.
-The coupling condition at the interface between these subdomains can be considered as a virtual boundary condition.
-The concept of ghost cells provides the simplest (from the algorithmic point of view) coupling strategy.
+Let us divide our physical domain into the LB and DV subdomains.
+The coupling condition at the interface between these subdomains can be represented as a virtual boundary condition.
+The proposed coupling strategy is based on the concept of ghost cells,
+in which the VDF is reconstructed from the truncated Hermite expansion~\eqref{eq:grad}:
+\begin{equation}\label{eq:discrete_grad}
+    \hermite{f}_j = \equil{f}_j( \bm_0 ) \br{ a
+        + \sum_{\alpha} \Aa \Ha(\bxi_j)
+        + \frac12 \sum_{\alpha,\beta} \Aab \Hab(\bxi_j)
+        + \frac16 \sum_{\alpha,\beta,\gamma} \Aabg \Habg(\bxi_j)
+    },
+\end{equation}
+where \(\bm_0 = \transpose{\br{1, \boldsymbol{0}, 1}}\),
+\(\equil{f}_{\LB,j}(\bm_0) = w_{\LB,j}\), which is seen from~\eqref{eq:lbgk},
+and \(\equil{f}_{\DV,j}(\bm_0)\) is close to \(w_{\DV,j}\omega(\bxi_{\DV,j})\),
+but not equal to it for the conservative DV method.
 
 %%% 1D example
 Let us return to the one-dimensional case described in Sec.~\ref{sec:numerics:fv}
@@ -1373,7 +1359,7 @@ and including the enhanced LB models.
 \section*{Acknowledgements}
 
 This work was supported by the Russian Foundation for Basic Research (Grants 18-01-00899, 18-07-01500).
-The authors are grateful to referees for many constructive comments improving the quality of the paper.
+The authors are grateful to the referees for many constructive comments that helped in improving the quality of the paper.
 
 \appendix
 
