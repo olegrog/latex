@@ -186,26 +186,33 @@ Thus far, effective numerical simulation of multiscale flows has remained a chal
 This is due, in particular, to complicated flow structures where small-scale highly nonequilibrium regions
 coexist with large-scale equilibrium zones.
 The use of the kinetic equation in all regions is very demanding from a computational point of view.
-On the other hand, the computational fluid dynamics provide an efficient description of near-equilibrium flows,
-but it is not adequate for regions where the velocity distribution function (VDF) is not close to Maxwellian
-and the contribution of highest moments cannot be ignored.
-% Therefore, computational fluid dynamics is being confronted with the challenge of constructing the unified numerical methods suitable for simulation of multiscale flows.
+On the other hand, the fluid-dynamics models provide an efficient description of near-equilibrium flows,
+but this kind of description is not adequate in regions where the velocity distribution function (VDF)
+is far from the Maxwellian and the contribution of high moments cannot be neglected.
+
+%%% Aristov's version:
+% Therefore, computational fluid dynamics is being confronted with the challenge of constructing
+% the unified numerical methods suitable for simulation of multiscale flows.
 % The numerical solution of kinetic equations in stiff regimes represents a challenge in the construction of computational methods.
 % one would like to avoid the expensive cost of solving the kinetic equation in regions well described by continuum fluid models,
 % since the latter are easily solvable by classical numerical methods.
+
+%%% Citation from [Meng, Reese, Zhang 2014]:
 % Therefore, to strike a balance between computational costs and simulation accuracy,
 % multiscale schemes are being developed that take advantage of both kinetic and continuum-fluid solvers,
 % i.e., deploying a kinetic solver only in the rarefied flow regions and a continuum solver in the hydrodynamic regions.
 
-%%% Hybrid schemes
-There are two main approaches how to deal with the multiscale problems (see, e.g., review~\cite{Dimarco2014}).
+%%% Classic hybrid schemes
+There are two main approaches how to deal with the multiscale problems~\cite{Dimarco2014}.
 The first one employs different kinds of representations for equilibrium and nonequilibrium parts of the solution
 in the entire computational space, while the second one handles the problem by dividing the physical domain
 into the highly rarefied and near-equilibrium regions using some criterion of domain decomposition.
 The fluid--kinetic coupling is a natural and effective approach for the description of multiscale flows.
-The coupling of the Boltzmann and Euler or Navier--Stokes (NS) equations
-is a canonical example of such hybrid schemes (see, e.g.,~\cite{Bourgat1996, Tallec1997}).
+Particularly, coupling of the Boltzmann and Euler or Navier--Stokes (NS) equations
+is a canonical example of such hybrid schemes~\cite{Bourgat1996, Tallec1997}.
+
 %and has also been elaborated and applied within the Unified Flow Solver (UFS)~\cite{Kolobov2007}.
+%%% Information from [Dimarco, Pareschi 2014]
 %1. Asymptotic-preserving schemes
 %2. Dynamic domain decomposition strategies
 %    A. Dynamic fluid--kinetic coupling methods:
@@ -220,59 +227,59 @@ is a canonical example of such hybrid schemes (see, e.g.,~\cite{Bourgat1996, Tal
 %    % different kind of representation of the solution as an equilibrium and nonequilibrium part, first introduced in Pareschi and Caflisch (1999).
 %    % the solution in each cell is represented as a combination of two different parts, a stochastic particle representation of the nonequilibrium fraction and a deterministic representation of the equilibrium part
 
-%%% Kinetic-based description of continuum media
-We briefly consider the development and realization of these essential ideas.
-The kinetic-based description of continuum media has been suggested independently and has been widely used since the beginning of 80s,
-see~\cite{Potkin1975, Pullin1980, Reitz1981, Aristov1983}. Later these kinetic-consistent schemes have been developed
+%%% Classical kinetic schemes for fluid dynamics
+The numerical schemes based on the kinetic description of the fluidand capable to reproduce the Euler and NS dynamics
+have been suggested independently and widely used since the early 1980s~\cite{Potkin1975, Pullin1980, Reitz1981, Aristov1983}.
+Later these pioneer kinetic schemes have been significantly developed
 in~\cite{Elizarova1985, Deshpande1986, Prendergast1993, Chou1997, Ohwada2004Xu, Ohwada2004Kobayashi, Ohwada2006}.
-Such methods reproduce the Euler and NS dynamics.
 The cellular-automata approximation for the NS equations was developed in the middle of 80s~\cite{Frisch1986}.
 Finally, the lattice-gas model based on the BGK equation was proposed in the beginning of 90s~\cite{Qian1992}.
-It gave rise to a wide class of numerical methods called lattice-Boltzmann (LB) methods~\cite{Higuera1989,Benzi1992,Succi2001}.
-%%% Ilyin: Succi citation
-The DV models of LB type, which correctly describe the hydrodynamic and non-hydrodynamic moments
-up to the Burnett level, were considered in~\cite{Xu2018, Xu2019}.
+It gave rise to a wide class of numerical methods called lattice-Boltzmann (LB) methods~\cite{Higuera1989, Benzi1992, Succi2001}.
 
-%%% Connection between DV and LB
+%%% Kinetic schemes for fluid dynamics beyond the NS level
+Many recent works are devoted to the extension of the applicability...
+As for the LB method, the 5-order D3Q19 model and 7-order D3Q39 model~\cite{Shan2006}
+based on the Gauss--Hermite quadratures are considered, along with special 7-order D3Q96 model
+developed for the boundary-value problems driven by the diffuse-reflection boundary condition~\cite{Feuchter2016}.
+thermal 9-order D3Q121 model~\cite{Shan2010}.
+The LB models that correctly describe all the Burnett-level moments are considered in~\cite{Xu2018, Xu2019}.
+
+%%% Relation to Broadwell-type DV models
 It is worth emphasizing that there is a fundamental relationship between the LB and DV methods.
 For instance, one can cite a phrase from~\cite{Rivet2001}:
 ``This type of discrete kinetic theory can be seen as the ancestor of the lattice gas approach.''
 The LB method is genetically related to the Broadwell-type models~\cite{Broadwell1964shock, Gatignol1975},
 which use a small number of discrete velocities to reproduce some relevant features of the Boltzmann equation.
-Thus, the DV approximation is a natural basis for construction of a hybrid multiscale model.
+Thus, the DV approximation is a natural unified basis for construction of a hybrid multiscale model.
 
 %%% Known coupling schemes for LB
-The mapping scheme for coupling the low-order and high-order LB models is presented in~\cite{Meng2011},
-while the possibility of merging the DV and LB methods was noticed in~\cite{Succi2016}.
-The methods of DSMC type in the kinetic zones and the Euler or NS equations in the continuum are well developed by now,
-but the usual statistical modeling in the buffer zone yields some statistical noise especially for subsonic flows,
-which complicates calculations.
-This hybrid approach has been suggested in~\cite{Staso2016short, Staso2016long} and in the recent paper~\cite{Staso2018},
-where the solution is obtained by means of coupling the DSMC and LB methods.
-The first results on coupling of the LB an DV models for the one-dimensional case
-based on matching of the half-fluxes have been presented in~\cite{Ilyin2018}.
-
-%%% Why DV is better than DSMC?
-Unlike DSMC, the methods of direct numerical solution of the Boltzmann equation do not give statistical noise of macroscopic parameters.
+The idea of coupling the low-order and high-order LB models is presented in~\cite{Meng2011}.
+The hybrid approach based on the DSMC and LB methods is proposed in~\cite{Staso2016long, Staso2018}.
+Unlike DSMC, the deterministic methods for solving the Boltzmann equation do not produce statistical noise.
 Therefore, hybrid approaches based on them appear to be more promising.
-The DV schemes with the large number of discrete velocities are used in direct methods for solving BE, BGK, S-model or other kinetic equations.
-The DV method is applied with the combination of Monte Carlo or quasi-Monte Carlo procedures for evaluating collision integrals
-and for computing the appropriate moments which are used in the collision integrals of the model kinetic equations.
-For the near-equilibrium zones, the small number of discrete velocities can be considered.
-Therefore, one can expect that LB approaches are fit for describing flows in these regions.
+The possibility of merging the DV and LB methods is noticed in~\cite{Succi2016},
+while the first results based on matching of the half-range fluxes have been presented in~\cite{Ilyin2018}.
+
+%%% Some extra details on DV methods
+% The DV schemes with the large number of discrete velocities are used in direct methods for solving BE, BGK, S-model or other kinetic equations.
+% The DV method is applied with the combination of Monte Carlo or quasi-Monte Carlo procedures for evaluating collision integrals
+% and for computing the appropriate moments which are used in the collision integrals of the model kinetic equations.
+% For the near-equilibrium zones, the small number of discrete velocities can be considered.
+% Therefore, one can expect that LB approaches are fit for describing flows in these regions.
 
 %%% Our proposition
-A novel hybrid kinetic approach for multiscale problems is proposed in this paper.
-We attempt to couple the DV method for the Boltzmann equation (or its BGK model)
-and the LB method for the NS and fluid-dynamic-type equations beyond.
-The DV method adequately describes nonequilibrium regions, while the LB one provides an adequate description in continuum regions.
-To couple solutions between the DV and LB subdomains, we approximate the VDF by the truncated Hermite expansion in the buffer zone.
-The high-order LB models~\cite{Shan2006, Feuchter2016}
-% [POISEUILLE]: as well as the special regularization procedures~\cite{Latt2006, Mont2015}
-are used to expand the continuum subdomain.
+The proposed hybrid kinetic approach is based on coupling the DV and LB methods.
+The DV method accurately describes nonequilibrium regions,
+while the LB method provides an efficient description in the continuum regions.
+To couple solutions between the DV and LB subdomains,
+the VDF is projected onto the truncated Hermite basis in the buffer zone.
+The position of the coupling interface is determined by the kinetic breakdown criterion.
+The first implementation of this method is reported in~\cite{Aristov2019}.
+In the present paper, the accuracy of the method has been significantly improved
+by employing nonuniform grids for the DV approximation in the Knudsen layer.
 
 %%% FV formulation
-The classical LB methods enjoy their efficiency as a result of highly symmetric discrete physical space and time.
+The classical LB methods enjoy their efficiency coming from the highly symmetric discrete physical space and time.
 However, uniform Cartesian meshes lack flexibility and, therefore, local mesh refinement.
 There are several approaches how to work around this limitation.
 The LB method is easily extended for arbitrary unstructured meshes
@@ -281,13 +288,20 @@ In the present paper, this strategy is adopted, specifically to refine mesh near
 
 %%% Plan of the paper
 The plan of the present paper is as follows.
-The governing equations and nondimensional variables are introduced in Section~\ref{sec:equations}.
-The mapping scheme is described in Section~\ref{sec:mapping}.
-Details of the numerical methods used are presented in Section~\ref{sec:numerics}.
-Section~\ref{sec:results} contains the numerical solutions of the Couette-flow problems, % [POISEUILLE]: Poiseuille-flow
-obtained by the DV model, various LB models, and the proposed hybrid scheme,
-as well as a discussion on the computational efficiency of the hybrid approach.
-In section~\ref{sec:summary}, perspectives of the kinetic multiscale DV-LB methods are outlined.
+The governing equations and nondimensional variables are introduced in Sec.~\ref{sec:equations}.
+The DV approximation of the VDF underlying both DV and LB method is outlined in~\ref{sec:dv}.
+The mapping method between DV and LB models is described in Sec.~\ref{sec:mapping}.
+Details of the numerical schemes and algorithms are presented in Sec.~\ref{sec:numerics}.
+Numerical solutions of the Couette-flow problem are obtained by the DV model,
+various LB models, and their hybrid combinations.
+They are illustrated and compared with each other for various Knudsen numbers in Sec.~\ref{sec:results}.
+Possible equilibrium breakdown parameters and computational efficiency of the hybrid approach
+is also analyzed in Sec.~\ref{sec:results}.
+Perspectives of the kinetic multiscale methods based on coupling the DV and LB solutions
+are discussed in Sec.~\ref{sec:summary}.
+The peculiar details of the finite-volume scheme are included in~\ref{sec:limiter}.
+Finally, a set of supplementary formulas for the benchmark solution of the linear Couette-flow problem,
+which is used to validate the investigated numerical methods, is provided in~\ref{sec:benchmark_solution}.
 
 \section{Main equations}\label{sec:equations}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
