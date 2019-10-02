@@ -697,7 +697,7 @@ and can be obtained by the replacement \(\xi_j\to-\xi_j\) and \(x\to-x\).
     \centering
     \begin{tikzpicture}
         \fill[ghost] (-2,2) -- (0,2) -- (0,0) -- (-2,0) -- cycle;
-        \draw[thick, line cap=round, step=2] (-2,0) grid (4,2);
+        \draw[thick, line cap=round, step=2] (-2,0) grid (4.2,2);
         \foreach \i [evaluate={\x=\i-1}] in {1,3}
             \node[bolddot, label=above:$f^{n+1/2}_{\i/2}$] (F\i) at (\x,2) {};
         \foreach \i [evaluate={\x=2*\i-1}, evaluate={\a=2*(\i-1)}, evaluate={\b=2*\i}] in {0,1,2} {
@@ -716,12 +716,12 @@ and can be obtained by the replacement \(\xi_j\to-\xi_j\) and \(x\to-x\).
         \useasboundingbox (-2.2,-1.1) rectangle (4.2,2.8);
     \end{tikzpicture}
     \begin{tikzpicture}
-        \node {...};
+        \node {$\cdots\:f^n_m(\bxi_j)\:\cdots$};
         \useasboundingbox (-0.1,-2.1) rectangle (0.1,1.8);
     \end{tikzpicture}
     \begin{tikzpicture}
         \fill[ghost] (0,2) -- (2,2) -- (2,0) -- (0,0) -- cycle;
-        \draw[thick, line cap=round, step=2] (-4,0) grid (2,2);
+        \draw[thick, line cap=round, step=2] (-4.2,0) grid (2,2);
         \node[bolddot, label=above:$f^{n+1/2}_{M+1/2}$] (F) at (0,2) {};
         \foreach \idx/\i [evaluate={\x=2*\i-1}, evaluate={\a=2*(\i-1)}, evaluate={\b=2*\i}] in {M-1/-1,M/0,M+1/1} {
             \node (f\i) at (\x,1) {$f^n_{\idx}$};
@@ -834,13 +834,15 @@ exactly~\cite{Ambrus2014, Ambrus2016}.
     \begin{tikzpicture}
         \fill[ghost] (-4,2) -- (0,2) -- (0,0) -- (-4,0) -- cycle;
         \fill[ghost] (0,-1) -- (2,-1) -- (2,-3) -- (0,-3) -- cycle;
-        \draw[thick, line cap=round, step=2] (-4,0) grid (4,2);
-        \draw[thick, line cap=round, step=2, yshift=1cm] (-4,-4) grid (2,-2);
+        \draw[thick, line cap=round, step=2] (-4,0) grid (4.7,2);
+        \draw[thick, line cap=round, step=2, yshift=1cm] (-4.7,-4) grid (2,-2);
         \node[bolddot] (F_DV) at (0,2) {};
         \node[above] (F) at (F_DV.north) {$\tilde{f}^{n+1/2}_{1/2}$}
             edge [eqref, loop left] node {Eq.\eqref{eq:poly_correction}} ();
         \node[bolddot, label=above:$f^{n+1/2}_{3/2}$] (F_DV3) at (2,2) {};
         \node[bolddot, label=above:$f^{n+1/2}_{M+1/2}$] (F_LB) at (0,-1) {};
+        \node[left](f_LB-2) at (-4.2,-2) {$\cdots\:f^n_m(\bxi_{\LB,j})\:\cdots$};
+        \node[right](f_DV3) at (4.2,1) {$\cdots\:f^n_m(\bxi_{\DV,j})\:\cdots$};
         \foreach \idx\i [evaluate={\x=2*\i-1}] in {M-1/-1,M/0,M+1/1} {
             \node (f_DV\i) at (\x,1) {$f^n_{\i}$};
             \node (f_LB\i) at (\x,-2) {$f^n_{\idx}$};
@@ -848,8 +850,8 @@ exactly~\cite{Ambrus2014, Ambrus2016}.
         \node (f_DV2) at (3,1) {$f^n_2$};
         \draw[interface](0,2.2) -- (0,-0.2);
         \draw[interface](0,-.8) -- (0,-3.6) node[below] {$x=x_C$};
-        \draw[->, interface] (-4,-3.5) node[above right] {LBM} -- (0,-3.5);
-        \draw[<-, interface] (0,-3.5) -- (4,-3.5) node[above left] {DVM};
+        \draw[->, interface] (-6,-3.5) node[above right] {LBM} -- (0,-3.5);
+        \draw[<-, interface] (0,-3.5) -- (6,-3.5) node[above left] {DVM};
         \foreach \m in {LB,DV} \foreach \n in {f_\m-1,f_\m0,f_\m1} {
             \draw[->, eqref] (\n) -- (F_\m);
         }
@@ -883,7 +885,7 @@ exactly~\cite{Ambrus2014, Ambrus2016}.
 \end{figure}
 
 %%% Domain decomposition
-The mapping approach presented in Section~\ref{sec:mapping} can be implemented within the FV framework.
+The mapping approach presented in Sec.~\ref{sec:mapping} can be implemented within the FV framework.
 Let us divide our computational domain in the physical space into the LB and DV subdomains.
 The coupling condition at the interface between these subdomains can be considered as a virtual boundary condition.
 The concept of ghost cells provides the simplest (from the algorithmic point of view) coupling strategy.
@@ -957,7 +959,7 @@ where a gas is embraced between the two parallel plates with non-zero relative v
 The hybrid approach assumes that a highly nonequlibrium gas in the Knudsen layer
 is described using the BGK equation, while the LB model is employed for the internal zone.
 For the BGK model of the Boltzmann equation, the plane Couette-flow problem can be reduced
-to a one-dimensional integral equation with a weakly singular kernel,
+to the one-dimensional Fredholm integral equation with a weakly singular kernel,
 which has been solved accurately in~\cite{Luo2015} and, especially, in~\cite{Luo2016}.
 Due to the lack of data on longitudinal heat flux in the mentioned works, we have re-implemented (in Python)
 the adaptive collocation method based on the generalized Gauss quadratures presented in~\cite{Luo2016}
@@ -1023,9 +1025,9 @@ Obviously, the classical LB models are unable to describe the Knudsen layer accu
         \label{fig:d3q19}
     \end{subfigure}\\
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{d3q121}
-        \caption{LB method: D3Q121}
-        \label{fig:d3q121}
+        \includegraphics[width=\textwidth]{d3q39}
+        \caption{LB method: D3Q39}
+        \label{fig:d3q39}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{d3v96}
@@ -1112,9 +1114,9 @@ Obviously, the classical LB models are unable to describe the Knudsen layer accu
        \label{fig:hyb:d3q19-k0_3}
    \end{subfigure}\\
    \begin{subfigure}[b]{0.5\textwidth}
-       \includegraphics[width=\textwidth]{hyb-d3q121-k0_3}
-       \caption{hybrid: DV and D3Q121}
-       \label{fig:hyb:d3q121-k0_3}
+       \includegraphics[width=\textwidth]{hyb-d3q39-k0_3}
+       \caption{hybrid: DV and D3Q39}
+       \label{fig:hyb:d3q39-k0_3}
    \end{subfigure}%
    \begin{subfigure}[b]{0.5\textwidth}
        \includegraphics[width=\textwidth]{hyb-d3v96-k0_3}
@@ -1157,7 +1159,7 @@ Obviously, the classical LB models are unable to describe the Knudsen layer accu
 The numerical results obtained by the pure DV and LB methods for \(k=0.1\) are showed in Fig.~\ref{fig:pure}.
 The nonuniform velocity grid refined at the sharp variations of the VDF
 yields a very small discrepancy between the DV and benchmark profiles (Fig.~\ref{fig:dvm}).
-As for LB method, in the present paper, the 5-order D3Q19 model and 9-order D3Q121 model~\cite{Shan2010}
+As for the LB method, the 5-order D3Q19 model and 7-order D3Q39 model~\cite{Shan2006}
 based on the Gauss--Hermite quadratures are considered, along with special 7-order D3Q96 model
 developed for the boundary-value problems driven by the diffuse-reflection boundary condition~\cite{Feuchter2016}.
 Ability to capture rarefied-gas effects arising from the kinetic boundary conditions
@@ -1166,14 +1168,14 @@ In particular, models of the Navier--Stokes level do not capture it due to lack 
 e.g., the D3Q19 model does not cover the third-order moments of the VDF (Fig.~\ref{fig:d3q19}).
 Instead, there is a small spurious positive heat flux in Fig.~\ref{fig:d3q19},
 which is \(\OO{\Delta v^3}\) and closely associated with the stress tensor and velocity.
-The model D3Q121 describes the heat flux in the continuum zone most accurately (Fig.~\ref{fig:d3q121}),
-while the D3Q96 profile is quite close to the exact one in the Knudsen layer (Fig.~\ref{fig:d3q96}).
+The model D3Q39 reproduces partially the heat flux (Fig.~\ref{fig:d3q39}),
+while the D3Q96 \(q_x\) profile is appear to be quite close to the exact one (Fig.~\ref{fig:d3q96}).
 
-%%% Why D3Q96 is better than D3Q121
+%%% Why D3Q96 is better than D3Q39
 Increasing order of the LB model helps to capture the corresponding low-order moments of the VDF,
 but failed to describe its high-order relaxation correctly.
 However, the LB models augmented by special groups of velocities are capable to reproduce the Knudsen layer to some extent.
-The augmented model D3Q96 reproduces the Maxwell half-range (or wall) moments better than D3Q121,
+The augmented model D3Q96 reproduces the Maxwell half-range (or wall) moments better than D3Q39,
 which results in better reproduction of the diffuse-reflection boundary condition.
 As a result, D3Q96 produces qualitatively correct results for the longitudinal heat flux,
 which has non-thermo-hydrodynamical nature, although does not recover thermo-hydrodynamics.
@@ -1204,7 +1206,7 @@ One cannot conclude the same for the results obtained by hybrid schemes.
 There is a noticable error for \(q_x\) and a kink for \(v_x\) in Fig.~\ref{fig:hyb:d3q19-k0_3}--\subref{fig:hyb:d3q96-k0_3}.
 The proximity of the coupling interface to the boundary in terms of mean free path is the primary reason
 for the observed lack of accuracy. Note also that hybrid method based on the D3Q96 model has a minimal kinking
-of the velocity profile in comparison to D3Q19 and D3Q121.
+of the velocity profile in comparison to D3Q19 and D3Q39.
 
 %%% Accuracy of results
 The shear stress profiles look constant in Figs.~\ref{fig:hybrid},~\ref{fig:k0_03} and~\ref{fig:k0_3},
@@ -1336,9 +1338,11 @@ can positively affect the solution accuracy in comparison to the conventional LB
 %%% What have we done?
 In this paper, we have presented a new algorithm for coupling of the DV numerical solutions of the BGK kinetic equation.
 The mapping method is based on the Hermite expansion of the VDF.
-For the continuum region, we have employed various Gauss--Hermite LB models with different numbers of discrete velocities ranging from 9 to 121.
+For the continuum region, we have employed various Gauss--Hermite LB models
+with different numbers of discrete velocities ranging from 9 to 96.
 Incorporating the augmented~\cite{Feuchter2016} LB models % [POISEUILLE]: and regularized~\cite{Latt2006, Mont2015}
 positively affect the solution accuracy in comparison to the conventional LB models.
+% Involvement of the high-order LB models~\cite{Shan2006, Feuchter2016} allows to reduce the DV subdomain.
 Additional correction procedures have been applied to ensure conservative properties of the hybrid algorithm.
 The influence of the breakdown criterion on accuracy and efficiency has also been studied.
 The regularized high-order LB models for the hybrid schemes are of interest for further study.
@@ -1373,7 +1377,7 @@ The authors are grateful to referees for many constructive comments improving th
 
 \appendix
 
-\section{Third-order TVD limiter}\label{sec:limiter}
+\section{Third-order TVD limiter for the FV scheme}\label{sec:limiter}
 
 Let us approximate the one-dimensional transport equation \(\Pder[f]{t} + \xi\Pder[f]{x}\)
 in the FV manner with constant mesh (\(\Delta{x}\)) and time (\(\Delta{t}\)) steps:
@@ -1416,7 +1420,7 @@ which is used in the present study, but for nonuniform mesh step~\eqref{eq:limit
 Let us note that inequalities~\eqref{eq:fv:tvd} are often replaced by stronger ones, independent of \(\gamma\),
 especially when nonlinear transport equation is considered.
 
-\section{Benchmark solution of the Couette-flow problem}\label{sec:benchmark_solution}
+\section{Solution of the linear Couette-flow problem for the BGK model}\label{sec:benchmark_solution}
 
 %%% Formulation of the linear Couette-flow problem
 For symmetry reasons, the steady-state behavior of the gas in the Couette flow at \(\Delta{v}\to0\)
@@ -1471,6 +1475,7 @@ The remaining macroscopic variables are calculated as follows:
     \right) - \frac{g(y)}4.
     \end{aligned} \label{eq:exact:qflow}
 \end{gather}
+Methods of a high-accuracy solution of~\eqref{eq:exact:g} are presented in~\cite{Luo2015, Luo2016}.
 
 \bibliography{dvm-lbm}
 

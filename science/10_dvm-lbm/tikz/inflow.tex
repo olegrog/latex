@@ -22,7 +22,7 @@
 
 \begin{tikzpicture}
     \fill[ghost] (-2,2) -- (0,2) -- (0,0) -- (-2,0) -- cycle;
-    \draw[thick, line cap=round, step=2] (-2,0) grid (4,2);
+    \draw[thick, line cap=round, step=2] (-2,0) grid (4.2,2);
     \foreach \i [evaluate={\x=\i-1}] in {1,3}
         \node[bolddot, label=above:$f^{n+1/2}_{\i/2}$] (F\i) at (\x,2) {};
     \foreach \i [evaluate={\x=2*\i-1}, evaluate={\a=2*(\i-1)}, evaluate={\b=2*\i}] in {0,1,2} {
@@ -41,12 +41,12 @@
     \useasboundingbox (-2.2,-1.1) rectangle (4.2,2.8);
 \end{tikzpicture}
 \begin{tikzpicture}
-    \node {...};
+    \node {$\cdots\:f^n_m(\xi_j)\:\cdots$};
     \useasboundingbox (-0.1,-2.1) rectangle (0.1,1.8);
 \end{tikzpicture}
 \begin{tikzpicture}
     \fill[ghost] (0,2) -- (2,2) -- (2,0) -- (0,0) -- cycle;
-    \draw[thick, line cap=round, step=2] (-4,0) grid (2,2);
+    \draw[thick, line cap=round, step=2] (-4.2,0) grid (2,2);
     \node[bolddot, label=above:$f^{n+1/2}_{M+1/2}$] (F) at (0,2) {};
     \foreach \idx/\i [evaluate={\x=2*\i-1}, evaluate={\a=2*(\i-1)}, evaluate={\b=2*\i}] in {M-1/-1,M/0,M+1/1} {
         \node (f\i) at (\x,1) {$f^n_{\idx}$};
@@ -65,12 +65,14 @@
 \begin{tikzpicture}
     \fill[ghost] (-4,2) -- (0,2) -- (0,0) -- (-4,0) -- cycle;
     \fill[ghost] (0,-1) -- (2,-1) -- (2,-3) -- (0,-3) -- cycle;
-    \draw[thick, line cap=round, step=2] (-4,0) grid (4,2);
-    \draw[thick, line cap=round, step=2, yshift=1cm] (-4,-4) grid (2,-2);
+    \draw[thick, line cap=round, step=2] (-4,0) grid (4.7,2);
+    \draw[thick, line cap=round, step=2, yshift=1cm] (-4.7,-4) grid (2,-2);
     \node[bolddot] (F_DV) at (0,2) {};
     \node[above] (F) at (F_DV.north) {$\tilde{f}^{n+1/2}_{1/2}$} edge [eqref, loop left] node {Eq.()} ();
     \node[bolddot, label=above:$f^{n+1/2}_{3/2}$] (F_DV3) at (2,2) {};
     \node[bolddot, label=above:$f^{n+1/2}_{M+1/2}$] (F_LB) at (0,-1) {};
+    \node[left](f_LB-2) at (-4.5,-2) {$\cdots\:f^n_m(\xi_{LB,j})\:\cdots$};
+    \node[right](f_DV3) at (4.5,1) {$\cdots\:f^n_m(\xi_{DV,j})\:\cdots$};
     \foreach \idx\i [evaluate={\x=2*\i-1}] in {M-1/-1,M/0,M+1/1} {
         \node (f_DV\i) at (\x,1) {$f^n_{\i}$};
         \node (f_LB\i) at (\x,-2) {$f^n_{\idx}$};
@@ -78,8 +80,8 @@
     \node (f_DV2) at (3,1) {$f^n_2$};
     \draw[interface](0,2.2) -- (0,-0.2);
     \draw[interface](0,-.8) -- (0,-3.6) node[below] {$x=x_C$};
-    \draw[->, interface] (-4,-3.5) node[above right] {LBM} -- (0,-3.5);
-    \draw[<-, interface] (0,-3.5) -- (4,-3.5) node[above left] {DVM};
+    \draw[->, interface] (-6,-3.5) node[above right] {LBM} -- (0,-3.5);
+    \draw[<-, interface] (0,-3.5) -- (6,-3.5) node[above left] {DVM};
     \foreach \m in {LB,DV} \foreach \n in {f_\m-1,f_\m0,f_\m1} {
         \draw[->, eqref] (\n) -- (F_\m);
     }
