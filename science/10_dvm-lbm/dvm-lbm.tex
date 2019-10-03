@@ -235,14 +235,17 @@ The cellular-automata approximation for the NS equations was developed in the mi
 Finally, the lattice-gas model based on the BGK equation was proposed in the beginning of 90s~\cite{Qian1992}.
 It gave rise to a wide class of numerical methods called lattice-Boltzmann (LB) methods~\cite{Higuera1989, Benzi1992, Succi2001}.
 
-%%% Kinetic schemes for fluid dynamics beyond the NS level
-\todo{
+%%% Models used in the LB method
+The LB models can be roughly divided into two classes: low-order and high-order.
+The low-order LB models recover the correct hydrodynamics for small Mach numbers,
+while the high-order models are able to reproduce full Navier--Stokes--Fourier equations
+and, moreover, some rarefied gas effects~\cite{Succi2001, Shan2006}.
+The LB method is a flexible framework for developing sophisticated models.
 Many recent works are devoted to extending the applicability of the LB method beyond the Navier--Stokes level.
-... isothemal Gauss--Hermite: 5-order D3Q19 model and 7-order D3Q39 model~\cite{Shan2006} ...
-... thermal Gauss--Hermite: 9-order D3Q121 model~\cite{Shan2010}...
-... augmented: 7-order D3Q96 model~\cite{Feuchter2016} ...
-The LB models that correctly describe all the Burnett-level moments are considered in~\cite{Xu2018, Xu2019}.
-}
+In particular, models that correctly describe the Burnett-level dynamics is formulated in~\cite{Xu2018, Xu2019}.
+Special-purpose methodologies are proposed to capture rarefied gas effects in the highly nonequlibrium Knudsen layer
+arising from the kinetic boundary conditions~\cite{Feuchter2016, Ambrus2014, Ambrus2016, Ambrus2016mixed}.
+Another promising approach is based on the regularization procedure for LB models~\cite{Mont2015}.
 
 %%% Relation to Broadwell-type DV models
 It is worth emphasizing that there is a fundamental relationship between the LB and DV methods.
