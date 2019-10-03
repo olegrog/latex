@@ -919,10 +919,10 @@ therefore, the positivity is also preserved.
 
 The diffuse-reflection boundary condition introduces several singularities into the VDF
 both in the velocity space and in the physical one.
-First, the discontinuity exists along the plane \(\bxi\bn=0\) and directly on the boundary surface (\(\bx=\bx_B\)).
+First, the discontinuity exists along the plane \(\bxi\bdot\bn=0\) and directly on the boundary surface (\(\bx=\bx_B\)).
 For a convex domain, this discontinuity does not penetrate into the gas region~\cite{Kim2011, Guo2017},
 since characteristics do not enter into the gas region.
-Nevertheless, sharp variations of the solution near \(\bxi\bn=0\) requires a strong mesh refinement
+Nevertheless, sharp variations of the solution near \(\bxi\bdot\bn=0\) requires a strong mesh refinement
 in order to achieve a high-accuracy approximation.
 Moreover, it is necessary to resolve the logarithmic singularity of the form~\cite{Takata2016}
 \begin{equation}\label{eq:xi_singularity}
@@ -947,12 +947,17 @@ The proposed numerical method is tested for the plane Couette-flow problem,
 where a gas is embraced between the two parallel plates with non-zero relative velocity.
 The hybrid approach assumes that a highly nonequlibrium gas in the Knudsen layer
 is described using the BGK equation, while the LB model is employed for the internal zone.
+All the presented results can be reproduced using python code~\cite{Rogozin2019hybrid}.
+
+%%% Benchmark solutions
 For the BGK model of the Boltzmann equation, the plane Couette-flow problem can be reduced
-to the one-dimensional Fredholm integral equation with a weakly singular kernel,
+to the one-dimensional Fredholm integral equation with a weakly singular kernel
+(see~\ref{sec:benchmark_solution} for details),
 which has been solved accurately in~\cite{Luo2015} and, especially, in~\cite{Luo2016}.
-Due to the lack of data on longitudinal heat flux in the mentioned works, we have re-implemented (in Python)
+Due to the lack of data on longitudinal heat flux in the mentioned works,
+we have re-implemented~\cite{Rogozin2019couette}
 the adaptive collocation method based on the generalized Gauss quadratures presented in~\cite{Luo2016}
-for computing the benchmark solutions (see~\ref{sec:benchmark_solution} for details).
+for computing the benchmark solutions.
 
 %%% Physical mesh
 Let the plates be placed at \(y = \pm 1/2\) with constant temperature \(T = 1\)
