@@ -247,13 +247,16 @@ Special-purpose methodologies are proposed to capture rarefied gas effects in th
 arising from the kinetic boundary conditions~\cite{Feuchter2016, Ambrus2014, Ambrus2016, Ambrus2016mixed}.
 Another promising approach is based on the regularization procedure for LB models~\cite{Mont2015}.
 
-%%% Relation to Broadwell-type DV models
+%%% Relation to Broadwell-type DV models and LB-DV comparison
 It is worth emphasizing that there is a fundamental relationship between the LB and DV methods.
 For instance, one can cite a phrase from~\cite{Rivet2001}:
 ``This type of discrete kinetic theory can be seen as the ancestor of the lattice gas approach.''
 The LB method is genetically related to the Broadwell-type models~\cite{Broadwell1964shock, Gatignol1975},
 which use a small number of discrete velocities to reproduce some relevant features of the Boltzmann equation.
-Thus, the DV approximation is a natural unified basis for construction of a hybrid multiscale model.
+The DV method typically uses lattices with a large number of discrete velocities,
+which can accurately approximate highly nonequlibrium VDF.
+In contrast, discontinuities and sharp variations of the VDF cannot be reproduced
+on a span of the truncated basis of smooth polynomials underlying the LB models.
 
 %%% Known coupling schemes for LB
 The idea of coupling the low-order and high-order LB models is presented in~\cite{Meng2011}.
@@ -288,6 +291,13 @@ There are several approaches how to work around this limitation.
 The LB method is easily extended for arbitrary unstructured meshes
 under the FV formulation~\cite{Succi1992, Peng1999, Patil2009, Li2016}.
 In the present paper, this strategy is adopted, specifically to refine mesh near the boundary.
+
+%%% Emphasizing the difference with DiStaso method
+Ideologically, the present work is similar to the works~\cite{Staso2016long, Staso2018},
+but there is a significant difference.
+The proposed hybrid approach is based on the unified DV approximation,
+whereas the DSMC method has a fundamentally different representation of the VDF.
+In this sense, coupling DV and LB models under the single FV formulation is more natural.
 
 %%% Plan of the paper
 The plan of the present paper is as follows.
@@ -1325,15 +1335,21 @@ The second-order FV solution of both subdomains are supplied by two ghost cells 
 The additional polynomial correction procedure of the interfacial DV flux has been employed
 to ensure conservative properties of the coupling algorithm.
 
+%%% Applicability and comparison with others
+Since the employed LB models are suited for the isothermal hydrodynamics,
+the proposed hybrid method is applicable to the flows with Mach number $\lesssim0.3$.
+The subsonic regime is quite difficult for the DSMC-based methods due to the inherent stochastic noise,
+however the deterministic approaches work well.
+
 %%% Other LB models
 The other LB models (e.g., for supersonic flows, compressible and thermal flows~\cite{Chen2010, Frapolli2015, Frapolli2016})
-can be incorporated in the proposed hybrid method.
+can be potentially incorporated into the hybrid method.
 The entropic models~\cite{Karlin1999, Chikatamarla2006, Chikatamarla2009} are promising
 due to their enhanced stability for low viscosities (large Reynolds numbers).
 Using of the regularized high-order LB models~\cite{Zhang2006, Mont2015, Mattila2017} for the hybrid schemes is interested as well.
 One can conclude that the improvements in employed LB model should be directed
 to the better reproduction of the higher Maxwell moments and half-range (wall) moments.
-In this case, the mapping method should be also upgraded by involving higher-order moments.
+In this case, the mapping method should be also upgraded by involving higher-order and wall moments.
 
 %%% Adaptive mesh in velocity space
 Adaptive coupling of the LB and DV methods under the unified FV formulation can be considered

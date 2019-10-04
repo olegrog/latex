@@ -11,6 +11,7 @@
     indentfirst=false
 ]{quoting}
 
+%\usepackage{hyperref}
 \usepackage{lipsum}
 \usepackage{graphicx}
 \def\asterism{\par\vspace{1em}{\centering\scalebox{1}{\bfseries *~*~*}\par}\vspace{.5em}\par}
@@ -79,6 +80,7 @@
 \maketitle
 
 We are grateful to the Reviewers for their very fruitful comments and suggestions.
+We have deeply revised our manuscript according to them and many other points that naturally follow from them.
 Our answer and changes are presented below.
 The reviewers' words are shown in bold.
 Individual parts of the corrected version of the manuscript
@@ -91,15 +93,23 @@ can be recognized by the bold lateral line.
     Please, be specific on this point.
 \end{quoting}
 
-Ideologically, the present work is similar to the work of Di Staso et al. But there are significant
-differences. The present paper introduces (in particular as a perspective) a hybrid approach by
-means of DVM, keeping in mind that LB models have been created on the basis of the special
-systems of regular discrete velocities. DSMC schemes is in fact of the other nature, they use the
-stochastic (dynamically changed in the process of computation) system of discrete velocities.
-This can in principle lead to the noise in the interface boundary. Of course, in our hybrid method
-some important tasks of matching should be resolved.
+%%% Ilyin
+% Ideologically, the present work is similar to the work of Di Staso et al. But there are significant
+% differences. The present paper introduces (in particular as a perspective) a hybrid approach by
+% means of DVM, keeping in mind that LB models have been created on the basis of the special
+% systems of regular discrete velocities. DSMC schemes is in fact of the other nature, they use the
+% stochastic (dynamically changed in the process of computation) system of discrete velocities.
+% This can in principle lead to the noise in the interface boundary. Of course, in our hybrid method
+% some important tasks of matching should be resolved.
+
+We have added the following paragraph to the Introduction.
 
 \begin{leftbar}
+    Ideologically, the present work is similar to the works~\cite{Staso2016long, Staso2018},
+    but there is a significant difference.
+    The proposed hybrid approach is based on the unified DV approximation,
+    whereas the DSMC method has a fundamentally different representation of the VDF.
+    In this sense, coupling DV and LB models under the single FV formulation is more natural.
 \end{leftbar}
 
 \begin{quoting}
@@ -108,22 +118,45 @@ some important tasks of matching should be resolved.
     (supersonic, highly thermal, because this is the real issue at stake).
 \end{quoting}
 
-There are complex LB models with large numbers of discrete nodes fit to simulate supersonic
-flows. In this case the near-continuum part of the region under consideration could be covered by
-this LB model and in the narrow Knudsen layers DVM could be used. Then potentially this
-hybrid method could be competitive with DSMC schemes.
+%%% Ilyin
+% There are complex LB models with large numbers of discrete nodes fit to simulate supersonic
+% flows. In this case the near-continuum part of the region under consideration could be covered by
+% this LB model and in the narrow Knudsen layers DVM could be used. Then potentially this
+% hybrid method could be competitive with DSMC schemes.
+
+First of all, we have emphasized the advantage of our method over the stochastic ones
+and added this paragraph to the Conclusions.
 
 \begin{leftbar}
+    Since the employed LB models are suited for the isothermal hydrodynamics,
+    the proposed hybrid method is applicable to the flows with Mach number $\lesssim0.3$.
+    The subsonic regime is quite difficult for the DSMC-based methods due to the inherent stochastic noise,
+    however the deterministic approaches work well.
 \end{leftbar}
+
+Second, we can only presume that potentially our method extended for high-Ma flows
+can be competitive with the DSMC as much as the state-of-the-art deterministic methods
+can compete with the DSMC for some problems.
+Anyway, this important question is beyond the scope of our paper.
 
 \begin{quoting}
     3. Please take a look at recent work of Aiguo Xu (soft matter, PRE) on DVM for
     thermal and multiphase non-equil flows. I think they belong and should be cited.
 \end{quoting}
 
-The references added to the text of the manuscript.
+The references have added to the Introduction.
 
 \begin{leftbar}
+    The LB models can be roughly divided into two classes: low-order and high-order.
+    The low-order LB models recover the correct hydrodynamics for small Mach numbers,
+    while the high-order models are able to reproduce full Navier--Stokes--Fourier equations
+    and, moreover, some rarefied gas effects~\cite{Succi2001, Shan2006}.
+    The LB method is a flexible framework for developing sophisticated models.
+    Many recent works are devoted to extending the applicability of the LB method beyond the Navier--Stokes level.
+    In particular, models that correctly describe the Burnett-level dynamics is formulated in~\cite{Xu2018, Xu2019}.
+    Special-purpose methodologies are proposed to capture rarefied gas effects in the highly nonequlibrium Knudsen layer
+    arising from the kinetic boundary conditions~\cite{Feuchter2016, Ambrus2014, Ambrus2016, Ambrus2016mixed}.
+    Another promising approach is based on the regularization procedure for LB models~\cite{Mont2015}.
 \end{leftbar}
 
 \section*{Referee report \#2}
@@ -139,39 +172,36 @@ The references added to the text of the manuscript.
     which mandates the use of DVM.
 \end{quoting}
 
-The presented method gives accurate results for the hydrodynamic quantites.
-For instance, the longitudal velocity $v_x$ results for the hybrid method
-are very close to the tabulated results for $k=0.1$ (Fig.~2).
-
-Nevertheless, the longitudinal heat flux is not reproduced with a good precision.
-This feature is anticipated. As was mentioned in the Comment, LB has fundamental flaws.
-In the present case this flaw is inability of the applied LB models to reproduce the highest moments,
-moreover LB models in the paper do not even reproduce fully thermohydrodynamics.
-
-We should also emphasize that longitudinal heat flux in the Couette flow has nonequilibrium nature
-and to our knowledge this flux can be observed if at least the Burnett equations are considered.
-As a result, we need the LB model which is able
-\begin{itemize}
-    \item to reproduce Burnett thermohydrodynamics,
-    \item to reproduce some lowest Maxwell half-moments.
-\end{itemize}
-
-\begin{leftbar}
-\end{leftbar}
+% The presented method gives accurate results for the hydrodynamic quantites.
+% For instance, the longitudal velocity $v_x$ results for the hybrid method
+% are very close to the tabulated results.
+%
+% Nevertheless, the longitudinal heat flux is not reproduced with a good precision.
+% This feature is anticipated. As was mentioned in the Comment, LB has fundamental flaws.
+% In the present case this flaw is inability of the applied LB models to reproduce the highest moments,
+% moreover LB models in the paper do not even reproduce fully thermohydrodynamics.
+%
+% We should also emphasize that longitudinal heat flux in the Couette flow has nonequilibrium nature
+% and to our knowledge this flux can be observed if at least the Burnett equations are considered.
+% As a result, we need the LB model which is able
+% \begin{itemize}
+%     \item to reproduce Burnett thermohydrodynamics,
+%     \item to reproduce some lowest Maxwell half-moments.
+% \end{itemize}
 
 %%% TODO(olegrog): Some text in introduction that LB can advance beyond NS and takes into account some rarefied gas effects, however up to now does not provide universal tool for solution of the Boltzmann equation.
 
-Finally, to be more specific on peculiarities of the VDF arised in boundary-value problems,
+First, to be more specific on peculiarities of the VDF arised in boundary-value problems,
 which cannot be correctly described by classical LB methods,
 we have introduced the following subsection into the manuscript:
 \begin{leftbar}
     \subsection*{Mesh refinement}
-    The diffuse-reflection boundary conditions introduce several singularities into the VDF
+    The diffuse-reflection boundary condition introduces several singularities into the VDF
     both in the velocity space and in the physical one.
-    First, the discontinuity exists along the plane \(\bxi\bn=0\) and directly on the boundary surface (\(\bx=\bx_B\)).
+    First, the discontinuity exists along the plane \(\bxi\bdot\bn=0\) and directly on the boundary surface (\(\bx=\bx_B\)).
     For a convex domain, this discontinuity does not penetrate into the gas region~\cite{Kim2011, Guo2017},
     since characteristics do not enter into the gas region.
-    Nevertheless, sharp variations of the solution near \(\bxi\bn=0\) requires a strong mesh refinement
+    Nevertheless, sharp variations of the solution near \(\bxi\bdot\bn=0\) requires a strong mesh refinement
     in order to achieve a high-accuracy approximation.
     Moreover, it is necessary to resolve the logarithmic singularity of the form~\cite{Takata2016}
     \begin{equation}\label{eq:xi_singularity}
@@ -185,7 +215,18 @@ we have introduced the following subsection into the manuscript:
     It is seen from~\eqref{eq:x_singularity} that the logarithmic singularity of the VDF
     --- and all macroscopic variables as well --- takes place for all Knudsen numbers;
     however, for small \(k\), it becomes highly localized in the Knudsen layer.
-    Therefore, the physical grid should be refined exponentially as \(\bx\) goes to \(\bx_B\).
+    Therefore, the physical mesh should be refined exponentially as \(\bx\) goes to \(\bx_B\).
+\end{leftbar}
+
+Second, we have added some general sentences to the Introduction,
+where we restrict ourselves to the classical LB models.
+\begin{leftbar}
+    The LB method is genetically related to the Broadwell-type models~\cite{Broadwell1964shock, Gatignol1975},
+    which use a small number of discrete velocities to reproduce some relevant features of the Boltzmann equation.
+    The DV method typically uses lattices with a large number of discrete velocities,
+    which can accurately approximate highly nonequlibrium VDF.
+    In contrast, discontinuities and sharp variations of the VDF cannot be reproduced
+    on a span of the truncated basis of smooth polynomials underlying the LB models.
 \end{leftbar}
 
 \begin{quoting}
@@ -208,9 +249,7 @@ and the jumps happen in the adjacent points
 since LB is unable to reproduce the heat flux and distorts the heat flux profile.
 These jumps in the heat flux show the limits of applicability of the method.
 The longitudal heat flux $q_x$ is caused by the non-hydrodynamic effects
-(potentially by the moments of all orders):
-the part of the heat flux proportional to $k^2$ can be recovered at the Burnett level,
-while the second part is attributable to the diffuse-reflection boundary conditions.
+attributable to the diffuse-reflection boundary conditions.
 Therefore, the conventional LB models can not cope with $q_x$
 (though isothermal D3Q96 can give qualitatively correct profile for the diffuse part).
 
@@ -219,11 +258,6 @@ to the better reproduction of the highest Maxwell moments (Burnett level)
 accompanied with the better reproduction of the wall moments.
 The mapping method can be potentially improved with the involvement of the fourth-order moments
 and the inclusion of the enhanced LB models.
-
-Additional explanations are added to the Figure captions and to the text.
-
-\begin{leftbar}
-\end{leftbar}
 
 \begin{quoting}
     3. The numerical results indicate that the ``special''
@@ -260,10 +294,6 @@ with extremely high order quadrature.
 
 Additional comments about ``augmentation property'' are added to the text of the paper.
 
-\begin{leftbar}
-Please, insert here, what was added to the paper.
-\end{leftbar}
-
 \begin{quoting}
     4. Fig. 5 indicates that the deviation norms are
     non-monotonous in the vicinity of the coupling
@@ -279,9 +309,12 @@ Please, insert here, what was added to the paper.
     expansion of the distribution be more appropriate?
 \end{quoting}
 
-...
-
+Yes, it is possible, but we postponed this study for the further work.
+Some words have been add to "Conclusions an Perspectives".
 \begin{leftbar}
+    One can conclude that the improvements in employed LB model should be directed
+    to the better reproduction of the higher Maxwell moments and half-range (wall) moments.
+    In this case, the mapping method should be also upgraded by involving higher-order and wall moments.
 \end{leftbar}
 
 \begin{quoting}
@@ -303,9 +336,7 @@ and the reference to the classical textbook~\cite{LeVeque2002}.
 
 Moreover, we have rewritten subsection ``Finite-volume formulation'' completely
 in order to improve the description and, hopefully, avoid other possible ambiguities.
-
-\begin{leftbar}
-\end{leftbar}
+Additionally, we have added Appendix A describing the details of the employed third-order TVD scheme.
 
 \begin{quoting}
     6. The numerical scheme presented in Sec.~5.1 is
@@ -324,10 +355,7 @@ The origin of the approximation loss was in inaccurate formula for \(f^n_0\).
 Now, we have inserted the correct one and recomputed all data presented in figures.
 It is worth noting that the additional numerical error introduced previously is rather small
 due to strong mesh refinement near the boundary. It is possible to observe the difference
-in the results only in Fig.~5 of the current version of the manuscript.
-
-\begin{leftbar}
-\end{leftbar}
+in the results only in Fig.~7 of the current version of the manuscript.
 
 \begin{quoting}
     7. At the coupling, it can be seen that the
@@ -348,9 +376,6 @@ Yes, the the longitudinal heat flux results exhibit oscillation behavior
 this is due to the inability of the present LB models to reproduce this moment correctly.
 This effect does not disappear when the mesh is refined and does not affect the stability.
 
-\begin{leftbar}
-\end{leftbar}
-
 \begin{quoting}
     8. Results should be presented for larger values of
     $k$. The numerical results indicate that the
@@ -360,9 +385,8 @@ This effect does not disappear when the mesh is refined and does not affect the 
 \end{quoting}
 
 Results for $k=0.3$ are included in the manuscript.
-
-\begin{leftbar}
-\end{leftbar}
+The scheme is stable for very large $k$, because at least the LB subdomain disappear in this case.
+But if we fixed the coupling interface, the scheme preserves its stability mainly due to strong convervation properties.
 
 \begin{quoting}
     9. Can the scheme be employed for higher Mach number flows?
@@ -372,9 +396,6 @@ The limitations on the Mach number for the present scheme are attributed to the 
 Formally the applied high-order LB models (which describe correctly isothermal hydrodynamics correctly)
 are applicable for non-negligible Mach numbers if for such flows the equilibrium remains non-negative,
 the flow is isothermal.
-
-\begin{leftbar}
-\end{leftbar}
 
 \begin{quoting}
     10. There are insufficient details regarding the scheme
@@ -400,9 +421,6 @@ Therefore the convergence of the numerical solution should be realized in the co
 namely when both steps in coordinate and velocity spaces tend to zero.
 Now the main stages of the algorithm are emphasized in the new variant of the paper.
 
-\begin{leftbar}
-\end{leftbar}
-
 \begin{quoting}
     11. Results obtained in the linearised regime are
     reported for the longitudinal heat flux. Since this
@@ -411,10 +429,10 @@ Now the main stages of the algorithm are emphasized in the new variant of the pa
     taken in deriving these results.
 \end{quoting}
 
-...
-
-\begin{leftbar}
-\end{leftbar}
+First, we have added Appendix B, where reduction to 1D integral equation is presented.
+Formula for the longitudinal heat flux is also provided.
+Second, to increase the reproducibility of our work, we have added references
+to the authors' codes~\cite{Rogozin2019hybrid,Rogozin2019couette}.
 
 \printbibliography
 
