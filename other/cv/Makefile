@@ -2,7 +2,7 @@ FILE = cv
 
 all: $(FILE).pdf
 
-$(FILE).pdf: $(FILE).tex main.bib other.bib
+$(FILE).pdf: $(FILE).tex main.bib other.bib photo.jpg
 	latexmk -pdf $(FILE)
 
 clean:
