@@ -1,0 +1,356 @@
+%&pdflatex
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+
+%%% functional packages
+\usepackage{amssymb, mathtools, amsthm, mathrsfs}
+\usepackage{graphicx}
+\usepackage{physics}
+\usepackage{siunitx}
+
+%%% configuration packages
+\usepackage{fullpage}
+
+\usepackage[
+    pdfusetitle,
+    colorlinks
+]{hyperref}
+
+\usepackage[
+    backend=biber,
+    sorting=none,
+    giveninits,
+]{biblatex}
+\bibliography{phase_field}
+
+\title{A toy phase-field model for crystallization}
+\author{Oleg Rogozin}
+
+\begin{document}
+\maketitle
+
+% added by Vladimir
+\begin{figure}
+    \centering
+    \includegraphics{SantaRudolph}
+    \caption{Santa Claus and his faithful assistant reindeer Rudolph.}
+    \label{fig:SantaRudolph}
+\end{figure}
+
+\begin{abstract}
+Despite the global warming on the Earth, everyone has ever observed
+how frost draws intricate patterns on the window glass in winter.
+As a child, we were sometimes told that this is the tricks of Santa Claus (Fig.~\ref{fig:SantaRudolph}).
+But what is the underlying physics of this phenomenon?
+\end{abstract}
+
+\tableofcontents
+
+\section{Model}
+
+%%% Mechanism of solidification
+When the weather outside is cold, moisture in a warm room condenses on the inner surface to form a thin water film.
+If the temperature outside is sufficiently low, ice nucleates and grows.
+The region around the ice crystal becomes depleted in moisture.
+The liquid water has to arrive to the ice crystal by diffusion through the depleted zone.
+Suppose that a small part of the ice crystal accidentally advances further then the rest of the interface.
+The diffusion distance for that perturbation decreases, and hence the perturbation grows faster.
+This leads to the formation of a branch, and a \emph{branching instability} is said to have formed.
+The mechanism described here is essentially how snowflakes are supposed to form,
+by the diffusion of water molecules through air on to the ice crystals.
+The essential difference is that snowflakes have the \emph{dendritic} morphology in three dimensions~\cite{dendrites}.
+
+%%% Gibbs--Thomson effect
+Branching instability is restrained by increasing surface tension of the solid--liquid interface,
+which depresses, in particular, the equilibrium freezing temperature when the interface is convex towards the liquid.
+Mathematically, this is expressed by the boundary condition at the interface,
+which is called the \emph{Gibbs--Thomson relationship}~\cite{worster2000solidification}:
+\begin{equation}\label{eq:Gibbs--Thomson}
+    T_I = T_M - \Gamma\div\vu{n}_I,
+\end{equation}
+where $T_I$ is the equilibrium temperature of the interface, $T_M$ is the melting temperature,
+$\vu{n}_I$ is the unit vector normal to the interface and pointing into the liquid,
+$\div\vu{n}_I$ is the curvature of the interface,
+$\Gamma = \gamma T_M/\rho L$ is the Gibbs--Thomson coefficient (\si{K.m}),
+$\gamma$ is the surface energy (\si{J/m^2}), $\rho$ is the density of the solid (\si{kg/m^3}),
+and $L$ is the latent heat of fusion per unit mass (\si{J/kg}).
+
+%%% Free energy
+To observe the occurrence of branching instability, a phase-field model can be analyzed~\cite{kobayashi1993modeling}.
+Let the temperature field $T(\vb{x},t)$ be supplemented by the phase field $\phi(\vb{x},t)$,
+which can be considered as an ordering parameter within the Ginzburg--Landau formalism~\cite{landau1950theory}.
+The solid--liquid interface is expressed by a steep but smooth transition from the solid phase $\phi=0$
+to the liquid phase $\phi=1$.
+Let us postulate the following free energy functional of the system:
+\begin{equation}\label{eq:Ginzburg--Landau}
+    \Phi[\phi] = \int\qty(\frac{\epsilon^2}2|\grad\phi|^2 + F(\phi))\dd{\vb{x}},
+\end{equation}
+where $\epsilon(\vu{n})$ is a small parameter (\si{m}), which determines the thickness of the phase transition layer.
+Dependence of $\epsilon$ on $\vu{n}=\grad\phi/|\grad\phi|$ allows us to introduce kinetic anisotropy into the model.
+The function $F(\phi)$ is a double-well potential, which has local minimums at $\phi=0$ and $1$, of the form
+\begin{equation}\label{eq:F}
+    F(\phi) = \frac14\phi^4 - \qty(\frac12 + \frac{m}3)\phi^3 + \qty(\frac14 + \frac{m}2)\phi^2,
+\end{equation}
+where parameter $|m|<\frac12$ represents a thermodynamic driving force.
+The difference of the two minimum values of $F$ is proportional to $m$,
+which gives a difference of chemical potentials of both the phases.
+
+%%% Evolution equation for phase field
+In the context of statistical mechanics, the equilibrium function $\phi$ minimizes the free energy $\Phi$
+among some suitable class of functions, i.e., equilibrium $\phi$ is found from $\fdv*{\Phi}{\phi} = 0$,
+which leads to the Euler--Lagrange equations.
+For a non-equilibrium problem, $\phi$ does not minimize $\Phi$ but dissipates in time to equilibrium:
+\begin{equation}\label{eq:phi}
+    \tau\pdv{\phi}{t} = -\fdv{\Phi}{\phi}
+        = \div( \epsilon\pdv{\epsilon}{\grad\phi}|\grad\phi|^2 + \epsilon^2\grad\phi)
+        + \phi(1-\phi)\qty(\phi - \frac12 - m),
+\end{equation}
+where $\tau$ is a relaxation time, whose inverse is an intrinsic interfacial mobility.
+For a two-dimensional case, the phase-field equation~\eqref{eq:phi} can be rewritten as
+\begin{equation}\label{eq:phi2d}
+    \tau\pdv{\phi}{t} =
+        - \pdv{x}\qty(\epsilon\epsilon'\pdv{\phi}{y})
+        + \pdv{y}\qty(\epsilon\epsilon'\pdv{\phi}{x})
+        + \div(\epsilon^2\grad\phi)
+        + \phi(1-\phi)\qty(\phi - \frac12 - m),
+\end{equation}
+where $\epsilon=\epsilon(\Theta)$, $\epsilon' = \dv*{\epsilon}{\Theta}$,
+$\Theta$ is an angle between $\grad\phi$ and the $x$ axis.
+Eq.~\eqref{eq:phi2d} is derived straightforwardly from Eq.~\eqref{eq:phi} by using
+\begin{equation}\label{eq:Dtheta}
+    \pdv{\Theta}{\grad\phi} = \frac{\vu{z}\cross\grad\phi}{|\grad\phi|^2},
+\end{equation}
+where $\vu{z}$ is a unit vector in the $z$ direction.
+
+%%% Driving force
+Next, let us assume that the driving force of interfacial motion is proportional to the supercooling
+plus thermal fluctuations and therefore take the form
+\begin{equation}\label{eq:m}
+    m(T) = \frac{a_1}{\pi}\arctan\qty[\pi\beta(T_M-T)] + \frac{a_2}{2}\chi,
+\end{equation}
+where all coefficients are nonnegative and stochastic term $\chi(\vb{x},t)$
+has a uniform distribution on interval $[-1,1]$
+with correlation function $\langle\chi(\vb{x},t)\chi(\vb{x}',t')\rangle = \delta(\vb{x}-\vb{x}')\delta(t-t')/3$.
+The thermal fluctuations are basically introduced
+to force dendritic side-branching of an unstable solid--liquid interface
+and are naturally modeled by Gaussian white noise~\cite{karma1993fluctuations},
+but a bounded stochastic term is incorporated in Eq.~\eqref{eq:m} to ensure that $|m|<\frac12$.
+Due to the same reason, function $\arctan[\pi\beta(T_M-T)]/\pi$ is used instead of $\beta(T_M-T)$.
+Thus, inequality $a_1+a_2<1$ should be satisfied.
+
+%%% Asymptotic analysis
+Let us introduce $\epsilon_0$ as a mean thickness of the phase-transition layer, i.e.,
+\begin{equation}\label{eq:epsilon}
+    \epsilon(\Theta) = \epsilon_0\sigma(\Theta), \quad
+    \int_0^{2\pi}\sigma\dd\Theta = 0.
+\end{equation}
+Then, asymptotic analysis of the phase-field equation~\eqref{eq:phi2d} for $m(T) = \beta(T_M-T)$
+in the sharp-interface limit~\cite{caginalp1986analysis}:
+\begin{equation}\label{eq:sil}
+    \epsilon_0\to0, \quad \beta=\order{\epsilon_0}, \quad \tau=\order{\epsilon_0^2},
+\end{equation}
+yields an anisotropic non-equilibrium Gibbs--Thomson relationship~\cite{mcfadden1993phase}:
+\begin{equation}\label{eq:Gibbs--Thomson2}
+    T_I = T_M - \frac{1}{\sqrt2\beta} \qty(
+        \qty(\epsilon_I + \epsilon_I'')\div\vu{n}_I
+        + \frac{\tau}{\epsilon_I} v_I ),
+\end{equation}
+where $v_I$ is the normal velocity of the interface that is positive for the formation of solid (\si{m/s}),
+$\epsilon_I=\epsilon(\Theta_I)$, and $\Theta_I$ is defined as the angle between $\vu{n}_I$ and the $x$ axis.
+Eq.~\eqref{eq:Gibbs--Thomson2} in the equilibrium case ($v_I=0$) can be compared with Eq.~\eqref{eq:Gibbs--Thomson}
+to relate $\beta$ to the surface energy $\gamma$. The coefficient before $v_I$ is referred to as kinetic.
+
+%%% Temperature
+The governing equation for temperature $T$,
+\begin{equation}\label{eq:temperature}
+    \pdv{T}{t} = D\laplacian{T} + \frac{L}{c_p}\pdv{\phi}{t},
+\end{equation}
+is derived from the conservation of enthalpy.
+Here, $D$ is the thermal diffusivity (\si{m^2/s}) and
+$c_p$ is the specific heat capacity at constant pressure (\si{J/kg.K}),
+which are both assumed to be constant.
+
+%%% Dimensionless variables
+Let us introduce the following nondimensional variables (denoted by hat):
+\begin{equation}\label{eq:dimensionless}
+    \vb{x} = \hat{\vb{x}}H, \quad t = \hat{t}H^2/D, \quad
+    T = T_M + T_C(\hat{T}-1), \quad \tau = \hat{\tau}H^2/D, \quad
+    \epsilon_0 = \hat{\epsilon}_0H, \quad \beta = \hat{\beta}/T_C,
+\end{equation}
+where $H$ is the characteristic length, $T_C$ is the undercooling temperature.
+
+\section{Problem}
+
+The goal of the project is to analyze numerically equations~\eqref{eq:phi2d} and~\eqref{eq:temperature}
+in the square 2D domain $\hat{\vb{x}}\in[-\hat{H},\hat{H}]^2$.
+The initial conditions are $\hat{T}=1$ and $\phi=1$ plus nucleation of solid phase occurs at $\vb{x}=0$ and $t=0$.
+The boundary conditions are $\vu{n}_B\vdot\grad\phi=0$ and $\hat{T}=0$,
+where $\vu{n}_B$ is a vector normal to the boundary.
+Let the anisotropy function take the form
+\begin{equation}\label{eq:sigma}
+    \sigma(\Theta) = 1 + \delta\cos\qty[j(\Theta-\Theta_0)],
+\end{equation}
+where $\delta$ means the strength of anisotropy, $j$ is the number of its modes,
+and the dimensionless parameters be specified as follows:
+\begin{equation}\label{eq:parameters}
+    \begin{gathered}
+    \delta=0.04, \quad j=6, \quad \Theta_0=\frac{\pi}2, \quad a_1=0.9, \quad a_2 = 0.01, \\
+    \hat{H} = 5, \quad \hat{\epsilon}_0 = 0.01, \quad \hat{\tau} = 0.0003, \quad \hat{\beta} = 10.
+    \end{gathered}
+\end{equation}
+Additionally, let the dimensionless undercooling $S = c_p T_C/L$,
+which is often called the Stefan number, vary from $0.5$ to $2$.
+
+\section{Postscriptum}
+
+Finally, it worth noting that the considered model corresponds to the supercooling solidification of water
+and does not describe the formation of snowflakes,
+since snowflakes are formed by vapor growth which has a different process from melt growth.
+In order to simulate such a process, the formation of a facet
+and its destabilization should be considered~\cite{yokoyama1990pattern}.
+Incorporation of the advanced anisotropy function allows the described phase-field model
+to qualitatively reproduce the growth dynamics of complex 3D snowflake morphology~\cite{demange2017phase}.
+
+\appendix
+
+\section{Sharp-interface limit}
+
+%%% Literature review
+In this section, we show how the Gibbs--Thomson relationship~\eqref{eq:Gibbs--Thomson2}
+can be derived from the phase-field equation~\eqref{eq:phi2d} in the asymptotic limit~\eqref{eq:sil}.
+In the absence of anisotropy, systematic analysis were performed in~\cite{caginalp1986analysis},
+where the classical method of the matched asymptotic expansions was employed.
+The results were generalized for an anisotropic case in~\cite{mcfadden1993phase}.
+Note that a wrong formula is derived in~\cite{kobayashi1993modeling},
+since the author presumes that $\phi$ is axisymmetric in the vicinity of each point of the interface,
+which is not the case for the anisotropic formulation.
+Below, a simplified version of the asymptotic analysis is presented.
+
+%%% Polar coordinates
+For each point $\vb{x}_I$ on the interface, which is a curve defined by $\phi=1/2$,
+let us go to the local polar coordinate system
+such that the origin coincides with the center of the interface curvature:
+\begin{equation}\label{eq:polar}
+    x = r\cos\theta, \quad y = r\sin\theta, \quad r_I = (\div\vu{n}_I)^{-1}, \quad \theta_I = \Theta_I.
+\end{equation}
+This choice of coordinates provides the following asymptotic relation in the vicinity of $\vb{x}_I$:
+\begin{equation}\label{eq:polar_asymptotics}
+    \pdv{r} = \order{\epsilon_0^{-1}}, \quad \pdv{\theta} = \order{1}, \quad
+    r = r_I + \order{\epsilon_0}, \quad \theta = \theta_I + \order{\epsilon_0}.
+\end{equation}
+Some gradients in the polar coordinates take the form
+\begin{equation}\label{eq:polar_gradients}
+    \grad\phi = \phi_r\vu{r} + \frac{\phi_\theta}{r}\vu*\theta, \quad
+    |\grad\phi|^2\pdv{\Theta}{\grad\phi} = \phi_r\vu*\theta - \frac{\phi_\theta}{r}\vu{r},
+\end{equation}
+where $\phi_r$ and $\phi_\theta$ denotes the partial derivatives of $\phi$ with respect to $r$ and $\theta$,
+$\vu{r}$ and $\vu*\theta$ are unit vectors in the $r$ and $\theta$ directions, respectively.
+The time derivative can be expressed in terms of the gradient,
+if we assume that interface is moving with velocity $\vb{v}$, i.e.,
+\begin{equation}\label{eq:polar_velocity}
+    \pdv{\phi}{t} = -\vb{v}\vdot\grad\phi = -v_r\phi_r - \frac{v_\theta\phi_\theta}{r}.
+\end{equation}
+
+%%% Asymptotic expansion
+Substituting Eqs.~\eqref{eq:polar_gradients} and~\eqref{eq:polar_velocity}
+into the phase-field equation~\eqref{eq:phi2d}, we obtain
+\begin{equation}\label{eq:phi2d_polar}
+    \tau\qty( v_r\phi_r + \frac{v_\theta\phi_\theta}{r} ) + \div(
+        \qty[ \epsilon^2\phi_r - \epsilon\epsilon'\frac{\phi_\theta}{r} ]\vu{r}
+        + \qty[ \epsilon\epsilon'\phi_r + \epsilon^2\frac{\phi_\theta}{r} ]\vu*\theta
+    ) + \phi(1-\phi)\qty(\phi - \frac12 - m) = 0,
+\end{equation}
+which can be reduced to the asymptotic form
+\begin{equation}\label{eq:phi2d_asymptotic}
+    \epsilon^2\phi_{rr} + \qty(
+        \tau v_r + \qty[\epsilon^2 +  (\epsilon')^2 + \epsilon\epsilon'']\frac1{r_I}
+        + 2\epsilon\epsilon'\frac{\phi_r\phi_{r\theta} - \phi_\theta\phi_{rr}}{r_I\phi_r^2}
+    )\phi_r + \phi(1-\phi)\qty(\phi - \frac12 - m) = \order{\epsilon_0^2},
+\end{equation}
+where $\tau=\order{\epsilon_0^2}$ and $m=\order{\epsilon_0}$ are assumed.
+The following asymptotic relations have been used to derive Eq.~\eqref{eq:phi2d_asymptotic}:
+\begin{equation}\label{eq:theta_asymptotic}
+    \pdv{\Theta}{r} = \frac{\phi_r\phi_{r\theta} - \phi_\theta\phi_{rr}}{r_I\phi_r^2} + \order{\epsilon_0}, \quad
+    \pdv{\Theta}{\theta} = 1 + \order{\epsilon_0},
+\end{equation}
+which are obtained from Eqs.~\eqref{eq:polar_gradients} using the chain rule.
+Next, Eq.~\eqref{eq:phi2d_asymptotic} is rewritten as
+\begin{equation}\label{eq:phi2d_epsilon_I}
+    \tilde\epsilon^2\phi_{rr} + \qty(
+        \tau v_r + \qty[\tilde\epsilon^2 + (\tilde\epsilon')^2 + \tilde\epsilon\tilde\epsilon'']\frac1{r_I}
+    )\phi_r + 2\tilde\epsilon\tilde\epsilon'\frac{\phi_{r\theta}}{r_I}
+    + \phi(1-\phi)\qty(\phi - \frac12 - m) = \order{\epsilon_0^2},
+\end{equation}
+where $\tilde\epsilon$ denotes $\epsilon(\theta)$ and
+\begin{equation}\label{eq:epsilon_asymptotic}
+    \epsilon(\Theta) = \epsilon(\theta) + (\Theta - \theta)\epsilon'(\theta) + \order{\epsilon_0^2}, \quad
+    \Theta = \theta + \frac{\phi_\theta}{r_I\phi_r} + \order{\epsilon_0^2}.
+\end{equation}
+The last equation comes from
+\begin{equation}\label{eq:delta_theta}
+    \order{\epsilon_0^2} + \tan\theta + (\Theta - \theta)(1+\tan^2\theta) = \tan\Theta
+        = \tan\theta + \frac{\phi_\theta}{r\phi_r}(1+\tan^2\theta) + \order{\epsilon_0^2}.
+\end{equation}
+The first equality in Eq.~\eqref{eq:delta_theta} is just a Taylor expansion,
+and the second one is obtained from the definition of $\Theta$ in the polar coordinates.
+
+%%% Asymptotic equations
+For small $\epsilon_0$, the solution is looked for in a power series $\epsilon_0$, i.e.,
+\begin{equation}\label{eq:phi_expansion}
+    \phi = \sum_{n=0}^{\infty} \epsilon_0^n \phi^{(n)}.
+\end{equation}
+The leading-order solution is given by $\phi^{(0)}=1$ and $\phi^{(0)}=0$ in the liquid and solid regions, respectively.
+It is naturally to introduce a streched coordinate $\eta = (r-r_I)/\epsilon_0$ such that $\pdv*{\eta} = \order{1}$.
+Then, substituting the series~\eqref{eq:phi_expansion} into Eq.~\eqref{eq:phi2d_epsilon_I}
+and arranging the terms by the order of $\epsilon_0$, we obtain
+\begin{gather}
+    \tilde\sigma^2\phi^{(0)}_{\eta\eta} + g(\phi^{(0)}) = 0, \label{eq:phi0}\\
+    \tilde\sigma^2\phi^{(1)}_{\eta\eta} + g'(\phi^{(0)})\phi^{(1)} + \qty(
+        \frac{\tau v_r}{\epsilon_0^2} + \qty[\tilde\sigma^2 + (\tilde\sigma')^2 + \tilde\sigma\tilde\sigma'']\frac1{r_I}
+    )\phi^{(0)}_\eta + 2\tilde\sigma\tilde\sigma\frac{\phi^{(0)}_{\eta\theta}}{r_I}
+    - \frac{m}{\epsilon_0}\phi^{(0)}(1-\phi^{(0)}) = 0, \label{eq:phi1}
+\end{gather}
+where $\tilde\sigma$ denotes $\sigma(\theta)$ and
+\begin{equation}\label{eq:g}
+    g(\phi) = \phi(1-\phi)\qty(\phi - \frac12).
+\end{equation}
+The leading-order solution is
+\begin{equation}\label{eq:phi0_solution}
+    \phi^{(0)}(\eta,\theta) = \frac12\qty( \tanh\qty(\frac{\eta}{2\sqrt2\sigma(\theta)}) + 1 ).
+\end{equation}
+Differentiation of Eq.~\eqref{eq:phi0_solution} with respect to $\eta$ shows that $\phi^{(0)}_\eta$
+is a homogeneous solution of Eq.~\eqref{eq:phi1}.
+Since the homogeneous part of Eq.~\eqref{eq:phi1} is self-adjoint in $\eta\in\mathbb{R}$, i.e.,
+\begin{equation}\label{eq:phi0_self-adjoint}
+    \int_{-\infty}^{+\infty} \phi\mathcal{L}\psi\dd\eta = \int_{-\infty}^{+\infty} \psi\mathcal{L}\phi\dd\eta, \quad
+    \mathcal{L} = \pdv[2]{\eta} + g'(\phi^{(0)}),
+\end{equation}
+the inhomogeneous part of Eq.~\eqref{eq:phi1} must be orthogonal to the homogeneous solution
+(the Fredholm solvability condition), i.e.,
+\begin{equation}\label{eq:phi1_solvability}
+    \int_{-\infty}^{+\infty} \qty[
+        \qty(
+            \frac{\tau v_r}{\epsilon_0^2} + \qty[\tilde\sigma^2 + (\tilde\sigma')^2 + \tilde\sigma\tilde\sigma'']\frac1{r_I}
+        )\phi^{(0)}_\eta + 2\tilde\sigma\tilde\sigma'\frac{\phi^{(0)}_{\eta\theta}}{r_I}
+        - \frac{m}{\epsilon_0}\phi^{(0)}(1-\phi^{(0)})
+    ]\phi^{(0)}_\eta \dd\eta = 0,
+\end{equation}
+or, using relations
+\begin{equation}\label{eq:phi0_relations}
+    \phi^{(0)}(1-\phi^{(0)}) = \sqrt2\tilde\sigma\phi^{(0)}_\eta, \quad
+    \dv{\theta}\int_{-\infty}^{+\infty} \qty(\phi^{(0)}_\eta)^2 \dd\eta =
+        -\frac{\tilde\sigma'}{\tilde\sigma}\int_{-\infty}^{+\infty} \qty(\phi^{(0)}_\eta)^2 \dd\eta,
+\end{equation}
+we have
+\begin{equation}\label{eq:phi1_solvability2}
+    \frac{\tau v_r}{\epsilon_0^2} + \qty[\tilde\sigma^2 + \tilde\sigma\tilde\sigma'']\frac1{r_I} =
+        \frac{\sqrt2\tilde\sigma m}{\epsilon_0},
+\end{equation}
+which is identical to~\eqref{eq:Gibbs--Thomson2} at $\theta=\theta_I$.
+
+\printbibliography
+
+\end{document}
