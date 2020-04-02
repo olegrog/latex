@@ -1,0 +1,151 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A, T1]{fontenc}
+\usepackage[russian, english]{babel}
+\usepackage{csquotes}
+
+%%% functional packages
+\usepackage{amssymb, mathtools, amsthm, mathrsfs}
+\usepackage{graphicx}
+\usepackage{physics}
+\usepackage{siunitx}
+
+%%% configuration packages
+\usepackage{fullpage}
+
+\usepackage[
+    pdfusetitle,
+    colorlinks
+]{hyperref}
+
+\usepackage[
+    backend=biber,
+    style=gost-numeric,
+    autolang=other,
+    sorting=none,
+    giveninits,
+    mincrossrefs=100, % do not add parent collections
+]{biblatex}
+\bibliography{mhd}
+
+\title{Magnetohydrodynamics in selective laser melting}
+\author{Oleg Rogozin}
+
+%%% Special symbols
+\newcommand{\tran}{\mathsf{T}}
+
+%%% Bold symbols
+\newcommand{\bv}{\vb{v}}
+\newcommand{\bn}{\vu{n}}
+\newcommand{\bB}{\vb{B}}
+\newcommand{\bE}{\vb{E}}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Mathematical model}
+
+%%% Governing equations
+The behavior of the incompressible viscous electrically conducting fluid in the presence of constant magnetic field is described by the following equations (see Eqs.~(66.7)--(66.9) in~\cite{Landavshits8})\footnote{
+    To convert the Gaussian units to the SI ones, use \href{https://en.wikipedia.org/wiki/Gaussian_units\#Electromagnetic_unit_names}{formulas} $\bB_\text{G} = (4\pi/\mu_0)^{1/2}\bB_\text{SI}$, $\sigma_\text{G} = \sigma_\text{SI}/(4\pi\epsilon_0)$, and $c = (\epsilon_0\mu_0)^{-1/2}$.
+}:
+\begin{gather}
+    \div\bB = 0, \quad \div\bv = 0, \label{eq:continuity}\\
+    \pdv{\bB}{t} + (\bv\vdot\grad)\bB = (\bB\vdot\grad)\bv + \frac1{\mu_0\sigma}\laplacian\bB, \label{eq:B}\\
+    \rho\pdv{\bv}{t} + \rho(\bv\vdot\grad)\bv = -\grad(p+\frac{B^2}{2\mu_0})
+        + \frac1{\mu_0}(\bB\vdot\grad)\bB + \eta\laplacian\bv, \label{eq:momentum}
+\end{gather}
+where $\bB$ is the magnetic field (\si{\tesla} = \si{J/A.m^2}),
+$\bv$ is the velocity (\si{m/s}),
+$\sigma$ is the electrical conductivity (\si{\ohm^{-1}.m^{-1} = A^2.s/m.J}),
+$\rho$ is the density (\si{kg/m^3}), $p$ is the pressure (\si{Pa = J/m^3}),
+$\eta$ is the dynamic viscosity (\si{kg/m.s}),
+$\mu_0 = \SI{1.2576e-6}{J/A^2.m}$ is the vacuum permeability.
+
+%%% Boundary conditions
+The following boundary conditions are valid at a gas--liquid interface (see Eq.~(61.14) in~\cite{Landavshits6}):
+\begin{equation}\label{eq:bc1}
+    \qty(p_g - p_l + \gamma\div\bn)\bn = \qty(\vb*\tau_g - \vb*\tau_l)\vdot\bn + \grad\gamma,
+\end{equation}
+where subscripts $g$ and $l$ correspond to the gas and liquid quantities, respectively,
+$\gamma$ is the surface tension (\si{J/m^2}), $\bn$ is the unit normal directed into the gas,
+and
+\begin{equation}\label{eq:tau}
+    \vb*\tau = \eta\qty(\grad\bv + (\grad\bv)^\tran)
+\end{equation}
+is the viscous stress tensor.
+In case of temperature-dependent surface tension $\gamma=\gamma(T)$, $\grad\gamma = \gamma'\grad{T}$.
+Additionally, conditions
+\begin{equation}\label{eq:bc2}
+    \bv_l = \bv_g, \quad \bB_l = \bB_g
+\end{equation}
+are imposed in the case $\eta>0$ and $\sigma<\infty$ to ensure that there is no jumps of $\bv$ and $\bB$ across the interface.
+
+\section{Uni-directional flow}
+
+%%% General solution
+Let us consider a uni-directional flow along the $x$ axis between two infinite parallel surfaces: 
+the upper one ($z=0$) is a gas--liquid interface with uniform temperature gradient $T_x$,
+and the fluid is resting at the lower one ($z=-\lambda$).
+Moreover, a constant magnetic field $\mathcal{B}$ along the $z$ axis is applied to the system.
+Therefore, under assumptions $\dv*{t}=0$, $\dv*{x}=0$, $\dv*{y}=0$, $v_y=0$, $v_z=0$, and $B_y=0$ the set of equations~\eqref{eq:continuity}--\eqref{eq:momentum} reduces to
+\begin{equation}\label{eq:governing}
+    B_z' = 0, \quad \mu_0\eta v_x'' = -B_z B_x', \quad \mu_0\sigma B_z v_x' = B_x'',
+\end{equation}
+where prime denotes the first derivative with respect to $z$.
+The general solution of~\eqref{eq:governing} can be written as
+\begin{equation}\label{eq:general_solution}
+    v_x = \frac1\omega(C_1\cos\omega z + C_2\sin\omega z + C_3), \quad
+    B_x = \frac{\mu_0\eta}{B_z}(C_1\sin\omega z - C_2\cos\omega z + C_4),
+\end{equation}
+where $\omega^2 = \sigma B_z^2/\eta$ and $C_i$ are some constants.
+
+%%% Boundary conditions
+The boundary conditions~\eqref{eq:bc1} and~\eqref{eq:bc2} take the form
+\begin{equation}\label{eq:bc}
+    \eta v_x' = \gamma' T_x, \quad B_z = \mathcal{B}, \quad B_x = 0
+\end{equation}
+at $z=0$.
+Then, we immediately obtain that $B_z=\mathcal{B}$ in the whole domain $-\lambda<z<0$.
+However, the remaining condition $v=0$ at $z=-\lambda$ is insufficient to find the unique solution of~\eqref{eq:governing}.
+If we supplement the boundary conditions with $B_x = 0$ at $z=-\lambda$, then we have
+\begin{equation}\label{eq:constants}
+    C_1 = \frac{C_2}{\sin\omega\lambda}(1-\cos\omega\lambda), \quad
+    C_2 = \frac{\gamma'T_x}{\eta}, \quad
+    C_3 = C_1, \quad C_4 = C_2.
+\end{equation}
+Thus, the velocity at $z=0$ is
+\begin{equation}\label{eq:velocity}
+    v_x = \frac{C_1+C_3}{\omega} 
+        = \frac{2\gamma'T_x}{\eta\omega}\frac{1-\cos\omega\lambda}{\sin\omega\lambda}.
+\end{equation}
+For small $\omega\lambda$, we can expand~\eqref{eq:velocity} into the Taylor series
+\begin{equation}\label{eq:velocity_asym}
+    v_x = \frac{\gamma'T_x\lambda}{\eta}\qty(1+\frac1{12}(\omega\lambda)^2) + \order{(\omega\lambda)^4}.
+\end{equation}
+That is, an external magnetic field has a amplifying effect on the velocity field, which contradicts the conclusions in~\cite{du2019influence}.
+
+\appendix
+
+\section{Index notation}
+
+Eqs.~\eqref{eq:continuity}--\eqref{eq:momentum} can be written in the index notation:
+\begin{gather}
+    \pdv{v_i}{x_i} = 0, \quad \pdv{B_i}{x_i} = 0, \label{eq:continuityI}\\
+    \pdv{B_i}{t} + v_j\pdv{B_i}{x_j} = B_j\pdv{v_i}{x_j} + \frac1{\mu_0\sigma} \pdv[2]{B_i}{x_j}{x_j}, \label{eq:BI}\\
+    \rho\pdv{v_i}{t} + \rho v_j\pdv{v_i}{x_j}
+    = -\pdv{p}{x_i} - \frac{B_j}{\mu_0}\pdv{B_j}{x_i} + \frac{B_j}{\mu_0}\pdv{B_i}{x_j} + \eta\pdv[2]{v_i}{x_j}{x_j}. \label{eq:momentumI}
+\end{gather}
+The boundary condition~\eqref{eq:bc1} with~\eqref{eq:tau} has the form
+\begin{equation}\label{eq:bc1I}
+    \qty(p_g - p_l + \gamma\pdv{n_j}{x_j})n_i
+    = \qty[
+        \eta_g\qty( \pdv{v_{gi}}{x_j} + \pdv{v_{gj}}{x_i} )
+      - \eta_l\qty( \pdv{v_{li}}{x_j} + \pdv{v_{lj}}{x_i} )
+    ]n_j + \pdv{\gamma}{x_i}.
+\end{equation}
+
+\printbibliography
+
+\end{document}
