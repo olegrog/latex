@@ -7,8 +7,8 @@
 %%% functional packages
 \usepackage{amssymb, mathtools, amsthm, mathrsfs}
 \usepackage{graphicx}
-\usepackage{physics}
-\usepackage{siunitx}
+\usepackage{physics, siunitx}
+\usepackage[subfolder]{gnuplottex}
 
 %%% configuration packages
 \usepackage{fullpage}
@@ -20,7 +20,7 @@
 
 \usepackage[
     backend=biber,
-    style=gost-numeric,
+    style=numeric,
     autolang=other,
     sorting=none,
     giveninits,
@@ -84,20 +84,33 @@ are imposed in the case $\eta>0$ and $\sigma<\infty$ to ensure that there is no 
 
 \section{Uni-directional flow}
 
+\begin{figure}
+    \centering
+    \begin{gnuplot}[scale=0.8, terminal=epslatex, terminaloptions=color lw 2]
+        set xrange [-1e-5:1e1]
+        set yrange [0:1]
+        set grid
+        plot 2*(cosh(x)-1)/x/sinh(x) title '$f(x)$' lw 3, \
+        1-x**2/12 title '$1-x^2/12$' dt 4, 2/x title '$2/x$' dt 4
+    \end{gnuplot}
+    \caption{Function $f(x) = 2(\cosh{x}-1)/(x\sinh{x})$.}
+    \label{fig:f}
+\end{figure}
+
 %%% General solution
-Let us consider a uni-directional flow along the $x$ axis between two infinite parallel surfaces: 
+Let us consider a uni-directional flow along the $x$ axis between two infinite parallel surfaces:
 the upper one ($z=0$) is a gas--liquid interface with uniform temperature gradient $T_x$,
 and the fluid is resting at the lower one ($z=-\lambda$).
 Moreover, a constant magnetic field $\mathcal{B}$ along the $z$ axis is applied to the system.
 Therefore, under assumptions $\dv*{t}=0$, $\dv*{x}=0$, $\dv*{y}=0$, $v_y=0$, $v_z=0$, and $B_y=0$ the set of equations~\eqref{eq:continuity}--\eqref{eq:momentum} reduces to
 \begin{equation}\label{eq:governing}
-    B_z' = 0, \quad \mu_0\eta v_x'' = -B_z B_x', \quad \mu_0\sigma B_z v_x' = B_x'',
+    B_z' = 0, \quad \mu_0\sigma B_z v_x' = -B_x'', \quad \mu_0\eta v_x'' = -B_z B_x',
 \end{equation}
 where prime denotes the first derivative with respect to $z$.
 The general solution of~\eqref{eq:governing} can be written as
 \begin{equation}\label{eq:general_solution}
-    v_x = \frac1\omega(C_1\cos\omega z + C_2\sin\omega z + C_3), \quad
-    B_x = \frac{\mu_0\eta}{B_z}(C_1\sin\omega z - C_2\cos\omega z + C_4),
+    v_x = \frac1\omega(C_1\cosh\omega z + C_2\sinh\omega z + C_3), \quad
+    B_x = \frac{\mu_0\eta}{B_z}(C_1\sinh\omega z + C_2\cosh\omega z + C_4),
 \end{equation}
 where $\omega^2 = \sigma B_z^2/\eta$ and $C_i$ are some constants.
 
@@ -111,20 +124,24 @@ Then, we immediately obtain that $B_z=\mathcal{B}$ in the whole domain $-\lambda
 However, the remaining condition $v=0$ at $z=-\lambda$ is insufficient to find the unique solution of~\eqref{eq:governing}.
 If we supplement the boundary conditions with $B_x = 0$ at $z=-\lambda$, then we have
 \begin{equation}\label{eq:constants}
-    C_1 = \frac{C_2}{\sin\omega\lambda}(1-\cos\omega\lambda), \quad
+    C_1 = C_2\frac{\cosh\omega\lambda-1}{\sinh\omega\lambda}, \quad
     C_2 = \frac{\gamma'T_x}{\eta}, \quad
     C_3 = C_1, \quad C_4 = C_2.
 \end{equation}
 Thus, the velocity at $z=0$ is
 \begin{equation}\label{eq:velocity}
-    v_x = \frac{C_1+C_3}{\omega} 
-        = \frac{2\gamma'T_x}{\eta\omega}\frac{1-\cos\omega\lambda}{\sin\omega\lambda}.
+    v_x = \frac{C_1+C_3}{\omega}
+        = \frac{2\gamma'T_x}{\eta\omega}\frac{\cosh\omega\lambda-1}{\sinh\omega\lambda}
+        = \frac{\gamma'T_x\lambda}{\eta} f(\omega\lambda).
 \end{equation}
-For small $\omega\lambda$, we can expand~\eqref{eq:velocity} into the Taylor series
-\begin{equation}\label{eq:velocity_asym}
-    v_x = \frac{\gamma'T_x\lambda}{\eta}\qty(1+\frac1{12}(\omega\lambda)^2) + \order{(\omega\lambda)^4}.
+Function $f(x)$ is shown in Fig.~\ref{fig:f} and has asymptotics
+\begin{equation}\label{eq:f_asym}
+    f(x) = 1 - \frac{x^2}{12} + \order{x^4} \text{ as } x\to0, \quad
+    f(x) \sim \frac2x \text{ as } x\to\infty.
 \end{equation}
-That is, an external magnetic field has a amplifying effect on the velocity field, which contradicts the conclusions in~\cite{du2019influence}.
+Since $f(x)$ is a decreasing function,
+we conclude that the external static magnetic field, regardless of its strength, has a damping effect on the velocity field.
+This fact is obtained from the qualitative analysis in~\cite{du2019influence}.
 
 \appendix
 
