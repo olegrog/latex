@@ -9,6 +9,7 @@
 \usepackage{physics, siunitx}
 \usepackage{subcaption}     % for \subfigure
 \usepackage{suffix}         % for \WithSuffix
+\usepackage[referable]{threeparttablex} % for \tnotex
 \usepackage{multirow}
 \usepackage{xspace}
 \usepackage{comment}
@@ -222,7 +223,7 @@ The governing equations for the gas fraction $\alpha$, density $\rho$, velocity 
             \exp\qty(-2\frac{\qty|(\bx-\bx_0)\cp\bn_0|^2}{R_0^2})|\grad\alpha|}{laser heat}\\
         - \myoverbrace{\epsilon\sigma\qty(T^4-T_0^4)|\grad\alpha|}{radiative cooling}
         - \myoverbrace{\frac{\evapor{a}\evapor{p}\evapor{h}}
-            {(2\pi RT/M)^{1/2}}|\grad\alpha|}{evaporative cooling},
+            {(2\pi RT/M_L)^{1/2}}|\grad\alpha|}{evaporative cooling},
     \end{multlined}\label{eq:h}
 \end{gather}
 where $\rho$ is the density, $\bv$ is the velocity, $T$ is the temperature,
@@ -241,7 +242,7 @@ $\sigma=\SI{5.67e-8}{W.m^{-2}.K^{-4}}$ is the Stefan--Boltzmann constant,
 $T_0$ is the ambient temperature,
 $0 < \evapor{a} < 1$ is the evaporation coefficient,
 $\evapor{h}$ is the enthalpy of vaporization,
-$M$ is the molar mass of the alloy,
+$M_L$ is the molar mass of the alloy,
 $R = \SI{8.3145}{J.mol^{-1}.K^{-1}}$ is the gas constant.
 Specific enthalpy $h$, viscous stress tensor $\btau$,
 vapor pressure $\evapor{p}$,
@@ -249,7 +250,7 @@ and liquid fraction $\phi$ are calculated as follows:
 \begin{gather}
     h = \int_0^T c_p(\xi)\dd{\xi} + (1-\alpha)\fusion{h}\phi(h), \label{eq:T}\\
     \btau = \mu\qty(\grad\bv + \qty(\grad\bv)^\tran), \label{eq:tau}\\
-    \evapor{p}(T) = p_0\exp\qty(\frac{M\evapor{h}}{R}\qty(\frac1{T_B}-\frac1{T})), \label{eq:p_evapor}\\
+    \evapor{p}(T) = p_0\exp\qty(\frac{M_L\evapor{h}}{R}\qty(\frac1{T_B}-\frac1{T})), \label{eq:p_evapor}\\
     \phi(h) = \frac{1 + \tanh\qty(2\phi'_0(h-h_0))}2, \quad
         \phi'_0 = \frac1{h_L-h_S}, \quad h_0 = \frac{h_L+h_S}2, \label{eq:phi}
 \end{gather}
@@ -267,9 +268,8 @@ where $f_S$, $f_L$, and $f_G$ correspond to the solid, liquid, and gas propertie
 Specifically, the following expressions are used:
 \begin{gather}
     \rho = \rho_G\alpha + \rho_L(1-\alpha), \label{eq:rho}\\
-    \beta = \beta_G\alpha + \beta_L(1-\alpha), \label{eq:beta}\\
-    \mu = \mu_G\alpha + \mu_L(1-\alpha), \quad 
-        \mu_L = \mu_{L0}\exp\qty( \frac{E_a}{R} \qty(\frac1{T}-\frac1{T_l}) ), \label{eq:mu}\\
+    \beta = \beta_G\alpha + \beta_L\phi(1-\alpha), \label{eq:beta}\\
+    \mu = \mu_G\alpha + \mu_L(T)\phi(1-\alpha), \label{eq:mu}\\
     c_p = c_{pG}\alpha + \qty[c_{pL}(T)\phi + c_{pS}(T)(1-\phi)](1-\alpha), \label{eq:c_p}\\
     k = k_G\alpha + \qty[k_L(T)\phi + k_S(T)(1-\phi)](1-\alpha), \label{eq:k}
 \end{gather}
@@ -291,6 +291,7 @@ The evaporation effects are described and critically analyzed in~\cite{cook2019s
     \item Why do we incorporate Marangoni, recoil pressure, evaporative/radiative cooling?
     \item Why do we employ the Darcy--Brinkman penalization?\cite{voller1987fixed, le2006interfacial} Kozeny--Carman permeability?
     \item Clausius--Clayperon~\cite{klassen2014evaporation, cook2019simulation}
+    \item Boussinesq approximation
 \end{enumerate}
 
 %%% Ray-tracing
@@ -370,48 +371,87 @@ and is outlined in~\ref{alg:tfd}.
 \section{Results and discussion}
 
 \begin{table}
+    \begin{threeparttable}[b]
     \centering
-    \caption{Material properties of stainless steel 316L used for numerical simulations}
-    \label{table:ss316l}
+    \caption{Material properties of stainless steel 316L and argon used for numerical simulations.}
+    \label{table:properties}
+    \footnotesize
     \begin{tabular}{lcccc}
         \hline\noalign{\smallskip}
         Physical property & Symbol & Value & Unit & Reference \\[3pt] \hline\noalign{\smallskip}
-        \multirow{2}*{Viscosity} & $\mu_G$ & \num{1.5e-5} & \multirow{2}*{\si{Pa.s}} &  \\
-        & $\mu_L$ & $\num{6.759e-3}\exp(\SI{45.6}{kJ/mol}/RT)$ & & \cite{kim1975thermophysical} \\[3pt]
+        \multirow{2}*{Molar mass} & $M_G$ & \num{39.95} & \multirow{2}*{\si{g/mol}} & --- \\
+        & $M_L$ & \num{55.95} & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        \multirow{2}*{Density} & $\rho_G$ & \num{1} & \multirow{2}*{\si{kg.m^{-3}}} & \\
-        & $\rho_L$ & \num{6966} & & \\[3pt]
+        % Density of noble gases = P0*M/RT
+        \multirow{2}*{Density} & $\rho_G$ & \num{0.29} & \multirow{2}*{\si{kg.m^{-3}}} & $p_0M_G/RT_L$\tnotex{a}\\
+        & $\rho_L$ & \num{6979} & & \cite{kim1975thermophysical}\tnotex{a} \\[3pt]
         \noalign{\smallskip}
-        \multirow{2}*{Thermal expansion} & $\beta_G$ & \num{0} & \multirow{2}*{\si{K^{-1}}} & \\
-        & $\beta_L$ & \num{0} & & \\[3pt]
+        % Viscosity of noble gases = const*sqrt(T)
+        \multirow{2}*{Viscosity} & $\mu_G$ & \num{7.864e-5} & \multirow{2}*{\si{Pa.s}} & \cite{kestin1984equilibrium}\tnotex{a} \\
+        & $\mu_L$ & $\num{2.54e-4}\exp(\SI{5492}{K}/T)$ & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        \multirow{3}*{Thermal conductivity} & $k_G$ & \num{0.2} & \multirow{3}*{\si{W.m^{-1}.K^{-1}}} & \\
+        % Thermal expansion of noble gases = 1/T
+        \multirow{2}*{Thermal expansion} & $\beta_G$ & \num{0} & \multirow{2}*{\si{K^{-1}}} & --- \\
+        & $\beta_L$ & $\num{5.593e-5} + \SI{1.175e-9}{K^{-1}}T + \SI{8.5e-12}{K^{-2}}T^2$ & & \cite{kim1975thermophysical} \\[3pt]
+        \noalign{\smallskip}
+        % Thermal conductivity of noble gases = const*sqrt(T)
+        \multirow{3}*{Thermal conductivity} & $k_G$ & \num{0.0616} & \multirow{3}*{\si{W.m^{-1}.K^{-1}}} & \cite{kestin1984equilibrium}\tnotex{a} \\
         & $k_L$ & $\num{12.41} + \SI{3.279e-3}{K^{-1}}T $ & & \cite{kim1975thermophysical} \\
         & $k_S$ & $\num{9.248} + \SI{1.571e-2}{K^{-1}}T $ & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        \multirow{3}*{Heat capacity} & $c_{pG}$ & \num{1006} & \multirow{3}*{\si{J.kg^{-1}.K^{-1}}} & \\
+        % Heat capacity of noble gases = 2.5*R/M
+        \multirow{3}*{Heat capacity} & $c_{pG}$ & \num{520} & \multirow{3}*{\si{J.kg^{-1}.K^{-1}}} & $5R/2M_G$ \\
         & $c_{pL}$ & $\num{769.9}$ & & \cite{kim1975thermophysical} \\
         & $c_{pS}$ & $\num{459.0} + \SI{0.1328}{K^{-1}}T $ & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        Enthalpy of fusion & $\fusion{h}$ & \num{268} & \multirow{2}*{\si{kJ.kg^{-1}}} & \\
-        Enthalpy of evaporation & $\evapor{h}$ & \num{7410} & & \\[3pt]
+        Enthalpy of fusion & $\fusion{h}$ & \num{268} & \multirow{2}*{\si{kJ.kg^{-1}}} & \cite{kim1975thermophysical} \\
+        Enthalpy of evaporation & $\evapor{h}$ & \num{7410} & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        Solidus & $T_S$ & \num{1648} & \multirow{3}*{\si{K}} & \\
-        Liquidus & $T_L$ & \num{1673} & & \\
-        Boiling temperature & $T_B$ & \num{3086} & & \\[3pt]
+        Liquidus & $T_L$ & \num{1683} & & \cite{mills2002recommended} \\
+        Boiling temperature & $T_B$ & \num{3087} & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
         Surface tension & $\gamma$ & $\num{3.282} - \SI{8.9e-4}{K^{-1}}T$ & \si{kg.s^{-2}} & \cite{khairallah2016laser} \\[3pt]
         \noalign{\smallskip}
-        Absorptivity & $A$ & \num{0.3} & \multirow{3}*{ } & \\
-        Emissivity & $\epsilon$ & \num{0.3} & & \\
-        Evaporation coefficient & $\evapor{a}$ & \num{0.82} & & \\[3pt]
+        % [Rogozin]: we do not use the Kim's approximation
+        % In our model \evapor{p} = 101325 * exp(16.1528 - 49863.6/T), which is based on molar mass
+        % Vapor pressure & $\evapor{p}$ & $\num{101325}\exp(\num{14.075} - \SI{43445}{K^{-1}}T)$ & \si{\Pa} & \cite{kim1975thermophysical} \\[3pt]
+        Absorptivity & $A$ & \num{0.35} & \multirow{3}*{---} & \cite{khairallah2016laser} \\
+        Emissivity & $\epsilon$ & \num{0.2} & & \cite{mills2002recommended}\tnotex{a} \\
+        Evaporation coefficient & $\evapor{a}$ & \num{0.82} & & \cite{anisimov1968evaporation} \\[3pt]
+        \hline
+    \end{tabular}
+    \begin{tablenotes}
+        \item[a]\label{a} The values are taken at the liquidus temperature.
+    \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{Laser and powder bed parameter used for numerical simulations}
+    \footnotesize
+    \label{table:parameters}
+    \begin{tabular}{lcccc}
+        \hline\noalign{\smallskip}
+        Physical property & Symbol & Value & Unit & Reference \\[3pt] \hline\noalign{\smallskip}
+        Ambient temperature & $T_0$ & \num{293} & \si{K} & --- \\[3pt]
+        \noalign{\smallskip}
+        Ambient pressure & $p_0$ & \num{101325} & \si{Pa} & --- \\[3pt]
+        \noalign{\smallskip}
+        Gravitational acceleration & $g$ & \num{9.81} & \si{m.s^{-2}} & --- \\[3pt]
+        \noalign{\smallskip}
+        Diameter of the laser beam & $R_0$ & \num{55} & \multirow{2}*{\si{\um}} & Trumpf TruPrint 1000 \\
+        Mean diameter of a powder particle & $d_p$ & \num{40} & & --- \\[3pt]
+        \noalign{\smallskip}
+        Coefficient related to permeability & $K$ & \num{e3} & --- & --- \\[3pt]
         \hline
     \end{tabular}
 \end{table}
 
-The material properties for SS316L are presented in Fig.~\ref{table:ss316l}.
+The material properties for SS316L are presented in Table~\ref{table:properties}.
 The values of absorptivity and emissivity are taken as for nonoxidized metal surface,
 since we assume that selective laser melting take place in argon inert atmosphere.
+The other parameters are shown in Table~\ref{table:parameters}.
 
 \subsection{Single tracks}
 
@@ -443,9 +483,10 @@ for the powder-bed fusion of SS316L and have found an excellent agreement with e
 with respect to the form and dimensions of the solidified track in its cross section.
 
 \section{Acknowledgements}
+This work was partially supported by Oerlikon company (project manager Dr.~Michail Perevozchikov).
 To Denis Firsov and Yulia Kuzminova for helping in preparing experimental results.
 To Diana Gazizova for helping in data processing and fruitful discussions.
-To Stanislav Evlashin, Svyatoslav Chugunov, Igor Shishkovsky, Michail Perevozchikov, and Iskander Akhatov for valuable discussions.
+To Prof.~Igor Shishkovsky and Prof.~Iskander Akhatov for valuable discussions.
 
 \appendix
 
@@ -481,7 +522,7 @@ The interfacial boundary conditions take the following form:
     \qty( \frac{k_L}{c_{pL}}\grad{h}_l - \frac{k_G}{c_{pG}}\grad{h}_g )&\vdot\bn_{LG}
         = \frac{2AP}{\pi R_0^2}\exp(-2\frac{\abs{(\vb{x}-\vb{x_0})\cp\bn_0}^2}{R_0^2}) \\
         &- \epsilon\sigma\qty(T_{LG}^4-T_0^4)
-        - \frac{\evapor{a}\evapor{p}(T_{LG})\evapor{h}}{(2\pi RT_{LG}/M)^{1/2}},
+        - \frac{\evapor{a}\evapor{p}(T_{LG})\evapor{h}}{(2\pi RT_{LG}/M_L)^{1/2}},
     \end{aligned}
 \end{gather}
 for the gas--liquid interface $\Omega_{GL} = \Omega_G\cap\Omega_L$,
