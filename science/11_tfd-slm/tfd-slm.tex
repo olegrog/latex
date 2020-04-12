@@ -14,6 +14,7 @@
 \usepackage{xspace}
 \usepackage{comment}
 \usepackage{graphicx}
+\usepackage[subfolder]{gnuplottex}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
 \graphicspath{{_pics/}}
@@ -25,18 +26,20 @@
 \usepackage{enumitem}       % for configuration of enumerates
 
 \usepackage[
-    colorlinks
+    pdfencoding=unicode,
+    psdextra,               % admit math in section headers
+    colorlinks,
 ]{hyperref}
 
 \usepackage[
     backend=biber,
-    style=numeric,
+    style=alphabetic, % numeric
     sorting=none,
     maxbibnames=99, minbibnames=99,
     natbib=true,
     doi=true,
     pagetracker,
-    giveninits
+    giveninits,
 ]{biblatex}
 \bibliography{tfd-slm}
 
@@ -220,44 +223,43 @@ The governing equations for the gas fraction $\alpha$, density $\rho$, velocity 
     \rho\pdv{h}{t} + \rho(\bv\vdot\grad)h
         = \myoverbrace[\qty(\frac12)^2]{\div(k\grad{T})}{heat conduction}
         + \myoverbrace{\frac{2AP}{\pi R_0^2}
-            \exp\qty(-2\frac{\qty|(\bx-\bx_0)\cp\bn_0|^2}{R_0^2})|\grad\alpha|}{laser heat}\\
+            \exp(-2\frac{\qty|(\bx-\bx_0)\cp\bn_0|^2}{R_0^2})|\grad\alpha|}{laser heat}\\
         - \myoverbrace{\epsilon\sigma\qty(T^4-T_0^4)|\grad\alpha|}{radiative cooling}
         - \myoverbrace{\frac{\evapor{a}\evapor{p}\evapor{h}}
             {(2\pi RT/M_L)^{1/2}}|\grad\alpha|}{evaporative cooling},
     \end{multlined}\label{eq:h}
 \end{gather}
-where $\rho$ is the density, $\bv$ is the velocity, $T$ is the temperature,
+where $\rho$ is the density, $\bv$ is the velocity, $h$ is the specific enthalpy,
 $p$ is the pressure, $\alpha$ is the gas fraction,
 $(1-\alpha)\phi$ is the volume fraction of the molten metal,
-$K>0$ is the coefficient related to permeability of the mushy layer,
+$K>0$ is the coefficient related to the permeability of the mushy layer,
 $\gamma$ is the surface tension,
 $\bn = \grad\alpha/|\grad\alpha|$ is the unit normal vector,
 $\bn_0 = (0,0,1)$ specifies the direction of the laser beam,
 $\vb{g}$ is the gravitational acceleration,
 $\beta$ is the volume thermal expansion coefficient,
-$k$ is the thermal conductivity, $A$ is the absorptivity of laser radiation, $P$ is the laser power,
-$\bx_0$ is the coordinate of the laser focal point, $R_0$ is the radius of the laser beam,
-$\epsilon$ is the emissivity,
+$k$ is the thermal conductivity, $A$ is the absorptivity of laser radiation,
+$P$ is the laser power, $\bx_0$ is the coordinate of the laser focal point,
+$R_0$ is the radius of the laser beam, $\epsilon$ is the emissivity,
 $\sigma=\SI{5.67e-8}{W.m^{-2}.K^{-4}}$ is the Stefan--Boltzmann constant,
 $T_0$ is the ambient temperature,
 $0 < \evapor{a} < 1$ is the evaporation coefficient,
 $\evapor{h}$ is the enthalpy of vaporization,
 $M_L$ is the molar mass of the alloy,
 $R = \SI{8.3145}{J.mol^{-1}.K^{-1}}$ is the gas constant.
-Specific enthalpy $h$, viscous stress tensor $\btau$,
-vapor pressure $\evapor{p}$,
-and liquid fraction $\phi$ are calculated as follows:
+Temperature $T$, viscous stress tensor $\btau$, vapor pressure $\evapor{p}$,
+and $\phi$ are calculated as follows:
 \begin{gather}
     h = \int_0^T c_p(\xi)\dd{\xi} + (1-\alpha)\fusion{h}\phi(h), \label{eq:T}\\
     \btau = \mu\qty(\grad\bv + \qty(\grad\bv)^\tran), \label{eq:tau}\\
-    \evapor{p}(T) = p_0\exp\qty(\frac{M_L\evapor{h}}{R}\qty(\frac1{T_B}-\frac1{T})), \label{eq:p_evapor}\\
-    \phi(h) = \frac{1 + \tanh\qty(2\phi'_0(h-h_0))}2, \quad
-        \phi'_0 = \frac1{h_L-h_S}, \quad h_0 = \frac{h_L+h_S}2, \label{eq:phi}
+    \evapor{p}(T) = p_0\exp(\frac{M_L\evapor{h}}{R}\qty(\frac1{T_B}-\frac1{T})), \label{eq:p_evapor}\\
+    \phi(h) = \frac12 + \frac12\tanh(2\frac{h-h_M}{\fusion{h}}), \label{eq:phi}\\
+    h_M = \int_0^{T_M} c_p(\xi)\dd{\xi} + \frac{\fusion{h}}2, \label{eq:h_M}
 \end{gather}
 where $c_p$ is the heat capacity,
 $\fusion{h}$ is the enthalpy of fusion, $\mu$ is the viscosity, 
-$p_0$ is the ambient pressure, $T_B$ is the boiling temperature,
-$h_{S,L}$ are the enthalpy of solidus and liquidus, respectively.
+$p_0$ is the ambient pressure,
+$T_M$ and $T_B$ are the melting and boiling temperatures, respectively.
 
 %%% Material properties
 All material properties $f = \rho, \mu, c_p, k$ are generally calculated as linear interpolations:
@@ -271,10 +273,8 @@ Specifically, the following expressions are used:
     \beta = \beta_G\alpha + \beta_L\phi(1-\alpha), \label{eq:beta}\\
     \mu = \mu_G\alpha + \mu_L(T)\phi(1-\alpha), \label{eq:mu}\\
     c_p = c_{pG}\alpha + \qty[c_{pL}(T)\phi + c_{pS}(T)(1-\phi)](1-\alpha), \label{eq:c_p}\\
-    k = k_G\alpha + \qty[k_L(T)\phi + k_S(T)(1-\phi)](1-\alpha), \label{eq:k}
+    k = k_G\alpha + \qty[k_L(T)\phi + k_S(T)(1-\phi)](1-\alpha). \label{eq:k}
 \end{gather}
-where all symbols with subscripts ${}_{S/L/G}$ are assumed to be constant,
-$E_a$ is the activation energy.
 The constant $K$ can be related to the viscosity and primary dendrite arm spacing $d_\text{PDAS}$~\cite{kubo1985mathematical}:
 \begin{equation}\label{eq:permeability}
     K = \frac{180\mu_{L0}}{d_\text{PDAS}^2}.
@@ -288,8 +288,10 @@ The evaporation effects are described and critically analyzed in~\cite{cook2019s
 \subsection{Fidelity of the model}\oleg{I still do not know how to name this subsection}
 
 \begin{enumerate}
+    \item Enthalpy method for the Stefan (moving boundary) problem~\cite{kamenomostskaja1961stefan, atthey1974finite, fedorenko1975difference, voller1981accurate}.
     \item Why do we incorporate Marangoni, recoil pressure, evaporative/radiative cooling?
     \item Why do we employ the Darcy--Brinkman penalization?\cite{voller1987fixed, le2006interfacial} Kozeny--Carman permeability?
+    \item Modeling of mushy layer\footnote{This term is seems to be first introduced in~\cite{tien1967heat}}.
     \item Clausius--Clayperon~\cite{klassen2014evaporation, cook2019simulation}
     \item Boussinesq approximation
 \end{enumerate}
@@ -299,6 +301,11 @@ The evaporation effects are described and critically analyzed in~\cite{cook2019s
 It will be remedied by introducing a more sophisticated ray-tracing algorithm
 for a more accurate treatment of the laser-source interaction with the surface of the powder particles,
 which is part of the future work.
+
+Deficiencies of previous modeling efforts (we need to analyze~\cite{cook2019simulation} thoroughly):
+\begin{enumerate}
+    \item Solu
+\end{enumerate}
 
 \subsection{Dimensionless analysis}
 
@@ -332,7 +339,7 @@ The energy equation~\eqref{eq:h} is discretized as follows:
     }_\text{implicit} &+ \underbrace{
         \intFaces \qty(\rho h\bv - \frac{k}{c_p}(1+\phi')\grad{h})
     }_\text{implicit} \\ &= \frac{2AP}{\pi R_0^2}\underbrace{
-        \intCell |\grad\alpha\vdot\bn_0|\exp\qty[-2\frac{(x-x_0)^2 + (y-y_0)^2}{R_0^2}]
+        \intCell |\grad\alpha\vdot\bn_0|\exp[-2\frac{(x-x_0)^2 + (y-y_0)^2}{R_0^2}]
     }_\text{explicit}.
     \end{aligned}
 \end{equation}
@@ -364,6 +371,64 @@ and is outlined in~\ref{alg:tfd}.
 \end{algorithmic}
 \end{algorithm}
 
+\subsection{Temperature evaluation}
+
+%%% Formulation of the issue
+For $\phi(h)$ defined in~\eqref{eq:phi}, there is no analytical solution to the integral equation~\eqref{eq:T} for temperature.
+However, the temperature can be evaluated approximately.
+Several approaches can be employed to resolve this problem.
+
+\subsubsection{Method with approximate $\phi$}
+
+The integral equation~\eqref{eq:T} is easily solved if we put
+\begin{equation}\label{eq:phi-piecewise}
+    \phi = \begin{cases}
+        0                        &\text{if }\qquad\,\, h \leq h_1, \\
+        \frac{h-h_1}{\fusion{h}} &\text{if } h_1 < h < h_2, \\
+        1                        &\text{if } h_2 \leq h,
+    \end{cases}
+\end{equation}
+where
+\begin{equation}\label{eq:enthalpySL}
+    h_1 = h_M - \frac{\fusion{h}}2, \quad h_2 = h_M + \frac{\fusion{h}}2.
+\end{equation}
+
+\subsubsection{Method with approximate enthalpy}
+
+%%% 5-parameter model
+
+% We employ the $\phi$-based approximation~\eqref{eq:fusion_change} based on the five-parameter model:
+% \begin{equation}\label{eq:enthalpy_phi}
+%     h = h'_ST + \frac{h''_S}2T^2 + \qty[
+%         \fusion{h} + \qty(h'_L-h'_S) \qty(T-1) + \frac{h''_L-h''_S}2 \qty( T^2-1 )
+%     ]\phi,
+% \end{equation}
+% where
+% \begin{equation}\label{eq:enthalpy_phi_params}
+%     h'_S = 1, \quad h'_L = 1 + c'_{pS} - c'_{pL} + \fusion{c}_p, \quad
+%     h''_S = c'_{pS}, \quad h''_L = c'_{pL}
+% \end{equation}
+% should be satisfied for~\eqref{eq:enthalpy_phi} to be consistent with $c_p(T)$
+% defined by~\eqref{eq:thermophysical_model}.
+% Indeed,~\eqref{eq:enthalpy_phi_params} results from the following assumption:
+% \begin{equation}\label{eq:enthalpy_phi_explicit}
+%     \eval{h}_{\phi=0} = h_S(T) \equiv \int_0^{T} c_{pS}(\xi)\dd{\xi}, \quad
+%     \eval{h}_{\phi=1} = h_L(T) \equiv h_S(1) + \fusion{h} + \int_M^{T} c_{pL}(\xi)\dd{\xi},
+% \end{equation}
+% where $c_{pS,L}$ is defined as~\eqref{eq:thermophysical_model_explicit}.
+
+% %%% Explicit formulas for temperature
+% Note that~\eqref{eq:enthalpy_phi} is a quadratic equation with respect to $T$, hence
+% \begin{equation}\label{eq:temp_phi}
+%     T = \frac{\sqrt{g_M^2 + 2g_2g_3}-g_M}{g_2}, \quad
+%     \dv{T}{h} = \frac{g_3' - g_M'T - \frac12g_2'T^2}{g_2T + g_M},
+% \end{equation}
+% where
+% \begin{equation}\label{eq:enthalpy3_phi}
+%     g_{1,2}(h) = h_S^{\prime,\prime\prime} (1-\phi) + h_L^{\prime,\prime\prime}\phi, \quad
+%     g_3(h) = h_* + \qty(h_L' - h_S' + \frac{h_L'' - h_S''}2)\phi.
+% \end{equation}
+
 \section{Verification}
 
 --- We are going to present a set of verification tests for each term of equations. See Chapter 4 in~\cite{attar2011simulation}.
@@ -383,7 +448,7 @@ and is outlined in~\ref{alg:tfd}.
         & $M_L$ & \num{55.95} & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
         % Density of noble gases = P0*M/RT
-        \multirow{2}*{Density} & $\rho_G$ & \num{0.29} & \multirow{2}*{\si{kg.m^{-3}}} & $p_0M_G/RT_L$\tnotex{a}\\
+        \multirow{2}*{Density} & $\rho_G$ & \num{0.29} & \multirow{2}*{\si{kg.m^{-3}}} & $=p_0M_G/RT_M$\tnotex{a}\\
         & $\rho_L$ & \num{6979} & & \cite{kim1975thermophysical}\tnotex{a} \\[3pt]
         \noalign{\smallskip}
         % Viscosity of noble gases = const*sqrt(T)
@@ -400,14 +465,14 @@ and is outlined in~\ref{alg:tfd}.
         & $k_S$ & $\num{9.248} + \SI{1.571e-2}{K^{-1}}T $ & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
         % Heat capacity of noble gases = 2.5*R/M
-        \multirow{3}*{Heat capacity} & $c_{pG}$ & \num{520} & \multirow{3}*{\si{J.kg^{-1}.K^{-1}}} & $5R/2M_G$ \\
+        \multirow{3}*{Heat capacity} & $c_{pG}$ & \num{520} & \multirow{3}*{\si{J.kg^{-1}.K^{-1}}} & $=5R/2M_G$ \\
         & $c_{pL}$ & $\num{769.9}$ & & \cite{kim1975thermophysical} \\
         & $c_{pS}$ & $\num{459.0} + \SI{0.1328}{K^{-1}}T $ & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
         Enthalpy of fusion & $\fusion{h}$ & \num{268} & \multirow{2}*{\si{kJ.kg^{-1}}} & \cite{kim1975thermophysical} \\
         Enthalpy of evaporation & $\evapor{h}$ & \num{7410} & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        Liquidus & $T_L$ & \num{1683} & & \cite{mills2002recommended} \\
+        Melting temperature & $T_M$ & \num{1683} & & \cite{mills2002recommended} \\
         Boiling temperature & $T_B$ & \num{3087} & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
         Surface tension & $\gamma$ & $\num{3.282} - \SI{8.9e-4}{K^{-1}}T$ & \si{kg.s^{-2}} & \cite{khairallah2016laser} \\[3pt]
@@ -421,7 +486,7 @@ and is outlined in~\ref{alg:tfd}.
         \hline
     \end{tabular}
     \begin{tablenotes}
-        \item[a]\label{a} The values are taken at the liquidus temperature.
+        \item[a]\label{a} The values are taken at the melting temperature.
     \end{tablenotes}
     \end{threeparttable}
 \end{table}
@@ -495,31 +560,31 @@ To Prof.~Igor Shishkovsky and Prof.~Iskander Akhatov for valuable discussions.
 %%% Governing equations
 In the sharp-interface limit, the single-domain governing equations for $\Omega=\Omega_G\cup\Omega_L\cup\Omega_S$ can be regularized and decomposed as follows: 
 \begin{equation}
-    \div\bv_g = 0, \quad
-    \rho_G\Dv[\bv_g]{t} = \mu_G\laplacian\bv_g - \grad{p_g} + \rho_G\vb{g}(1-\beta_G(T-T_0)), \quad
-    \rho_G\Dv[h_g]{t} = \frac{k_G}{c_{pG}}\laplacian{h_g} 
+    \div\bv_G = 0, \quad
+    \rho_G\Dv[\bv_G]{t} = \mu_G\laplacian\bv_G - \grad{p_G} + \rho_G\vb{g}, \quad
+    \rho_G\Dv[h_G]{t} = \frac{k_G}{c_{pG}}\laplacian{h_G}
 \end{equation}
-for $\bv_g$, $p_g$, and $h_g$ in the gas domain $\Omega_G$;
+for $\bv_G$, $p_G$, and $h_G$ in the gas domain $\Omega_G$;
 \begin{equation}
-    \div\bv_l = 0, \quad
-    \rho_L\Dv[\bv_l]{t} = \div\btau_L - \grad{p_l} + \rho_L\vb{g}(1-\beta_L(T-T_0)), \quad
-    \rho_L\Dv[h_l]{t} = \div(\frac{k_L}{c_{pL}}\grad{h_l})
+    \div\bv_L = 0, \quad
+    \rho_L\Dv[\bv_L]{t} = \div\btau_L - \grad{p_L} + \rho_L\vb{g}(1-\beta_L(T-T_0)), \quad
+    \rho_L\Dv[h_L]{t} = \div(\frac{k_L}{c_{pL}}\grad{h_L})
 \end{equation}
-for $\bv_l$, $p_l$, and $h_l$ in the liquid domain $\Omega_L$; and
+for $\bv_L$, $p_L$, and $h_L$ in the liquid domain $\Omega_L$; and
 \begin{equation}
-    \bv_s = 0, \quad \rho_S\pdv{h_s}{t} = \div(\frac{k_S}{c_{pS}}\grad{h_s})
+    \bv_S = 0, \quad \rho_S\pdv{h_S}{t} = \div(\frac{k_S}{c_{pS}}\grad{h_S})
 \end{equation}
-for $\bv_s$ and $h_s$ in the solid domain $\Omega_S$.
+for $\bv_S$ and $h_S$ in the solid domain $\Omega_S$.
 Here, $\Dv*{t} = \pdv*{t} + \bv\vdot\grad$ is the material derivative.
 
 %%% Boundary conditions
 The interfacial boundary conditions take the following form:
 \begin{gather}
-    \bv_g = \bv_{LG} = \bv_l, \quad T_g = T_{LG} = T_l, \quad v_{LG} = \bv_g\vdot\bn_{LG}, \\
-    \qty(p_g - p_l + \gamma\div\bn_{LG} + \frac{3-\evapor{a}}4\evapor{p}(T_{LG}))\bn_{LG}
+    \bv_G = \bv_{LG} = \bv_L, \quad T_G = T_{LG} = T_L, \quad v_{LG} = \bv_G\vdot\bn_{LG}, \\
+    \qty(p_G - p_L + \gamma\div\bn_{LG} + \frac{3-\evapor{a}}4\evapor{p}(T_{LG}))\bn_{LG}
     = (\btau_G - \btau_L)\vdot\bn_{LG} + \dv{\gamma}{T}\grad{T_{LG}}, \\
     \begin{aligned}
-    \qty( \frac{k_L}{c_{pL}}\grad{h}_l - \frac{k_G}{c_{pG}}\grad{h}_g )&\vdot\bn_{LG}
+    \qty( \frac{k_L}{c_{pL}}\grad{h}_L - \frac{k_G}{c_{pG}}\grad{h}_G )&\vdot\bn_{LG}
         = \frac{2AP}{\pi R_0^2}\exp(-2\frac{\abs{(\vb{x}-\vb{x_0})\cp\bn_0}^2}{R_0^2}) \\
         &- \epsilon\sigma\qty(T_{LG}^4-T_0^4)
         - \frac{\evapor{a}\evapor{p}(T_{LG})\evapor{h}}{(2\pi RT_{LG}/M_L)^{1/2}},
@@ -528,21 +593,91 @@ The interfacial boundary conditions take the following form:
 for the gas--liquid interface $\Omega_{GL} = \Omega_G\cap\Omega_L$,
 which moves at the speed $v_{LG}$ along the unit normal $\bn_{LG}$ directed into the gas (coincides with $\bn$);
 \begin{gather}
-    \bv_g = 0, \quad T_g = T_s, \\
+    \bv_G = 0, \quad T_G = T_S, \\
     \begin{aligned}
-    \qty( \frac{k_S}{c_{pS}}\grad{h}_s - \frac{k_G}{c_{pG}}\grad{h}_g )&\vdot\bn_{SG}
+    \qty( \frac{k_S}{c_{pS}}\grad{h}_S - \frac{k_G}{c_{pG}}\grad{h}_G )&\vdot\bn_{SG}
         = \frac{2AP}{\pi R_0^2}\exp(-2\frac{\abs{(\vb{x}-\vb{x_0})\cp\bn_0}^2}{R_0^2}),
     \end{aligned}
 \end{gather}
 for the gas--solid interface $\Omega_{GS} = \Omega_G\cap\Omega_S$,
-which moves at the speed $v_{SG}$ along the unit normal $\bn_{SG}$ directed into the gas; \begin{equation}
-    \bv_l = 0, \quad h_l = h_L, \quad h_s = h_S, \quad
-    \qty( \frac{k_S}{c_{pS}}\grad{h}_s - \frac{k_L}{c_{pL}}\grad{h}_l )\vdot\bn_{SL}
-        = \rho_L(h_L - h_S)v_{SL}
-\end{equation}
+which moves at the speed $v_{SG}$ along the unit normal $\bn_{SG}$ directed into the gas;
+\begin{gather}
+    \bv_L = 0, \quad h_L = h_M + \frac{\fusion{h}}2, \quad
+        h_S = h_M - \frac{\fusion{h}}2, \\
+    \rho_L\fusion{h}v_{SL} = \qty(
+        \frac{k_S}{c_{pS}}\grad{h}_S - \frac{k_L}{c_{pL}}\grad{h}_L )\vdot\bn_{SL}
+\end{gather}
 for the liquid--solid interface $\Omega_{LS} = \Omega_L\cap\Omega_S$,
 which moves at the speed $v_{SL}$ along the unit normal $\bn_{SL}$ directed into the liquid. 
 Note that both radiative and evaporative cooling are neglected at the gas--solid interface.
+
+\section{Function $\phi$ of enthalpy}
+
+\begin{figure}
+    \centering
+    \begin{gnuplot}[scale=.8, terminal=epslatex, terminaloptions=color lw 3]
+        set xrange [0:3]
+        set yrange [0.5:1]
+        set grid
+        set key bottom right spacing 1.5
+        a = pi/2
+        plot .5+atan(pi*x)/pi title '$\phi_1 = \frac12 + \frac1\pi\arctan(\pi x)$', \
+            (a*x/(1+(a*x)**2)+atan(a*x)+a)/pi \
+                title '$\phi_2 = \frac12 + \frac1\pi\arctan(\frac{\pi x}2) + \frac{2x}{4+\pi^2x^2}$', \
+            (1+tanh(2*x))/2 title '$\phi_3 = \frac12 + \frac12\tanh(2x)$', \
+            (1+erf(sqrt(pi)*x))/2 title '$\phi_4 = \frac12 + \frac12\erf(\sqrt\pi x)$'
+    \end{gnuplot}
+    \caption{Various $\mathcal{C}^\infty$ approximations of the piecewise linear function~\eqref{eq:phi-piecewise}.}
+    \label{fig:f}
+\end{figure}
+
+%%% Requirements
+There is some freedom in choosing the form of $\phi(h)$.
+In this section, we substantiate the choice of Eq.~\eqref{eq:phi}.
+First of all, let us impose the following requirements upon $\phi(h)$:
+\begin{gather}
+    \phi'_M \equiv \phi'(h_M) = \fusion{h}^{-1}, \label{eq:phi_derivative}\\
+    0 \leq \phi' \leq \phi'_M, \label{eq:phi_monotonic}\\
+    \phi(h_M - h) = 1-\phi(h) \quad (h\geq h_M). \label{eq:phi_symmetric}
+\end{gather}
+The equality~\eqref{eq:phi_derivative} means that the slope of $\phi(h)$ at $h_M$
+coincides with the piecewise linear function~\eqref{eq:phi-piecewise}.
+The first inequality in Eq.~\eqref{eq:phi_monotonic} is the monotonicity condition.
+The boundedness of $\phi'$ ensures that $T'(h) = (1-\phi'\fusion{h})/c_p \geq 0$.
+The first derivative of $T$ with respect to $h$ is obtained from~\eqref{eq:T}.
+Note that the relation $\phi_M \equiv \phi(h_M) = 1/2$ follows from the symmetry property~\eqref{eq:phi_symmetric}.
+
+%%% Examples of liquid fraction models
+The piecewise linear function~\eqref{eq:phi-piecewise} satisfies all
+requirements~\eqref{eq:phi_derivative}--\eqref{eq:phi_symmetric}
+and provides the constant temperature $T=T_M$ during the entire phase transition $h_1<h<h_2$;
+however, it is not smooth and therefore introduces discontinuities
+into the first derivative of the solution.
+Instead, several $\mathcal{C}^\infty$ approximations
+of~\eqref{eq:phi-piecewise} can be considered:
+\begin{alignat}{2}
+    \phi_1 &= \int_{-\infty}^{x} \frac{\dd{t}}{1+\pi^2 t^2}
+        = \frac12 + \frac1\pi\arctan(\pi x), \qquad
+        &\phi_1 &\sim -\frac1{\pi^2x} \text{ as } x\to-\infty, \label{eq:phi1}\\
+    \phi_2 &= \int_{-\infty}^{x} \frac{4\dd{t}}{(4+\pi^2 t^2)^2}
+        = \frac12 + \frac1\pi\arctan(\frac{\pi x}2) + \frac{2x}{4+\pi^2x^2}, \qquad
+        &\phi_2 &\sim -\frac1{\pi^4x^3} \text{ as } x\to-\infty, \label{eq:phi2}\\
+    \phi_3 &= \int_{-\infty}^{x} \frac{4e^{4t}}{(1+e^{4t})^2}\dd{t}
+        = \frac1{1+e^{-4x}} = \frac12 + \frac12\tanh(2x), \qquad
+        &\phi_3 &\sim e^{4x} \text{ as } x\to-\infty, \label{eq:phi3}\\
+    \phi_4 &= \int_{-\infty}^{x} e^{-\pi t^2}\dd{t} = \frac12 + \frac12\erf(\sqrt\pi x), \qquad
+        &\phi_4 &\sim -\frac{e^{-\pi x^2}}{2\pi x} \text{ as } x\to-\infty, \label{eq:phi4}
+\end{alignat}
+where $x = \phi'_M(h-h_M)$.
+Analysis of their asymptotic behavior shows that the polynomial-based functions, $\phi_2$
+and, especially, $\phi_1$, decay too slowly and can considerably smear the mushy layer.
+On the contrary, the Gaussian-based function $\phi_4$ is closest
+to the piecewise linear one~\eqref{eq:phi-piecewise}
+and, therefore, best localizes the mushy layer.
+However, such sharpening brings an extra stiffness into the numerical problem.
+As a trade-off between these arguments,
+the exponent-based function $\phi_3$ has been chosen in the present study.
+\oleg{It is interesting to compare results and computational cost for these models.}
 
 \printbibliography
 
