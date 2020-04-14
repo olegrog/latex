@@ -8,7 +8,9 @@
 \usepackage{amssymb, mathtools, amsthm, mathrsfs}
 \usepackage{graphicx}
 \usepackage{physics, siunitx}
+\usepackage{multirow}
 \usepackage[subfolder]{gnuplottex}
+\usepackage[referable]{threeparttablex} % for \tnotex
 
 %%% configuration packages
 \usepackage{fullpage}
@@ -33,6 +35,8 @@
 
 %%% Special symbols
 \newcommand{\tran}{\mathsf{T}}
+\DeclareSIUnit{\wtpercent}{wt\%}
+\newcommand{\Ha}{\mathrm{Ha}}
 
 %%% Bold symbols
 \newcommand{\bv}{\vb{v}}
@@ -87,13 +91,14 @@ are imposed in the case $\eta>0$ and $\sigma<\infty$ to ensure that there is no 
 \begin{figure}
     \centering
     \begin{gnuplot}[scale=0.8, terminal=epslatex, terminaloptions=color lw 2]
-        set xrange [-1e-5:1e1]
+        set xrange [1e-1:1e2]
+        set log x
         set yrange [0:1]
         set grid
-        plot 2*(cosh(x)-1)/x/sinh(x) title '$f(x)$' lw 3, \
-        1-x**2/12 title '$1-x^2/12$' dt 4, 2/x title '$2/x$' dt 4
+        plot tanh(x)/x title '$f(x)$' lw 3, \
+        1-x**2/3 title '$1-x^2/3$' dt 4, 1/x title '$1/x$' dt 4
     \end{gnuplot}
-    \caption{Function $f(x) = 2(\cosh{x}-1)/(x\sinh{x})$.}
+    \caption{Function $f(x) = \tanh(x)/x$ and its asymptotics.}
     \label{fig:f}
 \end{figure}
 
@@ -124,24 +129,90 @@ Then, we immediately obtain that $B_z=\mathcal{B}$ in the whole domain $-\lambda
 However, the remaining condition $v=0$ at $z=-\lambda$ is insufficient to find the unique solution of~\eqref{eq:governing}.
 If we supplement the boundary conditions with $B_x = 0$ at $z=-\lambda$, then we have
 \begin{equation}\label{eq:constants}
-    C_1 = C_2\frac{\cosh\omega\lambda-1}{\sinh\omega\lambda}, \quad
+    C_1 = C_2\tanh(\frac{\omega\lambda}2), \quad
     C_2 = \frac{\gamma'T_x}{\eta}, \quad
     C_3 = C_1, \quad C_4 = C_2.
 \end{equation}
 Thus, the velocity at $z=0$ is
 \begin{equation}\label{eq:velocity}
     v_x = \frac{C_1+C_3}{\omega}
-        = \frac{2\gamma'T_x}{\eta\omega}\frac{\cosh\omega\lambda-1}{\sinh\omega\lambda}
-        = \frac{\gamma'T_x\lambda}{\eta} f(\omega\lambda).
+        = \frac{2\gamma'T_x}{\eta\omega}\tanh(\frac{\omega\lambda}2)
+        = \frac{\gamma'T_x\lambda}{\eta} f\qty(\frac{\omega\lambda}2).
 \end{equation}
 Function $f(x)$ is shown in Fig.~\ref{fig:f} and has asymptotics
 \begin{equation}\label{eq:f_asym}
-    f(x) = 1 - \frac{x^2}{12} + \order{x^4} \text{ as } x\to0, \quad
-    f(x) \sim \frac2x \text{ as } x\to\infty.
+    f(x) = 1 - \frac{x^2}{3} + \order{x^4} \text{ as } x\to0, \quad
+    f(x) \sim \frac1x \text{ as } x\to\infty.
 \end{equation}
 Since $f(x)$ is a decreasing function,
 we conclude that the external static magnetic field, regardless of its strength, has a damping effect on the velocity field.
 This fact is obtained from the qualitative analysis in~\cite{du2019influence}.
+
+\section{Dimensional analysis}
+
+\begin{table}
+    \centering
+    \begin{threeparttable}[b]
+    \caption{Material properties of stainless steel 316L and argon.}
+    \label{table:properties}
+    \footnotesize
+    \begin{tabular}{lcccc}
+        \hline\noalign{\smallskip}
+        Physical property & Symbol & Value & Unit & Reference \\[3pt] \hline\noalign{\smallskip}
+        % Density of noble gases = P0*M/RT
+        \multirow{2}*{Density} & $\rho_G$ & \num{0.29} & \multirow{2}*{\si{kg.m^{-3}}} & $=p_0M_G/RT_M$\tnotex{a}\\
+        & $\rho_L$ & \num{6979} & & \cite{kim1975thermophysical}\tnotex{a} \\[3pt]
+        \noalign{\smallskip}
+        % Viscosity of noble gases = const*sqrt(T)
+        \multirow{2}*{Viscosity} & $\eta_G$ & \num{7.864e-5} & \multirow{2}*{\si{Pa.s}} & \cite{kestin1984equilibrium}\tnotex{a} \\
+        & $\eta_L$ & $\num{2.54e-4}\exp(\SI{5492}{K}/T)$ & & \cite{kim1975thermophysical} \\[3pt]
+        \noalign{\smallskip}
+        Melting temperature & $T_M$ & \num{1683} & \multirow{2}*{\si{K}} & \cite{mills2002recommended} \\
+        Boiling temperature & $T_B$ & \num{3087} & & \cite{kim1975thermophysical} \\[3pt]
+        \noalign{\smallskip}
+        Surface tension & $\gamma$ & $\num{3.282} - \SI{8.9e-5}{K^{-1}}T$ & \si{kg.s^{-2}} & \cite{schmidt2006surface}\tnotex{b} \\[3pt]
+        \noalign{\smallskip}
+        Electrical conductivity & $\sigma$ & $\num{6.58e5}$ & \si{\ohm^{-1}.m^{-1}} & \cite{chu1978electrical}\tnotex{a} \\[3pt]
+        \hline
+    \end{tabular}
+    \begin{tablenotes}
+        \item[a]\label{a} The values are taken at the melting temperature.
+        \item[b]\label{b} Coefficients $\gamma$ and, especially, $\gamma'$ depend tremendously
+        on the content of surface-active elements (oxygen, sulfur, selenium, etc.).
+        For instance even \SI{0.01}{\wtpercent} of sulfur is enough
+        to change a sign of $\gamma'$ for stainless steel 316~\cite{mills2002recommended}.
+        Note that paper~\cite{khairallah2016laser} contains $\gamma(T_M) = \SI{1.784}{kg/s^2}$
+        and $\gamma' = \SI{8.9e-4}{kg/s^2.K}$ for stainless steel 316L.
+        The latter value seems to be a misprint, since it exceeds all those related to pure metals.
+        The values $\gamma(T_M) = \SI{1.696}{kg/s^2}$ and $\gamma' = \SI{8.9e-5}{kg/s^2.K}$
+        are obtained in~\cite{schmidt2006surface} for Fe-25Cr-7Ni-4Mo alloy
+        and employed in the present study.
+    \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+The material properties are tabulated in Table~\ref{table:properties}.
+Note that viscosity of the liquid metal has a strong dependence on temperature.
+Specifically, $\eta_L(T_M) = \SI{6.6}{mPa.s}$ and $\eta_L(T_B) = \SI{1.5}{mPa.s}$.
+The temperature gradient can be estimated as $T_x=(T_B-T_M)/\lambda$.
+The characteristic viscosity, velocity, and length in the melt pool are estimated as
+\begin{equation}
+    \eta = \eta_L\qty(\frac{T_M+T_B}{2}) \approx \SI{2.5}{mPa.s}, \quad
+    U = \frac{\gamma'(T_B - T_M)}{\eta} \approx \SI{50}{m/s}, \quad
+    \lambda = \SI{100}{\um}.
+\end{equation}
+The Reynolds and Hartmann numbers are given as
+\begin{equation}
+    \Re = \frac{\rho U L}{\eta} = \frac{\rho \gamma'(T_B - T_M) L}{\eta^2}, \quad
+    \Ha = B\lambda\qty(\frac{\sigma}{\eta})^{1/2} = \omega\lambda.
+\end{equation}
+For the liquid metal and the ambient gas, we have
+\begin{equation}
+    \Re_\text{liquid}(L=\lambda) \approx 3500, \quad
+    \Re_\text{gas}(L=10\lambda) \approx 5850.
+\end{equation}
+For $\Ha = 4$, which corresponds to $B = \SI{3.5}{T}$,
+the velocity $U$ reduces by approximately 2 times according to~\eqref{eq:velocity}.
 
 \appendix
 
