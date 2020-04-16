@@ -1,17 +1,18 @@
 SHELL = /bin/bash
-PROJECT = $(shell git ls-tree head --name-only | grep tex | cut -f 1 -d '.')
+PROJECT = $(shell git ls-tree head --name-only | grep tex$$ | cut -f 1 -d '.')
 SOURCES = $(PROJECT).tex $(PROJECT).bib
 
 all: $(PROJECT).pdf
 
 $(PROJECT).pdf: $(SOURCES)
-	latexmk -pdf $(PROJECT)
+	latexmk -pdf $(PROJECT) --shell-escape
 
 .PHONY: clean zip
 
 clean:
 	latexmk -C $(PROJECT)
-	rm -f $(PROJECT).{spl,bbl}
+	rm -f $(PROJECT).{run.xml,bbl,gnuploterrors}
+	rm -rf gnuplottex
 
 zip: $(SOURCES)
 	zip -r $(PROJECT).zip $(SOURCES) $(PROJECT).bbl $(PICS)

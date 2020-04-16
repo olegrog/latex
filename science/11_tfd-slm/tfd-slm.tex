@@ -129,8 +129,10 @@ Excellent\oleg{We sincerely hope so.} agreement is found with respect to the for
 \begin{enumerate}
     \item Ray-tracing algorithms~\cite{cook2019simulation}.
     \item Change of density in solid--liquid phase transition and shrinkage due to the density change as a function of temperature~\cite{wei2017thermal}.
-    \item Powder particle packing (PPP) algorithm based on rain model~\cite{attar2011simulation}.
-    \item Since $\Re>\num{e3}$ in some cases, turbulent viscosity for gas flow~\cite{zhirnov2018evaporation,gusarov2020entrainment,matthews2016denudation}.
+    \item Powder particle packing (PPP) algorithm based on the rain model~\cite{attar2011simulation}.
+    \item Preliminary estimations for the conduction-mode printing give that $\Re_L=15000$
+    and $\Re_G=180$. In the keyhole regime, $\Re_G$ can dramatically
+    increases~\cite{zhirnov2018evaporation,gusarov2020entrainment,matthews2016denudation}.
     \item Multi-layer algorithm~\cite{attar2011simulation}.
 \end{enumerate}
 
@@ -411,33 +413,33 @@ and is outlined in~\ref{alg:tfd}.
         \noalign{\smallskip}
         % Density of noble gases = P0*M/RT
         \multirow{2}*{Density} & $\rho_G$ & \num{0.29} & \multirow{2}*{\si{kg.m^{-3}}} & $=p_0M_G/RT_M$\tnotex{a}\\
-        & $\rho_L$ & \num{6979} & & \cite{kim1975thermophysical}\tnotex{a} \\[3pt]
+        & $\rho_L$ & \num{7500} & & \cite{kim1975thermophysical}\tnotex{a} \\[3pt]
         \noalign{\smallskip}
         % Viscosity of noble gases = const*sqrt(T)
-        \multirow{2}*{Viscosity} & $\mu_G$ & \num{7.864e-5} & \multirow{2}*{\si{Pa.s}} & \cite{kestin1984equilibrium}\tnotex{a} \\
-        & $\mu_L$ & $\num{2.54e-4}\exp(\SI{5492}{K}/T)$ & & \cite{kim1975thermophysical} \\[3pt]
+        \multirow{2}*{Viscosity} & $\mu_G$ & \num{7.9e-5} & \multirow{2}*{\si{Pa.s}} & \cite{kestin1984equilibrium}\tnotex{a} \\
+        & $\mu_L$ & $\num{2.54e-4}\exp(\SI{5490}{K}/T)$ & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
         % Thermal expansion of noble gases = 1/T
         \multirow{2}*{Thermal expansion} & $\beta_G$ & \num{0} & \multirow{2}*{\si{K^{-1}}} & --- \\
-        & $\beta_L$ & $\num{5.593e-5} + \SI{1.175e-9}{K^{-1}}T + \SI{8.5e-12}{K^{-2}}T^2$ & & \cite{kim1975thermophysical} \\[3pt]
+        & $\beta_L$ & $\num{5.59e-5} + \SI{1.18e-9}{K^{-1}}T + \SI{8.5e-12}{K^{-2}}T^2$ & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
         % Thermal conductivity of noble gases = const*sqrt(T)
-        \multirow{3}*{Thermal conductivity} & $k_G$ & \num{0.0616} & \multirow{3}*{\si{W.m^{-1}.K^{-1}}} & \cite{kestin1984equilibrium}\tnotex{a} \\
-        & $k_L$ & $\num{12.41} + \SI{3.279e-3}{K^{-1}}T $ & & \cite{kim1975thermophysical} \\
-        & $k_S$ & $\num{9.248} + \SI{1.571e-2}{K^{-1}}T $ & & \cite{kim1975thermophysical} \\[3pt]
+        \multirow{3}*{Thermal conductivity} & $k_G$ & \num{6.16e-2} & \multirow{3}*{\si{W.m^{-1}.K^{-1}}} & \cite{kestin1984equilibrium}\tnotex{a} \\
+        & $k_L$ & $\num{12.4} + \SI{3.28e-3}{K^{-1}}T $ & & \cite{kim1975thermophysical} \\
+        & $k_S$ & $\num{9.25} + \SI{1.57e-2}{K^{-1}}T $ & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
         % Heat capacity of noble gases = 2.5*R/M
         \multirow{3}*{Heat capacity} & $c_{pG}$ & \num{520} & \multirow{3}*{\si{J.kg^{-1}.K^{-1}}} & $=5R/2M_G$ \\
-        & $c_{pL}$ & $\num{769.9}$ & & \cite{kim1975thermophysical} \\
-        & $c_{pS}$ & $\num{459.0} + \SI{0.1328}{K^{-1}}T $ & & \cite{kim1975thermophysical} \\[3pt]
+        & $c_{pL}$ & $\num{770}$ & & \cite{kim1975thermophysical} \\
+        & $c_{pS}$ & $\num{459} + \SI{0.133}{K^{-1}}T $ & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        Enthalpy of fusion & $\fusion{h}$ & \num{268} & \multirow{2}*{\si{kJ.kg^{-1}}} & \cite{kim1975thermophysical} \\
+        Enthalpy of fusion & $\fusion{h}$ & \num{270} & \multirow{2}*{\si{kJ.kg^{-1}}} & \cite{kim1975thermophysical} \\
         Enthalpy of evaporation & $\evapor{h}$ & \num{7410} & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        Melting temperature & $T_M$ & \num{1683} & \multirow{2}*{\si{K}} & \cite{mills2002recommended} \\
-        Boiling temperature & $T_B$ & \num{3087} & & \cite{kim1975thermophysical} \\[3pt]
+        Melting temperature & $T_M$ & \num{1700} & \multirow{2}*{\si{K}} & \cite{kim1975thermophysical} \\
+        Boiling temperature & $T_B$ & \num{3090} & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        Surface tension & $\gamma$ & $\num{3.282} - \SI{8.9e-5}{K^{-1}}T$ & \si{kg.s^{-2}} & \cite{schmidt2006surface}\tnotex{b} \\[3pt]
+        Surface tension & $\gamma$ & $\num{1.85} - \SI{8.9e-5}{K^{-1}}T$ & \si{kg.s^{-2}} & \cite{schmidt2006surface}\tnotex{b} \\[3pt]
         \noalign{\smallskip}
         % [Oleg] We do not use the Kim's approximation
         % In our model \evapor{p} = 101325 * exp(16.1528 - 49863.6/T), which is based on molar mass
@@ -453,10 +455,10 @@ and is outlined in~\ref{alg:tfd}.
         on the content of surface-active elements (oxygen, sulfur, selenium, etc.).
         For instance even \SI{0.01}{\wtpercent} of sulfur is enough
         to change a sign of $\gamma'$ for stainless steel 316~\cite{mills2002recommended}.
-        Note that paper~\cite{khairallah2016laser} contains $\gamma(T_M) = \SI{1.784}{kg/s^2}$
+        Note that paper~\cite{khairallah2016laser} contains $\gamma(T_M) = \SI{1.77}{kg/s^2}$
         and $\gamma' = \SI{8.9e-4}{kg/s^2.K}$ for stainless steel 316L.
         The latter value seems to be a misprint, since it exceeds all those related to pure metals.
-        The values $\gamma(T_M) = \SI{1.696}{kg/s^2}$ and $\gamma' = \SI{8.9e-5}{kg/s^2.K}$
+        The values $\gamma(T_M) = \SI{1.70}{kg/s^2}$ and $\gamma' = \SI{8.9e-5}{kg/s^2.K}$
         are obtained in~\cite{schmidt2006surface} for Fe-25Cr-7Ni-4Mo alloy
         and employed in the present study.
     \end{tablenotes}
