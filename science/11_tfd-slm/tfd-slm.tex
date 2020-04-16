@@ -5,9 +5,10 @@
 \usepackage{csquotes}
 
 %%% functional packages
-\usepackage{amsmath, amssymb, amsthm, mathtools, mathrsfs}
+\usepackage{amsmath, amssymb, amsthm}
 \usepackage{physics, siunitx}
-\usepackage{subcaption}     % for \subfigure
+\usepackage{mathtools}      % for `multlined` environment
+\usepackage{subcaption}     % for `subfigure` environment
 \usepackage{suffix}         % for \WithSuffix
 \usepackage[referable]{threeparttablex} % for \tnotex
 \usepackage{multirow}
@@ -45,6 +46,7 @@
 
 %%% general aliases
 \newcommand{\tran}{\mathsf{T}} %{^{\mkern-1.5mu\mathsf{T}}}
+\DeclareSIUnit{\wtpercent}{wt\%}
 
 %%% \myoverbrace command (requires `xparse` package)
 \NewDocumentCommand{\myoverbracetext}{m}{\text{#1}\\} % for internal use
@@ -61,6 +63,7 @@
 \newcommand{\fusion}[1]{{#1}_\mathrm{fus}}
 \newcommand{\evapor}[1]{{#1}_\mathrm{vap}}
 \newcommand{\OpenFOAM}{OpenFOAM\textregistered\xspace}
+\newcommand{\Cp}[1]{\mathfrak{c}_{p#1}}
 
 %%% bold symbols
 \newcommand{\bv}{\vb{v}}
@@ -118,6 +121,8 @@ Excellent\oleg{We sincerely hope so.} agreement is found with respect to the for
     \item Journal of Materials Processing Technology, Q1, SJR 1.72
     \item International Journal of Advanced Manufacturing Technology, Q1, SJR 0.99
     \item Materials \& Design, Q1, SJR 1.95
+    \item Advanced Engineering Materials, Q1, 0.94
+    \item Materials Today Advances, since 2019.
 \end{enumerate}
 
 \subsection{TODO list}
@@ -131,6 +136,7 @@ Excellent\oleg{We sincerely hope so.} agreement is found with respect to the for
 
 \section{Introduction}
 
+% [Oleg] This paragraph is taken from Oerlikon report
 Fluid-dynamics of the melt pool is the crucial physical process
 for predicting the resulting properties of a printed part.
 Powder-scale simulations help to understand the inherent instabilities of the melt pool
@@ -143,6 +149,8 @@ A detailed exploration of these processes is a significant challenge for modelin
 that should be undertaken in a follow-up work.
 
 \section{Mathematical model}
+
+\subsection{Assumptions}
 
 %%% Assumptions of the model
 The physical model employed in our study is subject to the following assumptions:
@@ -163,7 +171,6 @@ The following physical phenomena are described by the model:
     \item Recoil pressure and evaporative cooling (very important to suppress superheating).
     \item Radiative (thermal and laser) and convective heat transfer.
 \end{itemize}
-
 Moreover, the following physical effects are neglected:
 \begin{itemize}
     \item Viscous heat dissipation.\oleg{I suggest to include now. Moreover, probably turbulent heat dissipation.}
@@ -174,6 +181,7 @@ Moreover, the following physical effects are neglected:
     \item Kinetic energy of fluid flow.
     \item Vapour mass losses.
     \item Mechanical stresses in solid body.
+    \item Difference between solidus and liquidus.
 \end{itemize}
 Finally, some minor assumptions:
 \begin{itemize}
@@ -184,14 +192,6 @@ Finally, some minor assumptions:
     \item Enthalpy of evaporation does not depend on temperature.
 \end{itemize}
 
-%%% Three phases
-Three phase states considered are given as
-\begin{enumerate}[label=\arabic*)]
-    \item gas: $\alpha=1$, $0\leq\phi\leq1$;
-    \item liquid: $\alpha=0$, $\phi=1$;
-    \item solid: $\alpha=0$, $\phi=0$.
-\end{enumerate}
-
 The principal scheme is shown in Fig.~\ref{fig:scheme}.
 \oleg{I believe that it should be removed from the manuscript.}
 \begin{figure}
@@ -201,6 +201,16 @@ The principal scheme is shown in Fig.~\ref{fig:scheme}.
         Schematics of laser powder-bed fusion.
     }\label{fig:scheme}
 \end{figure}
+
+\subsection{Governing equations}
+
+%%% Three phases
+Three phase states considered are given as
+\begin{enumerate}[label=\arabic*)]
+    \item gas: $\alpha=1$, $0\leq\phi\leq1$;
+    \item liquid: $\alpha=0$, $\phi=1$;
+    \item solid: $\alpha=0$, $\phi=0$.
+\end{enumerate}
 
 %%% Governing equations
 The governing equations for the gas fraction $\alpha$, density $\rho$, velocity $\bv$, and enthalpy $h$ are as follows:
@@ -250,40 +260,46 @@ $R = \SI{8.3145}{J.mol^{-1}.K^{-1}}$ is the gas constant.
 Temperature $T$, viscous stress tensor $\btau$, vapor pressure $\evapor{p}$,
 and $\phi$ are calculated as follows:
 \begin{gather}
-    h = \int_0^T c_p(\xi)\dd{\xi} + (1-\alpha)\fusion{h}\phi(h), \label{eq:T}\\
+    h = \int_0^T c_p(\alpha,\phi,\xi)\dd{\xi} + (1-\alpha)\fusion{h}\phi(h), \label{eq:T}\\
     \btau = \mu\qty(\grad\bv + \qty(\grad\bv)^\tran), \label{eq:tau}\\
     \evapor{p}(T) = p_0\exp(\frac{M_L\evapor{h}}{R}\qty(\frac1{T_B}-\frac1{T})), \label{eq:p_evapor}\\
     \phi(h) = \frac12 + \frac12\tanh(2\frac{h-h_M}{\fusion{h}}), \label{eq:phi}\\
-    h_M = \int_0^{T_M} c_p(\xi)\dd{\xi} + \frac{\fusion{h}}2, \label{eq:h_M}
+    h_M = \int_0^{T_M} c_p(0,0;\xi)\dd{\xi} + \frac{\fusion{h}}2, \label{eq:h_M}
+    % [Oleg] Alternative notation: \left|_{\substack{\alpha=0\\\phi=0}}\right.
 \end{gather}
 where $c_p$ is the heat capacity,
-$\fusion{h}$ is the enthalpy of fusion, $\mu$ is the viscosity, 
+$\fusion{h}$ is the enthalpy of fusion, $\mu$ is the viscosity,
 $p_0$ is the ambient pressure,
 $T_M$ and $T_B$ are the melting and boiling temperatures, respectively.
+Eq.~\eqref{eq:phi} is a smooth approximation of the piecewise linear model
+(see details in Appendix~\ref{sec:phi})
+\begin{equation}\label{eq:phi_piecewise}
+    \phi = \begin{cases}
+        0                        &\text{if }\qquad\,\, h \leq h_1, \\
+        \frac{h-h_1}{\fusion{h}} &\text{if } h_1 < h < h_2, \\
+        1                        &\text{if } h_2 \leq h,
+    \end{cases}
+\end{equation}
+which provides the constant temperature $T=T_M$ during the entire melting region $h_1<h<h_2$,
+where
+\begin{equation}\label{eq:enthalpySL}
+    h_1 = h_M - \frac{\fusion{h}}2, \quad h_2 = h_M + \frac{\fusion{h}}2.
+\end{equation}
 
 %%% Material properties
 All material properties $f = \rho, \mu, c_p, k$ are generally calculated as linear interpolations:
 \begin{equation}\label{eq:properties}
-    f = f_G\alpha + \qty[f_L\phi + f_S(1-\phi)](1-\alpha),
+    f = \alpha f_G + (1-\alpha)\qty[\phi f_L + (1-\phi)f_S],
 \end{equation}
 where $f_S$, $f_L$, and $f_G$ correspond to the solid, liquid, and gas properties.
 Specifically, the following expressions are used:
 \begin{gather}
-    \rho = \rho_G\alpha + \rho_L(1-\alpha), \label{eq:rho}\\
-    \beta = \beta_G\alpha + \beta_L\phi(1-\alpha), \label{eq:beta}\\
-    \mu = \mu_G\alpha + \mu_L(T)\phi(1-\alpha), \label{eq:mu}\\
-    c_p = c_{pG}\alpha + \qty[c_{pL}(T)\phi + c_{pS}(T)(1-\phi)](1-\alpha), \label{eq:c_p}\\
-    k = k_G\alpha + \qty[k_L(T)\phi + k_S(T)(1-\phi)](1-\alpha). \label{eq:k}
+    \rho = \alpha\rho_G + (1-\alpha)\rho_L, \label{eq:rho}\\
+    \beta = \alpha\beta_G + (1-\alpha)\phi\beta_L, \label{eq:beta}\\
+    \mu = \alpha\mu_G + (1-\alpha)\phi\mu_L(T), \label{eq:mu}\\
+    c_p = \alpha c_{pG} + (1-\alpha)\qty[\phi c_{pL}(T) + (1-\phi)c_{pS}(T)], \label{eq:c_p}\\
+    k = \alpha k_G + (1-\alpha)\qty[\phi k_L(T) + (1-\phi)k_S(T)]). \label{eq:k}
 \end{gather}
-The constant $K$ can be related to the viscosity and primary dendrite arm spacing $d_\text{PDAS}$~\cite{kubo1985mathematical}:
-\begin{equation}\label{eq:permeability}
-    K = \frac{180\mu_{L0}}{d_\text{PDAS}^2}.
-\end{equation}
-Relation~\eqref{eq:permeability} gives $K \approx \SI{e12}{kg.m^{-3}.s^{-1}}$ for ...,
-but due to model smoothing of $\phi$, $K = \SI{e3}{kg.m^{-3}.s^{-1}}$ is chosen as a large enough numerical constant.
-
-%This is of equations are similar to that used in~\cite{wang2019powder}.
-The evaporation effects are described and critically analyzed in~\cite{cook2019simulation}, implemented in~\cite{khairallah2016laser}.
 
 \subsection{Fidelity of the model}\oleg{I still do not know how to name this subsection}
 
@@ -292,19 +308,23 @@ The evaporation effects are described and critically analyzed in~\cite{cook2019s
     \item Why do we incorporate Marangoni, recoil pressure, evaporative/radiative cooling?
     \item Why do we employ the Darcy--Brinkman penalization?\cite{voller1987fixed, le2006interfacial} Kozeny--Carman permeability?
     \item Modeling of mushy layer\footnote{This term is seems to be first introduced in~\cite{tien1967heat}}.
+    \item The evaporation effects are described and critically analyzed in~\cite{cook2019simulation}, implemented in~\cite{khairallah2016laser}.
     \item Clausius--Clayperon~\cite{klassen2014evaporation, cook2019simulation}
     \item Boussinesq approximation
+    \item conduction-mode and keyhole-mode melting
 \end{enumerate}
 
 %%% Ray-tracing
-% [Rogozin] which introduces concentrated on the powder surface in the shadow zone.
-It will be remedied by introducing a more sophisticated ray-tracing algorithm
-for a more accurate treatment of the laser-source interaction with the surface of the powder particles,
-which is part of the future work.
+The utilized form of laser heat source leads to unphysical overheating in the shadow zone.
+It can be remedied by accounting the radiation transport.
+For instance, a \emph{ray‐tracing‐based absorptivity model} can be coupled with the \emph{thermal-fluid-dynamic model}.
 
 Deficiencies of previous modeling efforts (we need to analyze~\cite{cook2019simulation} thoroughly):
 \begin{enumerate}
-    \item Solu
+    \item Conservation of energy is formulated as a governing equation for temperature instead of enthalpy.
+    This approach brings difficulties for evaluation of $\phi$.
+    As a solution, \citet{wang2019powder} introduces artificial solidus temperature,
+    which is much lower that the real one.
 \end{enumerate}
 
 \subsection{Dimensionless analysis}
@@ -371,64 +391,6 @@ and is outlined in~\ref{alg:tfd}.
 \end{algorithmic}
 \end{algorithm}
 
-\subsection{Temperature evaluation}
-
-%%% Formulation of the issue
-For $\phi(h)$ defined in~\eqref{eq:phi}, there is no analytical solution to the integral equation~\eqref{eq:T} for temperature.
-However, the temperature can be evaluated approximately.
-Several approaches can be employed to resolve this problem.
-
-\subsubsection{Method with approximate $\phi$}
-
-The integral equation~\eqref{eq:T} is easily solved if we put
-\begin{equation}\label{eq:phi-piecewise}
-    \phi = \begin{cases}
-        0                        &\text{if }\qquad\,\, h \leq h_1, \\
-        \frac{h-h_1}{\fusion{h}} &\text{if } h_1 < h < h_2, \\
-        1                        &\text{if } h_2 \leq h,
-    \end{cases}
-\end{equation}
-where
-\begin{equation}\label{eq:enthalpySL}
-    h_1 = h_M - \frac{\fusion{h}}2, \quad h_2 = h_M + \frac{\fusion{h}}2.
-\end{equation}
-
-\subsubsection{Method with approximate enthalpy}
-
-%%% 5-parameter model
-
-% We employ the $\phi$-based approximation~\eqref{eq:fusion_change} based on the five-parameter model:
-% \begin{equation}\label{eq:enthalpy_phi}
-%     h = h'_ST + \frac{h''_S}2T^2 + \qty[
-%         \fusion{h} + \qty(h'_L-h'_S) \qty(T-1) + \frac{h''_L-h''_S}2 \qty( T^2-1 )
-%     ]\phi,
-% \end{equation}
-% where
-% \begin{equation}\label{eq:enthalpy_phi_params}
-%     h'_S = 1, \quad h'_L = 1 + c'_{pS} - c'_{pL} + \fusion{c}_p, \quad
-%     h''_S = c'_{pS}, \quad h''_L = c'_{pL}
-% \end{equation}
-% should be satisfied for~\eqref{eq:enthalpy_phi} to be consistent with $c_p(T)$
-% defined by~\eqref{eq:thermophysical_model}.
-% Indeed,~\eqref{eq:enthalpy_phi_params} results from the following assumption:
-% \begin{equation}\label{eq:enthalpy_phi_explicit}
-%     \eval{h}_{\phi=0} = h_S(T) \equiv \int_0^{T} c_{pS}(\xi)\dd{\xi}, \quad
-%     \eval{h}_{\phi=1} = h_L(T) \equiv h_S(1) + \fusion{h} + \int_M^{T} c_{pL}(\xi)\dd{\xi},
-% \end{equation}
-% where $c_{pS,L}$ is defined as~\eqref{eq:thermophysical_model_explicit}.
-
-% %%% Explicit formulas for temperature
-% Note that~\eqref{eq:enthalpy_phi} is a quadratic equation with respect to $T$, hence
-% \begin{equation}\label{eq:temp_phi}
-%     T = \frac{\sqrt{g_M^2 + 2g_2g_3}-g_M}{g_2}, \quad
-%     \dv{T}{h} = \frac{g_3' - g_M'T - \frac12g_2'T^2}{g_2T + g_M},
-% \end{equation}
-% where
-% \begin{equation}\label{eq:enthalpy3_phi}
-%     g_{1,2}(h) = h_S^{\prime,\prime\prime} (1-\phi) + h_L^{\prime,\prime\prime}\phi, \quad
-%     g_3(h) = h_* + \qty(h_L' - h_S' + \frac{h_L'' - h_S''}2)\phi.
-% \end{equation}
-
 \section{Verification}
 
 --- We are going to present a set of verification tests for each term of equations. See Chapter 4 in~\cite{attar2011simulation}.
@@ -436,8 +398,8 @@ where
 \section{Results and discussion}
 
 \begin{table}
-    \begin{threeparttable}[b]
     \centering
+    \begin{threeparttable}[b]
     \caption{Material properties of stainless steel 316L and argon used for numerical simulations.}
     \label{table:properties}
     \footnotesize
@@ -472,12 +434,12 @@ where
         Enthalpy of fusion & $\fusion{h}$ & \num{268} & \multirow{2}*{\si{kJ.kg^{-1}}} & \cite{kim1975thermophysical} \\
         Enthalpy of evaporation & $\evapor{h}$ & \num{7410} & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        Melting temperature & $T_M$ & \num{1683} & & \cite{mills2002recommended} \\
+        Melting temperature & $T_M$ & \num{1683} & \multirow{2}*{\si{K}} & \cite{mills2002recommended} \\
         Boiling temperature & $T_B$ & \num{3087} & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        Surface tension & $\gamma$ & $\num{3.282} - \SI{8.9e-4}{K^{-1}}T$ & \si{kg.s^{-2}} & \cite{khairallah2016laser} \\[3pt]
+        Surface tension & $\gamma$ & $\num{3.282} - \SI{8.9e-5}{K^{-1}}T$ & \si{kg.s^{-2}} & \cite{schmidt2006surface}\tnotex{b} \\[3pt]
         \noalign{\smallskip}
-        % [Rogozin]: we do not use the Kim's approximation
+        % [Oleg] We do not use the Kim's approximation
         % In our model \evapor{p} = 101325 * exp(16.1528 - 49863.6/T), which is based on molar mass
         % Vapor pressure & $\evapor{p}$ & $\num{101325}\exp(\num{14.075} - \SI{43445}{K^{-1}}T)$ & \si{\Pa} & \cite{kim1975thermophysical} \\[3pt]
         Absorptivity & $A$ & \num{0.35} & \multirow{3}*{---} & \cite{khairallah2016laser} \\
@@ -487,6 +449,16 @@ where
     \end{tabular}
     \begin{tablenotes}
         \item[a]\label{a} The values are taken at the melting temperature.
+        \item[b]\label{b} Coefficients $\gamma$ and, especially, $\gamma'$ depend tremendously
+        on the content of surface-active elements (oxygen, sulfur, selenium, etc.).
+        For instance even \SI{0.01}{\wtpercent} of sulfur is enough
+        to change a sign of $\gamma'$ for stainless steel 316~\cite{mills2002recommended}.
+        Note that paper~\cite{khairallah2016laser} contains $\gamma(T_M) = \SI{1.784}{kg/s^2}$
+        and $\gamma' = \SI{8.9e-4}{kg/s^2.K}$ for stainless steel 316L.
+        The latter value seems to be a misprint, since it exceeds all those related to pure metals.
+        The values $\gamma(T_M) = \SI{1.696}{kg/s^2}$ and $\gamma' = \SI{8.9e-5}{kg/s^2.K}$
+        are obtained in~\cite{schmidt2006surface} for Fe-25Cr-7Ni-4Mo alloy
+        and employed in the present study.
     \end{tablenotes}
     \end{threeparttable}
 \end{table}
@@ -505,7 +477,7 @@ where
         \noalign{\smallskip}
         Gravitational acceleration & $g$ & \num{9.81} & \si{m.s^{-2}} & --- \\[3pt]
         \noalign{\smallskip}
-        Diameter of the laser beam & $R_0$ & \num{55} & \multirow{2}*{\si{\um}} & Trumpf TruPrint 1000 \\
+        Diameter of the laser beam ($1/e^2$) & $R_0$ & \num{55} & \multirow{2}*{\si{\um}} & Trumpf TruPrint 1000 \\
         Mean diameter of a powder particle & $d_p$ & \num{40} & & --- \\[3pt]
         \noalign{\smallskip}
         Coefficient related to permeability & $K$ & \num{e3} & --- & --- \\[3pt]
@@ -517,6 +489,16 @@ The material properties for SS316L are presented in Table~\ref{table:properties}
 The values of absorptivity and emissivity are taken as for nonoxidized metal surface,
 since we assume that selective laser melting take place in argon inert atmosphere.
 The other parameters are shown in Table~\ref{table:parameters}.
+
+%%% Discussion of the permeability coefficient
+The constant $K$ can be related to the viscosity and primary dendrite arm spacing $d_\text{PDAS}$~\cite{kubo1985mathematical}:
+\begin{equation}\label{eq:permeability}
+    K = \frac{180\mu_{L0}}{d_\text{PDAS}^2}.
+\end{equation}
+Relation~\eqref{eq:permeability} gives $K \approx \SI{e12}{kg.m^{-3}.s^{-1}}$
+for stainless steel 316L and the printing regime recommended for it,
+but due to model smoothing of $\phi$,
+$K = \SI{e3}{kg.m^{-3}.s^{-1}}$ is chosen as a large enough numerical constant.
 
 \subsection{Single tracks}
 
@@ -555,10 +537,10 @@ To Prof.~Igor Shishkovsky and Prof.~Iskander Akhatov for valuable discussions.
 
 \appendix
 
-\section{Multi-domain formulation}
+\section{Multi-domain formulation}\label{sec:multi-domain}
 
 %%% Governing equations
-In the sharp-interface limit, the single-domain governing equations for $\Omega=\Omega_G\cup\Omega_L\cup\Omega_S$ can be regularized and decomposed as follows: 
+In the sharp-interface limit, the single-domain governing equations for $\Omega=\Omega_G\cup\Omega_L\cup\Omega_S$ can be regularized and decomposed as follows:
 \begin{equation}
     \div\bv_G = 0, \quad
     \rho_G\Dv[\bv_G]{t} = \mu_G\laplacian\bv_G - \grad{p_G} + \rho_G\vb{g}, \quad
@@ -608,28 +590,10 @@ which moves at the speed $v_{SG}$ along the unit normal $\bn_{SG}$ directed into
         \frac{k_S}{c_{pS}}\grad{h}_S - \frac{k_L}{c_{pL}}\grad{h}_L )\vdot\bn_{SL}
 \end{gather}
 for the liquid--solid interface $\Omega_{LS} = \Omega_L\cap\Omega_S$,
-which moves at the speed $v_{SL}$ along the unit normal $\bn_{SL}$ directed into the liquid. 
+which moves at the speed $v_{SL}$ along the unit normal $\bn_{SL}$ directed into the liquid.
 Note that both radiative and evaporative cooling are neglected at the gas--solid interface.
 
-\section{Function $\phi$ of enthalpy}
-
-\begin{figure}
-    \centering
-    \begin{gnuplot}[scale=.8, terminal=epslatex, terminaloptions=color lw 3]
-        set xrange [0:3]
-        set yrange [0.5:1]
-        set grid
-        set key bottom right spacing 1.5
-        a = pi/2
-        plot .5+atan(pi*x)/pi title '$\phi_1 = \frac12 + \frac1\pi\arctan(\pi x)$', \
-            (a*x/(1+(a*x)**2)+atan(a*x)+a)/pi \
-                title '$\phi_2 = \frac12 + \frac1\pi\arctan(\frac{\pi x}2) + \frac{2x}{4+\pi^2x^2}$', \
-            (1+tanh(2*x))/2 title '$\phi_3 = \frac12 + \frac12\tanh(2x)$', \
-            (1+erf(sqrt(pi)*x))/2 title '$\phi_4 = \frac12 + \frac12\erf(\sqrt\pi x)$'
-    \end{gnuplot}
-    \caption{Various $\mathcal{C}^\infty$ approximations of the piecewise linear function~\eqref{eq:phi-piecewise}.}
-    \label{fig:f}
-\end{figure}
+\section{Function \texorpdfstring{$\phi$}{} of enthalpy}\label{sec:phi}
 
 %%% Requirements
 There is some freedom in choosing the form of $\phi(h)$.
@@ -641,20 +605,19 @@ First of all, let us impose the following requirements upon $\phi(h)$:
     \phi(h_M - h) = 1-\phi(h) \quad (h\geq h_M). \label{eq:phi_symmetric}
 \end{gather}
 The equality~\eqref{eq:phi_derivative} means that the slope of $\phi(h)$ at $h_M$
-coincides with the piecewise linear function~\eqref{eq:phi-piecewise}.
+coincides with the piecewise linear function~\eqref{eq:phi_piecewise}.
 The first inequality in Eq.~\eqref{eq:phi_monotonic} is the monotonicity condition.
-The boundedness of $\phi'$ ensures that $T'(h) = (1-\phi'\fusion{h})/c_p \geq 0$.
+The boundedness of $\phi'$ ensures that $T'(h) = (1-(1-\alpha)\phi'\fusion{h})/c_p \geq 0$.
 The first derivative of $T$ with respect to $h$ is obtained from~\eqref{eq:T}.
 Note that the relation $\phi_M \equiv \phi(h_M) = 1/2$ follows from the symmetry property~\eqref{eq:phi_symmetric}.
 
 %%% Examples of liquid fraction models
-The piecewise linear function~\eqref{eq:phi-piecewise} satisfies all
+The piecewise linear function~\eqref{eq:phi_piecewise} satisfies all
 requirements~\eqref{eq:phi_derivative}--\eqref{eq:phi_symmetric}
-and provides the constant temperature $T=T_M$ during the entire phase transition $h_1<h<h_2$;
-however, it is not smooth and therefore introduces discontinuities
+but is not smooth and therefore introduces discontinuities
 into the first derivative of the solution.
-Instead, several $\mathcal{C}^\infty$ approximations
-of~\eqref{eq:phi-piecewise} can be considered:
+Instead, several $\mathcal{C}^\infty$ approximations (see Fig.~\ref{fig:phi_approx})
+of~\eqref{eq:phi_piecewise} can be considered:
 \begin{alignat}{2}
     \phi_1 &= \int_{-\infty}^{x} \frac{\dd{t}}{1+\pi^2 t^2}
         = \frac12 + \frac1\pi\arctan(\pi x), \qquad
@@ -669,15 +632,190 @@ of~\eqref{eq:phi-piecewise} can be considered:
         &\phi_4 &\sim -\frac{e^{-\pi x^2}}{2\pi x} \text{ as } x\to-\infty, \label{eq:phi4}
 \end{alignat}
 where $x = \phi'_M(h-h_M)$.
-Analysis of their asymptotic behavior shows that the polynomial-based functions, $\phi_2$
+
+\begin{figure}
+    \centering
+    \begin{gnuplot}[scale=.8, terminal=epslatex, terminaloptions=color lw 3]
+        set xrange [0:3]
+        set yrange [0.5:1]
+        set grid
+        set key bottom right spacing 1.5
+        a = pi/2
+        phi1(x) = .5+atan(pi*x)/pi
+        phi2(x) = (a*x/(1+(a*x)**2)+atan(a*x)+a)/pi
+        phi3(x) = (1+tanh(2*x))/2
+        phi4(x) = (1+erf(sqrt(pi)*x))/2
+        plot phi1(x) title '$\phi_1 = \frac12 + \frac1\pi\arctan(\pi x)$', \
+             phi2(x) title '$\phi_2 = \frac12 + \frac1\pi\arctan(\frac{\pi x}2) + \frac{2x}{4+\pi^2x^2}$', \
+             phi3(x) title '$\phi_3 = \frac12 + \frac12\tanh(2x)$', \
+             phi4(x) title '$\phi_4 = \frac12 + \frac12\erf(\sqrt\pi x)$'
+    \end{gnuplot}
+    \caption{
+        Various $\mathcal{C}^\infty$ approximations
+        of the piecewise linear function~\eqref{eq:phi_piecewise}.
+    }\label{fig:phi_approx}
+\end{figure}
+
+%%% Comparison
+Analysis of the asymptotic behavior shows that the polynomial-based functions, $\phi_2$
 and, especially, $\phi_1$, decay too slowly and can considerably smear the mushy layer.
 On the contrary, the Gaussian-based function $\phi_4$ is closest
-to the piecewise linear one~\eqref{eq:phi-piecewise}
+to the piecewise linear one~\eqref{eq:phi_piecewise}
 and, therefore, best localizes the mushy layer.
 However, such sharpening brings an extra stiffness into the numerical problem.
 As a trade-off between these arguments,
 the exponent-based function $\phi_3$ has been chosen in the present study.
 \oleg{It is interesting to compare results and computational cost for these models.}
+
+\section{Temperature evaluation}
+
+%%% Formulation of the issue
+For $\phi(h)$ defined in~\eqref{eq:phi}, the gradient of temperature
+\begin{equation}\label{eq:T_gradient}
+    \grad{T} = \frac{1 - (1-\alpha)\fusion{h}\phi'(h)}{c_p(\alpha,\phi,T)}\grad{h}
+\end{equation}
+is obtained straighforwardly from~\eqref{eq:T}
+and can be substituted into the governing equations~\eqref{eq:v} and~\eqref{eq:h}.
+However, there is no analytical solution to the integral equation~\eqref{eq:T}.
+Instead, the temperature can be evaluated approximately.
+Several approaches can be employed for this purpose.
+
+%%% Method with approximate $\phi(h)$
+First, The integral equation~\eqref{eq:T} is easily solved
+when the piecewise linear model~\eqref{eq:phi_piecewise} is employed, so that
+\begin{equation}\label{eq:h_piecewise}
+    h = \alpha \int_0^T c_{pG} + (1-\alpha)\begin{cases}
+        \int_0^T c_{pS}           &\text{if }\qquad\,\, h < h_1, \\
+        h\frac{T}{T_M}            &\text{if } h_1 \leq h \leq h_2, \\
+        h_2 + \int_{T_M}^T c_{pL} &\text{if } h_2 < h.
+    \end{cases}
+\end{equation}
+This approximation enforces $T=T_M$ in the whole mushy layer
+($\alpha=0$, $h_1 \leq h \leq h_2$)
+but introduces discontinuities into $T'(h)$ at $h_1$ and $h_2$.
+
+%%% Method with approximate $c_p(\alpha,h,T)$
+Second, if we assume that $\phi(h) = H(h-h_M)$, where $H(x)$ denotes the Heaviside step function,
+for calculation of $c_p(T)$ only, then we obtain
+\begin{equation}\label{eq:h_piecewise2}
+    h = \alpha \int_0^T c_{pG}
+        + (1-\alpha)\phi\fusion{h} + (1-\alpha)
+    \begin{cases}
+        \int_0^T c_{pS}           &\text{if } h \leq h_M, \\
+        h_1 + \int_{T_M}^T c_{pL} &\text{if } h > h_M,
+    \end{cases}
+\end{equation}
+where $\phi(h)$ is given by Eq.~\eqref{eq:phi}.
+This approximation ensures that $T(h)$ is of class $\mathcal{C}^2$
+but makes $T'''(h)$ discontinuous at $h_M$.
+
+%%% Method with approximate $T(\alpha,\phi,h)$
+Third, the temperature equation~\eqref{eq:T} can be replaced by
+\begin{equation}\label{eq:h_smooth}
+    h = \alpha \int_0^T c_{pG} + (1-\alpha)
+        \qty[ \phi\int_{T_M}^T c_{pL}+ \phi h_2 + (1-\phi)\int_0^T c_{pS} ].
+\end{equation}
+This approximation yields a smooth function $T(h)$ but can violate the condition $T'(h)\geq0$.
+
+%%% Particular case of $c_p$
+Now, let us consider the following particular case:
+\begin{equation}\label{eq:c_p_special}
+    c_{pG}(T) = \Cp{G}, \quad c_{pS}(T) = \Cp{S} + \Cp{S}'T, \quad c_{pL}(T) = \Cp{L} + \Cp{L}'T.
+\end{equation}
+Then, the temperature is calculated as a root of quadratic equation, i.e.,
+\begin{equation}\label{eq:T_special}
+    T = \frac{\sqrt{b^2 + 2ac} - b}{a} \text{ if } a\neq0 \text{ and }
+    T = \frac{c}{b} \text{ otherwise},
+\end{equation}
+where
+\begin{equation}\label{eq:abc1}
+    \begin{cases}
+        a=(1-\alpha)\Cp{S}', \quad b =\alpha\Cp{G} + (1-\alpha)\Cp{S}, \quad c=h
+            &\text{if }\qquad\,\, h < h_1, \\
+        a=0, \quad b=\alpha\Cp{G} + (1-\alpha)h/T_M, \quad c=h
+            &\text{if } h_1 \leq h \leq h_2, \\
+        \begin{gathered}
+        a=(1-\alpha)\Cp{L}', \quad b=\alpha\Cp{G} + (1-\alpha)(\Cp{L}-\Cp{L}'T_M), \\
+            c = h - (1-\alpha)(h_2 - \Cp{L}T_M + \Cp{L}'T_M^2/2)
+        \end{gathered} &\text{if } h_2 < h
+    \end{cases}
+\end{equation}
+for approximation~\eqref{eq:h_piecewise},
+\begin{equation}\label{eq:abc2}
+    \begin{cases}
+        a=(1-\alpha)\Cp{S}', \quad b =\alpha\Cp{G} + (1-\alpha)\Cp{S}, \quad
+            c=h - (1-\alpha)\phi\fusion{h} &\text{if } h \leq h_M, \\
+        \begin{gathered}
+        a=(1-\alpha)\Cp{L}', \quad b=\alpha\Cp{G} + (1-\alpha)(\Cp{L}-\Cp{L}'T_M), \\
+            c = h - (1-\alpha)(h_1 + \phi\fusion{h} - \Cp{L}T_M + \Cp{L}'T_M^2/2)
+        \end{gathered} &\text{if } h > h_M
+    \end{cases}
+\end{equation}
+for approximation~\eqref{eq:h_piecewise2}, and
+\begin{equation}\label{eq:abc3}
+    \begin{gathered}
+    a = (1-\alpha)\qty[ \phi\Cp{L}' + (1-\phi)\Cp{S}' ], \\
+    b = \alpha\Cp{G} + (1-\alpha)\qty[ \phi(\Cp{L}-\Cp{L}'T_M) + (1-\phi)\Cp{S} ], \\
+    c = h - (1-\alpha)\phi(h_2 - \Cp{L}T_M + \Cp{L}'T_M^2/2)
+    \end{gathered}
+\end{equation}
+for approximation~\eqref{eq:h_smooth}.
+
+\begin{figure}
+    \centering
+    \begin{gnuplot}[scale=.8, terminal=epslatex, terminaloptions=color lw 3]
+        T = 2; S = 1; L = .5; M = 1+S*T
+        set xrange [M-2:M+2]
+        set sample 1000
+        set grid
+        set key top center spacing 1.5
+        phi(x) = (1+tanh(x-M))/2
+        psi(x) = 1/cosh(x-M)**2/2
+        T1(x) = x<M-1 ? x/S : x>M+1 ? (x-2-(S+L)*T)/L : T
+        T2(x) = x<M ? (x-2*phi(x))/S : (x-T*(S-L)-2*phi(x))/L
+        T3(x) = (x-phi(x)*(2+T*(S-L)))/(phi(x)*(L-S)+S)
+        f0(x) = (1-2*psi(x))/(phi(x)*(L-S)+S)
+        f1(x) = x<M-1 ? 1/S : x>M+1 ? 1/L : 0
+        f2(x) = x<M ? (1-2*psi(x))/S : (1-2*psi(x))/L
+        f3(x) = (1-psi(x)*(2+(L-S)*T3(x)+(S-L)*T))/(phi(x)*(L-S)+S)
+        plot f0(x) title "$T_0'(h)$", f1(x) title "$T_1'(h)$", \
+             f2(x) title "$T_2'(h)$", f3(x) title "$T_3'(h)$"
+    \end{gnuplot}
+    \caption{
+        Various approximations of the temperature equation~\eqref{eq:T} compared by these derivatives
+        for $\fusion{h}=2$, $T_M=2$, $c_{pS}=1$, $c_{pL}=1/2$, and, hence, $h_M=3$.
+        Functions $T_i'(x)$ are defined in~\eqref{eq:T_prime}--\eqref{eq:T_prime3}.
+        Function $\phi(x)$ are given by~\eqref{eq:phi}.
+    }\label{fig:T_evaluation}
+\end{figure}
+
+%%% Comparison
+The accuracy of each approach can be estimated by comparing the resulting $T'(h)$ function
+with the original one
+\begin{equation}\label{eq:T_prime}
+    T_0'(h) = \frac{1 - \fusion{h}\phi'(h)}{\phi c_{pL} + (1-\phi)c_{pS}}.
+\end{equation}
+For simplicity, $\alpha=0$ is taken. The following expressions are derived
+from~\eqref{eq:h_piecewise},~\eqref{eq:h_piecewise2}, and~\eqref{eq:h_smooth}, respectively:
+\begin{gather}
+    T_1'(h) = \begin{cases}
+        c_{pS}^{-1} &\text{if }\qquad\,\, h < h_1, \\
+        0           &\text{if } h_1 \leq h \leq h_2, \\
+        c_{pL}^{-1} &\text{if } h_2 < h;
+    \end{cases}\label{eq:T_prime1}\\
+    T_2'(h) = (1-\phi'\fusion{h})\begin{cases}
+        c_{pS}^{-1} &\text{if } h \leq h_M, \\
+        c_{pL}^{-1} &\text{if } h > h_M;
+    \end{cases}\label{eq:T_prime2}\\
+    T_3'(h) = \frac{ 1-\phi'\qty( h_2 + \int_{T_M}^T c_{pL} - \int_0^T c_{pS} ) }
+        { \phi c_{pL} + (1-\phi)c_{pS} }. \label{eq:T_prime3}
+\end{gather}
+All of them are compared in Fig.~\ref{fig:T_evaluation} for a specific case,
+where we can conclude that the first model~\eqref{eq:h_piecewise2} is too crude,
+while the second~\eqref{eq:h_piecewise2} and third~\eqref{eq:h_smooth}
+provide a fairly accurate approximation.
+It is worth noting that the third model~\eqref{eq:h_smooth} is preferable
+for high-order numerical methods, since it is of class $\mathcal{C}^\infty$.
 
 \printbibliography
 
