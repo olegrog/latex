@@ -1,4 +1,4 @@
-PROJECT = $(shell git ls-tree head --name-only | grep tex$$ | cut -f 1 -d '.')
+PROJECT = $(shell git ls-tree head --name-only | grep \.tex$$ | cut -f 1 -d '.')
 SOURCES = $(PROJECT).tex $(PROJECT).bib
 
 all: $(PROJECT).pdf
