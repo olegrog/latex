@@ -101,14 +101,20 @@ there is no jumps of $\bv$ and $\bB$ across the interface.
         set xrange [-1:0]
         set key top center
         set grid
-        Ha=4
-        plot (1+cosh(Ha*x))*(tanh(Ha/2) + tanh(Ha*x/2)) \
-                title '$(1+\cosh(x\Ha))(\tanh(\Ha/2) + \tanh(x\Ha/2))$', \
-            -sinh(Ha*x)*(tanh(Ha/2) + tanh(Ha*x/2)) \
-                title '$-\sinh(x\Ha)(\tanh(\Ha/2) + \tanh(x\Ha/2))$'
+        xi=2
+        plot (1+cosh(2*xi*x))/2/xi*(tanh(xi) + tanh(xi*x)) \
+                title '$\hat{v}_x$ for $\xi=2$', \
+            1+x title '$\hat{v}_x$ for $\xi=0$', \
+            sinh(-2*xi*x)/2/xi*(tanh(xi) + tanh(xi*x)) \
+                title '$\hat{B}_x$ for $\xi=2$', \
+            -x*(1+x) title '$\hat{B}_x/\xi$ for $\xi=0$'
     \end{gnuplot}
     \caption{
-        Functions $(\eta\omega/\gamma'T_x)v_x$ and $(\mathcal{B}/\mu_0\gamma'T_x)B_x$ for $\Ha=4$.
+        Dimensionless quantities $\hat{v}_x$ and $\hat{B}_x$,
+        given by~\eqref{eq:hatv_x} and~\eqref{eq:hatB_x},
+        as functions of $\hat{z}$.
+        For small $\xi$, $\hat{v}_x = 1+\hat{z}$
+        and $\hat{B}_x = -\xi\hat{z}(1+\hat{z})$.
     }
     \label{fig:solution}
 \end{figure}
@@ -120,11 +126,14 @@ there is no jumps of $\bv$ and $\bB$ across the interface.
         set log x
         set yrange [0:1]
         set grid
-        plot tanh(x)/x title '$f(x)$' lw 3, \
-            1-x**2/3 title '$1-x^2/3$' dt 4, 1/x title '$1/x$' dt 4
+        plot tanh(x)/x title '$\tanh(\xi)/\xi$' lw 3, \
+            1-x**2/3 title '$1-\xi^2/3$' dt 4, 1/x title '$1/\xi$' dt 4
     \end{gnuplot}
-    \caption{Function $f(x) = \tanh(x)/x$ and its asymptotics.}
-    \label{fig:f}
+    \caption{
+        Dimensionless velocity $\hat{v}_x(0) = \tanh(\xi)/\xi$ and its asymptotics:
+        $\hat{v}_x(0) = 1 - \xi^2/3 + \order{\xi^4} \text{ as } \xi\to0$
+        and $\hat{v}_x(0) \sim 1/\xi \text{ as } \xi\to\infty$.
+    }\label{fig:v0}
 \end{figure}
 
 %%% General solution
@@ -145,7 +154,7 @@ The general solution of Eqs.~\eqref{eq:governing} can be written as
 \end{equation}
 where $\omega^2 = \sigma B_z^2/\eta$ and $C_i$ are some constants.
 
-%%% Boundary conditions
+%%% Boundary conditions, particular solution, nondimensionalization
 The boundary conditions~\eqref{eq:bc1} and~\eqref{eq:bc2} take the form
 \begin{equation}\label{eq:bc}
     \eta v_x' = \gamma'T_x, \quad B_z = \mathcal{B}, \quad B_x = 0
@@ -166,47 +175,54 @@ Thus, the general solution~\eqref{eq:general_solution} takes the form
     B_x = \frac{\mu_0\gamma'T_x}{\mathcal{B}}\sinh(-\omega z)
         \qty(\tanh(\frac{\omega\lambda}2) + \tanh(\frac{\omega z}2)), \label{eq:B_x}
 \end{gather}
-which is shown in Fig.~\ref{fig:solution}.
-Particularly, the velocity at $z=0$ is
-\begin{equation}\label{eq:velocity}
-    v_x = \frac{2\gamma'T_x}{\eta\omega}\tanh(\frac{\omega\lambda}2)
-        = \frac{\gamma'T_x\lambda}{\eta} f\qty(\frac{\omega\lambda}2).
+which can be nondimensionalized as
+\begin{gather}
+    \hat{v}_x = \frac{1+\cosh(2\xi\hat{z})}{2\xi}
+        \qty( \tanh(\xi) + \tanh(\xi\hat{z}) ), \label{eq:hatv_x}\\
+    \hat{B}_x = \frac{\sinh(-2\xi\hat{z})}{2\xi}
+        \qty( \tanh(\xi) + \tanh(\xi\hat{z}) ) \label{eq:hatB_x}
+\end{gather}
+according to the following relations:
+\begin{equation}\label{eq:nondimensioned}
+    v_x = U \hat{v}_x, \quad B_x = B_0 \hat{B}_x, \quad
+    z = \lambda \hat{z}, \quad \xi = \omega\lambda/2,
 \end{equation}
-Function $f(x)$ is shown in Fig.~\ref{fig:f} and has asymptotics
-\begin{equation}\label{eq:f_asym}
-    f(x) = 1 - \frac{x^2}{3} + \order{x^4} \text{ as } x\to0, \quad
-    f(x) \sim \frac1x \text{ as } x\to\infty.
+where $U$ and $B_0$ are the characteristic velocity and induced magnetic field,
+respectively, given by
+\begin{equation}\label{eq:characteristic}
+    U = \frac{\gamma'T_x\lambda}{\eta}, \quad
+    B_0 = \mu_0U\sqrt{\sigma\eta}.
 \end{equation}
-Since $f(x)$ is a decreasing function,
-we conclude that the external static magnetic field, regardless of its strength,
-has a damping effect on the velocity field.
-This fact is obtained from the qualitative analysis in~\cite{du2019influence}.
+
+%%% Analysis of the solution
+The obtained solution is illustrated in Fig.~\ref{fig:solution}.
+Velocity $\hat{v}_x(\hat{z})$ reaches its maximum at $\hat{z}=0$.
+Since the dependence of $\hat{v}_x(\hat{z})$ on $\xi$ (shown in Fig.~\ref{fig:v0})
+is a monotonically decreasing function, we conclude that the external static magnetic field,
+regardless of its strength, has a damping effect on the velocity field.
+This fact is also mentioned in~\cite{du2019influence}.
 
 \section{Dimensional analysis}
 
 \begin{table}
     \centering
     \begin{threeparttable}[b]
-    \caption{Material properties of stainless steel 316L and argon.}
+    \caption{Physical properties of stainless steel 316L.}
     \label{table:properties}
     \footnotesize
     \begin{tabular}{lcccc}
         \hline\noalign{\smallskip}
         Physical property & Symbol & Value & Unit & Reference \\[3pt] \hline\noalign{\smallskip}
-        % Density of noble gases = P0*M/RT
-        \multirow{2}*{Density} & $\rho_G$ & \num{0.29} & \multirow{2}*{\si{kg.m^{-3}}} & $=p_0M_G/RT_M$\tnotex{a}\\
-        & $\rho_L$ & \num{7500} & & \cite{kim1975thermophysical}\tnotex{a} \\[3pt]
+        Density & $\rho$ & \num{7500} & \si{\kg\per\cubic\m} & \cite{kim1975thermophysical}\tnotex{a} \\[3pt]
         \noalign{\smallskip}
-        % Viscosity of noble gases = const*sqrt(T)
-        \multirow{2}*{Viscosity} & $\eta_G$ & \num{7.9e-5} & \multirow{2}*{\si{Pa.s}} & \cite{kestin1984equilibrium}\tnotex{a} \\
-        & $\eta_L$ & $\num{2.54e-4}\exp(\SI{5490}{K}/T)$ & & \cite{kim1975thermophysical} \\[3pt]
+        Viscosity & $\eta$ & $\num{2.54e-4}\exp(\SI{5490}{K}/T)$ & \si{\Pa\s} & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        Melting temperature & $T_M$ & \num{1700} & \multirow{2}*{\si{K}} & \cite{kim1975thermophysical} \\
+        Melting temperature & $T_M$ & \num{1700} & \multirow{2}*{\si{\K}} & \cite{kim1975thermophysical} \\
         Boiling temperature & $T_B$ & \num{3090} & & \cite{kim1975thermophysical} \\[3pt]
         \noalign{\smallskip}
-        Surface tension & $\gamma$ & $\num{1.85} - \SI{8.9e-5}{K^{-1}}T$ & \si{kg.s^{-2}} & \cite{schmidt2006surface} \\[3pt]
+        Surface tension & $\gamma$ & $\num{1.85} - \SI{8.9e-5}{\per\K}T$ & \si{\Pa\m} & \cite{schmidt2006surface} \\[3pt]
         \noalign{\smallskip}
-        Electrical conductivity & $\sigma$ & $\num{6.58e5}$ & \si{\ohm^{-1}.m^{-1}} & \cite{chu1978electrical}\tnotex{a} \\[3pt]
+        Electrical conductivity & $\sigma$ & $\num{6.58e5}$ & \si{\per\ohm\per\m} & \cite{chu1978electrical}\tnotex{a} \\[3pt]
         \hline
     \end{tabular}
     \begin{tablenotes}
@@ -228,7 +244,7 @@ The characteristic viscosity, velocity, and length in the melt pool are estimate
 The Reynolds and Hartmann numbers are given as
 \begin{equation}
     \Re = \frac{\rho U L}{\eta} = \frac{\rho \gamma'(T_B - T_M) L}{\eta^2}, \quad
-    \Ha = B\lambda\qty(\frac{\sigma}{\eta})^{1/2} = \omega\lambda.
+    \Ha = B\lambda\qty(\frac{\sigma}{\eta})^{1/2} = \omega\lambda = 2\xi.
 \end{equation}
 For the liquid metal and the ambient gas, we have
 \begin{equation}
@@ -236,7 +252,7 @@ For the liquid metal and the ambient gas, we have
     \Re_\text{gas}(L=10\lambda) = 180.
 \end{equation}
 For $\Ha = 4$, which corresponds to $B = \SI{3.5}{T}$,
-the velocity $U$ reduces by approximately 2 times according to~\eqref{eq:velocity}.
+the velocity $U$ reduces by approximately 2 times, which is seen in~Fig.~\ref{fig:v0}.
 
 \appendix
 

@@ -18,6 +18,7 @@ muG = interpolate.interp1d(np.array([1000, 1500, 2000, 2500]) + T0,
     np.array([65.39, 81.33, 95.84, 109.45])*1e-6, kind = 'cubic')
 kG = interpolate.interp1d(np.array([1000, 1500, 2000, 2500]) + T0,
     np.array([51.23, 63.73, 75.08, 85.73])*1e-3, kind = 'cubic')
+nuG = lambda T: muG(T)/rhoG(T)
 
 # -- SS316L
 ML = 55.95e-3
@@ -26,15 +27,23 @@ TB = 3090
 # from Kim, 1975
 rhoL = lambda T: (7.4327 + 3.9338e-5*T - 1.8007e-10)*1e+3
 muL = lambda T: np.exp((2385.2/T - 0.5958)*np.log(10))*1e-3
+nuL = lambda T: muL(T)/rhoL(T)
+betaL = lambda T: 5.59e-5 + 1.18e-9*T + 8.5e-12*T**2
 # from Schmidt-Hohagen & Egry, 2006
 gamma = lambda T: 1.697 - (T-1402-T0)*8.89e-5
 
+print('-- Gas')
 print(f'rhoG = {rhoG(TM):.2} at T = {TM}')
-print(f'muG = {muG(TM):.2} at T = {TM}')
+print(f'muG = {muG(TM):.2e} at T = {TM}')
+print(f'nuG = {nuG(TM):.2e} at T = {TM}')
+
+print('-- Metal')
 print(f'rhoL = {rhoL(TM):.3} at T = {TM}')
 print(f'muL = {muL(np.inf):.2e}*exp({TM*(np.log(muL(TM))-np.log(muL(np.inf))):.3}/T)')
 print(f'muL = {muL(TM):.2e}, {muL(TB):.2e} at T = {TM}, {TB}')
+print(f'nuL = {nuL(TM):.2e}, {nuL(TB):.2e} at T = {TM}, {TB}')
 print(f'gamma = {gamma(0):.3} + {gamma(1)-gamma(0):.3}*T')
+print(f'betaL = {betaL(TM):.3} at T = {TM}')
 
 print('-- Estimations')
 muL_mean = muL((TM+TB)/2)
