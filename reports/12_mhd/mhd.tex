@@ -15,6 +15,8 @@
 %%% configuration packages
 \usepackage{fullpage}
 
+\usepackage{bigfoot}    % fixes bug on footnote placement with floats, see https://tex.stackexchange.com/questions/6756/footnote-being-pushed-to-after-a-float-page
+
 \usepackage[
     pdfusetitle,
     colorlinks
@@ -126,14 +128,19 @@ there is no jumps of $\bv$ and $\bB$ across the interface.
         set log x
         set yrange [0:1]
         set grid
-        plot tanh(x)/x title '$\tanh(\xi)/\xi$' lw 3, \
-            1-x**2/3 title '$1-\xi^2/3$' dt 4, 1/x title '$1/\xi$' dt 4
+        plot tanh(x)/x title '$\hat{v}_{x,\max}$' lw 3, \
+            tanh(x)/x*tanh(x/2)/2 title '$\hat{B}_{x,\max}$' lw 3, \
+            1-x**2/3 title '$1-\xi^2/3$' dt 4, 1/x title '$1/\xi$' dt 4, \
+            x/4 title '$\xi/4$' dt 4, .5/x title '$1/2\xi$' dt 4
     \end{gnuplot}
     \caption{
-        Dimensionless velocity $\hat{v}_x(0) = \tanh(\xi)/\xi$ and its asymptotics:
-        $\hat{v}_x(0) = 1 - \xi^2/3 + \order{\xi^4} \text{ as } \xi\to0$
-        and $\hat{v}_x(0) \sim 1/\xi \text{ as } \xi\to\infty$.
-    }\label{fig:v0}
+        Dimensionless quantities $\hat{v}_{x,\max}$ and $\hat{B}_{x,\max}$,
+        given by~\eqref{eq:maxima}, versus $\xi$ and their asymptotics:
+        $\hat{v}_{x,\max} = 1 - \xi^2/3 + \order{\xi^4}$ as $\xi\to0$,
+        $\hat{v}_{x,\max} \sim 1/\xi$ as $\xi\to\infty$ and
+        $\hat{B}_{x,\max} = \xi/4 + \order{\xi^3}$ as $\xi\to0$,
+        $\hat{B}_{x,\max} \sim 1/2\xi$ as $\xi\to\infty$.
+    }\label{fig:maxima}
 \end{figure}
 
 %%% General solution
@@ -196,11 +203,21 @@ respectively, given by
 
 %%% Analysis of the solution
 The obtained solution is illustrated in Fig.~\ref{fig:solution}.
-Velocity $\hat{v}_x(\hat{z})$ reaches its maximum at $\hat{z}=0$.
-Since the dependence of $\hat{v}_x(\hat{z})$ on $\xi$ (shown in Fig.~\ref{fig:v0})
-is a monotonically decreasing function, we conclude that the external static magnetic field,
+Velocity $\hat{v}_x(\hat{z})$ and magnetic field $\hat{B}_x(\hat{z})$ reach their maxima
+at $\hat{z}=0$ and $\hat{z}=-1/2$, respectively, where their values are
+\begin{equation}\label{eq:maxima}
+    \hat{v}_{x,\max} = \hat{v}_x(0) = \frac{\tanh(\xi)}{\xi}, \quad
+    \hat{B}_{x,\max} = \hat{B}_x(-1/2) = \frac{\tanh(\xi)}{2\xi}\tanh(\frac{\xi}2).
+\end{equation}
+These dependencies are shown in Fig.~\ref{fig:maxima}.
+Since $\hat{v}_{x,\max}$ is a monotonically decreasing function of $\xi$,
+we infer that the external static magnetic field,
 regardless of its strength, has a damping effect on the velocity field.
 This fact is also mentioned in~\cite{du2019influence}.
+As for magnetic field, we can observe that for small $\xi$,
+\begin{equation}\label{eq:B_max}
+    \frac{B_{x,\max}}{\mathcal{B}} = \frac\xi4\frac{B_0}{\mathcal{B}} = \frac18\mu_0U\sigma\lambda.
+\end{equation}
 
 \section{Dimensional analysis}
 
@@ -252,7 +269,11 @@ For the liquid metal and the ambient gas, we have
     \Re_\text{gas}(L=10\lambda) = 180.
 \end{equation}
 For $\Ha = 4$, which corresponds to $B = \SI{3.5}{T}$,
-the velocity $U$ reduces by approximately 2 times, which is seen in~Fig.~\ref{fig:v0}.
+the velocity $U$ reduces by approximately 2 times, which is seen in~Fig.~\ref{fig:maxima}.
+For small $\Ha$, using~\eqref{eq:B_max},
+\begin{equation}
+    \frac{B_{x,\max}}{\mathcal{B}} = \num{e-5}.
+\end{equation}
 
 \appendix
 
