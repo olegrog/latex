@@ -37,9 +37,11 @@
 *.cls
 *.bst
 
-# Gnuplot Tikz files
+# Gnuplot files
 *.table
 *.gnuplot
+gnuplottex
+*.gnuploterrors
 
 # Backups
 *~
