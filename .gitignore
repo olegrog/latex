@@ -8,6 +8,7 @@
 *.lof
 *.lot
 *.vrb
+*.xdv
 
 # Temporary BibTeX and BibLaTeX files
 *.bbl
