@@ -2,7 +2,6 @@ FILE=limiters
 
 all: $(FILE).pdf
 
-$(FILE).pdf: $(FILE).tex 
-	latex $(FILE)
-	latex --shell-escape $(FILE)
+$(FILE).pdf: $(FILE).tex
+	latexmk -pdf -shell-escape
 

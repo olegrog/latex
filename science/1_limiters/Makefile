@@ -1,8 +1,9 @@
-FILE=limiters
+PROJECT=limiters
 
-all: $(FILE).pdf
+all: $(PROJECT).pdf
 
-$(FILE).pdf: $(FILE).tex 
-	latex $(FILE)
-	latex --shell-escape $(FILE)
+$(PROJECT).pdf: $(PROJECT).tex
+	latexmk -pdf -shell-escape $(PROJECT)
 
+clean:
+	latexmk -C $(PROJECT)
