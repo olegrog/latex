@@ -16,7 +16,6 @@ parser.add_argument('--use-tex', action='store_true', help='use tex for text')
 args = parser.parse_args()
 
 matplotlib.rcParams.update({
-    'backend': 'pdf',
     'font.size': 10,
     'axes.labelsize': 10,
     'legend.fontsize': 8,
@@ -25,8 +24,15 @@ matplotlib.rcParams.update({
     'lines.linewidth': 1,
     'errorbar.capsize': 3,
     'text.usetex': args.use_tex,
-    'figure.figsize': [7,5]
+    "pgf.rcfonts": False,
+    "font.family": "serif",
+    "pgf.preamble": "\n".join([
+         "\\usepackage{physics, siunitx}",
+    ]),
+    'figure.figsize': [7, 5]
 })
+if args.use_tex:
+    matplotlib.use('pgf')
 
 def set_colors():
     # https://stackoverflow.com/a/55652330/2531400
@@ -96,6 +102,4 @@ if args.logx:
 if args.logy:
     plt.semilogy()
 
-#plt.tick_params(axis='both', direction='out',)
-#plt.tight_layout()
 plt.savefig(args.pdffile, bbox_inches='tight', transparent=True)
