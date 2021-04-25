@@ -1,0 +1,105 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+\usepackage{amssymb, amsmath}
+\usepackage{physics}
+\usepackage{fullpage}
+\usepackage{hyperref}
+
+\title{Referee report on \\
+"Acceleration of Boltzmann Collision Integral Calculation Using Machine Learning"
+by Ian Holloway, Aihua Wood, and  Alexander Alekseenko}
+\date{}
+
+\newcommand{\claim}[1]{``\emph{#1}''}
+
+\usepackage[
+    backend=biber,
+    natbib,
+    sorting=none,
+    giveninits,
+]{biblatex}
+\bibliography{report}
+
+\begin{document}
+
+\maketitle
+
+%%% What is this about? What was done?
+Approximation of the Boltzmann collision integral (BCI) is a well-known and still current computational problem.
+The numerical methods for the Boltzmann equation have a fairly long history.
+Many of them use \emph{a priori} information on the velocity distribution function (VDF)
+or intermolecular potential to evaluate the BCI more efficiently.
+In some sense, the presented work develops this direction.
+It provides no breakthrough in the efficiency--versatility trade-off
+but has the potential to achieve superior efficiency, preserving an acceptable level of versatility.
+In particular, the authors propose to harness the established machine-learning (ML) techniques
+to reduce the computational cost of evaluating the BCI.
+
+Reading the manuscript raises the following comments/questions:
+\begin{enumerate}
+    \item The literature review is not complete and lacks important advances in the problem under consideration.
+    First, the authors claim \claim{The current state-of-the-art simulation algorithms for the Boltzmann collision
+    integral using uniform discrete meshes in the velocity space that are asymptotically converging,
+    are of $\order{N^6}$ or higher complexity}; however, for instance, \citet{wu2015influence} devised a spectral method
+    with computational cost $\order{M^2 M_r N^3 \log{N}}$ for arbitrary intermolecular potential,
+    which is comparable to the goal set in the paper.
+    Second, there is no reference to classical works on the application of the deep-learning methods to the solution of nonlinear
+    PDE, e.g.,~\cite{weinan2017deep, sirignano2018dgm}. Certainly, the Boltzmann equation has its peculiar properties,
+    but the proposed approach is quite general and does not employ the specific structure of the BCI.
+    Third, the authors believe that \claim{this is the first attempt reported in the open literature
+    at using machine learning to accelerate the calculation of the BCI;} however, among the recent literature,
+    it is possible to find papers closely related to the current one~\cite{boelens2020tensor, lou2020physics}.
+    \item The Boltzmann equation (1) is wrong written: macro- and microscopic velocities have the same designation.
+    \item The reconstructed VDF is compared with the DG approximation (not true solutions!) in Fig.~2 and 3.
+    These images are not informative enough. It is interesting to estimate the approximation error in terms of some norm
+    and how it depends on the cardinality of the approximation space.
+    The natural question: what is the minimum dimensionality sufficient to achieve an acceptable approximation of the VDF?
+    Moreover, since dimension reduction is used for evaluating $Q(f)$,
+    it is most important to understand how effective a low-dimensional approximation of $Q(f)$ is.
+    \item It is worth noting that many technical details are omitted.
+    For example, there are no formulas for computing $f$ and $Q(f)$.
+    \item A post-processing conservative correction is used to improve stability and long-time behavior of the algorithm,
+    but its contribution to the solution is not studied. When this correction becomes comparable to the leading terms,
+    the consistency of the method can be easily lost. It may be a reason for the divergence of the results in Fig.~8.
+    Nevertheless, the authors have already proposed how this correction can be easily bypassed:
+    \claim{In the future, enforcement of the conservation laws can be incorporated into the model,}
+    but they have not implemented this for some reason.
+    \item The conclusion from Sec.~4 is unclear and contains a vague remark:
+    \claim{it may not be sufficient just to bound the error in the prediction of the solution,
+    but the effect the error has on the moments may also be of interest.}
+    \item Table~1 shows the acceleration of the proposed algorithm, but this conclusion is obtained from a comparison
+    with the performance of another authors' numerical method,
+    which is still unpublished and is not among the best methods available in the literature.
+    Moreover, it is interesting to compare the spectral compression with the ML one.
+    \item The 3-D plots shown in Fig.~4 and~5 are almost identical. They take up more than a page
+    but provide too little scientific information.
+    Also, the numerical solutions are used for comparison, not analytical as written.
+    \item For most curves in Fig.~6, the error is increasing, which contradicts the authors' claim:
+    \claim{mainly that the difference grows the most during the first few iterations, then starts to plateau.}
+    It is also unclear how the mentioned 10 test cases differ.
+    \item Fig.~7 shows that the predicted relaxation is entirely different. There is no convergence study as well.
+    What are cases 082 and 116? What is the difference between red and blue curves?
+    \item The authors state that \claim{Solutions remained stable up until and beyond time values
+    for which training data existed,} but no evidence is provided for long times.
+    In contrast, Fig.~8(a) shows that the predicted solution starts diverging from the actual solution.
+    Ultimately, the authors come to the following conclusion:
+    \claim{We propose that this behavior could be corrected by replacing the machine-learned model
+    with an analytical method once the solution is close to steady state}.
+    This clearly demonstrates that the presented algorithm is not robust but is just an earlier attempt.
+    \item List of reference contains several misprints and should be rechecked.
+\end{enumerate}
+
+%%% Conclusions
+In general, the suggested idea looks attractive, but it is not elaborated enough in the presented manuscript.
+The lack of technical details makes it difficult to reproduce the work.
+The presentation is also not polished.
+Many of the mentioned points and the author's claims indicate that the proposed algorithm is still very raw.
+Hence, the submitted paper has to be improved significantly,
+which cannot be done within a major revision time frame.
+
+\printbibliography
+
+\end{document}
