@@ -29,7 +29,7 @@ matplotlib.rcParams.update({
     "pgf.preamble": "\n".join([
          "\\usepackage{physics, siunitx}",
     ]),
-    'figure.figsize': [7, 5]
+    'figure.figsize': [6, 4]
 })
 if args.use_tex:
     matplotlib.use('pgf')
