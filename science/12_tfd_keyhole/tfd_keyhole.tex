@@ -115,7 +115,8 @@
 %\newcommand{\alert}[1]{\textcolor{red}{\bf #1}}
 \newcommand{\alert}[1]{\textcolor{red}{#1}} % for highlighting
 \newcommand{\Oleg}[1]{\protect\footnote{\textcolor{magenta}{Oleg: #1}}} % Oleg's remarks
-\newcommand{\ak}[1]{\protect\footnote{\textcolor{blue}{Aslan: #1}}} % Aslan's remarks
+%\newcommand{\ak}[1]{\textcolor{blue}{Aslan: #1}} % Aslan's remarks
+\newcommand{\ak}[1] {\textbf{AK:} \textcolor{red}{#1}}
 
 \journal{Journal of Computational Physics}
 
@@ -129,28 +130,13 @@
 \ead{o.rogozin@skoltech.ru}
 \author[1]{Aslan R. \snm{Kasimov}}
 \ead{a.kasimov@skoltech.ru}
-\address[1]{\alert{Center of Materials \& Technologies},
-    Skolkovo Institute of Science and Technology,
+\address[1] {Skolkovo Institute of Science and Technology,
     Bolshoy Boulevard 30, bld. 1, Moscow, 121205, Russia}
+%{\alert{Center of Materials \& Technologies},
 
 \begin{abstract}
 %%% Aim
-In this work, we investigate numerically the melt-pool dynamics including the keyhole formation.
-The governing system of three-dimensional three-phase fluid dynamics equations
-includes a wide range of physical effects such as: surface-tension with Marangoni stresses,
-evaporation of the melt, solidification, and temperature dependence of various fluid properties.
-%
-%%% Assumptions
-All three phases are modeled as incompressible viscous heat-conducting fluids.
-The solidification of the melt is assumed to take place over a homogenized mushy layer
-modeled as a porous medium.
-%
-%%% Implementation and validation
-The proposed thermo-fluid-dynamic model is implemented in the \OpenFOAM environment
-and is validated against experimental data.
-Excellent agreement is found with respect to the form and dimensions of the solidified track.
-The role of various physical effects that are included in the model is analyzed
-and their importance is discussed.
+We develop a numerical algorithm for the simulation of the interaction of a laser beam with metal surface that includes complex multi-physics phenomena of melting, evaporation, solidification, surface tension with Marangoni effects. The algorithm is based on finite-volume discretization of the three-dimensional three-phase equations for fluid dynamics and a novel ray-tracing algorithm for the laser interaction with the metal material. We validate the algorithm with experiments on melt-pool structure and dynamics that are relevant to the selective laser melting technology in additive manufacturing.
 \end{abstract}
 
 \end{frontmatter}
@@ -158,6 +144,16 @@ and their importance is discussed.
 \tableofcontents
 
 \section{Introduction}
+\ak{How to organize the introduction. The paper is about a numerical approach to solving a certain class of problems. The focus should be on the methods and the class of problems. SLM should be mentioned only tangentially, as basically a test case (for this paper).
+So, in a couple of pages:
+\begin{itemize}
+    \item General words about the importance of this kind of simulation of multi-phase flows involving lasers, melting, solidification, surfaces.
+    \item Some review of available numerical approaches as far as solving the fluid equations and laser heating (ray tracing included)
+    \item What are the problems that we solve here, focus on the ray tracing, as it is the most novel element of the work.
+    \item Describe what is done in this particular work.
+    \item General plan of the paper.
+\end{itemize}
+}
 
 % [Oleg] This paragraph is taken from Oerlikon report
 Fluid-dynamics of the melt pool is the crucial physical process
@@ -169,15 +165,18 @@ and structure via local temperature gradients, which are coupled to the fluid fl
 A detailed exploration of these processes is a significant challenge for modeling
 that should be undertaken in a follow-up work.
 
-\section{Mathematical model}\label{sec:model}
+\ak{Let's put this elsewhere:
+%% Assumptions
+All three phases are modeled as incompressible viscous heat-conducting fluids.
+The solidification of the melt is assumed to take place over a homogenized mushy layer modeled as a porous medium.
+%%% Implementation and validation
+The proposed thermo-fluid-dynamic model is implemented in the \OpenFOAM environment
+and is validated against experimental data.
+Excellent agreement is found with respect to the form and dimensions of the solidified track.
+The role of various physical effects that are included in the model is analyzed
+and their importance is discussed.}
 
-The present mathematical model has been developed based on and influenced by a number of
-published works, such as~\cite{cho2006implementation, attar2011simulation, qiu2015role, khairallah2016laser,
-wang2019powder, cook2019simulation, khairallah2020controlling}.
-Much physics is unified in order to formulate a single multi-physics system of governing equations
-that is capable of treating different phase states and their inter-phase conditions
-within a single system of fluid-dynamic equations.
-The laser radiation is considered as a collimated beam with a pure specular reflection on gas--metal interface.
+\ak{These assumptions and arguments behind the model should be incorporated in the text that discusses specific equations and models.}
 
 \subsection{Assumptions}
 
@@ -225,26 +224,66 @@ Finally, some minor assumptions:
     \item Enthalpy of evaporation does not depend on temperature.
 \end{itemize}
 
-\subsection{Governing equations}
+\subsection{Rationale for the model}
 
-%%% On three phases
-The model is based on equations of fluid mechanics for three phase states,
-which are identified by the following variables: $\alpha\in\{0,1\}$ is the metal fraction,
-$\phi$ is the volume fraction of the molten metal.
-Then, all pure-phase states are identified as follows:
-\begin{enumerate}[label=\arabic*)]
-    \item gas: $\alpha=0$, $\phi=0$;
-    \item liquid: $\alpha=1$, $\phi=1$;
-    \item solid: $\alpha=1$, $\phi=0$.
+\begin{enumerate}
+    \item Enthalpy method for the Stefan (moving boundary) problem~\cite{kamenomostskaja1961stefan, atthey1974finite, fedorenko1975difference, voller1981accurate}.
+    \item Why do we incorporate Marangoni, recoil pressure, evaporative/radiative cooling?
+    \item Why do we employ the Darcy damping force with Kozeny--Carman permeability?\cite{voller1987fixed, voller1987enthalpy} Enthalpy-porosity technique.
+    \citet{voller1987fixed} used $-K(1-\phi^2)/(\phi^3+q)$
+    with $K/q = \SI{1.6e6}{kg.m^{-3}.s^{-1}}$,
+    e.g., $K = \SI{1.6e5}{kg.m^{-3}.s^{-1}}$ and $q=0.1$.
+    \item Derivation of the Darcy--Brinkman equation based on the volume-averaging method~\cite{le2006interfacial}.
+    \item Modeling of mushy layer\footnote{This term is seems to be first introduced in~\cite{tien1967heat}}.
+    \item The evaporation effects are described and critically analyzed in~\cite{cook2019simulation}, implemented in~\cite{khairallah2016laser}.
+    \item Clausius--Clayperon~\cite{klassen2014evaporation, cook2019simulation}, Hertz--Knudsen model $\dot{m}_V = \evapor{p}\qty(M/2\pi RT)^{1/2}$.
+    \item Boussinesq approximation. Need to estimate the contribution of the buoyancy force. Compare with the Marangoni force: $\beta \sim \gamma'$. This means that the buoyancy and Marangoni force are comparable and the only convection-driven forces.
+    \item \emph{Continuum surface force} (CSF) model~\cite{brackbill1992continuum}: a surface force per unit area $\vb*{f}_s$ can be transformed into a volumetric surface force $\vb*{F}_{\!s}$ by means of a Dirac delta function i.e. $\vb*{F}_{\!s} = \vb*{f}_{\!s}\delta = \vb*{f}_{\!s}|\grad\alpha|$.
+    We also use CSF for energy equation, viz. we include continuum surface heat sources.
+    $\gradf{f}$ is used in~\cite{brackbill1992continuum}, but this notation is my own. I did not search how people denote this outside the AM field.
+    When CSF is used together with VOF, which aims to preserve interface sharpness, $\grad$ seems to be technically equivalent to $\gradf{f}$.
+    \item Both conduction-mode and keyhole/depression-mode melting have to be
+    accurately simulated, as well as the unstable transition mode.
+    \item The utilized form of laser heat source leads to unphysical overheating
+    in the shadow zone. It can be remedied by accounting the radiation transport.
+    For instance, a \emph{ray‐tracing‐based absorptivity model} can be coupled
+    with the \emph{thermal-fluid-dynamic model}.
+    \item Pioneer works on keyhole modeling~\cite{schulz1987laser, ducharme1994laser, cho2006implementation} rely on the assumption that reflection of a electromagnetic wave is conduction-dominated, i.e. $(\sigma/\omega\epsilon_1\epsilon_0)^2 \gg 1$.
+    For our case (Nd:YAG laser with $\lambda=\SI{1.07}{\um}$ and Fe-based steel),
+    $\epsilon_1 = -10.92$~\cite{adachi2012handbook} and $\sigma = \SI{e7}{S\per\m}$ at the room temperature.
+    Also, $\omega = 2\pi c/\lambda = \SI{1.76e15}{\Hz}$ is the angular frequency
+    and $\epsilon_0 = \SI{8.854e-12}{\F\per\m}$ is the electric constant.
+    Therefore, $\sigma/\omega\epsilon_1\epsilon_0 = 59$.
+    \item We assume that scattering properties are temperature-independent since spectral emissivity of liquid iron and nickel is shown to be almost the same as for solid ones at room temperature~\cite{kobatake2012normal}.
+    \item Gaussian beam $I_\laser = I_0\frac{w_0}{w(z)}\exp(-\frac{2r^2}{w(z)^2})$,
+    where $I_0 = 2P_0/\pi w_0^2$ is the intensity at the beam center at its waist.
+    Spot size parameter $w(z) = w_0\sqrt{1+(z/z_R)^2}$,
+    where $z_R = \pi w_0^2 n/\lambda$ is the Rayleigh range,
+    $n$ is the refractive index, $\lambda$ is the light wavelength,
+    $w_0$ is the waist radius. $z_R\approx \SI{2.2}{\mm}\ll w_0$.
+    \item Radiation exchange factor $\viewfactor{\mathcal{F}}{_i}{_j}$ is the fraction of the emission from $\dd{S_i}$
+    that reaches $\dd{S_j}$ and is absorbed.
+    \item Change of density in solid--liquid phase transition and shrinkage due to the density change as a function of temperature is considered here~\cite{wei2017thermal}, but can be neglected.
+    \item Preliminary estimations for the conduction-mode printing give that $\Re_L=15000$
+    and $\Re_G=180$. In the keyhole regime, $\Re_G$ can dramatically
+    increases~\cite{zhirnov2018evaporation,gusarov2020entrainment,matthews2016denudation}.
+    However, we do not focus on the accurate description of gas flows.
 \end{enumerate}
-The solid--liquid interface is smoothed out via continuous change of $\phi$ over the mushy layer.
-In the present formulation, the solid phase is stationary, i.e., $\bv=0$,
-and is obtained from the fluid state in the limit $\phi\to0$.
-Thus, the detailed modeling of the solid-phase structure is beyond the scope of the present model,
-which focuses on the phase transition between the solid and liquid states including heat transfer processes.
+
+\section{Governing equations}\label{sec:model}
+
+The governing equations are those of multi-phase fluid dynamics that incorporate a number of physical processes that describe the complex multi-physics involved in the laser melting and solidification of metal materials. We first present the main system of equations and then provide the detailed explanation of the underlying physics. In the next section, we explain numerical approaches to solving the system.
+
+% The present mathematical model has been developed based on and influenced by a number of
+% published works, such as~\cite{cho2006implementation, attar2011simulation, qiu2015role, khairallah2016laser,
+% wang2019powder, cook2019simulation, khairallah2020controlling}.
+% Much physics is unified in order to formulate a single multi-physics system of governing equations
+% that is capable of treating different phase states and their inter-phase conditions
+% within a single system of fluid-dynamic equations.
+% The laser radiation is considered as a collimated beam with a pure specular reflection on gas--metal interface.
 
 %%% Governing equations
-The governing equations for density $\rho$, velocity $\bv$, pressure $p$, and specific enthalpy $h$ are as follows:
+The governing equations for density $\rho$, velocity $\bv$, pressure $p$, and specific enthalpy $h$ are as follows \ak{(it may be good to ungroup these equations and discuss them separately...)}:
 \begin{gather}
     \pdv{\alpha}{t} + \bv\vdot\grad\alpha = 0, \label{eq:alpha}\\
     \div\bv = 0, \label{eq:continuity}\\
@@ -268,9 +307,41 @@ The governing equations for density $\rho$, velocity $\bv$, pressure $p$, and sp
             |\gradf{\rho c_p}\alpha|}{laser heat source}\\
         - \myoverbrace{\epsilon\sigma\qty(T^4-T_0^4)|\gradf{\rho c_p}\alpha|}{radiative cooling}
         - \myoverbrace{\frac{\evapor{a}\evapor{p}\evapor{h}}
-            {(2\pi RT/M_\liq)^{1/2}}|\gradf{\rho c_p}\alpha|}{evaporative cooling},
+            {(2\pi RT/M_\liq)^{1/2}}|\gradf{\rho c_p}\alpha|}{evaporative cooling}.
     \end{multlined}\label{eq:h}
 \end{gather}
+
+Here, the first equation describes the evolution of a scalar variable $\alpha\in\{0,1\}$ that is the metal fraction. The gas-metal interface evolves with velocity $v$.
+The second equation is that of the incompressibility.
+
+\subsection{Momentum equation}
+\ak{Explain everything in the momentum equation}
+The momentum equation~\eqref{eq:v} contains a large number of terms that reflect various physics of the problem. The it contains the usual viscous term with $\mathbf{\tau}=$, the pressure term, gravity, and buyoancy term with thermal expansion coefficient $\beta$.
+
+The Darcy force term is included to handle  solidification of the melt pool. It depends on permeability $K$, velocity, $\alpha$, and the volume fraction $\phi$ of the molten metal. Note that the two scalars $\alpha$ and $\phi$ identify various phases as follows:
+\begin{enumerate}[label=\arabic*)]
+    \item gas: $\alpha=0$, $\phi=0$;
+    \item liquid: $\alpha=1$, $\phi=1$;
+    \item solid: $\alpha=1$, $\phi=0$.
+\end{enumerate}
+The solid--liquid interface is smoothed out via continuous change of $\phi$ over the mushy layer. In the present formulation, the solid phase is stationary, i.e., $\bv=0$, and is obtained from the fluid state in the limit $\phi\to0$. Thus, the detailed modeling of the solid-phase structure is beyond the scope of the present model, which focuses on the phase transition between the solid and liquid states including heat transfer processes.
+
+\ak{Darcy force}
+
+To ensure that the gas--solid interface is fixed,
+the Darcy force $D(\alpha,\phi)$ should satisfy the following requirements:
+\begin{equation}\label{eq:Darcy}
+    \lim_{\phi\to0} D(\alpha<1,\phi) = -\infty, \quad
+    \lim_{\phi\to1} D(\alpha<1,\phi) = 0, \quad
+    D(1,\phi) = 0.
+\end{equation}
+
+Alternative Darcy--Brinkman formulations are discussed in~\cite{le2006interfacial}.
+
+\subsection{Energy equation}
+\ak{Explain everything in the energy equation}
+The energy equation~\eqref{eq:h} contains ...
+
 where $K>0$ is the coefficient related to the permeability of the mushy layer,
 $\bg$ is the gravitational acceleration,
 $\beta$ is the volumetric thermal expansion coefficient,
@@ -289,11 +360,8 @@ $\evapor{h}$ is the enthalpy of vaporization,
 $M_\liq$ is the molar mass of the alloy,
 $R$ is the universal gas constant.
 
-%%% Other quantities
-Temperature $T$, viscous stress tensor $\btau$, vapor pressure $\evapor{p}$, liquid fraction $\phi$,
-laser beam intensity $I_\laser$, modified gradient $\gradf{f}$,
-and radiation exchange factor $\dd\viewfactor{\mathscr{F}}{'}{}$ between surface elements $\dd{S'}$ and $\dd{S}$
-are calculated from the following relations:
+Temperature $T$, viscous stress tensor $\btau$, vapor pressure $\evapor{p}$, liquid fraction $\phi$ are found from
+
 \begin{gather}
     h = \int_0^T c_p(\alpha,\xi)\dd{\xi} + \fusion{h}\phi(\alpha,h), \label{eq:T}\\
     \btau = \mu\qty(\grad\bv + \qty(\grad\bv)^\tran), \label{eq:tau}\\
@@ -303,6 +371,114 @@ are calculated from the following relations:
         \label{eq:phi}\\
     h_\melt(\alpha) = \int_0^{T_\melt} \!\! c_p(\alpha,\xi)\dd{\xi} + \frac{\alpha\fusion{h}}2,
         \label{eq:h_melt}\\
+\end{gather}
+where $c_p$ is the heat capacity, $\fusion{h}$ is the enthalpy of fusion,
+$\mu$ is the viscosity, $p_0$ is the ambient pressure,
+$T_\melt$ and $T_\boil$ are the melting and boiling temperatures, respectively.
+
+%%% Liquid fraction
+Function $\mathcal{S}(\xi)$ in~\eqref{eq:phi} is a sigmoid curve with range $(0,1)$
+and $\mathcal{S}'(0) = 1$.
+Specifically, $\mathcal{S}(\xi) = (1+\tanh(2\xi))/2$ is used.
+Basically, Eq.~\eqref{eq:phi} is a smooth approximation of the piecewise linear function
+\begin{equation}\label{eq:phi_piecewise}
+    \phi(\alpha,h) = \max\qty(0,\min\qty(\alpha,\frac{h-h_1(\alpha)}{\fusion{h}})),
+\end{equation}
+which provides the constant temperature $T=T_\melt$ during the entire melting region
+$h_1\leq h\leq h_2$ for any $\alpha>0$, where
+\begin{equation}\label{eq:enthalpySL}
+    h_1(\alpha) = h_\melt(\alpha) - \frac{\alpha\fusion{h}}2, \quad
+    h_2(\alpha) = h_\melt(\alpha) + \frac{\alpha\fusion{h}}2.
+\end{equation}
+
+%%% Material properties
+All material properties $f = \rho, \beta, \mu, k$, except for $c_p$,
+are calculated as a following weighted average:
+\begin{equation}\label{eq:properties}
+    f = (1-\alpha)f_\gas + \phi f_\liq + (1-\phi)f_\sol,
+\end{equation}
+where $f_\sol$, $f_\liq$, and $f_\gas$ correspond to the solid, liquid, and gas properties.
+Specifically, the following expressions are used:
+\begin{gather}
+    \rho = (1-\alpha)\rho_\gas + \alpha\rho_\liq, \label{eq:rho}\\
+    \beta = \beta_\liq, \label{eq:beta}\\
+    \mu = (1-\alpha)\mu_\gas(T) + \alpha\mu_\liq(T), \label{eq:mu}\\
+    k = (1-\alpha)k_\gas(T) + \phi k_\liq(T) + (1-\phi)k_\sol(T), \label{eq:k}
+\end{gather}
+while
+\begin{equation}\label{eq:c_p}
+    c_p = (1-\alpha)c_{p\gas}(T) + \alpha\Heaviside(T-T_\melt)c_{p\liq}(T)
+        + \alpha\Heaviside(T_\melt-T)c_{p\sol}(T),
+\end{equation}
+where $\Heaviside$ denotes the Heaviside step function.
+
+%%% Temperature evaluation
+Substituting~\eqref{eq:c_p} into~\eqref{eq:T}, we find
+\begin{equation}\label{eq:h_piecewise}
+    h - h_1(\alpha) = (1-\alpha)\int_{T_\melt}^T c_{p\gas} + \fusion{h}\phi(\alpha,h)
+        + \alpha\int_{T_\melt}^T
+    \begin{cases}
+        c_{p\sol} &\text{if } T \leq T_\melt, \\
+        c_{p\liq} &\text{if } T > T_\melt.
+    \end{cases}
+\end{equation}
+Note that $\phi(\alpha,h)$, given by~\eqref{eq:phi},
+guarantees $T=T_\melt$ when and only when $h=h_\melt(\alpha)$.
+Therefore, inequalities in~\eqref{eq:h_piecewise} can be replaced by the same
+in terms of $h$ and $h_\melt$.
+Thus, the temperature is obtained as a solution to Eq.~\eqref{eq:h_piecewise},
+which is generally nonlinear.
+
+%%% Temperature gradient
+As for the temperature gradient, it is obtained by taking a gradient of~\eqref{eq:T},
+\begin{equation}\label{eq:T_gradient}
+    \grad{T} = \frac{1 - \fusion{h}\phi_h}{c_p(\alpha,T)}\grad{h}
+        + \qty(
+            \int_0^T \pdv{c_p(\alpha,\xi)}{\alpha}\dd\xi + \fusion{h}\phi_\alpha
+        )\frac{\grad\alpha}{c_p(\alpha,T)},
+\end{equation}
+where
+\begin{gather}
+    \pdv{c_p(\alpha,T)}{\alpha} = -c_{p\gas}(T) +
+        \begin{cases}
+            c_{p\sol}(T) &\text{if } T \leq T_\melt, \\
+            c_{p\liq}(T) &\text{if } T > T_\melt,
+        \end{cases} \label{eq:c_palpha}\\
+    \phi_h \equiv \pdv{\phi(\alpha,h)}{h} = \frac{\alpha\mathcal{S}'}{\fusion{h}}, \quad
+    \phi_\alpha \equiv \pdv{\phi(\alpha,h)}{\alpha} = \mathcal{S} - \phi_h h_\melt'. \label{eq:phi_derivatives}
+\end{gather}
+
+%%% Particular case of $c_p$
+The following particular case is implemented:
+\begin{equation}\label{eq:c_p_special}
+    c_{p\gas}(T) = \Cp{\gas} + \Cp{\gas}'T, \quad
+    c_{p\sol}(T) = \Cp{\sol} + \Cp{\sol}'T, \quad
+    c_{p\liq}(T) = \Cp{\liq} + \Cp{\liq}'T.
+\end{equation}
+Then, the temperature is calculated as a root of a quadratic equation, i.e.,
+\begin{equation}\label{eq:T_special}
+    T = \frac{\sqrt{b^2 + 2ac} - b}{a} \text{ if } a\neq0 \text{, and }
+    T = \frac{c}{b} \text{ otherwise},
+\end{equation}
+where quantities
+\begin{equation}\label{eq:abc}
+    \begin{gathered}
+        a = (1-\alpha)\Cp{\gas}' + \alpha\Cp{\sol/\liq}', \quad
+        b = (1-\alpha)\Cp{\gas} + \alpha\Cp{\sol/\liq}, \\
+        c = h - \fusion{h}\phi(\alpha,h) + \alpha(\Cp{\sol/\liq}-\Cp{\sol})T_\melt
+            + \tfrac12\alpha(\Cp{\sol/\liq}'-\Cp{\sol}')T_\melt^2
+    \end{gathered}
+\end{equation}
+contain coefficients with subscript $\sol/\liq$,
+which means $\sol$ when $h\leq h_\melt$ and $\liq$ when $h>h_\melt$.
+
+\subsection{Radiation treatment}
+\ak{Explain the radiation term}
+
+laser beam intensity $I_\laser$, modified gradient $\gradf{f}$,
+and radiation exchange factor $\dd\viewfactor{\mathscr{F}}{'}{}$ between surface elements $\dd{S'}$ and $\dd{S}$
+are calculated from the following relations:
+\begin{gather}
     I_\laser(\bx) = \frac{2P}{\pi R_\laser^2}
         \exp(-2\frac{\qty|(\bx-\bx_\laser)\cp\bs_\laser|^2}{R_\laser^2}), \label{eq:Ilaser}\\
     \gradf{f} = \frac{2f(\alpha)}{f(0)+f(1)}\grad, \label{eq:gradf}\\
@@ -313,9 +489,7 @@ are calculated from the following relations:
     \end{split}\label{eq:exchange_factor}\\
     \br = \bi - 2(\bi\vdot\bn_\alpha)\bn_\alpha, \label{eq:reflection}
 \end{gather}
-where $c_p$ is the heat capacity, $\fusion{h}$ is the enthalpy of fusion,
-$\mu$ is the viscosity, $p_0$ is the ambient pressure,
-$T_\melt$ and $T_\boil$ are the melting and boiling temperatures, respectively,
+
 $P$ is the laser power, $R_\laser$ is the radius of the laser beam,
 $\bx_\laser$ is the intersection point between the laser beam axis and $\partial\Omega_\gas$,
 $\viewfactor{\Abso}{_i}{_j}$ is the fraction of laser radiation coming from $\dd{S_i}$
@@ -411,41 +585,6 @@ Dirac delta functions as illustrated in Fig.~\ref{fig:exchange_factor}.
     \label{fig:exchange_factor}
 \end{figure}
 
-%%% Liquid fraction
-Function $\mathcal{S}(\xi)$ in~\eqref{eq:phi} is a sigmoid curve with range $(0,1)$
-and $\mathcal{S}'(0) = 1$.
-Specifically, $\mathcal{S}(\xi) = (1+\tanh(2\xi))/2$ is used.
-Basically, Eq.~\eqref{eq:phi} is a smooth approximation of the piecewise linear function
-\begin{equation}\label{eq:phi_piecewise}
-    \phi(\alpha,h) = \max\qty(0,\min\qty(\alpha,\frac{h-h_1(\alpha)}{\fusion{h}})),
-\end{equation}
-which provides the constant temperature $T=T_\melt$ during the entire melting region
-$h_1\leq h\leq h_2$ for any $\alpha>0$, where
-\begin{equation}\label{eq:enthalpySL}
-    h_1(\alpha) = h_\melt(\alpha) - \frac{\alpha\fusion{h}}2, \quad
-    h_2(\alpha) = h_\melt(\alpha) + \frac{\alpha\fusion{h}}2.
-\end{equation}
-
-%%% Material properties
-All material properties $f = \rho, \beta, \mu, k$, except for $c_p$,
-are calculated as a following weighted average:
-\begin{equation}\label{eq:properties}
-    f = (1-\alpha)f_\gas + \phi f_\liq + (1-\phi)f_\sol,
-\end{equation}
-where $f_\sol$, $f_\liq$, and $f_\gas$ correspond to the solid, liquid, and gas properties.
-Specifically, the following expressions are used:
-\begin{gather}
-    \rho = (1-\alpha)\rho_\gas + \alpha\rho_\liq, \label{eq:rho}\\
-    \beta = \beta_\liq, \label{eq:beta}\\
-    \mu = (1-\alpha)\mu_\gas(T) + \alpha\mu_\liq(T), \label{eq:mu}\\
-    k = (1-\alpha)k_\gas(T) + \phi k_\liq(T) + (1-\phi)k_\sol(T), \label{eq:k}
-\end{gather}
-while
-\begin{equation}\label{eq:c_p}
-    c_p = (1-\alpha)c_{p\gas}(T) + \alpha\Heaviside(T-T_\melt)c_{p\liq}(T)
-        + \alpha\Heaviside(T_\melt-T)c_{p\sol}(T),
-\end{equation}
-where $\Heaviside$ denotes the Heaviside step function.
 
 %%% Absorptivity of laser radiation
 For unpolarized or circularly polarized light,
@@ -484,127 +623,8 @@ where the refraction angle $\theta_2$ is given by the generalized Snell's law:
     p\tan\theta_2 = \sin\theta_1.
 \end{equation}
 
-\subsection{Temperature evaluation}
 
-%%% Temperature evaluation
-Substituting~\eqref{eq:c_p} into~\eqref{eq:T}, we find
-\begin{equation}\label{eq:h_piecewise}
-    h - h_1(\alpha) = (1-\alpha)\int_{T_\melt}^T c_{p\gas} + \fusion{h}\phi(\alpha,h)
-        + \alpha\int_{T_\melt}^T
-    \begin{cases}
-        c_{p\sol} &\text{if } T \leq T_\melt, \\
-        c_{p\liq} &\text{if } T > T_\melt.
-    \end{cases}
-\end{equation}
-Note that $\phi(\alpha,h)$, given by~\eqref{eq:phi},
-guarantees $T=T_\melt$ when and only when $h=h_\melt(\alpha)$.
-Therefore, inequalities in~\eqref{eq:h_piecewise} can be replaced by the same
-in terms of $h$ and $h_\melt$.
-Thus, the temperature is obtained as a solution to Eq.~\eqref{eq:h_piecewise},
-which is generally nonlinear.
-
-%%% Temperature gradient
-As for the temperature gradient, it is obtained by taking a gradient of~\eqref{eq:T},
-\begin{equation}\label{eq:T_gradient}
-    \grad{T} = \frac{1 - \fusion{h}\phi_h}{c_p(\alpha,T)}\grad{h}
-        + \qty(
-            \int_0^T \pdv{c_p(\alpha,\xi)}{\alpha}\dd\xi + \fusion{h}\phi_\alpha
-        )\frac{\grad\alpha}{c_p(\alpha,T)},
-\end{equation}
-where
-\begin{gather}
-    \pdv{c_p(\alpha,T)}{\alpha} = -c_{p\gas}(T) +
-        \begin{cases}
-            c_{p\sol}(T) &\text{if } T \leq T_\melt, \\
-            c_{p\liq}(T) &\text{if } T > T_\melt,
-        \end{cases} \label{eq:c_palpha}\\
-    \phi_h \equiv \pdv{\phi(\alpha,h)}{h} = \frac{\alpha\mathcal{S}'}{\fusion{h}}, \quad
-    \phi_\alpha \equiv \pdv{\phi(\alpha,h)}{\alpha} = \mathcal{S} - \phi_h h_\melt'. \label{eq:phi_derivatives}
-\end{gather}
-
-%%% Particular case of $c_p$
-The following particular case is implemented:
-\begin{equation}\label{eq:c_p_special}
-    c_{p\gas}(T) = \Cp{\gas} + \Cp{\gas}'T, \quad
-    c_{p\sol}(T) = \Cp{\sol} + \Cp{\sol}'T, \quad
-    c_{p\liq}(T) = \Cp{\liq} + \Cp{\liq}'T.
-\end{equation}
-Then, the temperature is calculated as a root of a quadratic equation, i.e.,
-\begin{equation}\label{eq:T_special}
-    T = \frac{\sqrt{b^2 + 2ac} - b}{a} \text{ if } a\neq0 \text{, and }
-    T = \frac{c}{b} \text{ otherwise},
-\end{equation}
-where quantities
-\begin{equation}\label{eq:abc}
-    \begin{gathered}
-        a = (1-\alpha)\Cp{\gas}' + \alpha\Cp{\sol/\liq}', \quad
-        b = (1-\alpha)\Cp{\gas} + \alpha\Cp{\sol/\liq}, \\
-        c = h - \fusion{h}\phi(\alpha,h) + \alpha(\Cp{\sol/\liq}-\Cp{\sol})T_\melt
-            + \tfrac12\alpha(\Cp{\sol/\liq}'-\Cp{\sol}')T_\melt^2
-    \end{gathered}
-\end{equation}
-contain coefficients with subscript $\sol/\liq$,
-which means $\sol$ when $h\leq h_\melt$ and $\liq$ when $h>h_\melt$.
-
-\subsection{Rationale for the model}
-
-\begin{enumerate}
-    \item Enthalpy method for the Stefan (moving boundary) problem~\cite{kamenomostskaja1961stefan, atthey1974finite, fedorenko1975difference, voller1981accurate}.
-    \item Why do we incorporate Marangoni, recoil pressure, evaporative/radiative cooling?
-    \item Why do we employ the Darcy damping force with Kozeny--Carman permeability?\cite{voller1987fixed, voller1987enthalpy} Enthalpy-porosity technique.
-    \citet{voller1987fixed} used $-K(1-\phi^2)/(\phi^3+q)$
-    with $K/q = \SI{1.6e6}{kg.m^{-3}.s^{-1}}$,
-    e.g., $K = \SI{1.6e5}{kg.m^{-3}.s^{-1}}$ and $q=0.1$.
-    \item Derivation of the Darcy--Brinkman equation based on the volume-averaging method~\cite{le2006interfacial}.
-    \item Modeling of mushy layer\footnote{This term is seems to be first introduced in~\cite{tien1967heat}}.
-    \item The evaporation effects are described and critically analyzed in~\cite{cook2019simulation}, implemented in~\cite{khairallah2016laser}.
-    \item Clausius--Clayperon~\cite{klassen2014evaporation, cook2019simulation}, Hertz--Knudsen model $\dot{m}_V = \evapor{p}\qty(M/2\pi RT)^{1/2}$.
-    \item Boussinesq approximation. Need to estimate the contribution of the buoyancy force. Compare with the Marangoni force: $\beta \sim \gamma'$. This means that the buoyancy and Marangoni force are comparable and the only convection-driven forces.
-    \item \emph{Continuum surface force} (CSF) model~\cite{brackbill1992continuum}: a surface force per unit area $\vb*{f}_s$ can be transformed into a volumetric surface force $\vb*{F}_{\!s}$ by means of a Dirac delta function i.e. $\vb*{F}_{\!s} = \vb*{f}_{\!s}\delta = \vb*{f}_{\!s}|\grad\alpha|$.
-    We also use CSF for energy equation, viz. we include continuum surface heat sources.
-    $\gradf{f}$ is used in~\cite{brackbill1992continuum}, but this notation is my own. I did not search how people denote this outside the AM field.
-    When CSF is used together with VOF, which aims to preserve interface sharpness, $\grad$ seems to be technically equivalent to $\gradf{f}$.
-    \item Both conduction-mode and keyhole/depression-mode melting have to be
-    accurately simulated, as well as the unstable transition mode.
-    \item The utilized form of laser heat source leads to unphysical overheating
-    in the shadow zone. It can be remedied by accounting the radiation transport.
-    For instance, a \emph{ray‐tracing‐based absorptivity model} can be coupled
-    with the \emph{thermal-fluid-dynamic model}.
-    \item Pioneer works on keyhole modeling~\cite{schulz1987laser, ducharme1994laser, cho2006implementation} rely on the assumption that reflection of a electromagnetic wave is conduction-dominated, i.e. $(\sigma/\omega\epsilon_1\epsilon_0)^2 \gg 1$.
-    For our case (Nd:YAG laser with $\lambda=\SI{1.07}{\um}$ and Fe-based steel),
-    $\epsilon_1 = -10.92$~\cite{adachi2012handbook} and $\sigma = \SI{e7}{S\per\m}$ at the room temperature.
-    Also, $\omega = 2\pi c/\lambda = \SI{1.76e15}{\Hz}$ is the angular frequency
-    and $\epsilon_0 = \SI{8.854e-12}{\F\per\m}$ is the electric constant.
-    Therefore, $\sigma/\omega\epsilon_1\epsilon_0 = 59$.
-    \item We assume that scattering properties are temperature-independent since spectral emissivity of liquid iron and nickel is shown to be almost the same as for solid ones at room temperature~\cite{kobatake2012normal}.
-    \item Gaussian beam $I_\laser = I_0\frac{w_0}{w(z)}\exp(-\frac{2r^2}{w(z)^2})$,
-    where $I_0 = 2P_0/\pi w_0^2$ is the intensity at the beam center at its waist.
-    Spot size parameter $w(z) = w_0\sqrt{1+(z/z_R)^2}$,
-    where $z_R = \pi w_0^2 n/\lambda$ is the Rayleigh range,
-    $n$ is the refractive index, $\lambda$ is the light wavelength,
-    $w_0$ is the waist radius. $z_R\approx \SI{2.2}{\mm}\ll w_0$.
-    \item Radiation exchange factor $\viewfactor{\mathcal{F}}{_i}{_j}$ is the fraction of the emission from $\dd{S_i}$
-    that reaches $\dd{S_j}$ and is absorbed.
-    \item Change of density in solid--liquid phase transition and shrinkage due to the density change as a function of temperature is considered here~\cite{wei2017thermal}, but can be neglected.
-    \item Preliminary estimations for the conduction-mode printing give that $\Re_L=15000$
-    and $\Re_G=180$. In the keyhole regime, $\Re_G$ can dramatically
-    increases~\cite{zhirnov2018evaporation,gusarov2020entrainment,matthews2016denudation}.
-    However, we do not focus on the accurate description of gas flows.
-\end{enumerate}
-
-\subsubsection{Darcy force}
-
-To ensure that the gas--solid interface is fixed,
-the Darcy force $D(\alpha,\phi)$ should satisfy the following requirements:
-\begin{equation}\label{eq:Darcy}
-    \lim_{\phi\to0} D(\alpha<1,\phi) = -\infty, \quad
-    \lim_{\phi\to1} D(\alpha<1,\phi) = 0, \quad
-    D(1,\phi) = 0.
-\end{equation}
-
-Alternative Darcy--Brinkman formulations are discussed in~\cite{le2006interfacial}.
-
-\subsection{Critical analysis of other models}
+\subsection{Some general discussion of the present model and its comparison with other models}
 
 We need to analyze~\cite{cook2019simulation} thoroughly.
 The model deficiencies from previous works:
@@ -614,7 +634,7 @@ The model deficiencies from previous works:
     As a solution, \citet{wang2019powder} and others introduces artificial solidus temperature,
     which is much lower that the real one.
     Therefore, we prefer the classical \emph{enthalpy formulation}~\cite{fedorenko1975difference}.
-    \item We cannot use a piecewise expression~\eqref{eq:phi_piecewise} for $\phi$, since $\phi'$ is included in the energy equation~\eqref{eq:h}. 
+    \item We cannot use a piecewise expression~\eqref{eq:phi_piecewise} for $\phi$, since $\phi'$ is included in the energy equation~\eqref{eq:h}.
     \item Solver \texttt{icoReactingMultiphaseInterFoam}, introduced in
     \OpenFOAM v1806, is a multi-phase, multi-component incompressible solver based on the VOF method with per-phase choice of thermodynamics model (sharing pressure and temperature). In addition it supports mass and heat transfer across phases and optional two-way radiation interaction via the Discrete Transfer Radiation Model (DTRM), including optional reflection at phase interfaces.
     See the \href{https://www.openfoam.com/releases/openfoam-v1806/solver-and-physics.php}{link} for details.
@@ -647,19 +667,17 @@ The model deficiencies from previous works:
     This approach is poor.
 \end{enumerate}
 
-\subsection{Dimensionless analysis}
-
+\ak{(Perhaps, remove this or add elsewhere.) Dimensionless analysis.
 Preliminary conclusions:
 \begin{enumerate}
     \item $\Re$ number. The melt pool is in a laminar flow regime, while  turbulent flows can form in the ambient gas.
 \end{enumerate}
-
 Penetration depth (wiki):
 \begin{equation*}
     \delta = \frac{\lambda}{4\pi\kappa} = \SI{20}{\nm}, \quad
     \tilde{n} = n + i\kappa.
 \end{equation*}
-Therefore, laser heat source is considered to be superficial.
+Therefore, laser heat source is considered to be superficial.}
 
 \section{Numerical algorithms}
 
@@ -1109,14 +1127,22 @@ The VOF method gives $(\rho\bv)_f$.
 $\bv$ and $h$ in convection terms are evaluated using the TVD scheme with the van Leer limiter.
 
 
-\section{Results and discussion}
+\section{Verification and validation}
 
-\subsection{Verification}
+We investigate the following particular case that is relevant to the process of selective laser melting in the additive technology of laser power bed fusion. The material properties for SS316L are presented in Table~\ref{table:properties}.
 
-Some examples of verification test are presented in Chapter 4 from~\cite{attar2011simulation}.
-Some examples of convergence study are presented in~\cite{wang2019powder}.
+The values of absorptivity and emissivity are taken as for nonoxidized metal surface, since we assume that selective laser melting take place in argon inert atmosphere. The other parameters are shown in Table~\ref{table:parameters}.
 
-\subsection{Material properties}
+%%% Discussion of the permeability coefficient
+\ak{Maybe, move it up to the place where Darcy term is explained.}
+The constant $K$ can be related to the viscosity and primary dendrite arm spacing $d_\text{PDAS}$~\cite{kubo1985mathematical}:
+\begin{equation}\label{eq:permeability}
+    K = \frac{180\mu_{L}(T_m)}{d_\text{PDAS}^2}.
+\end{equation}
+Relation~\eqref{eq:permeability} gives $K = \SI{e12}{kg.m^{-3}.s^{-1}}$
+for stainless steel 316L and the printing regime recommended for it,
+but due to model smoothing of $\phi$,
+$K = \SI{e3}{kg.m^{-3}.s^{-1}}$ is chosen as a large enough numerical constant.
 
 \begin{table}
     \centering
@@ -1216,29 +1242,18 @@ Some examples of convergence study are presented in~\cite{wang2019powder}.
     \end{tabular}
 \end{table}
 
-The material properties for SS316L are presented in Table~\ref{table:properties}.
-The values of absorptivity and emissivity are taken as for nonoxidized metal surface,
-since we assume that selective laser melting take place in argon inert atmosphere.
-The other parameters are shown in Table~\ref{table:parameters}.
 
-%%% Discussion of the permeability coefficient
-The constant $K$ can be related to the viscosity and primary dendrite arm spacing $d_\text{PDAS}$~\cite{kubo1985mathematical}:
-\begin{equation}\label{eq:permeability}
-    K = \frac{180\mu_{L}(T_m)}{d_\text{PDAS}^2}.
-\end{equation}
-Relation~\eqref{eq:permeability} gives $K = \SI{e12}{kg.m^{-3}.s^{-1}}$
-for stainless steel 316L and the printing regime recommended for it,
-but due to model smoothing of $\phi$,
-$K = \SI{e3}{kg.m^{-3}.s^{-1}}$ is chosen as a large enough numerical constant.
+\subsection{Verification}
 
-\subsection{Single tracks}
+We should take two cases, one easy and one hard. The first may be a single track with simple stationary melt pool formation. The second will be on the other end of spectrum and correspond to a highly unstable melt pool. We analyze how simulations converge with grid refinement in both cases. The first is easy and we can compare the melt pool shapes with each other at various resolutions and also with experiment. The second case is harder as there will be very unsteady dynamics. Some averaging will be required and convergence of those averages with grid size will be analyzed.
 
-Parametric study for various printing regimes.
-\begin{enumerate}
-    \item flat melt pool
-    \item unstable keyhole
-    \item developed keyhole
-\end{enumerate}
+\subsection{Validation}
+
+Parametric study for various printing regimes. Here, we reproduce the experimental data for the melt pool structure and dynamics for laser melting of a metal substrate without any powder.
+
+This will need many simulations at various powers and velocities of the laser beam to match with those reported in experiments of Khairallah et al.
+
+And that will conclude the story.
 
 \section{Conclusions}
 
@@ -1251,9 +1266,9 @@ with respect to the form and dimensions of the solidified track in its cross sec
 \appendix
 
 \section{Multi-domain formulation}\label{sec:multi-domain}
-
+\ak{Is this needed? Probably not.}
 %%% Governing equations
-In the sharp-interface limit, the single-domain governing equations for $\Omega=\Omega_G\cup\Omega_L\cup\Omega_S$ can be regularized and decomposed as follows: 
+In the sharp-interface limit, the single-domain governing equations for $\Omega=\Omega_G\cup\Omega_L\cup\Omega_S$ can be regularized and decomposed as follows:
 \begin{equation}
     \div\bv_G = 0, \quad
     \rho_G\Dv[\bv_G]{t} = \mu_G\laplacian\bv_G - \grad{p_G} + \rho_G\bg, \quad
@@ -1303,7 +1318,7 @@ which moves at the speed $v_{SG}$ along the unit normal $\bn_{SG}$ directed into
         \frac{k_S}{c_{pS}}\grad{h}_S - \frac{k_L}{c_{pL}}\grad{h}_L )\vdot\bn_{SL}
 \end{gather}
 for the liquid--solid interface $\Omega_{LS} = \Omega_L\cap\Omega_S$,
-which moves at the speed $v_{SL}$ along the unit normal $\bn_{SL}$ directed into the liquid. 
+which moves at the speed $v_{SL}$ along the unit normal $\bn_{SL}$ directed into the liquid.
 Note that both radiative and evaporative cooling are neglected at the gas--solid interface.
 
 \section{Sigmoid functions}\label{sec:sigmoid}
@@ -1537,7 +1552,7 @@ for high-order numerical methods, since it is of class $\mathcal{C}^\infty$.
 \section{Alternative formulation}
 
 %%% Shortcomings
-The following flaws have been identified after implementation:
+\ak{This will go... } The following flaws have been identified after implementation:
 \begin{enumerate}
     \item The model assumes that $T_S=T_G$ at the solid--gas interface,
     but enthalpy has a jump $h_S-h_G = \int_0^T (c_{pS}-c_{pG})$.
