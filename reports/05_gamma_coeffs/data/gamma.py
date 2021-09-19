@@ -155,7 +155,7 @@ def solve2(phi, Phi, get_zeta, f, f_old, F_old, alpha=1., pre_phi=lambda x: x[0]
     f_new = np.copy(f)
     F = np.copy(F_old)
     alpha_ = X**0
-    for i in xrange(1,len(X)):
+    for i in range(1,len(X)):
         zeta = np.transpose(get_zeta(X[i]))
         #print >> sys.stderr, "%.1e %+.5f" % (phi(zeta), delta)
         C = 1 + (pre_phi(zeta))**(-beta)
@@ -167,7 +167,7 @@ def solve2(phi, Phi, get_zeta, f, f_old, F_old, alpha=1., pre_phi=lambda x: x[0]
             F[i] = f[i] + (eval_L5(phi, zeta) - Phi(zeta)) / pre_phi(zeta)
     zero_corrector2(F, True)
     tau = (F - F_old) / (f - f_old) - 1
-    print >> sys.stdout, "(F-f)/f\n", (F-f)/f #,  alpha_ * np.sign(tau) * F
+    print("(F-f)/f\n", (F-f)/f, file=sys.stdout) #,  alpha_ * np.sign(tau) * F
     #print >> sys.stderr, np.sign(tau)
     alpha_ *= -np.sign(tau) #*np.sign(F_old-f_old)
     f_new = alpha_ * F + (1.-alpha_) * f
@@ -183,9 +183,9 @@ def solve(pre_phi, Phi, get_zeta, f0, result, corrector = lambda f: None, alpha=
     f, F = f0(X), 0*X
     f_old = 0.99*f
     f_aver = 0*X
-    for n in xrange(N_aver):
+    for n in range(N_aver):
         #print n, f
-        print >> sys.stderr, n, "result: ", result(f)
+        print(n, "result: ", result(f), file=sys.stderr)
         phi = lambda x: pre_phi(x)*interp1d(X, f, kind = 'linear')(mag(x))
         f, f_old, F = solve2(phi, Phi, get_zeta, f, f_old, F, alpha, pre_phi, beta)
         corrector(f)
@@ -210,7 +210,7 @@ def zero_corrector2(f, quiet=False, kind='quadratic'):
     except RuntimeError:
         f0new = f[1]
     if not quiet:
-        print >> sys.stderr, "  zero_corr2:", f0new - f[0]
+        print("  zero_corr2:", f0new - f[0], file=sys.stderr)
     f[0] = f0new
 
 def sign_corrector(f, sgn=1):
@@ -222,21 +222,21 @@ def interp_power(Y, n):
 
 def eval_allL(phi, get_zeta, eval_L):
     f = 0*X
-    for i in xrange(len(X)):
+    for i in range(len(X)):
         zeta = np.transpose(get_zeta(X[i]))
         f[i] = eval_L(phi, zeta)
     return f
 
 def eval_allJ(phi, psi, get_zeta, i=0):
     f = 0*X
-    for j in xrange(len(X)):
+    for j in range(len(X)):
         zeta = np.transpose(get_zeta(X[j]))
         f[j] = eval_J(phi, psi, zeta, i)
     return f
 
 def eval_func(phi, get_zeta, begin=0):
     f = 0*X
-    for i in xrange(begin,len(X)):
+    for i in range(begin,len(X)):
         zeta = np.transpose(get_zeta(X[i]))
         f[i] = phi(zeta)
     if begin > 0:
@@ -245,10 +245,10 @@ def eval_func(phi, get_zeta, begin=0):
 
 def average(func):
     total = 0*X
-    for i in xrange(N_aver):
+    for i in range(N_aver):
         f = func(i)
-        print i, f
-        print >> sys.stderr, i, np.sum(f)
+        print(i, f)
+        print(i, np.sum(f), file=sys.stderr)
         total += f
     return total/N_aver
 
@@ -256,7 +256,7 @@ def calc_I(power, f, beg=0):
     p = np.poly1d(np.polyfit(X, f, deg))
     a = np.arange(deg + 1)
     func = lambda n: math.gamma(.5*(n+1+power))
-    return 4./15/np.sqrt(np.pi) * sum(p.c[::-1] * map(func, a))
+    return 4./15/np.sqrt(np.pi) * sum(p.c[::-1] * list(map(func, a)))
     #return 8./15/np.sqrt(np.pi) * np.trapz((X**power * np.exp(-X*X))[beg:]*f[beg:], X[beg:])
 
 eta, A_, B_, D1_, D2_, F_ = np.loadtxt("../tables/ci-functions.txt").T
@@ -269,7 +269,7 @@ def calc_gamma1():
     f1 = np.poly1d(np.polyfit(eta_, f1_, deg))
     result = lambda f: calc_I(6, f)
     f, _ = solve(B_0, lambda x: -2*B_0(x), zeta2d, f1, result, zero_corrector2, 1, 0.1)
-    print >> sys.stderr, result(f), result(f0(X))
+    print(result(f), result(f0(X)), file=sys.stderr)
     py.plot(X, f0(X), 'r', X, f, 'g', X, f1(X), 'g--')
     show()
     np.savetxt(sys.stderr, np.transpose((X, f0(X), f, (f-f0(X))/f0(X))), fmt='%1.5e')
@@ -279,13 +279,13 @@ def calc_gamma2():
     def corrector(f):
         k = 3./8*np.sqrt(np.pi)
         C = np.trapz(X**4 * f * np.exp(-X*X), X)
-        print >> sys.stderr, "  corr:", C
+        print("  corr:", C, file=sys.stderr)
         f -= C / k
     f0 = np.poly1d(np.polyfit(eta, A_, deg))
     f1 = np.poly1d(np.polyfit(eta, A_, deg))
     result = lambda f: 2*calc_I(6, f)
     f, _ = solve(A_0, lambda x: -A_0(x)*(sqr(x)-2.5), zeta1d, f1, result, corrector)
-    print >> sys.stderr, result(f), result(f0(X))
+    print(result(f), result(f0(X)), file=sys.stderr)
     py.plot(X, f0(X), X, f)
     show()
 
@@ -296,10 +296,10 @@ def calc_gamma3():
     A = np.poly1d(np.polyfit(eta, A_, deg))
     result = lambda f: -2*calc_I(6, f)
     f, f_aver = solve(F_0, lambda x: F_0(x)*A(mag(x)), zeta2d, f1, result, zero_corrector, 1, 0.1)
-    print >> sys.stderr, result(f), result(f0(X))
+    print(result(f), result(f0(X)), file=sys.stderr)
     py.plot(X, f0(X), X, f)
     show()
-    print >> sys.stderr, "--------------------------------------"
+    print("--------------------------------------", file=sys.stderr)
     np.savetxt(sys.stderr, np.transpose((X, f_aver)), fmt='%1.5e')
 
 def calc_gamma7(letter):
@@ -317,10 +317,10 @@ def calc_gamma7(letter):
     else:
         func = lambda x: 2*J(mag(x))
     f, f_aver = solve(K_0, func, zeta2d, f0, result, zero_corrector2, 1, 0.1)
-    print >> sys.stderr, result(f), result(f0(X))
+    print(result(f), result(f0(X)), file=sys.stderr)
     py.plot(X, f0(X), '--', X, f)
     show()
-    print >> sys.stderr, "--------------------------------------"
+    print("--------------------------------------", file=sys.stderr)
     np.savetxt(sys.stderr, np.transpose((X, f_aver)), fmt='%1.5e')
 
 def calc_gamma7ih():
@@ -342,10 +342,10 @@ def calc_gamma9():
     B = np.poly1d(np.polyfit(eta, B_, deg))
     result = lambda f: -calc_I(6, f)
     f, f_aver = solve(K_0, lambda x: K_0(x)*B(mag(x)), zeta2d, f0, result, zero_corrector2, 0.25, 0.25)
-    print >> sys.stderr, result(f), result(f0(X))
+    print(result(f), result(f0(X)), file=sys.stderr)
     py.plot(X, f0(X), '--', X, f)
     show()
-    print >> sys.stderr, "--------------------------------------"
+    print("--------------------------------------", file=sys.stderr)
     np.savetxt(sys.stderr, np.transpose((X, f_aver)), fmt='%1.5e')
 
 def calc_gamma8a():
@@ -373,7 +373,7 @@ def calc_gamma8a():
     F_j, F_Q3 = 0*X, 0*X
     j_0, Q2_0, Q3_0 = np.copy(j), np.copy(Q2), np.copy(Q3)
     beta = 0.2
-    for n in xrange(N_aver):
+    for n in range(N_aver):
         Q2_, Q3_ = interp1d(X, Q2, kind=kind), interp1d(X, Q3, kind=kind)
         #Q3, Q3_old, F_Q3 = solve2(phi2, Phi2, zeta3d, Q3, Q3_old, F_Q3, 0.5, pre2, beta)
         j, j_old, F_j = solve2(phi1, Phi1, zeta2d, j, j_old, F_j, 0.2, pre1, beta)
@@ -384,14 +384,14 @@ def calc_gamma8a():
             sign_corrector(f,1)
         result2 = lambda f: calc_I(6, f)
         result3 = lambda f: calc_I(8, f)/7
-        print >> sys.stderr, n, result2(Q2), result3(Q3)
-        print n
+        print(n, result2(Q2), result3(Q3), file=sys.stderr)
+        print(n)
         #np.savetxt(sys.stdout, np.transpose((X, Q2, Q3)), fmt='%1.5e')
     
     #py.plot(X, j_0, 'r--', X, Q2_0, 'g--', X, Q3_0, 'b--', X, j, 'r', X, Q2, 'g', X, Q3, 'b')
     py.plot(X, Q2_0, 'g--', X, Q3_0, 'b--', X, Q2, 'g', X, Q3, 'b')
     show()
-    print >> sys.stderr, "--------------------------------------"
+    print("--------------------------------------", file=sys.stderr)
     np.savetxt(sys.stderr, np.transpose((X, Q2, Q3)), fmt='%1.5e')
 
 def calc_gamma8b():
@@ -435,7 +435,7 @@ def calc_gamma8b():
     F_j1, F_j2, F_Q30 = 0*X, 0*X, 0 *X
     j1_0, j2_0, Q21_0, Q22_0, Q30_0 = np.copy(j1), np.copy(j2), np.copy(Q21), np.copy(Q22), np.copy(Q30)
     beta = 0.0
-    for n in xrange(N_aver):
+    for n in range(N_aver):
         Q21_, Q22_, Q30_ = interp1d(X, Q21, kind=kind), interp1d(X, Q22, kind=kind), interp1d(X, Q30, kind=kind)
         #Q30, Q30_old, F_Q30 = solve2(phi3, Phi3, zeta2d, Q30, Q30_old, F_Q30, 0.5, pre2, beta)
         Q30, Q30_old, F_Q30 = solve2(phi4, Phi4, zeta3d, Q30, Q30_old, F_Q30, 0.5, pre3, beta)
@@ -449,14 +449,14 @@ def calc_gamma8b():
             zero_corrector2(f) #, kind='cubic')
         result2 = lambda f: calc_I(6, f)
         result3 = lambda f: calc_I(8, f, 1)/7
-        print >> sys.stderr, n, result2(Q21), result2(Q22), result3(Q30)
-        print n
+        print(n, result2(Q21), result2(Q22), result3(Q30), file=sys.stderr)
+        print(n)
         #np.savetxt(sys.stdout, np.transpose((X, Q22, Q30)), fmt='%1.5e')
     
     #py.plot(X, Q21_0, 'r--', X, Q22_0, 'g--', X, Q30_0, 'b--', X, Q21, 'r', X, Q22, 'g', X, Q30, 'b')
     py.plot(X, Q30_0, 'b--', X, Q30, 'b')
     show()
-    print >> sys.stderr, "--------------------------------------"
+    print("--------------------------------------", file=sys.stderr)
     np.savetxt(sys.stderr, np.transpose((X, Q21, Q22, Q30)), fmt='%1.5e')
 
 def calc_gamma8ih():
@@ -507,7 +507,7 @@ def calc_gamma8ih2():
 def corrector_T(T1, T2, beta=1):
     k = 3./8*np.sqrt(np.pi)
     C = np.trapz(X**4 * (5*T1 + X**2*T2) * np.exp(-X*X), X)
-    print >> sys.stderr, "  corr:", C
+    print("  corr:", C, file=sys.stderr)
     T1 -= beta * C / k / 5
 
 def calc_gamma10(letter):
@@ -543,7 +543,7 @@ def calc_gamma10(letter):
     F_j, F_T2 = 0*X, 0*X
     j_0, T1_0, T2_0 = np.copy(j), np.copy(T1), np.copy(T2)
     beta = 0.0
-    for n in xrange(N_aver):
+    for n in range(N_aver):
         T1_, T2_ = interp1d(X, T1, kind=kind), interp1d(X, T2, kind=kind)
         #T1_, T2_ = np.poly1d(np.polyfit(X, T1, deg)), np.poly1d(np.polyfit(X, T2, deg))
         j = eval_func(j_, zeta1d)
@@ -555,12 +555,12 @@ def calc_gamma10(letter):
         #for f in [ j, Q2 ]:
         #    sign_corrector(f,1)
         corrector_T(T1, T2)
-        print >> sys.stderr, n, .625*calc_I(6, T1), .125*calc_I(8, T2)
-        print n
+        print(n, .625*calc_I(6, T1), .125*calc_I(8, T2), file=sys.stderr)
+        print(n)
     
     py.plot(X, T1_0, 'g--', X, T2_0, 'b--', X, T1, 'g', X, T2, 'b')
     show()
-    print >> sys.stderr, "--------------------------------------"
+    print("--------------------------------------", file=sys.stderr)
     np.savetxt(sys.stderr, np.transpose((X, T1, T2)), fmt='%1.5e')
 
 def calc_gamma10c():
@@ -586,7 +586,7 @@ def calc_gamma10c():
     F_j, F_T2 = 0*X, 0*X
     j_0, T12_0, T2_0 = np.copy(j), np.copy(T12), np.copy(T2)
     beta = 0.0
-    for n in xrange(N_aver):
+    for n in range(N_aver):
         T12_, T2_ = interp1d(X, T12, kind=kind), interp1d(X, T2, kind=kind)
         #T12_, T2_ = np.poly1d(np.polyfit(X, T12, deg)), np.poly1d(np.polyfit(X, T2, deg))
         j = eval_func(j_, zeta2d)
@@ -596,12 +596,12 @@ def calc_gamma10c():
         for f in [ j, T12, T2 ]:
             zero_corrector2(f)
         corrector_T(T12, T2, 0.5)
-        print >> sys.stderr, n, .625*calc_I(6, T12), .125*calc_I(8, T2)
-        print n
+        print(n, .625*calc_I(6, T12), .125*calc_I(8, T2), file=sys.stderr)
+        print(n)
     
     py.plot(X, T12_0, 'r--', X, T2_0, 'g--', X, T12, 'r', X, T2, 'g')
     show()
-    print >> sys.stderr, "--------------------------------------"
+    print("--------------------------------------", file=sys.stderr)
     np.savetxt(sys.stderr, np.transpose((X, T12, T2)), fmt='%1.5e')
 
 def calc_gamma10ih():

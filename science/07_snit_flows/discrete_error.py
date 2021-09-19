@@ -93,11 +93,11 @@ radii = np.array([args.rcut, args.ycut, args.rcut])
 ball = sqr_xi(zeros, 1./radii) <= 1
 
 sizes = lambda H: (H.min(), H.max(), H.max()/H.min())
-print "cut_r = %g, cut_y = %g, min_r = %g, min_y = %g" % (args.rcut, args.ycut, args.rmin, args.ymin)
-print "Cell size (r): min = %.4g, max = %.4g, ratio = %.3g" % sizes(H_r)
-print "Cell size (y): min = %.4g, max = %.4g, ratio = %.3g" % sizes(H_y)
+print("cut_r = %g, cut_y = %g, min_r = %g, min_y = %g" % (args.rcut, args.ycut, args.rmin, args.ymin))
+print("Cell size (r): min = %.4g, max = %.4g, ratio = %.3g" % sizes(H_r))
+print("Cell size (y): min = %.4g, max = %.4g, ratio = %.3g" % sizes(H_y))
 total = lambda X, cut: np.sum(np.abs(X) <= cut)/2
-print "Total cells: %d (%d, %d, %d):" % (np.sum(ball), args.rN, args.yN, args.rN)
+print("Total cells: %d (%d, %d, %d):" % (np.sum(ball), args.rN, args.yN, args.rN))
 
 def splot(f):
     import pylab as py
@@ -151,12 +151,12 @@ def test_1(Temp, Speed):
     f = Maxwell(Speed, Temp) * (1 + f1 + f2)
     rho, temp, speed, qflow, tau = calc_macro(f)
     #splot(f)
-    print "\n-- Test #1: continual flows - Grad's 13-moment approximation (temp = %g, speed = %g)" % (Temp, Speed[0])
-    print "rho =", err(Rho, rho), Rho, rho
-    print "temp =", err(Temp, temp), Temp, temp
-    print "speed =", err(Speed, speed)
-    print "qflow =", err(Qflow, qflow/rho)
-    print "tau =", err(Tau, tau/rho)
+    print("\n-- Test #1: continual flows - Grad's 13-moment approximation (temp = %g, speed = %g)" % (Temp, Speed[0]))
+    print("rho =", err(Rho, rho), Rho, rho)
+    print("temp =", err(Temp, temp), Temp, temp)
+    print("speed =", err(Speed, speed))
+    print("qflow =", err(Qflow, qflow/rho))
+    print("tau =", err(Tau, tau/rho))
 
 def test_2(Temp1, Temp2):
     Speed[1] = 0
@@ -179,12 +179,12 @@ def test_2(Temp1, Temp2):
     #splot(f)
     #splot(f*c[0]*c[1])
 
-    print "\n-- Test #2: free molecular flows - sum of 2 half-Maxwellians (temp1 = %g, temp2 = %g)" % (Temp1, Temp2)
-    print "rho =", err(Rho_, rho)
-    print "temp =", err(Temp_, temp)
-    print "speed =", err(Speed_, speed)
-    print "qflow =", err(Qflow_, qflow/rho)
-    print "tau =", err(Tau, tau/rho)
+    print("\n-- Test #2: free molecular flows - sum of 2 half-Maxwellians (temp1 = %g, temp2 = %g)" % (Temp1, Temp2))
+    print("rho =", err(Rho_, rho))
+    print("temp =", err(Temp_, temp))
+    print("speed =", err(Speed_, speed))
+    print("qflow =", err(Qflow_, qflow/rho))
+    print("tau =", err(Tau, tau/rho))
 
 def test_3():
     kn = 1
@@ -196,10 +196,10 @@ def test_3():
     f = Maxwell(zeros, Temp) * (1 + phi)
     rho, temp, speed, qflow, tau = calc_macro(f)
 
-    print "\n-- Test #3: linear case - asymptotic solution for hard-sphere molecules"
-    print "rho =", err(Rho, rho)
-    print "speed =", err(Speed, speed)
-    print "tau =", err((0, 0, -2*gamma_1*Speed[0]*kn), tau/rho)
+    print("\n-- Test #3: linear case - asymptotic solution for hard-sphere molecules")
+    print("rho =", err(Rho, rho))
+    print("speed =", err(Speed, speed))
+    print("tau =", err((0, 0, -2*gamma_1*Speed[0]*kn), tau/rho))
 
 with np.errstate(divide='ignore', invalid='ignore'):
     Speed[0] = args.velocity

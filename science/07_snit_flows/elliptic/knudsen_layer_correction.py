@@ -67,7 +67,7 @@ class Boundary:
     def __init__(self, curve, X, Y, Z, fields):
         T = np.linspace(curve.tmin, curve.tmax, 1e3)
         self.__curve = curve
-        self.__line = geom.LineString(zip(curve.x(T), curve.y(T)))
+        self.__line = geom.LineString(list(zip(curve.x(T), curve.y(T))))
         mask = np.vectorize(self.__is_on_curve)(X, Y, Z)
         self.__create_interps(X, Y, fields, mask)
 
@@ -75,9 +75,9 @@ class Boundary:
         return self.__line.distance(geom.Point(x, y)) < 1e-4 and z == 0
 
     def __create_interps(self, X, Y, fields, m):
-        print "Points on the boundary:", X[m].size
-        s = np.array(map(lambda x, y: self.project(geom.Point(x, y)), X[m], Y[m]))
-        t = np.array(map(lambda x, y: self.tangent(geom.Point(x, y)), X[m], Y[m]))
+        print("Points on the boundary:", X[m].size)
+        s = np.array(list(map(lambda x, y: self.project(geom.Point(x, y)), X[m], Y[m])))
+        t = np.array(list(map(lambda x, y: self.tangent(geom.Point(x, y)), X[m], Y[m])))
         arg = np.argsort(s)
         kind = 'linear'
         # NB: we should use 'bounds_error=False' since argument can exceed s.max() by 1e-9 (looks like a bug)
@@ -138,10 +138,10 @@ def add_real_data(x, y, T0, U1, T_old, U_old, data):
     rho, T, U = p0/T_old, np.copy(T_old), U_old*k/p0
     for boundary in boundaries:
         tang, norm = np.zeros((len(X), 3)), np.zeros((len(X), 3))
-        for i in xrange(len(X)):
+        for i in range(len(X)):
             tang[i,:] = boundary.tangent(geom.Point(X[i], Y[i]))
             norm[i,:] = boundary.normal(geom.Point(X[i], Y[i]))
-        rho1K, T1K, U2Kt, T2K = np.transpose(map(partial(get_kn_layer_corr, boundary), x, y))
+        rho1K, T1K, U2Kt, T2K = np.transpose(list(map(partial(get_kn_layer_corr, boundary), x, y)))
         rho += k*rho1K
         T += k*T1K + k**2*T2K
         U += k**2*tang*np.tile(U2Kt, (3, 1)).T/p0

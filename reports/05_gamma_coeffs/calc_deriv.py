@@ -23,7 +23,7 @@ def integrate(func):
 def calc_coeffs(func, pre, kernel, ih, corr):
     integral = lambda n: integrate(lambda y: pre(y)*kernel[n](y)*func(y)*np.exp(-y**2))
     C = np.zeros(nu.size)
-    for i in xrange(nu.size):
+    for i in range(nu.size):
         if i:
             ih[i] += corr[i-1](C)
         C[i] = (integral(i) - ih[i] - np.sum(nu[i:0:-1]*C[:i]))/nu[0]
@@ -53,7 +53,7 @@ B_coeffs = calc_coeffs(B, preK2, K2, ih_B, corr_B)
 np.savetxt(sys.stderr, (A_coeffs, B_coeffs), fmt='%.8f')
 
 def compare_plot(func, coeffs, der):
-    print func(xi).shape, asym(coeffs, xi, 2).shape
+    print(func(xi).shape, asym(coeffs, xi, 2).shape)
     py.plot(xi, func(xi)-asym(coeffs, xi, 2), 'r-', xi, func(xi)-asym(coeffs, xi, 3), 'g-', xi, func(xi)-asym(coeffs, xi, 4), 'b-')
     py.axhline(0, c='k', ls=':', lw=.5)
     py.show()

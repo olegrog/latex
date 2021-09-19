@@ -24,7 +24,7 @@ inside = False
 
 def plot(filename, column, label):
     data = py.loadtxt(filename).T
-    X, Y = data[0], data[column]
+    X, Y = data[0], data[int(column)]
     mask = (X >= xmin) * (X <= xmax)
     X, Y = X[mask], corrector(Y[mask])
     aY, bY = np.min(Y), np.max(Y)
@@ -37,7 +37,7 @@ def plot(filename, column, label):
     ax.axhline(lw=.5, c='k', ls=':')
     specify_tics(np.min(Y), np.max(Y))
     if inside:
-        print "Plot inside plot"
+        print("Plot inside plot")
         ax = py.axes([.27, .47, .38, .38])
         mask = X <= float(sys.argv[7])
         py.plot(X[mask], Y[mask], '-', lw=1)
@@ -54,7 +54,7 @@ def plot(filename, column, label):
 def specify_tics(ymin, ymax):
     L = max(0, ymax) - min(0, ymin)
     tick = 10**math.floor(np.log10(L))
-    print L, tick, L/tick
+    print(L, tick, L/tick)
     if L/tick > 6:
         tick *= 2
     elif L/tick < 2:
@@ -63,7 +63,7 @@ def specify_tics(ymin, ymax):
         tick /= 5
     elif L/tick < 3:
         tick /= 2
-    print tick
+    print(tick)
 
     if kind == 'log':
         py.semilogy()

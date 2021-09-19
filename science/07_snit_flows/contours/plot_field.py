@@ -77,7 +77,7 @@ if len(F.shape) == 1:
         phi_min, phi_max = args.lmin, np.pi + args.lmax
         lx = xmax/2 + R*np.cos(np.linspace(phi_min, phi_max, npts))
         ly = R*np.sin(np.linspace(phi_min, phi_max, npts))
-        labelpos = [(lx[i], ly[i]) for i in xrange(0, npts)]
+        labelpos = [(lx[i], ly[i]) for i in range(0, npts)]
     linewidth, fontsize, detailed = 1, 8, 4
 
 ### Draw vector field
@@ -114,12 +114,12 @@ else:
     lx = np.linspace(Xmin, Xmax, 1 + lsteps_)
     ly = np.linspace(Ymin**(1./args.lpow), Ymax**(1./args.lpow), 1 + lsteps_)**args.lpow
     #py.plot(lx, ly, 'D')
-    labelpos = [(lx[i], ly[i]) for i in xrange(1, lsteps_)]
+    labelpos = [(lx[i], ly[i]) for i in range(1, lsteps_)]
     linewidth, fontsize, detailed = .5, 6, 2
 
 
-print '%s: max(magF) = %g, lmin = %g, lmax = %g, lsteps = %g' % \
-    (args.pdffile, np.max(Fi), lmin, lmax, lsteps)
+print('%s: max(magF) = %g, lmin = %g, lmax = %g, lsteps = %g' % \
+    (args.pdffile, np.max(Fi), lmin, lmax, lsteps))
 
 ### Plot color detailed contours
 levels = np.linspace(lmin, lmax, 1 + lsteps*detailed)

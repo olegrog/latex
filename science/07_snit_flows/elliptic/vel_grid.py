@@ -10,7 +10,7 @@ A = (1.+p)/N**(1+p)*(R-N*b1)
 n = np.arange(N)
 b = b1 + A*n**p
 X = np.append(0, np.cumsum(b))
-print A, X
+print(A, X)
 
 f = lambda X, T: X**0*np.exp(-X**2/T)/T**.5
 py.plot(X, f(X,1), 'r-*', X, f(X,5), 'g-*')

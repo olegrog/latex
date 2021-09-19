@@ -24,10 +24,10 @@ matplotlib.rcParams.update({
     'lines.linewidth': 1,
     'errorbar.capsize': 3,
     'text.usetex': args.use_tex,
-    "pgf.rcfonts": False,
-    "font.family": "serif",
-    "pgf.preamble": "\n".join([
-         "\\usepackage{physics, siunitx}",
+    'pgf.rcfonts': False,
+    'font.family': 'serif',
+    'pgf.preamble': '\n'.join([
+         r'\usepackage{physics, siunitx}',
     ]),
     'figure.figsize': [6, 4]
 })

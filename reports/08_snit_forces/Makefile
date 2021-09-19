@@ -1,6 +1,7 @@
-all: 
+all:
 	latexmk -pdf -pdflatex='pdflatex --shell-escape'
 
 clean:
 	latexmk -C
-	rm *.pgf-plot.gnuplot *.run.xml *.bbl
+	rm -f *.pgf-plot.{table,gnuplot} *.run.xml *.bbl
+

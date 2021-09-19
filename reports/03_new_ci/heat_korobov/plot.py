@@ -1,16 +1,20 @@
 #!/usr/bin/env python
 
-import pylab as py
-params = {'backend': 'pdf',
-          'axes.labelsize': 11,
-          'text.fontsize': 11,
-          'legend.fontsize': 11,
-          'xtick.labelsize': 10,
-          'ytick.labelsize': 10,
-          'text.usetex': True,
-          'figure.figsize': [5,4]}
-py.rcParams.update(params)
+import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
+
+matplotlib.use('pgf')
+params = {
+    'axes.labelsize': 11,
+    'font.size': 11,
+    'legend.fontsize': 12,
+    'xtick.labelsize': 10,
+    'ytick.labelsize': 10,
+    'pgf.rcfonts': False,
+    'figure.figsize': [5,4]
+}
+plt.rcParams.update(params)
 
 kappa = 2.129475
 w=2
@@ -18,18 +22,18 @@ w=2
 files=('R10','R14','R16','R20','R26','R40')
 
 for f in files:
-	data = py.loadtxt(f+'.txt')
+	data = np.loadtxt(f+'.txt')
 	x,y,error = data.T
-	py.errorbar(x, (y-kappa)/kappa, yerr=error/kappa, lw=w, elinewidth=w-1, label=r'$\mathrm{'+f+'}$')
+	plt.errorbar(x, (y-kappa)/kappa, yerr=error/kappa, lw=w, elinewidth=w-1, label=r'$\mathrm{'+f+'}$')
 
-py.axhline(color='black')
-py.xlabel(r'$N_\mathrm{kor}\times 10^5$')
-py.ylabel(r'$\displaystyle\frac{\lambda-\lambda_\mathrm{ref}}{\lambda_\mathrm{ref}}$')
-py.xlim(1.5,90)
-py.legend(loc='lower left')
-py.semilogx()
-#py.loglog()
+plt.axhline(color='black')
+plt.xlabel(r'$N_\mathrm{kor}\times 10^5$')
+plt.ylabel(r'$\displaystyle\frac{\lambda-\lambda_\mathrm{ref}}{\lambda_\mathrm{ref}}$')
+plt.xlim(1.5,90)
+plt.legend(loc='lower left')
+plt.semilogx()
+#plt.loglog()
 
-py.tight_layout()
-py.savefig('convergence.pdf')
-#py.show()
+plt.tight_layout()
+plt.savefig('convergence.pdf')
+#plt.show()

@@ -1,20 +1,21 @@
 SHELL = /bin/bash
 PROJECT = snit_flows
-SUBDIRS = contours vs_kn vs_kn2 tikz
+SUBDIRS = contours profiles vs_kn vs_kn-friedlander tikz elliptic
 SOURCES = $(PROJECT).tex $(PROJECT).bib
 
 all: $(PROJECT).pdf
 
 $(PROJECT).pdf: $(SOURCES) $(SUBDIRS)
-	latex $(PROJECT)
-	biber $(PROJECT)
-	latex $(PROJECT)
+	latexmk -pdf $(PROJECT)
 
 $(SUBDIRS)::
 	$(MAKE) -C $@ $(MAKECMDGOALS)
 
+.PHONY: clean m[1-4]
+
 clean:
-	rm -f $(PROJECT).{aux,toc,log,out,run.xml,bbl,bcf,blg,pdf}
+	latexmk -C $(PROJECT)
+	rm -f $(PROJECT).{bbl}
 
 m1:
 	./discrete_error.py --temp-ratio=1.5 --radius=4.25 --velocity=1e-2 \
@@ -34,5 +35,4 @@ m4:
 	./discrete_error.py --temp-ratio=5 --radius=8 --velocity=1e-3 \
 		--rN=16 --rmin=0.1 --rtype=quadratic \
 		--yN=16 --ymin=0.1 --ytype=quadratic
-	
 

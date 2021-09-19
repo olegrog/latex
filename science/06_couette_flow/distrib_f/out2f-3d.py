@@ -98,8 +98,8 @@ with open(binfile, 'rb') as fd:
             f[circl] = np.array(a)
             idx, d = [rad,rad,rad], ax2int(axis)
             idx[d] += node
-            print >> sys.stderr, "Total mass = %f, y_coord = %f, filename = %s, zeta_%s = %f" % \
-                (np.nansum(f), center([nodes[n] for n in cells[i].nodes])[1], outfile, axis, xyz[d][tuple(idx)]/np.sqrt(2))
+            print("Total mass = %f, y_coord = %f, filename = %s, zeta_%s = %f" % \
+                (np.nansum(f), center([nodes[n] for n in cells[i].nodes])[1], outfile, axis, xyz[d][tuple(idx)]/np.sqrt(2)), file=sys.stderr)
             f /= vol
             our = axis_pair(axis)
             xp = slice2d(xyz[ax2int(our[0])], axis, rad)
@@ -131,7 +131,7 @@ with open(binfile, 'rb') as fd:
             grid_z[mask] = np.maximum(spline(grid_x[mask], grid_y[mask], grid=False), 0)
             zmax = np.round(np.nanmax(grid_z)*1.01, 1-int(np.log(np.nanmax(grid_z))))
             zmin = -1.6*zmax
-            print np.nanmin(grid_z), np.nanmax(grid_z), zmax
+            print(np.nanmin(grid_z), np.nanmax(grid_z), zmax)
             ax.set_xlim(-cut2, cut2)
             ax.set_ylim(-cut2, cut2)
             ax.set_zlim(zmin, zmax)

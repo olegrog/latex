@@ -6,25 +6,25 @@ DIR2 = $(DATADIR)5.0
 
 all: $(FIGURES) log.velocity_grid
 
-kn0.1-center.pdf: out2f.py $(DIR)/0.100/couette.kei $(DIR)/0.100/result/f24000.bin
+kn0.1-center.pdf: out2f.py # $(DIR)/0.100/couette.kei $(DIR)/0.100/result/f24000.bin
 	./$^ $@ center 10e-5 > /dev/null
 
-kn0.1-boundary.pdf: out2f.py $(DIR)/0.100/couette.kei $(DIR)/0.100/result/f24000.bin
+kn0.1-boundary.pdf: out2f.py # $(DIR)/0.100/couette.kei $(DIR)/0.100/result/f24000.bin
 	./$^ $@ boundary 10e-5 > /dev/null
 
-kn1.0-center.pdf: out2f.py $(DIR)/1.000/couette.kei $(DIR)/1.000/result/f6000.bin
+kn1.0-center.pdf: out2f.py # $(DIR)/1.000/couette.kei $(DIR)/1.000/result/f6000.bin
 	./$^ $@ center 30e-5 > /dev/null
 
-kn1.0-boundary.pdf: out2f.py $(DIR)/1.000/couette.kei $(DIR)/1.000/result/f6000.bin
+kn1.0-boundary.pdf: out2f.py # $(DIR)/1.000/couette.kei $(DIR)/1.000/result/f6000.bin
 	./$^ $@ boundary 10e-5 > /dev/null
 
-kn10-center.pdf: out2f.py $(DIR)/10.000/couette.kei $(DIR)/10.000/result/f18000.bin
+kn10-center.pdf: out2f.py # $(DIR)/10.000/couette.kei $(DIR)/10.000/result/f18000.bin
 	./$^ $@ center 30e-5 > /dev/null
 
-kn10-boundary.pdf: out2f.py $(DIR)/10.000/couette.kei $(DIR)/10.000/result/f18000.bin
+kn10-boundary.pdf: out2f.py # $(DIR)/10.000/couette.kei $(DIR)/10.000/result/f18000.bin
 	./$^ $@ boundary 10e-5 > /dev/null
 
-kn1.0-center-xz5.pdf~: out2f.py $(DIR2)/1.000/couette.kei $(DIR2)/1.000/result/f6000.bin
+kn1.0-center-xz5.pdf~: out2f.py # $(DIR2)/1.000/couette.kei $(DIR2)/1.000/result/f6000.bin
 	./$^ $@ center 1.5e-5 y 9 8 > /dev/null
 
 log.params-5.0:

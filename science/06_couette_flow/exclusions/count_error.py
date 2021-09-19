@@ -40,9 +40,9 @@ for i, f, J in data:
         func = lambda x, a, b: a*x + b
         p, m = curve_fit(func, np.log(N), np.log(np.abs(integr_(f, N, x0, M0) - J(x0))+eps), [-1, 0])
         q, m = curve_fit(func, np.log(M), np.log(np.abs(integr_(f, N0, x0, M) - J(x0))+eps), [-1, 0])
-        print "%.5f %+.5f %.3f %.3f" % (x0, J(x0), p[0], q[0])
+        print("%.5f %+.5f %.3f %.3f" % (x0, J(x0), p[0], q[0]))
 
         py.loglog()
         #py.plot(M, np.abs(integr_(f, N0, x0, M) - J(x0)))
         #py.show()
-    print
+    print()

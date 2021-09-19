@@ -38,7 +38,7 @@ sum_q, sum_u = 0., 0.
 T_init = T.copy()
 T_old = T.copy()
 
-for i in xrange(Tmax):
+for i in range(Tmax):
     if tau < err:
         break
     T1 = der(T)
@@ -67,12 +67,12 @@ for i in xrange(Tmax):
             A += np.sqrt(1-dA/alpha) - 1
         T -= tau*f
         T[N-1] = 1
-        print "err = %.4e, A = %.4e, U = %.4e, Q = %.4e" % (np.trapz(np.abs(f),X), A, np.trapz(U,X), np.trapz(Q,X))
+        print("err = %.4e, A = %.4e, U = %.4e, Q = %.4e" % (np.trapz(np.abs(f),X), A, np.trapz(U,X), np.trapz(Q,X)))
         #print F
     else:
         T = T_old
         tau /= 1.2
-        print "Tau =", tau
+        print("Tau =", tau)
 
 py.plot(X,T,X,T_init)
 #py.plot(X,T-T_init)

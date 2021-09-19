@@ -3,7 +3,7 @@
 import pylab as py
 params = {'backend': 'pdf',
           'axes.labelsize': 10,
-          'text.fontsize': 10,
+          'font.size': 10,
           'legend.fontsize': 8,
           'xtick.labelsize': 9,
           'ytick.labelsize': 9,

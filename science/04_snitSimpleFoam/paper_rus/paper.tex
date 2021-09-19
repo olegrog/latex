@@ -8,6 +8,7 @@
 \usepackage{indentfirst}
 \usepackage[font=small,labelfont=bf,labelsep=period]{caption}
 \usepackage{graphicx}
+    \graphicspath{{_pics/}}
 \usepackage{wrapfig}
 \usepackage{floatflt}
 
@@ -195,7 +196,7 @@
 
 \begin{wrapfigure}{r}{6.5cm}
 	\vspace{-10pt}
-	\includegraphics{pics/Y1}
+	\includegraphics{Y1}
 	\vspace{-20pt}
 	\caption{Функция \(Y_1(\eta)\) кнудсеновского слоя для модели твёрдых сфер}\label{fig:Y1}
 	\vspace{5pt}
@@ -247,7 +248,7 @@
 \begin{wrapfigure}{r}{6cm}
 	\vspace{-20pt}
 	\centering
-	\includegraphics{pics/bobylev}
+	\includegraphics{bobylev}
 	\vspace{-20pt}
 	\caption{Геометрия задачи}\label{fig:geometry}
 	\vspace{-5pt}
@@ -288,27 +289,27 @@ OpenFOAM\textregistered{}~\cite{Tabor1998}, в которой используе
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics{pics/T_asym}
+	\includegraphics{T_asym}
 	\caption{Поле температуры \(T\), полученное из асимптотической теории}
 	\label{fig:moving:T_asym}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics{pics/T_heat}
+	\includegraphics{T_heat}
 	\caption{Поле температуры \(T\), полученное из уравнения теплопроводности}
 	\label{fig:moving:T_heat}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics{pics/U_0}
+	\includegraphics{U_0}
 	\caption{Поле скоростей \(u_{i1}\) при \(\Kn=0\)}\label{fig:moving:fluid}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics{pics/U_001}
+	\includegraphics{U_001}
 	\caption{Поле скоростей \(u_{i1}\) при \(\Kn=0.01\) }\label{fig:moving:kn001}
 \end{figure}
 
@@ -336,13 +337,13 @@ OpenFOAM\textregistered{}~\cite{Tabor1998}, в которой используе
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics{pics/cylinders}
+	\includegraphics{cylinders}
 	\caption{Стационарное поле \(u_{i1}\) между двумя некоаксиальными цилиндрами}\label{fig:cylinders}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics{pics/spheres}
+	\includegraphics{spheres}
 	\caption{Стационарное поле \(u_{i1}\) между двумя неконцентрическими сферами}\label{fig:spheres}
 \end{figure}
 
@@ -373,7 +374,7 @@ OpenFOAM\textregistered{}~\cite{Tabor1998}, в которой используе
 
 \begin{figure}
 	\centering
-	\includegraphics{pics/elliptic}
+	\includegraphics{elliptic}
 	\caption{Стационарное поле \(u_{i1}\) между коаксиальными эллиптическими цилиндрами}
 	\label{fig:elliptic}
 \end{figure}
@@ -394,14 +395,14 @@ OpenFOAM\textregistered{}~\cite{Tabor1998}, в которой используе
 	\centering
 	\begin{minipage}{.48\textwidth}
 		\centering
-		\includegraphics{pics/alpha}
+		\includegraphics{alpha}
 		\captionof{figure}{Максимальное значение модуля \(u_{i1}\) в зависимости от отношения температур цилиндров \(\alpha\)}
 		\label{fig:maxU}
 	\end{minipage}
 	\quad
 	\begin{minipage}{.48\textwidth}
 		\centering
-		\includegraphics{pics/temper}
+		\includegraphics{temper}
  		\vspace{-11pt}
 		\captionof{figure}{Разность температурных полей \(\delta T\) вдоль оси \(x\) для \(\alpha=5\)}
 		\label{fig:deltaT}

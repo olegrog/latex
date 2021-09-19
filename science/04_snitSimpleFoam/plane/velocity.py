@@ -3,7 +3,7 @@
 import pylab as py
 params = {'backend': 'pdf',
           'axes.labelsize': 10,
-          'text.fontsize': 10,
+          'font.size': 10,
           'legend.fontsize': 10,
           'xtick.labelsize': 9,
           'ytick.labelsize': 9,
@@ -38,7 +38,7 @@ if k:
 U0 = np.reshape(U, ((2*N+1)*(N+1),))
 V = np.reshape(V0,dim)
 
-np.set_printoptions(threshold='nan')
+np.set_printoptions(threshold=np.inf)
 magU = np.sqrt(U*U+V*V)
 cmap = py.cm.get_cmap('coolwarm')
 lmax = 3.2 # (int(magU.max()*10) + 1.)/10
@@ -46,13 +46,13 @@ lev = np.linspace(0, lmax, 11)
 CF = py.contourf(x, y, magU, cmap=cmap, levels=lev)
 
 # streamplot version (need matplotlib 1.2.1, use only evenly grid)
-from matplotlib.mlab import griddata
-interp = 'linear' # 'nn'
+from scipy.interpolate import griddata
+interp = 'linear'
 N = 50
-xi = np.linspace(0, 1, 2*N)
-yi = np.linspace(0, .5, 4*N)
-U = griddata(X0, Y0, U0, xi, yi, interp=interp)
-V = griddata(X0, Y0, V0, xi, yi, interp=interp)
+yi, xi = np.mgrid[0:.5:4j*N, 0:1:2j*N]
+
+U = griddata((X0, Y0), U0, (xi, yi), method=interp)
+V = griddata((X0, Y0), V0, (xi, yi), method=interp)
 py.streamplot(xi, yi, U, V, color='k', density=0.89, minlength=.2, arrowstyle='->')
 
 py.text(-.07, .4, r'$u_{i1}$', fontsize=10)

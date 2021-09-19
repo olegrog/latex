@@ -1,7 +1,7 @@
-VTK = $(shell ls *.vtk)
-PDF = $(VTK:.vtk=.pdf)
+#VTK = $(shell ls *.vtk)
+#PDF = $(VTK:.vtk=.pdf)
 
-all: $(PDF)
+all: #$(PDF)
 
 %.pdf: %.tex
 	pdflatex $< > /dev/null

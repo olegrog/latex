@@ -50,7 +50,7 @@ def average_data(path, nrows):
     data = read_macros(timesteps[-1])
     for ts in timesteps[first:last]:
         data += read_macros(ts)
-    print 'average with %d files' % (last - first + 1)
+    print('average with %d files' % (last - first + 1))
     return data / (last - first + 1)
 
 for kn in Kn:
@@ -92,7 +92,7 @@ for kn in Kn:
             Y = symm(Pxy)/u
             py.plot(X, Y, label=r'$kn=%.1f, u=%.1f' % (kn,u), linestyle=linestyle[u], color=linecolor[kn], lw=1.2) #, marker='o')
     for m in macros:
-        print m, np.transpose(result[m].values()).shape, np.array([X]).T.shape
+        print(m, np.transpose(list(result[m].values())).shape, np.array([X]).T.shape)
         #np.savetxt(outdir + '/profile_' + m + '-' + str(kn) + '.txt', np.hstack((np.transpose([X]), np.transpose(result[m].values()))),
         np.savetxt(outdir + '/profile_' + m + '-' + str(kn) + '.txt', np.vstack([X, result[m][0.1], result[m][1.0], result[m][2.0], result[m][5.0]]).T,
             fmt='%.5e', header='        x       U=0.1       U=1.0       U=2.0       U=5.0')

@@ -1,3 +1,4 @@
+SHELL=/bin/bash
 FIGURES=transport/Y1_2.pdf tikz/geometry.pdf simple/residual.pdf \
 	plane/T-heat.pdf plane/T-asym.pdf plane/U.pdf plane/U01.pdf \
 	noncoaxial/cylinder5.pdf noncoaxial/sphere5.pdf noncoaxial/inverse5.pdf noncoaxial/cylinder2.pdf \
@@ -6,7 +7,6 @@ FIGURES=transport/Y1_2.pdf tikz/geometry.pdf simple/residual.pdf \
 	elliptic/U.pdf elliptic/delta-x.pdf \
 	moment/profiles.pdf moment/moment-beta.pdf \
 	temper/F-tau-cylinders-inner.pdf temper/F-tau-cylinders-outer.pdf temper/U-tau-cylinders.pdf
-SHELL=/bin/bash
 
 all: $(FIGURES)
 
@@ -81,6 +81,8 @@ temper/F-tau-cylinders-outer.pdf: temper/cylinders.txt temper/F-tau.py
 
 simple/residual.pdf: simple/convergence.py simple/p_0  simple/T_0  simple/Ux_0  simple/Uy_0
 	cd simple && ./convergence.py
+
+.PHONY:	clean
 
 clean:
 	rm -f $(FIGURES)

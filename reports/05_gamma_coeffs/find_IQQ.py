@@ -24,14 +24,14 @@ system3 = Matrix((
 
 solution3 = solve_linear_system(system3, Q1, Q2, Q3)
 for var in [Q2, Q3]:
-    print var, '=', solution3[var]
-print '(7*Q2+r**2*Q3)*(3*z**2-r**2) =', simplify((7*solution3[Q2]+r2*solution3[Q3])*(3*z2-r2))
+    print(var, '=', solution3[var])
+print('(7*Q2+r**2*Q3)*(3*z**2-r**2) =', simplify((7*solution3[Q2]+r2*solution3[Q3])*(3*z2-r2)))
 
-print
+print()
 
 solution5 = solve_linear_system(system5, Q11, Q12, Q21, Q22, Q3)
 for var in [Q22, Q3]:
-    print var, '=', solution5[var]
-print '(7*Q22+r**2*Q3)*(3*z**2-r**2) =', simplify((7*solution5[Q22]+r2*solution5[Q3])*(3*z2-r2))
+    print(var, '=', solution5[var])
+print('(7*Q22+r**2*Q3)*(3*z**2-r**2) =', simplify((7*solution5[Q22]+r2*solution5[Q3])*(3*z2-r2)))
 
 

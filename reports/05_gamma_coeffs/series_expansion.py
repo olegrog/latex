@@ -41,23 +41,23 @@ def calc_kernels(sign):
     return [ improved_series(i,K,x) for i,K in enumerate([K1, K2, K3, K4]) ]
 
 nu = exp(-x**2) + (2*x+1/x)*sqrt(pi)/2*erf(x)
-print 'nu =', my_series(nu, x)
+print('nu =', my_series(nu, x))
 
 K_plus, K_minus = calc_kernels(1), calc_kernels(-1)
-print 'K(y>x) = K_+'
+print('K(y>x) = K_+')
 for i, K in enumerate(K_plus):
-    print 'K%d =' % (i+1), K
-print
+    print('K%d =' % (i+1), K)
+print()
 
-print 'K(y<x) = K_-'
+print('K(y<x) = K_-')
 for i, K in enumerate(K_minus):
-    print 'K%d =' % (i+1), improved_series(i, K.subs(x, y/t), y)
-print
+    print('K%d =' % (i+1), improved_series(i, K.subs(x, y/t), y))
+print()
 
 # series expansion of A(x) and B(x) for small x
-print 'int_0^x (K_+-K_-) A exp(-y**2)'
+print('int_0^x (K_+-K_-) A exp(-y**2)')
 for i, (K1, K2) in enumerate(zip(K_minus, K_plus)):
     integral = integrate((K2-improved_series(i,K1.subs(x, y/t),y)).subs(t, y/x)*my_series(exp(-y**2), y)*(A0+A1*y**2+A2*y**4+A3*y**6), y)
-    print 'int%d =' % (i+1), my_series(integral.subs(y,x), x)
+    print('int%d =' % (i+1), my_series(integral.subs(y,x), x))
 
 

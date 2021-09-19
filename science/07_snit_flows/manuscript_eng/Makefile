@@ -1,21 +1,23 @@
-FILE=manuscript
-SHELL=/bin/bash
-FIG=Fig*.pdf
-SOURCES=$(FILE).tex $(FILE).bib $(FILE).bbl $(FIG)
-CONVERT=gs -sDEVICE=pdfwrite -sProcessColorModel=DeviceGray -sColorConversionStrategy=Gray -dOverrideICC
+SHELL = /bin/bash
+PROJECT = $(shell git ls-tree head --name-only | grep tex$$ | cut -f 1 -d '.')
+FIG = Fig*.pdf
+SOURCES = $(PROJECT).tex $(PROJECT).bib $(PROJECT).bbl $(FIG)
+CONVERT = gs -sDEVICE=pdfwrite -sProcessColorModel=DeviceGray -sColorConversionStrategy=Gray -dOverrideICC
 
-all: $(FILE).zip $(FILE).pdf
+all: $(PROJECT).zip $(PROJECT).pdf
 
-$(FILE).zip:  $(SOURCES)
+$(PROJECT).zip:  $(SOURCES)
 	zip -r $@ $(SOURCES)
 
-$(FILE).bbl: $(FILE).pdf
+$(PROJECT).bbl: $(PROJECT).pdf
 
 %.pdf: %.tex %.bib $(FIG)
 	latexmk -pdf $*
 
+.PHONY: pics clean
+
 pics:
-	cp ../tikz/sone_bobylev.pdf         Fig01.pdf~
+	cp ../tikz/sone_bobylev.pdf         Fig01.pdf
 	cp ../contours/heat-0-temp.pdf      Fig02.pdf
 	cp ../contours/asym-0-temp.pdf      Fig03.pdf
 	cp ../contours/nonslip-0-vel.pdf    Fig04.pdf
@@ -42,10 +44,6 @@ pics:
 	cp ../profiles/bottom_vel.pdf       Fig25.pdf
 	cp ../profiles/left_vel.pdf         Fig26.pdf
 
-Fig%.pdf: Fig%.pdf~
-	$(CONVERT) -o $@ -f $<
-	rm $<
-
 clean:
-	latexmk -c $(FILE)
-	rm -f $(FILE).{pdf,zip,run.xml,bbl}
+	latexmk -C $(PROJECT)
+	rm -f $(PROJECT).{zip,run.xml,bbl}

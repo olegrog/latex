@@ -3,7 +3,7 @@
 import pylab as py
 params = {'backend': 'pdf',
           'axes.labelsize': 10,
-          'text.fontsize': 10,
+          'font.size': 10,
           'legend.fontsize': 8,
           'xtick.labelsize': 9,
           'ytick.labelsize': 9,
@@ -11,7 +11,6 @@ params = {'backend': 'pdf',
           'figure.figsize': [3,3]}
 py.rcParams.update(params)
 import numpy as np
-from scipy.interpolate import spline
 
 d = 0.5
 xmin, xmax = -np.pi/2, np.pi/2

@@ -39,9 +39,9 @@ N = 2000
 X = np.linspace(0, L, N)
 
 def printt(Y):
-    print "--------------------------"
+    print("--------------------------")
     np.savetxt(sys.stdout, Y, fmt='%+.2e')
-    print "--------------------------"
+    print("--------------------------")
 
 def splot(X, K):
     import mpl_toolkits.mplot3d.axes3d as p3
@@ -53,7 +53,7 @@ def splot(X, K):
 def weight_matrix(alpha, beta):
     N = len(X)
     C = np.eye(N)
-    for i in xrange(N):
+    for i in range(N):
         C[i, 1:N-1] = alpha(i, np.arange(2,N)) + beta(i, np.arange(1,N-1))
         C[i, 0] = alpha(i, 1)
         C[i, N-1] = beta(i, N-1)
@@ -96,7 +96,7 @@ def solve_linalg(k, T, F0, F1, f):
     w = np.vectorize(lambda x: 0 if x==0 else x*np.log(x)/a)
     ww = lambda x: k*x*x*(2*np.log(x)-1)/4/a
     #print >> sys.stderr, k, np.trapz(phi, X), np.trapz(phi - w((L-X)/k), X) + ww(L/k)
-    print >> sys.stderr, k, p_xy, np.trapz(phi, X)/2, Q
+    print(k, p_xy, np.trapz(phi, X)/2, Q, file=sys.stderr)
     #np.savetxt(sys.stdout, np.transpose((X, phi)), fmt='%1.4e')
     return k, p_xy, np.trapz(phi, X)/2, Q
 

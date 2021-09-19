@@ -3,7 +3,7 @@ THIRD=T1_1.pdf T1_2.pdf T2_1.pdf T2_2.pdf TT_12.pdf TT_2.pdf
 FOURTH=Q_2.pdf Q_3.pdf QQ_22.pdf QQ_3.pdf
 TRANSPORT=$(SECOND) $(THIRD) $(FOURTH)
 CSV=gamma1.csv gamma2.csv
-DIR=../../../reports/5_gamma_coeffs/infty
+DIR=../../../reports/05_gamma_coeffs/infty
 SHELL=/bin/bash
 
 all: $(TRANSPORT) $(CSV)

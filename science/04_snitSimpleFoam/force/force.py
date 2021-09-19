@@ -3,7 +3,7 @@
 import pylab as py
 params = {'backend': 'pdf',
           'axes.labelsize': 10,
-          'text.fontsize': 10,
+          'font.size': 10,
           'legend.fontsize': 8,
           'xtick.labelsize': 9,
           'ytick.labelsize': 9,
@@ -25,7 +25,7 @@ def plot(filename, factor, label, n):
     func = functools.partial(pow, n)
     X = np.logspace(np.log10(1e-2), np.log10(1), num=50)
     A = F.min()/func(d.min(), 1)
-    print A
+    print(A)
     Y = func(X, A)
     py.plot(X, Y, 'k--', lw=.5)
 

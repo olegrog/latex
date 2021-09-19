@@ -15,7 +15,7 @@ def term(x, i):
 
 def func(x):
     result = np.zeros(x.shape)
-    for i in xrange(1, 10**4):
+    for i in range(1, 10**4):
         t = term(x, i)
         result += t
         if np.any(result == 0):
@@ -26,6 +26,6 @@ def func(x):
 
 X = np.logspace(np.log10(1e-3), np.log10(0.95), num=30)
 Y, i = func(X)
-print "num of iters = %d" % i
+print("num of iters = %d" % i)
     
 np.savetxt(sys.argv[1], np.transpose((X, Y**-1)), fmt='%1.4e') 

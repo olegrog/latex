@@ -4,7 +4,7 @@ import pylab as py
 params = {'backend': 'pdf',
           'font.size': 10,
           'axes.labelsize': 10,
-          'text.fontsize': 10,
+          'font.size': 10,
           'legend.fontsize': 8,
           'xtick.labelsize': 9,
           'ytick.labelsize': 9,
@@ -13,7 +13,7 @@ params = {'backend': 'pdf',
 py.rcParams.update(params)
 import numpy as np
 from matplotlib.tri import Triangulation
-from matplotlib.mlab import griddata
+from scipy.interpolate import griddata
 from matplotlib.gridspec import GridSpec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.patches import Ellipse
@@ -38,10 +38,9 @@ def draw(filename, ax, beta, lw):
 
     N = 50
     interp = 'linear'
-    xi = np.linspace(X.min(), X.max(), (X.max()-X.min())*N)
-    yi = np.linspace(Y.min(), Y.max(), (Y.max()-Y.min())*N)
-    U = griddata(X,Y,U,xi,yi,interp=interp)
-    V = griddata(X,Y,V,xi,yi,interp=interp)
+    yi, xi = np.mgrid[Y.min():Y.max():(Y.max()-Y.min())*1j*N, X.min():X.max():(X.max()-X.min())*1j*N]
+    U = griddata((X,Y),U,(xi,yi),method=interp)
+    V = griddata((X,Y),V,(xi,yi),method=interp)
     ax.streamplot(xi, yi, U, V, color='k', density=2*np.sqrt(Y.max()-Y.min()), minlength=.2, linewidth=lw, arrowstyle='->', arrowsize=lw)
 
     ax.set_aspect('equal')
@@ -59,7 +58,7 @@ def draw(filename, ax, beta, lw):
 
     for a in artists:
         ax.add_artist(a)
-    
+
     return CF
 
 gs = GridSpec(1, 2, width_ratios=[2.2, 1], wspace=0.25)

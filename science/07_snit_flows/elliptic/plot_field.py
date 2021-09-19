@@ -120,8 +120,8 @@ lmin, lmax, lsteps = get_levels(np.max(magU))
 triang = tri.Triangulation(X, Y, tris)
 #plt.triplot(triang, lw=0.1, color='red')
 
-print '%s: max(magU) = %g, lmin = %g, lmax = %g, lsteps = %g' % \
-    (args.pdffile, max(magU), lmin, lmax, lsteps)
+print('%s: max(magU) = %g, lmin = %g, lmax = %g, lsteps = %g' % \
+    (args.pdffile, max(magU), lmin, lmax, lsteps))
 
 ### Refine triangulation and data
 refiner = tri.UniformTriRefiner(triang)

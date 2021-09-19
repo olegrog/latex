@@ -68,7 +68,7 @@ f.fill(np.NaN)
 f[circl] = 0
 our = axis_pair(axis)
 
-ycoords = [center([nodes[n] for n in cells[i].nodes])[1] for i in xrange(N)]
+ycoords = [center([nodes[n] for n in cells[i].nodes])[1] for i in range(N)]
 ycoord = {
     'center': np.min(np.abs(ycoords)),
     'boundary': np.max(ycoords)
@@ -81,24 +81,24 @@ k_spline = {
 }[spline_type]
 
 with open(binfile, 'rb') as fd:
-    for _ in xrange(N):
+    for _ in range(N):
         data = fd.read(4+4)
         i, _ = struct.unpack('=ii', data)
         a = array.array('d')
         a.fromfile(fd, size)
         if i in celli:
             if center([nodes[n] for n in cells[i].nodes])[1] > 0:
-                print 'up', i, np.sum(a)
+                print('up', i, np.sum(a))
                 f[circl] += np.array(a)
             else:
-                print 'down', i, np.sum(a)
+                print('down', i, np.sum(a))
                 f[::-1,::-1,:][circl] += np.array(a)
             
 f /= len(celli)
 idx, d = [rad,rad,rad], ax2int(axis)
 idx[d] += node
-print >> sys.stderr, "Total mass = %f, y_coord = %f, filename = %s, zeta_%s = %f, smooth = %.2e" % \
-    (np.nansum(f), ycoord, outfile, axis, xyz[d][tuple(idx)], smooth)
+print("Total mass = %f, y_coord = %f, filename = %s, zeta_%s = %f, smooth = %.2e" % \
+    (np.nansum(f), ycoord, outfile, axis, xyz[d][tuple(idx)], smooth), file=sys.stderr)
 f /= vol
 
 gap = 0 #0.3
@@ -125,8 +125,8 @@ grid_z[mask] = np.maximum(spline(grid_x[mask], grid_y[mask], grid=False), 0)
 #zmax = np.round(np.nanmax(grid_z)*1.01, 1-int(np.log(np.nanmax(grid_z))))
 rnd = 500
 zmax = 1./rnd*(int(rnd*np.nanmax(grid_z))+1)
-print >> sys.stderr, "zmin = %.3f, zmax = %.3f, round = %.3f" % \
-    (np.nanmin(grid_z), np.nanmax(grid_z), zmax)
+print("zmin = %.3f, zmax = %.3f, round = %.3f" % \
+    (np.nanmin(grid_z), np.nanmax(grid_z), zmax), file=sys.stderr)
 ax.set_xlim(-cut2, cut2)
 ax.set_ylim(-cut2, cut2)
 levels = np.linspace(0, zmax, 21)

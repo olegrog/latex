@@ -17,7 +17,7 @@ _, problem, dirname = sys.argv
 stride = int(dirname)
 N = 100*stride
 if not os.path.exists(dirname):
-    print "Create directory %s, N = %d" % (dirname, N)
+    print("Create directory %s, N = %d" % (dirname, N))
     os.mkdir(dirname)
 h = (xi_cut-xi_min)/N
 #xi_points = np.linspace(xi_min, xi_cut, N+1)
@@ -42,7 +42,7 @@ def calc_C(n, x, y, C):
 def G(n, x, y):
     R_s = R_s_(x,y)
     C = np.zeros((n+1, x.size, y.size))
-    for i in xrange(n+1):
+    for i in range(n+1):
         C[i] = calc_C(i, x, y, C)
     a = lambda i: comb(n,k(i)) * R_s**(n-k(i)) * (-1)**k(i) * C[i]
     A = np.sum(np.fromfunction(a, (n+1,), dtype=int), axis=0)
@@ -67,7 +67,7 @@ def interp(X, Y, n=0, deg=16, spline=False):
 def read(filename, pos=0, ipow=0, deg=16, value=None):
     try:
         _, f = np.loadtxt(os.path.join(dirname, filename + '.txt')).T
-        print "read %s from %s" % (filename, dirname)
+        print("read %s from %s" % (filename, dirname))
         return lambda x: f
     except IOError:
         try:
@@ -81,7 +81,7 @@ def read(filename, pos=0, ipow=0, deg=16, value=None):
     if pos:
         return interp(data[0], data[pos], n=ipow, deg=deg, spline=spline)
     else:
-        return [ interp(data[0], data[i], n=ipow, deg=deg, spline=spline) for i in xrange(1, len(data)) ]
+        return [ interp(data[0], data[i], n=ipow, deg=deg, spline=spline) for i in range(1, len(data)) ]
 
 nu = lambda x: np.where(x > 0, np.exp(-x**2) + (2*x+1/x) * Erf(x), 2.)/2**1.5
 #calc_I = lambda n, xi, f: 8./15/np.sqrt(np.pi)*np.sum(f*xi**n*np.exp(-xi**2))*h
@@ -122,18 +122,18 @@ def create(K, phi, func, value, corrector=zero_corrector, ipow=6, coeff=1.):
 def solve_ieqn(problem):
     K, phi, expected_func, expected_value, corrector, ipow, coeff = problems[problem]
     Z = np.zeros((xi.size, xi.size))
-    print '[%s]' % datetime.now().time(), "Calculations are started"
+    print('[%s]' % datetime.now().time(), "Calculations are started")
     Z = K(xi.reshape(-1, 1), xi)*rule_trap()
     Z[np.diag_indices(xi.size)] -= nu(xi)
-    print '[%s]' % datetime.now().time(), "Kernel has been calculated"
+    print('[%s]' % datetime.now().time(), "Kernel has been calculated")
     f = solve(Z, phi(xi))
-    print '[%s]' % datetime.now().time(), "Linear equations have been solved", np.allclose(np.dot(Z, f), phi(xi))
+    print('[%s]' % datetime.now().time(), "Linear equations have been solved", np.allclose(np.dot(Z, f), phi(xi)))
     if corrector(xi, 0*xi+1) != 0:
         C = corrector(xi, 0*xi+1) - corrector(xi, 0*xi)
-        print 'correction =', corrector(xi, f)/C
+        print('correction =', corrector(xi, f)/C)
         f -= corrector(xi, f)/C
     result = coeff*calc_I(ipow, xi, f)
-    print "%g*I_%d = %.12f %.2e" % (coeff, ipow, result, np.fabs(result-expected_value))
+    print("%g*I_%d = %.12f %.2e" % (coeff, ipow, result, np.fabs(result-expected_value)))
     #py.plot(xi, f, 'r-', xi, expected_func(xi), 'g-')
     #py.show()
     np.savetxt(os.path.join(dirname, problem.upper() + '.txt'), np.transpose((xi, f)), fmt='%.10f')
@@ -205,9 +205,9 @@ gamma_q_3   = 0.993545571
 gamma_qq_22 = 0.121142330
 gamma_qq_3  = -0.078789047
 
-print 'gamma_7 =', -(gamma_7a + gamma_7b)
-print 'gamma_8 =', (gamma_q_2 - gamma_qq_22) + (gamma_q_3 - gamma_qq_3)
-print 'gamma_10 =', (gamma_t1_1 + gamma_t2_1 - 2*gamma_tt_12) + (gamma_t1_2 + gamma_t2_2 - 2*gamma_tt_2)
+print('gamma_7 =', -(gamma_7a + gamma_7b))
+print('gamma_8 =', (gamma_q_2 - gamma_qq_22) + (gamma_q_3 - gamma_qq_3))
+print('gamma_10 =', (gamma_t1_1 + gamma_t2_1 - 2*gamma_tt_12) + (gamma_t1_2 + gamma_t2_2 - 2*gamma_tt_2))
 
 T1_1, T1_2 = read('gamma10a')
 T2_1, T2_2 = read('gamma10b')

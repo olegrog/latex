@@ -1,8 +1,8 @@
-FILE=manuscript
-SHELL=/bin/bash
-FIG=Fig*.pdf
-SOURCES=$(FILE).tex $(FILE).bib $(FILE).rty $(FIG)
-CONVERT=gs -sDEVICE=pdfwrite -sProcessColorModel=DeviceGray -sColorConversionStrategy=Gray -dOverrideICC
+FILE = manuscript
+SHELL = /bin/bash
+FIG = Fig*.pdf Fig01.pdf
+SOURCES = $(FILE).tex $(FILE).bib $(FIG)
+CONVERT = gs -sDEVICE=pdfwrite -sProcessColorModel=DeviceGray -sColorConversionStrategy=Gray -dOverrideICC
 
 all: $(FILE).zip $(FILE).pdf
 
@@ -12,11 +12,8 @@ $(FILE).zip:  $(SOURCES)
 _$(FILE).%: $(FILE).%
 	sed "s/$(FILE)/_$(FILE)/" $< | iconv -f UTF-8 -t CP866 > $@
 
-$(FILE).pdf: _$(FILE).tex _$(FILE).bib _$(FILE).rty $(FIG)
-	latex _$(FILE)
-	bibtex _$(FILE)
-	latex _$(FILE)
-	latex _$(FILE)
+$(FILE).pdf: _$(FILE).tex _$(FILE).bib $(FIG)
+	latexmk -pdf _$(FILE)
 	mv _$@ $@
 
 pics:
@@ -52,5 +49,5 @@ Fig%.pdf: Fig%.pdf~
 	rm $<
 
 clean:
-	rm -f _$(FILE).{aux,bbl,blg,bcf,fff,lof,log,spl,toc,out,tex,bib,pdf,rty}
+	rm -f _$(FILE).{aux,bbl,blg,bcf,fff,lof,log,spl,toc,out,tex,bib,pdf}
 	rm -f $(FILE).{pdf,zip}

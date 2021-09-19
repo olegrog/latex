@@ -80,19 +80,19 @@ H_z = np.fromfunction(lambda i: i2h(i,0), (2*N_z,))
 
 print_grid = False
 if print_grid:
-    print "--- x:", X_x, H_x
-    print "--- y:", X_y, H_y
-    print "--- z:", X_z, H_z
+    print("--- x:", X_x, H_x)
+    print("--- y:", X_y, H_y)
+    print("--- z:", X_z, H_z)
 #print 0.5*(H_y[1:]+H_y[:-1])   # should coincide
 def calc_sizes(N,q):
     h_min, h_max = i2h(N,q), i2h(0,q)
     return (h_min, h_max, h_max/h_min)
-print "Cut_x = %g, cut_r = %g, ratio = %g, N_z = %d" % (cut_x, cut_r, q, N_z)
-print "Cell size (x): min = %.4g, max = %.4g, ratio = %.3g" % calc_sizes(N_x, -1)
-print "Cell size (y): min = %.4g, max = %.4g, ratio = %.3g" % calc_sizes(N_y, q)
-print "Cell size (z): min = %.4g, max = %.4g, ratio = %.3g" % calc_sizes(N_z, 0)
+print("Cut_x = %g, cut_r = %g, ratio = %g, N_z = %d" % (cut_x, cut_r, q, N_z))
+print("Cell size (x): min = %.4g, max = %.4g, ratio = %.3g" % calc_sizes(N_x, -1))
+print("Cell size (y): min = %.4g, max = %.4g, ratio = %.3g" % calc_sizes(N_y, q))
+print("Cell size (z): min = %.4g, max = %.4g, ratio = %.3g" % calc_sizes(N_z, 0))
 total = lambda X, cut: np.sum(np.abs(X) <= cut)/2
-print "Total cells: %d (%d, %d, %d):" % (np.sum(ind), total(X_x, cut_x), total(X_y, cut_r), total(X_z, cut_r))
+print("Total cells: %d (%d, %d, %d):" % (np.sum(ind), total(X_x, cut_x), total(X_y, cut_r), total(X_z, cut_r)))
 
 def splot(f):
     import pylab as py
@@ -115,12 +115,12 @@ def err(theor, real):
 def calc_macro(f):
     rho = np.sum(f[ind])
     speed, qflow, tau = [0,0,0], [0,0,0], [0,0,0]
-    for i in xrange(3):
+    for i in range(3):
         speed[i] = np.sum((f*u[i])[ind])/rho
     c = np.fromfunction(lambda i,j,k: xi(i,j,k,speed), dimension)
     sqr_c = np.fromfunction(lambda i,j,k: sqr_xi(i,j,k,speed), dimension)
     temp = 2./3*np.sum((f*sqr_c)[ind])/rho
-    for i in xrange(3):
+    for i in range(3):
         qflow[i] = np.sum((f*c[i]*sqr_c)[ind])
         tau[i] = np.sum(2*(f*c[(i+1)%3]*c[(i+2)%3])[ind])
     return rho, temp, speed, qflow, tau
@@ -132,12 +132,12 @@ def test_1(Temp, Speed):
     f = np.fromfunction(partial(Maxwell, Speed, Temp), dimension) * (1 + f1 + f2)
     rho, temp, speed, qflow, tau = calc_macro(f)
     #splot(f)
-    print "\n-- Test #1: continual flows - Grad's 13-moment approximation (temp = %g, speed = %g)" % (Temp, Speed[0])
-    print "rho =", err(Rho, rho)
-    print "temp =", err(Temp, temp)
-    print "speed =", err(Speed, speed)
-    print "qflow =", err(Qflow, qflow/rho)
-    print "tau =", err(Tau, tau/rho)
+    print("\n-- Test #1: continual flows - Grad's 13-moment approximation (temp = %g, speed = %g)" % (Temp, Speed[0]))
+    print("rho =", err(Rho, rho))
+    print("temp =", err(Temp, temp))
+    print("speed =", err(Speed, speed))
+    print("qflow =", err(Qflow, qflow/rho))
+    print("tau =", err(Tau, tau/rho))
 
 def test_2():
     Temp1, Temp2 = Temp, Temp/temp_ratio
@@ -161,12 +161,12 @@ def test_2():
     #splot(f)
     #splot(f*c[0]*c[1])
 
-    print "\n-- Test #2: free molecular flows - sum of 2 half-Maxwellians"
-    print "rho =", err(Rho_, rho)
-    print "temp =", err(Temp_, temp)
-    print "speed =", err(Speed_, speed)
-    print "qflow =", err(Qflow_, qflow/rho)
-    print "tau =", err(Tau_, tau/rho)
+    print("\n-- Test #2: free molecular flows - sum of 2 half-Maxwellians")
+    print("rho =", err(Rho_, rho))
+    print("temp =", err(Temp_, temp))
+    print("speed =", err(Speed_, speed))
+    print("qflow =", err(Qflow_, qflow/rho))
+    print("tau =", err(Tau_, tau/rho))
 
 def test_3():
     kn = 1
@@ -177,10 +177,10 @@ def test_3():
     f = np.fromfunction(partial(Maxwell, zeros, Temp), dimension) * (1 + phi)
     rho, temp, speed, qflow, tau = calc_macro(f)
 
-    print "\n-- Test #3: linear case - asymptotic solution for hard-sphere molecules"
-    print "rho =", err(Rho, rho)
-    print "speed =", err(Speed, speed)
-    print "tau =", err((0, 0, -2*gamma_1*Speed[0]*kn), tau/rho)
+    print("\n-- Test #3: linear case - asymptotic solution for hard-sphere molecules")
+    print("rho =", err(Rho, rho))
+    print("speed =", err(Speed, speed))
+    print("tau =", err((0, 0, -2*gamma_1*Speed[0]*kn), tau/rho))
 
 test_1(Temp, Speed)
 test_1(Temp*(1 + heat), np.sqrt(Speed)/40)

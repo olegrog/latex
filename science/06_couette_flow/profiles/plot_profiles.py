@@ -21,7 +21,7 @@ dummies = [ 'macro', 'place', 'ylabel', 'ymin', 'ymax', 'base', 'filter' ]
 macro = sys.argv[1]
 data = params[macro]
     
-print 'Creating %s.sh...' % macro
+print('Creating %s.sh...' % macro)
 filedata = None
 with open('template.sh', 'r') as file:
     filedata = file.read().replace('<name>', macro)
@@ -32,4 +32,4 @@ for i, dummy in enumerate(dummies):
 output = '_%s.sh' % macro
 with open(output, 'w') as file:
     file.write(filedata)
-os.chmod(output, 0755)
+os.chmod(output, 0o755)

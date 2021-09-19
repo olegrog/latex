@@ -19,9 +19,9 @@ args = parser.parse_args()
 out = '_%s%s' % (args.name, os.path.splitext(args.template)[1])
 with open(args.template, 'r') as infile:
     data = infile.read()
-    for name, value in args.__dict__.items():
+    for name, value in list(args.__dict__.items()):
         data = data.replace('<%s>' % name, str(value))
     with open(out, 'w') as outfile:
         outfile.write(data)
-    os.chmod(out, 0755)
+    os.chmod(out, 0o755)
 

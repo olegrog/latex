@@ -6,7 +6,7 @@ SHELL=/bin/bash
 all: $(PROJECT).pdf
 
 transport/Y1.pdf: transport/Y1.py transport/Y1_2.txt
-	cd transport && ./Y1.py 
+	cd transport && ./Y1.py
 
 fluid/T_asym.pdf: fluid/temperature.py fluid/asymptotic_N50.txt
 	cd fluid && ./temperature.py asymptotic_N50.txt T_asym.pdf
@@ -29,13 +29,12 @@ kinetic/U_kn001.pdf: kinetic/velocity.py kinetic/kn001.txt
 temper/temper.pdf: temper/plot.py temper/1.txt temper/2.txt
 	cd temper && ./plot.py temper.pdf
 
-$(PROJECT).pdf: $(SOURCES) 
-	latex $(PROJECT)
-	biber $(PROJECT)
-	latex $(PROJECT)
+$(PROJECT).pdf: $(SOURCES)
+	latexmk -pdf $(PROJECT)
 
 clean:
-	rm -f $(PROJECT).{aux,toc,log,out,run.xml,bbl,bcf,blg,pdf}
+	latexmk -C $(PROJECT)
+	rm -f $(PROJECT).{run.xml,bbl}
 
 clean-pics:
 	rm -f {fluid,kinetic,temper}/*.pdf

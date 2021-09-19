@@ -1,20 +1,23 @@
 #!/usr/bin/env python
 # Usage: ./plot.py <file> <column> <ylabel> <output> [<corrector>] [<y_coord>] [<box>]
 
-import pylab as py
-params = {'backend': 'pdf',
-          'axes.labelsize': 10,
-          'text.fontsize': 10,
-          'legend.fontsize': 8,
-          'xtick.labelsize': 9,
-          'ytick.labelsize': 9,
-          'text.usetex': True,
-          'figure.figsize': [3,2]}
-py.rcParams.update(params)
+import sys, math
 import numpy as np
-import sys
-import math
+import matplotlib
+import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, MaxNLocator, LinearLocator
+
+matplotlib.use('pgf')
+params = {
+    'axes.labelsize': 10,
+    'font.size': 10,
+    'legend.fontsize': 8,
+    'xtick.labelsize': 9,
+    'ytick.labelsize': 9,
+    'pgf.rcfonts': False,
+    'figure.figsize': [3,2]
+}
+plt.rcParams.update(params)
 
 xmin, xmax = 0.0, 5.0
 corrector = lambda y: y
@@ -23,24 +26,24 @@ y_coord = .8
 inside = False
 
 def plot(filename, column, label):
-    data = py.loadtxt(filename).T
-    X, Y = data[0], data[column]
+    data = np.loadtxt(filename).T
+    X, Y = data[0], data[int(column)]
     mask = (X >= xmin) * (X <= xmax)
     X, Y = X[mask], corrector(Y[mask])
     aY, bY = np.min(Y), np.max(Y)
     pad = 7 if aY < 0 and -bY/aY < 10 else 0
-    py.ylabel(r'$' + label + r'$', y=y_coord, labelpad=8-pad, rotation=0)
-    py.plot(X, Y, '-', lw=1)
-    py.xlabel(r'$\zeta$', labelpad=-5)
-    py.xlim(xmin, xmax)
-    ax = py.axes()
+    plt.ylabel(r'$' + label + r'$', y=y_coord, labelpad=8-pad, rotation=0)
+    plt.plot(X, Y, '-', lw=1)
+    plt.xlabel(r'$\zeta$', labelpad=-5)
+    plt.xlim(xmin, xmax)
+    ax = plt.axes()
     ax.axhline(lw=.5, c='k', ls=':')
     specify_tics(np.min(Y), np.max(Y))
     if inside:
-        print "Plot inside plot"
-        ax = py.axes([.25, .45, .4, .4])
+        print("Plot inside plot")
+        ax = plt.axes([.25, .45, .4, .4])
         mask = X <= float(sys.argv[7])
-        py.plot(X[mask], Y[mask], '-', lw=1)
+        plt.plot(X[mask], Y[mask], '-', lw=1)
         ax.tick_params(axis='both', which='major', labelsize=8)
         ax.axhline(lw=.5, c='k', ls=':')
         ax.xaxis.set_major_locator(MultipleLocator(0.5))
@@ -48,12 +51,12 @@ def plot(filename, column, label):
         ymin, _, ymax = ax.get_yticks()
         if (ymax + ymin) < (ymax-ymin)/5:
             y = max(ymax, -ymin)
-            py.ylim(-y, y)
+            plt.ylim(-y, y)
 
 def specify_tics(ymin, ymax):
     L = max(0, ymax) - min(0, ymin)
     tick = 10**math.floor(np.log10(L))
-    print L, tick, L/tick
+    print(L, tick, L/tick)
     if L/tick > 6:
         tick *= 2
     elif L/tick < 2:
@@ -62,12 +65,12 @@ def specify_tics(ymin, ymax):
         tick /= 5
     elif L/tick < 3:
         tick /= 2
-    print tick
+    print(tick)
 
     if kind == 'log':
-        py.semilogy()
+        plt.semilogy()
     else:
-        ax = py.axes()
+        ax = plt.axes()
         ax.yaxis.set_major_locator(MultipleLocator(tick))
 
 
@@ -89,5 +92,5 @@ if len(sys.argv) > 7:
 
 plot(sys.argv[1], sys.argv[2], sys.argv[3])
 
-py.savefig(sys.argv[4], bbox_inches='tight')
+plt.savefig(sys.argv[4], bbox_inches='tight')
 

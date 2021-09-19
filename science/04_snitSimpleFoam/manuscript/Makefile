@@ -1,17 +1,17 @@
-FILE=manuscript
-FIG=Fig*.pdf
-SOURCES=$(FILE).tex $(FILE).bib $(FIG)
+SHELL = /bin/bash
+PROJECT = $(shell git ls-tree head --name-only | grep tex$$ | cut -f 1 -d '.')
+FIGURES = $(wildcard Fig*.pdf)
+SOURCES = $(PROJECT).tex $(PROJECT).bib
 
-all: $(FILE).zip $(FILE).pdf
+all: $(PROJECT).zip $(PROJECT).pdf
 
-$(FILE).zip:  $(SOURCES)
-	zip -r $@ $(SOURCES)
+$(PROJECT).pdf: $(SOURCES) pics
+	latexmk -pdf $(PROJECT)
 
-$(FILE).pdf: $(FILE).tex $(FILE).bib $(FIG)
-	latex $(FILE)
-	bibtex $(FILE)
-	latex $(FILE)
-	latex $(FILE)
+$(PROJECT).zip: $(SOURCES)
+	zip -r $@ $(SOURCES) $(PROJECT).bbl $(PICS)
+
+.PHONY: pics clean
 
 pics:
 	cp ../transport/Y1_2.pdf                    Fig01.pdf
@@ -35,13 +35,6 @@ pics:
 	cp ../moment/profiles.pdf                   Fig19.pdf
 
 clean:
-	rm -f $(FILE).aux
-	rm -f $(FILE).bbl
-	rm -f $(FILE).blg
-	rm -f $(FILE).fff
-	rm -f $(FILE).lof
-	rm -f $(FILE).log
-	rm -f $(FILE).spl
-	rm -f $(FILE).pdf
-	rm -f $(FILE).zip
+	latexmk -C $(PROJECT)
+	rm -f $(PROJECT).{bbl,spl.zip}
 

@@ -29,7 +29,7 @@ data['y'] = X
 
 for kn in Kn:
     table = np.loadtxt("profile_%s-%s.txt" % (macro, kn)).T
-    for i in xrange(3):
+    for i in range(3):
         func = interp1d(table[0], table[i+2], kind='cubic')
         values = func(X)
         values[np.fabs(values) < 1e-10] = 0

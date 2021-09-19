@@ -140,11 +140,11 @@ add_array(data, V1, 'U/k')
 ### Integrate patches and print
 bottom = np.where((y==0) & (z==0))
 top = np.where((y==0.5) & (z==0))
-print '%.6e %.5e %.5e %.5e %.5e' % (float(kn),
+print('%.6e %.5e %.5e %.5e %.5e' % (float(kn),
     integrate_patch(x, T, top),
     integrate_patch(x, V1[:,0], top),
     integrate_patch(x, T, bottom),
-    integrate_patch(x, V1[:,0], bottom))
+    integrate_patch(x, V1[:,0], bottom)))
 
 ### Read cell data
 x, y, z = get_cell_centers(out)

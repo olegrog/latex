@@ -4,14 +4,17 @@ PICS=pics
 SOURCES=$(PROJECT).tex
 
 $(PROJECT).pdf: $(SOURCES)
-	latex $(PROJECT)
-	latex $(PROJECT)
+	latexmk -pdf -xelatex $(PROJECT)
+
+.PHONY: pics clean
 
 pics:
 	mkdir -p elliptic
-	cd elliptic && ln -sf ../../../science/7_snit_flows/elliptic/*.pdf .
+	cd elliptic && ln -sf ../../../science/07_snit_flows/elliptic/*.pdf .
+	ln -sf ../../science/08_vs_gkua/rgd31/cylinder-70km .
+	ln -sf ../../science/08_vs_gkua/rgd31/cylinder-90km .
 
 clean:
-	rm -f $(PROJECT).{aux,toc,log,out,run.xml,bbl,bcf,blg,pdf,snm,nav}
+	latexmk -C $(PROJECT)
+	rm -f $(PROJECT).{bbl}
 
-.PHONY: pics clean

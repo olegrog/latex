@@ -1,20 +1,19 @@
-FILE = manuscript
+PROJECT = manuscript
 SHELL = /bin/bash
 FIG = Fig*.pdf
 MACRO = $(addsuffix .csv, Pxy vx qx qy Pxx Pyy Pzz tau P omega)
 GAMMA = $(addsuffix .csv, gamma1 gamma2)
-SOURCES=$(FILE).tex $(FILE).bib $(FIG) $(addprefix ../gamma/, $(GAMMA)) $(addprefix ../profiles/, $(MACRO))
+SOURCES=$(PROJECT).tex $(PROJECT).bib $(FIG) $(addprefix ../gamma/, $(GAMMA)) $(addprefix ../profiles/, $(MACRO))
 
-all: $(FILE).zip $(FILE).pdf
+all: $(PROJECT).zip $(PROJECT).pdf
 
-$(FILE).zip:  $(SOURCES)
+$(PROJECT).zip: $(SOURCES)
 	zip -ju $@ $?
 
-$(FILE).pdf: $(FILE).tex $(FILE).bib $(FIG)
-	latex $(FILE)
-	bibtex $(FILE)
-	latex $(FILE)
-	latex $(FILE)
+$(PROJECT).pdf: $(PROJECT).tex $(PROJECT).bib pics
+	latexmk -pdf $(PROJECT)
+
+.PHONY: pics clean
 
 pics:
 	#cp ../exclusions/max.pdf                Fig01.pdf
@@ -57,4 +56,5 @@ pics:
 	cp ../gamma/QQ_3.pdf                    Fig38.pdf
 
 clean:
-	rm -f $(FILE).{aux,bbl,blg,fff,lof,log,spl,toc,pdf,zip}
+	latexmk -C $(PROJECT)
+	rm -f $(PROJECT).{bbl,zip}

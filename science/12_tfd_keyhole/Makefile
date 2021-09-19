@@ -3,9 +3,9 @@ PROJECT = $(shell git ls-tree head --name-only | grep tex$$ | cut -f 1 -d '.')
 SOURCES = $(PROJECT).tex $(PROJECT).bib cases.txt
 PICS = _pics
 
-all: pics $(PROJECT).pdf
+all: $(PROJECT).pdf
 
-$(PROJECT).pdf: $(SOURCES)
+$(PROJECT).pdf: $(SOURCES) pics
 	latexmk -pdf $(PROJECT) --shell-escape
 
 .PHONY: clean pics zip

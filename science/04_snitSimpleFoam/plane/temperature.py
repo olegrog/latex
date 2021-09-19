@@ -3,7 +3,7 @@
 import pylab as py
 params = {'backend': 'pdf',
           'axes.labelsize': 10,
-          'text.fontsize': 10,
+          'font.size': 10,
           'legend.fontsize': 10,
           'xtick.labelsize': 9,
           'ytick.labelsize': 9,
@@ -27,6 +27,7 @@ cmap = py.cm.get_cmap('coolwarm')
 py.contourf(x, y, T, levels=levels, cmap=cmap)
 
 levels = np.append(levels, 1.05)
+levels.sort()
 CS = py.contour(x, y, T, levels=levels, colors='k', linewidths=1)
 py.clabel(CS, levels[1::1],
     inline=True,
