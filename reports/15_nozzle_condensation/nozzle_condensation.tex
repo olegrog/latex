@@ -1,0 +1,196 @@
+\documentclass{article}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+
+%%% Functional packages
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{physics, siunitx}
+\usepackage{multirow}
+
+%%% Configuration packages
+%\usepackage{fullpage}
+
+\usepackage[
+    pdfusetitle,
+    colorlinks
+]{hyperref}
+
+\usepackage[
+    backend=biber,
+    style=authoryear,
+    autolang=other,
+    sorting=none,
+    mincrossrefs=100, % do not add parent collections
+]{biblatex}
+%\addbibresource{nozzle_condensation.bib}
+
+\title{A condensation flow in supersonic nozzles}
+\author{Oleg Rogozin}
+
+%%% Problem-specific aliases
+\newcommand{\vap}{\text{v}}
+\newcommand{\ine}{\text{i}}
+\newcommand{\con}{\text{c}}
+\newcommand{\eq}{\text{eq}}
+\newcommand{\crit}[2][]{#2_\text{cr#1}}
+\newcommand{\rH}{r_\text{H}}
+
+%%% Bold symbols
+\newcommand{\bv}{\vb*{v}}
+\newcommand{\bn}{\vu*{n}}
+\newcommand{\bx}{\vb*{x}}
+
+\begin{document}
+\maketitle
+
+\section{Gas dynamics}
+
+%%% Governing equations
+The steady-state behavior of an inviscid gas in the presence of phase transition
+can be described by the diabatic flow equations:
+\begin{gather}
+    \div(\rho\bv) = 0, \label{eq:rho}\\
+    \div(\rho\bv\bv) + \grad{p} = 0, \label{eq:v}\\
+    \div(\rho\bv h_0) = \dot{q}, \label{eq:h}
+\end{gather}
+where $\rho$ is the density, $\bv$ is the velocity, $p$ is the pressure,
+$\dot{q}$ is the volumetric heat source, and
+\begin{equation}\label{eq:h0}
+    h_0 = c_pT + \frac{|\bv|^2}{2}
+\end{equation}
+is the stagnation enthalpy. In~\eqref{eq:h0},
+$c_p$ is the specific heat capacity at constant pressure, $T$ is the temperature.
+
+%%% 1D geometry
+Let us consider a one-dimensional compressible flow in a nozzle with a specified cross section $A(x)$.
+Assuming that $\bv = (v,0,0)$ and integrating Eqs.~\eqref{eq:rho}--\eqref{eq:h} over the cross section,
+we obtain
+\begin{gather}
+    \dv{\dot{m}}{x} = 0, \label{eq:continuity}\\
+    \dv{x}(p + \rho v^2) = \frac{\dot{m}v}{A^2}\dv{A}{x}, \label{eq:momentum}\\
+    \dv{x}(c_pT + \frac{v^2}{2}) = \frac{A\dot{q}}{\dot{m}}, \label{eq:energy}
+\end{gather}
+where $\dot{m} = \rho Av$ is the constant mass flow rate through the nozzle.
+
+%%% Equation of state
+The system of governing equations is closed by the equation of state
+\begin{equation}\label{eq:eos}
+    p = \frac{\rho RT}{\bar{M}},
+\end{equation}
+where $\bar{M}$ is average molar mass of the mixture of ideal gases,
+$R$ is the universal gas constant.
+
+%%% Mach number
+Next, it is convenient to deal with the Mach number
+\begin{equation}\label{eq:Mach}
+    M = \qty(\frac{\bar{M}v^2}{\gamma RT})^{1/2},
+\end{equation}
+where
+\begin{equation}\label{eq:gamma}
+    \gamma = \frac{c_p}{c_p - R/\bar{M}}
+\end{equation}
+is the heat capacity ratio.
+Using the following relations:
+\begin{equation*}
+    \rho v^2 = \gamma p M^2, \quad v^2 = (\gamma-1)c_pT M^2,
+\end{equation*}
+Eqs.~\eqref{eq:momentum} and~\eqref{eq:energy} take the form
+\begin{gather}
+    \dv{x}(p\qty(1 + \gamma M^2)) = \frac{\gamma p M^2}{A}\dv{A}{x}, \label{eq:momentum2}\\
+    \dv{x}(c_pT\qty(1 + \frac{\gamma-1}{2}M^2)) = \frac{A\dot{q}}{\dot{m}}, \label{eq:energy2}
+\end{gather}
+and mass flow rate
+\begin{equation}\label{eq:dotm}
+    \dot{m} = \frac{\gamma pMA}{((\gamma-1)c_pT)^{1/2}}.
+\end{equation}
+
+\section{Gas properties}
+
+%%% Mixture
+Let us consider a binary mixture of two gases.
+One of them is a vapor that can condense, while the other is inert.
+Thus, $\rho = \rho_\ine + \rho_\vap + \rho_\con$.
+Let $w_0$ be the initial vapor mass fraction, then
+\begin{equation}\label{eq:rhoM}
+    \frac{\rho_\ine}{\rho} = 1-w_0, \quad \frac{\rho_\vap}{\rho} = w_0-g, \quad \frac{\rho_\con}{\rho} = g,
+\end{equation}
+where $g$ is the condensate mass fraction.
+The specific heat capacity of the mixture is calculated according to mass fractions as follows:
+\begin{equation}\label{eq:c_p}
+    c_p = (1-w_0)c_{p\ine} + (w_0-g)c_{p\vap} + gc_{p\con},
+\end{equation}
+Similarly,
+\begin{equation}\label{eq:M}
+    \frac1{\bar{M}} = \frac{1-w_0}{M_\ine} + \frac{w_0-g}{M_\vap},
+\end{equation}
+where contribution of the condensate phase is zero.
+
+\section{Condensation}
+
+%%% Moment equations
+The gas dynamic equations are augmented by the following moment equations:
+\begin{equation}\label{eq:mu_k}
+    \div(\mu_k\bv) = \dot{\mu}_k \quad (k=0,1,2,\dots),
+\end{equation}
+where $\mu_k$ is the $k$th moment of the particle distribution function, and
+\begin{equation}\label{eq:dotmu}
+    \dot\mu_k = \begin{cases}
+        J &\text{if } k=0,\\
+        \crit{r}^{k}J + k\dot{r}(\rH)\mu_{k-1} &\text{if } k>1.
+    \end{cases}
+\end{equation}
+Here, $J$ is the nucleation rate, $\dot{r}$ is the growth rate function of droplet radius $r$,
+and $\rH=\sqrt{\mu_2/\mu_0}$ is the surface-averaged radius.
+The heat source in the energy equation~\eqref{eq:energy2}
+and the condensate mass fraction are expressed in terms of $\mu_3$ as follows:
+\begin{equation}\label{eq:dotq-g}
+     \dot{q} = \frac{4\pi}{3}\rho_L\dot{\mu}_3H, \quad g = \frac{4\pi}{3} \frac{\rho_L\mu_3}{\rho},
+\end{equation}
+where $\rho_L$ is the density of the condensed phase
+and $H$ is the latent heat of condensation per unit mass.
+
+%%% Critical radius
+New particles nucleate at a given size, called the critical radius,
+defined by the Kelvin equation
+\begin{equation}\label{eq:r_crit}
+     \crit{r} = \frac{2\sigma M_\vap}{\rho_L R T \ln S},
+\end{equation}
+where $\sigma$ is the surface tension coefficient,
+and $S = p_\vap/p_\eq$ is the oversaturation or the ratio of the vapor pressure
+$p_\vap = (w_0 - g)\rho RT/M_\vap$
+to the saturated one $p_\eq$ at local flow temperature.
+
+%%% Nucleation rate
+According to the Hale model,
+\begin{equation}\label{eq:J}
+    J = \begin{cases}
+        0 &\text{if } S \leq 1,\\
+        J_{0} \exp(-\frac{16\pi}{3}\Omega^3 \frac{(\crit{T}/T-1)^3}{(\ln S)^2}) &\text{if } S > 1,
+    \end{cases}
+\end{equation}
+where $J_0$ is the nucleation prefactor,
+$\Omega$ is the excess surface entropy per molecule divided by the Boltzmann constant,
+and $\crit{T}$ is the critical temperature.
+
+%%% Growth rate
+The isothermal growth law state that
+\begin{equation}\label{eq:dotr}
+    \dot{r}(r) = \frac{5\pi\alpha}{16\rho_L}
+    \qty(\frac{M_\vap}{2\pi RT})^{1/2}
+        (p_\vap-\hat{p}_\eq(r)),
+\end{equation}
+where $\alpha$ is the condensation coefficient,
+$\hat{p}_\eq$ is the equilibrium vapor pressure above a droplet of radius $r$ given by the relation
+\begin{equation}\label{eq:Kelvin}
+    \hat{p}_\eq(r) = p_\eq\exp(\frac{2\sigma M_\vap}{\rho_L RT r}).
+\end{equation}
+
+%%% 1D geometry
+Finally, note that in the considered 1-D case the moment equations take the form
+\begin{equation}\label{eq:mom}
+    \dv{x}(\frac{\mu_k}{\rho}) = \frac{\dot{\mu}_kA}{\dot{m}}.
+\end{equation}
+
+%\printbibliography
+
+\end{document}
