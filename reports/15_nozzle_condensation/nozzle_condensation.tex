@@ -141,6 +141,17 @@ where $\mu_k$ is the $k$th moment of the particle distribution function ($\si{\m
 Here, $J$ is the nucleation rate (\si{\per\cubic\m\per\s}),
 $\dot{r}$ is the growth rate function (\si{\m\per\s}) of droplet radius $r$,
 and $\rH=\sqrt{\mu_2/\mu_0}$ is the surface-averaged radius (\si{\m}).
+The nucleation terms in the source~\eqref{eq:dotmu} vanish, when oversaturation $S = p_\vap/p_\eq$,
+which is the ratio of the vapor pressure $p_\vap = (w_0 - g)p\bar{M}/M_\vap$
+to the saturated pressure $p_\eq$ at local flow temperature, is less or equal to one.
+When $S>1$, new particles nucleate at a given size,
+called the critical radius, $\crit{r} = \lambda_K/\ln(S)$, where
+\begin{equation}\label{eq:Kelvin}
+    \lambda_K = \frac{2\sigma M_\vap}{\rho_L R T}
+\end{equation}
+is the Kelvin length (\si{m}) and $\sigma$ is the surface tension coefficient (\si{\J\per\square\m}).
+
+%%% Condensate-mass quantities
 The heat source in the energy equation~\eqref{eq:energy2}
 and the condensate mass fraction are expressed in terms of $\mu_3$ as follows:
 \begin{equation}\label{eq:dotq-g}
@@ -149,27 +160,10 @@ and the condensate mass fraction are expressed in terms of $\mu_3$ as follows:
 where $\rho_L$ is the density of the condensed phase (\si{\kg\per\cubic\m})
 and $H$ is the latent heat of condensation (\si{\J\per\kg}).
 
-%%% Critical radius
-New particles nucleate at a given size, called the critical radius,
-defined by the Kelvin equation
-\begin{equation}\label{eq:r_crit}
-    \crit{r} = \begin{cases}
-        \infty &\text{if } S \leq 1,\\
-        \frac{2\sigma M_\vap}{\rho_L R T \ln S} &\text{if } S > 1,
-    \end{cases}
-\end{equation}
-where $\sigma$ is the surface tension coefficient (\si{\J\per\square\m}),
-and $S = p_\vap/p_\eq$ is the oversaturation or the ratio of the vapor pressure
-$p_\vap = (w_0 - g)p\bar{M}/M_\vap$
-to the saturated one $p_\eq$ at local flow temperature.
-
 %%% Nucleation rate
-According to the Hale model,
+According to the Hale model, nucleation rate
 \begin{equation}\label{eq:J}
-    J = \begin{cases}
-        0 &\text{if } S \leq 1,\\
-        J_{0} \exp(-\frac{16\pi}{3}\Omega^3 \frac{(\crit{T}/T-1)^3}{(\ln S)^2}) &\text{if } S > 1,
-    \end{cases}
+    J = J_{0} \exp(-\frac{16\pi}{3}\Omega^3 \frac{(\crit{T}/T-1)^3}{(\ln S)^2}) \quad (S > 1),
 \end{equation}
 where $J_0$ is the nucleation prefactor (\si{\per\cubic\m\per\s}),
 $\Omega$ is the excess surface entropy per molecule divided by the Boltzmann constant (\si{\per\K}),
@@ -180,16 +174,12 @@ The isothermal growth law state that
 \begin{equation}\label{eq:dotr}
     \dot{r}(r) = \frac{5\pi\alpha}{16\rho_L}
     \qty(\frac{M_\vap}{2\pi RT})^{1/2}
-        (p_\vap-\hat{p}_\eq(r)),
+        \qty(p_\vap-p_\eq\exp(\frac{\lambda_K}{r})),
 \end{equation}
-where $\alpha$ is the condensation coefficient,
-$\hat{p}_\eq$ is the equilibrium vapor pressure above a droplet of radius $r$ given by the relation
-\begin{equation}\label{eq:Kelvin}
-    \hat{p}_\eq(r) = p_\eq\exp(\frac{2\sigma M_\vap}{\rho_L RT r}).
-\end{equation}
+where $\alpha$ is the condensation coefficient.
 
 %%% 1D geometry
-Finally, note that in the considered 1-D case the moment equations take the form
+Finally, let us note that in the considered 1-D case the moment equations take the form
 \begin{equation}\label{eq:mom}
     \dv{x}(\frac{\mu_k}{\rho}) = \frac{\dot{\mu}_kA}{\dot{m}}.
 \end{equation}
