@@ -53,32 +53,31 @@ can be described by the diabatic flow equations:
     \div(\rho\bv\bv) + \grad{p} = 0, \label{eq:v}\\
     \div(\rho\bv h_0) = \dot{q}, \label{eq:h}
 \end{gather}
-where $\rho$ is the density, $\bv$ is the velocity, $p$ is the pressure,
-$\dot{q}$ is the volumetric heat source, and
+where $\rho$ is the density (\si{\kg\per\cubic\m}), $\bv$ is the velocity (\si{\m\per\s}),
+$p$ is the pressure (\si{\Pa}), $\dot{q}$ is the volumetric heat source (\si{\J\per\cubic\m\per\s}), and
 \begin{equation}\label{eq:h0}
     h_0 = c_pT + \frac{|\bv|^2}{2}
 \end{equation}
-is the stagnation enthalpy. In~\eqref{eq:h0},
-$c_p$ is the specific heat capacity at constant pressure, $T$ is the temperature.
+is the stagnation enthalpy (\si{\J\per\kg}). In~\eqref{eq:h0},
+$c_p$ is the specific heat capacity at constant pressure (\si{\J\per\kg\per\K}), $T$ is the temperature (\si{\K}).
 
 %%% 1D geometry
 Let us consider a one-dimensional compressible flow in a nozzle with a specified cross section $A(x)$.
-Assuming that $\bv = (v,0,0)$ and integrating Eqs.~\eqref{eq:rho}--\eqref{eq:h} over the cross section,
-we obtain
+Assuming that $\bv = (v,0,0)$ and integrating Eqs.~\eqref{eq:rho}--\eqref{eq:h} over the cross section, we obtain
 \begin{gather}
     \dv{\dot{m}}{x} = 0, \label{eq:continuity}\\
     \dv{x}(p + \rho v^2) = \frac{\dot{m}v}{A^2}\dv{A}{x}, \label{eq:momentum}\\
     \dv{x}(c_pT + \frac{v^2}{2}) = \frac{A\dot{q}}{\dot{m}}, \label{eq:energy}
 \end{gather}
-where $\dot{m} = \rho Av$ is the constant mass flow rate through the nozzle.
+where $\dot{m} = \rho Av$ is the constant mass flow rate through the nozzle (\si{\kg\per\s}).
 
 %%% Equation of state
 The system of governing equations is closed by the equation of state
 \begin{equation}\label{eq:eos}
     p = \frac{\rho RT}{\bar{M}},
 \end{equation}
-where $\bar{M}$ is average molar mass of the mixture of ideal gases,
-$R$ is the universal gas constant.
+where $\bar{M}$ is average molar mass of the mixture of ideal gases (\si{\kg\per\mol}),
+$R$ is the universal gas constant ($= \SI{8.3145}{\J\per\mol\per\K}$).
 
 %%% Mach number
 Next, it is convenient to deal with the Mach number
@@ -87,7 +86,7 @@ Next, it is convenient to deal with the Mach number
 \end{equation}
 where
 \begin{equation}\label{eq:gamma}
-    \gamma = \frac{c_p}{c_p - R/\bar{M}}
+    \gamma = \qty(1-\frac{R}{c_p\bar{M}})^{-1}
 \end{equation}
 is the heat capacity ratio.
 Using the following relations:
@@ -132,32 +131,36 @@ The gas dynamic equations are augmented by the following moment equations:
 \begin{equation}\label{eq:mu_k}
     \div(\mu_k\bv) = \dot{\mu}_k \quad (k=0,1,2,\dots),
 \end{equation}
-where $\mu_k$ is the $k$th moment of the particle distribution function, and
+where $\mu_k$ is the $k$th moment of the particle distribution function ($\si{\m}^{k-3}$), and
 \begin{equation}\label{eq:dotmu}
     \dot\mu_k = \begin{cases}
         J &\text{if } k=0,\\
         \crit{r}^{k}J + k\dot{r}(\rH)\mu_{k-1} &\text{if } k>1.
     \end{cases}
 \end{equation}
-Here, $J$ is the nucleation rate, $\dot{r}$ is the growth rate function of droplet radius $r$,
-and $\rH=\sqrt{\mu_2/\mu_0}$ is the surface-averaged radius.
+Here, $J$ is the nucleation rate (\si{\per\cubic\m\per\s}),
+$\dot{r}$ is the growth rate function (\si{\m\per\s}) of droplet radius $r$,
+and $\rH=\sqrt{\mu_2/\mu_0}$ is the surface-averaged radius (\si{\m}).
 The heat source in the energy equation~\eqref{eq:energy2}
 and the condensate mass fraction are expressed in terms of $\mu_3$ as follows:
 \begin{equation}\label{eq:dotq-g}
      \dot{q} = \frac{4\pi}{3}\rho_L\dot{\mu}_3H, \quad g = \frac{4\pi}{3} \frac{\rho_L\mu_3}{\rho},
 \end{equation}
-where $\rho_L$ is the density of the condensed phase
-and $H$ is the latent heat of condensation per unit mass.
+where $\rho_L$ is the density of the condensed phase (\si{\kg\per\cubic\m})
+and $H$ is the latent heat of condensation (\si{\J\per\kg}).
 
 %%% Critical radius
 New particles nucleate at a given size, called the critical radius,
 defined by the Kelvin equation
 \begin{equation}\label{eq:r_crit}
-     \crit{r} = \frac{2\sigma M_\vap}{\rho_L R T \ln S},
+    \crit{r} = \begin{cases}
+        \infty &\text{if } S \leq 1,\\
+        \frac{2\sigma M_\vap}{\rho_L R T \ln S} &\text{if } S > 1,
+    \end{cases}
 \end{equation}
-where $\sigma$ is the surface tension coefficient,
+where $\sigma$ is the surface tension coefficient (\si{\J\per\square\m}),
 and $S = p_\vap/p_\eq$ is the oversaturation or the ratio of the vapor pressure
-$p_\vap = (w_0 - g)\rho RT/M_\vap$
+$p_\vap = (w_0 - g)p\bar{M}/M_\vap$
 to the saturated one $p_\eq$ at local flow temperature.
 
 %%% Nucleation rate
@@ -168,9 +171,9 @@ According to the Hale model,
         J_{0} \exp(-\frac{16\pi}{3}\Omega^3 \frac{(\crit{T}/T-1)^3}{(\ln S)^2}) &\text{if } S > 1,
     \end{cases}
 \end{equation}
-where $J_0$ is the nucleation prefactor,
-$\Omega$ is the excess surface entropy per molecule divided by the Boltzmann constant,
-and $\crit{T}$ is the critical temperature.
+where $J_0$ is the nucleation prefactor (\si{\per\cubic\m\per\s}),
+$\Omega$ is the excess surface entropy per molecule divided by the Boltzmann constant (\si{\per\K}),
+and $\crit{T}$ is the critical temperature (\si{\K}).
 
 %%% Growth rate
 The isothermal growth law state that
