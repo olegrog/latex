@@ -179,12 +179,15 @@ A, Amax, Amin = nozzle.A(xmin), nozzle.A(L1), nozzle.A(L1+L2)
 Ma = A/nozzle.A(0)
 if nozzle.dAdx(xmin) < 0:
     Ma = 1/Ma
-P0, T = args.pressure*fixed.P, args.temp
-dotm = gamma*P0*Ma*A/sqrt((gamma-1)*c_p*T)
-yk = args.n0/A**2*_kelvin(T)**np.arange(4)/_rho(0, P0, T)
-y0 = [P0*(1+gamma*Ma**2), c_p*T*(1+(gamma-1)*Ma**2/2), yk[0], yk[1], yk[2], yk[3]]
+P0, T0 = args.pressure*fixed.P, args.temp
+dotm = gamma*P0*Ma*A/sqrt((gamma-1)*c_p*T0)
+U0 = Ma*sqrt((gamma-1)*c_p*T0)
+S = _Pvap(0, P0)/vapor.P_eq(T0)
+n0, r0 = np.maximum(args.n0/A, _J(T0, S)*sqrt(A)/U0), _r_crit(T0, S)
+yk = n0*r0**np.arange(4)/_rho(0, P0, T0)
+y0 = [P0*(1+gamma*Ma**2), c_p*T0*(1+(gamma-1)*Ma**2/2), yk[0], yk[1], yk[2], yk[3]]
 
-print(f'Initial values: T = {T} K, P = {args.pressure} atm, Ma = {Ma:.3g}, w0 = {args.w0:.3g}')
+print(f'Initial values: T = {T0} K, P = {args.pressure} atm, Ma = {Ma:.3g}, w0 = {args.w0:.3g}')
 line = f'Geometry: A[m^2] = {A:.3g} -({L1:.3g} m, {args.phi:.2g}°)-> {Amax:.3g}'
 if args.diffuser:
     line += f' -({L2:.3g} m, {args.phi2:.2g}°)-> {Amin:.3g}'
@@ -192,7 +195,10 @@ print(line)
 print(f'Vapor mass flow rate (g/min) = {dotm*args.w0*1e3*60:.3g}')
 
 stop.terminal = True
-sol = solve_ivp(func, [xmin, L], y0, atol=0, rtol=args.tol, events=stop, method=args.method)
+# Without `first_step` constrain the first step can be too large when J is too small
+sol = solve_ivp(func, [xmin, L], y0, atol=0, rtol=args.tol, events=stop,
+    method=args.method, first_step=sqrt(A)/100)
+print(f'Number of points = {sol.t.size}')
 gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu_k = calc_all(sol.t, sol.y)
 
 rhoL = cond.rho
