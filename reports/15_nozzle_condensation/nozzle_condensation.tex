@@ -33,7 +33,7 @@
 \newcommand{\con}{\text{c}}
 \newcommand{\eq}{\text{eq}}
 \newcommand{\crit}[2][]{#2_\text{cr#1}}
-\newcommand{\rH}{r_\text{H}}
+\newcommand{\Hill}{\text{H}}
 
 %%% Bold symbols
 \newcommand{\bv}{\vb*{v}}
@@ -135,12 +135,12 @@ where $\mu_k$ is the $k$th moment of the particle distribution function ($\si{\m
 \begin{equation}\label{eq:dotmu}
     \dot\mu_k = \begin{cases}
         J &\text{if } k=0,\\
-        \crit{r}^{k}J + k\dot{r}(\rH)\mu_{k-1} &\text{if } k>1.
+        \crit{r}^{k}J + k\dot{r}(r_\Hill)\mu_{k-1} &\text{if } k>1.
     \end{cases}
 \end{equation}
 Here, $J$ is the nucleation rate (\si{\per\cubic\m\per\s}),
 $\dot{r}$ is the growth rate function (\si{\m\per\s}) of droplet radius $r$,
-and $\rH=\sqrt{\mu_2/\mu_0}$ is the surface-averaged radius (\si{\m}).
+and $r_\Hill=\sqrt{\mu_2/\mu_0}$ is the surface-averaged radius (\si{\m}).
 The nucleation terms in the source~\eqref{eq:dotmu} vanish, when oversaturation $S = p_\vap/p_\eq$,
 which is the ratio of the vapor pressure $p_\vap = (w_0 - g)p\bar{M}/M_\vap$
 to the saturated pressure $p_\eq$ at local flow temperature, is less or equal to one.
@@ -166,7 +166,7 @@ According to the Hale model, nucleation rate
     J = J_{0} \exp(-\frac{16\pi}{3}\Omega^3 \frac{(\crit{T}/T-1)^3}{(\ln S)^2}) \quad (S > 1),
 \end{equation}
 where $J_0$ is the nucleation prefactor (\si{\per\cubic\m\per\s}),
-$\Omega$ is the excess surface entropy per molecule divided by the Boltzmann constant (\si{\per\K}),
+$\Omega$ is the excess surface entropy per molecule divided by the Boltzmann constant,
 and $\crit{T}$ is the critical temperature (\si{\K}).
 
 %%% Growth rate
@@ -180,9 +180,38 @@ where $\alpha$ is the condensation coefficient.
 
 %%% 1D geometry
 Finally, let us note that in the considered 1-D case the moment equations take the form
-\begin{equation}\label{eq:mom}
+\begin{equation}\label{eq:moments}
     \dv{x}(\frac{\mu_k}{\rho}) = \frac{\dot{\mu}_kA}{\dot{m}}.
 \end{equation}
+
+\section{Dimensional analysis}
+
+Let $L$, $p_0$, and $T_0$ be, respectively, the reference length, pressure, and temperature, and put
+\begin{equation}\label{eq:reference}
+    c_{p0} = \frac{R}{\bar{M}(0)}, \quad v_0 = \sqrt{c_{p0}T_0}, \quad
+    \rho_0 = \frac{p_0}{v_0^2}, \quad n_0 = \frac{J_0L}{v_0}.
+\end{equation}
+Then, the nondimensional variables are defined as follows:
+\begin{equation}\label{eq:nondimensional}
+    \left.\begin{aligned}
+        \hat{x} &= x/L,             &\hat{A} &= A/L^2,              &\hat{p} &= p/p_0, \\
+        \hat{\rho} &= \rho/\rho_0,  &\hat{v} &= v/v_0,              &\hat{\dot{r}} &= \dot{r}/v_0 \\
+        \hat{c}_p &= c_p/c_{p0},    &\hat{T} &= T/T_0,              &\hat{\dot{q}} &= \dot{q}L/p_0v_0 \\
+        \hat{J} &= J/J_0,    &\crit{\hat{r}} &= \crit{r}/\lambda_K, &\hat{\mu}_k &= \mu_k/n_0\lambda_K^k.
+    \end{aligned}\quad\right\}
+\end{equation}
+If we additionally assume that $\dot{m} = \rho_0v_0L^2$, then the governing equations take the form
+\begin{gather}
+    \dv{\hat{x}}(\hat{p}\qty(1 + \gamma M^2))
+        = \frac{\gamma \hat{p} M^2}{\hat{A}}\dv{\hat{A}}{\hat{x}}, \label{eq:momentum3}\\
+    \dv{\hat{x}}(\hat{c}_p\hat{T}\qty(1 + \frac{\gamma-1}{2}M^2))
+        = \hat{A}\hat{\dot{q}}, \label{eq:energy3}\\
+    \dv{\hat{x}}(\frac{\hat{\mu}_k}{\hat{\rho}}) = \hat{A}\qty(\crit{\hat{r}}^{k}\hat{J}
+        + k\frac{L}{\lambda_K}\hat{\dot{r}}(\hat{r}_\Hill)\hat{\mu}_{k-1}). \label{eq:moments3}
+\end{gather}
+Only one dimensionless number appears, $L/\lambda_K$, which is essentially the ratio of the nozzle dimensions
+to the size of nucleating particles. This multiscale parameter is included in the growth term
+and, therefore, influences to the ratio of condensation rates due to growth and nucleation, respectively.
 
 %\printbibliography
 
