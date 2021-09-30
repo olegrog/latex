@@ -78,7 +78,7 @@ nozzle = {
 }[args.nozzle]
 L1, L2 = nozzle.L(1, args.Amax, phi), nozzle.L(args.Amax, args.Amin, phi2)
 L = L1 + args.diffuser*L2
-xmin = args.xmin*L1
+xmin = args.xmin*L1 + 1e-8
 
 # Material properties
 _c_p_ = lambda mat: fixed.R*mat.gamma/(mat.gamma-1)/mat.M
@@ -95,16 +95,12 @@ _r_mean = np.vectorize(lambda y0, y2: np.nan if y0 <= 0 else sqrt(np.maximum(y2/
 
 def calc_all(t, y):
     A = nozzle.A(t)                             # nozzle area, m^2
-    dAdt = nozzle.dAdx(t)                       # nozzle expansion rate, 1/m
-    yc = (dotm/A)**2
-    ym, ye, y0, y1, y2, y3 = y
+    P, gMM, c_pT, y0, y1, y2, y3 = y            # pressure, Pa & others
     g = np.minimum(4*pi/3*cond.rho*y3, args.w0) # condensate mass fraction
     gamma = _gamma(g)                           # heat capacity ratio
     c_p = _c_p(g)                               # heat capacity
-    a, b, c = ye*yc - ym**2/2, 2*ye*yc - gamma*ym**2/(gamma-1), ye*yc
-    Ma = sqrt(np.maximum((-b + sqrt(np.maximum(b**2 - 4*a*c, 0)))/2/a/gamma, 0))
-    P = ym/(1 + gamma*Ma**2)                    # pressure, Pa
-    T = (gamma*P*Ma)**2/(gamma-1)/yc/c_p        # temperature, K
+    Ma = sqrt(gMM/gamma)                        # Mach number
+    T = c_pT/c_p                                # temperature, K
     Pvap = _Pvap(g, P)                          # vapor pressure, Pa
     rho = _rho(g, P, T)                         # density, kg/m^3
     r_mean = _r_mean(y0, y2)                    # mean particle radius, m
@@ -112,7 +108,7 @@ def calc_all(t, y):
     J = _J(T, S)                                # nucleation rate, 1/m^3/s
     dotr = _dotr(Pvap, T, r_mean)               # growth rate, m/s
     r0 = _r_crit(T, S)                          # critical radius, m
-    mu_k = np.array([y0, y1, y2, y3])*rho
+    mu_k = np.array([y0, y1, y2, y3])*rho       # moments of PSD, m^{k-3}
     return gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu_k
 
 def stop(t, y):
@@ -122,7 +118,7 @@ def stop(t, y):
 def func(t, y):
     gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu_k = calc_all(t, y)
     A = nozzle.A(t)                             # nozzle area, m^2
-    dAdt = nozzle.dAdx(t)                       # nozzle expansion rate, 1/m
+    dA = nozzle.dAdx(t)                         # nozzle expansion rate, 1/m
     rhoL = cond.rho                             # condensate density, kg/m^3
     H = cond.H(T)                               # latent heat, J/kg
     r0J1 = r0*J if r0 < np.infty else 0
@@ -131,12 +127,19 @@ def func(t, y):
     dotq = 4/3*pi*rhoL*(r0J3 + 3*dotr*mu_k[2])*H
 
     dydt = np.empty_like(y)
-    dydt[0] = gamma*P*Ma**2*dAdt/A              # P(1+gamma*Ma^2)
-    dydt[1] = A*dotq/dotm                       # c_pT(1+(gamma-1)Ma^2/2)
-    dydt[2] = J*A/dotm                          # mu_0/rho
-    dydt[3] = (r0J1 + dotr*mu_k[0])*A/dotm      # mu_1/rho
-    dydt[4] = (r0J2 + 2*dotr*mu_k[1])*A/dotm    # mu_2/rho
-    dydt[5] = (r0J3 + 3*dotr*mu_k[2])*A/dotm    # mu_3/rho
+    dydt[3] = J*A/dotm                          # mu_0/rho
+    dydt[4] = (r0J1 + dotr*mu_k[0])*A/dotm      # mu_1/rho
+    dydt[5] = (r0J2 + 2*dotr*mu_k[1])*A/dotm    # mu_2/rho
+    dydt[6] = (r0J3 + 3*dotr*mu_k[2])*A/dotm    # mu_3/rho
+
+    dg = 4/3*pi*rhoL*dydt[6]
+    Q = A*dotq/c_p/T/dotm
+    dlngamma = (1-gamma)*((cond.c_p-_c_p_(vapor))/c_p + _Mmean(g)/vapor.M)*dg
+    C = gamma/(gamma-1)
+
+    dydt[0] = P*y[1]/(Ma**2-1)*(dlngamma/(gamma-1) - (3+2*y[1]/C)*dA/A + Q) # P
+    dydt[1] = y[1]*dA/A - (1+y[1])*dydt[0]/P                                # gamma*M^2
+    dydt[2] = y[2]/(1+y[1]/C/2)*(Q - dydt[1]/C/2 - dlngamma*Ma**2/2)        # c_p*T
 
     return dydt
 
@@ -185,7 +188,7 @@ U0 = Ma*sqrt((gamma-1)*c_p*T0)
 S = _Pvap(0, P0)/vapor.P_eq(T0)
 n0, r0 = np.maximum(args.n0/A, _J(T0, S)*sqrt(A)/U0), _r_crit(T0, S)
 yk = n0*r0**np.arange(4)/_rho(0, P0, T0)
-y0 = [P0*(1+gamma*Ma**2), c_p*T0*(1+(gamma-1)*Ma**2/2), yk[0], yk[1], yk[2], yk[3]]
+y0 = [P0, gamma*Ma**2, c_p*T0, *yk]
 
 print(f'Initial values: T = {T0} K, P = {args.pressure} atm, Ma = {Ma:.3g}, w0 = {args.w0:.3g}')
 line = f'Geometry: A[m^2] = {A:.3g} -({L1:.3g} m, {args.phi:.2g}°)-> {Amax:.3g}'
