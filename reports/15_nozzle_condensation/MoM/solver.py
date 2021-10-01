@@ -191,11 +191,32 @@ yk = n0*r0**np.arange(4)/_rho(0, P0, T0)
 y0 = [P0, gamma*Ma**2, c_p*T0, *yk]
 
 print(f'Initial values: T = {T0} K, P = {args.pressure} atm, Ma = {Ma:.3g}, w0 = {args.w0:.3g}')
-line = f'Geometry: A[m^2] = {A:.3g} -({L1:.3g} m, {args.phi:.2g}°)-> {Amax:.3g}'
-if args.diffuser:
-    line += f' -({L2:.3g} m, {args.phi2:.2g}°)-> {Amin:.3g}'
-print(line)
 print(f'Vapor mass flow rate (g/min) = {dotm*args.w0*1e3*60:.3g}')
+
+if args.verbose:
+    line = f'Geometry: A[m^2] = {A:.3g} -({L1:.3g} m, {args.phi:.2g}°)-> {Amax:.3g}'
+    if args.diffuser:
+        line += f' -({L2:.3g} m, {args.phi2:.2g}°)-> {Amin:.3g}'
+    print(line)
+
+    rho0 = _Mmean(0)*P0/fixed.R/T0
+    v0, L = sqrt((_gamma(0)-1)*_c_p(0)*T0), sqrt(nozzle.A(0))
+    n0 = 3*rho0*args.w0/4/pi/_kelvin(T0)**3/cond.rho
+    nucl = vapor.J0*L/v0/n0
+    grow = sqrt(vapor.M/_gamma(0)/_Mmean(0))*L*rho0/_kelvin(T0)/cond.rho
+
+    print(f'Reference values:')
+    print(f' -- rho0 = {_Mmean(0)*P0/fixed.R/T0:.3g} kg/m^3')
+    print(f' -- t0 = {L/v0:.3g} s')
+    print(f' -- n0 = {n0:.3g} 1/m^3')
+    print(f' -- lambda_K = {_kelvin(T0):.3g} m')
+    print(f'Dimensionless quantities:')
+    print(f' -- T_crit/T_0 = {vapor.T_crit/T0:.3g}')
+    print(f' -- latent heat/enthalpy = {cond.H(T0)/_c_p(0)/T0:.3g}')
+    print(f' -- L/lambda_K = {L/_kelvin(T0):.3g}')
+    print(f' -- rho_L/rho_0 = {cond.rho/rho0:.3g}')
+    print(f' -- nucleation = {nucl:.3g}')
+    print(f' -- growth = {grow:.3g}')
 
 stop.terminal = True
 # Without `first_step` constrain the first step can be too large when J is too small
@@ -204,9 +225,8 @@ sol = solve_ivp(func, [xmin, L], y0, atol=0, rtol=args.tol, events=stop,
 print(f'Number of points = {sol.t.size}')
 gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu_k = calc_all(sol.t, sol.y)
 
-rhoL = cond.rho
-Nucl = 4/3*pi*rhoL*np.nan_to_num(r0, posinf=0)**3*J*A
-Grow = 4*pi*rhoL*dotr*mu_k[2]*A
+Nucl = 4/3*pi*cond.rho*np.nan_to_num(r0, posinf=0)**3*J*A
+Grow = 4*pi*cond.rho*dotr*mu_k[2]*A
 X = sol.t/L1
 
 fig, axs = plt.subplots(2, 5, figsize=(15, 8))
