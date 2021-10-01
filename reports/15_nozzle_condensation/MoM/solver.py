@@ -27,6 +27,7 @@ parser.add_argument('-n0', type=float, default=1e-18, help='initial particle con
 parser.add_argument('-t', '--tol', type=float, default=1e-6, help='solution tolerance')
 parser.add_argument('--maxS', type=float, default=1e8, help='maximum oversaturation')
 parser.add_argument('--pdf', action='store_true', help='save PDF file instead')
+parser.add_argument('--algebraic', action='store_true', help='find Ma using the algebraic equation')
 parser.add_argument('-p', '--plots', action='store_true', help='draw additional plots')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
 args = parser.parse_args()
@@ -94,13 +95,25 @@ _r_crit = np.vectorize(lambda T, S: np.infty if S <= 1 else _kelvin(T)/log(S))
 _r_mean = np.vectorize(lambda y0, y2: np.nan if y0 <= 0 else sqrt(np.maximum(y2/y0, 0)))
 
 def calc_all(t, y):
-    A = nozzle.A(t)                             # nozzle area, m^2
-    P, gMM, c_pT, y0, y1, y2, y3 = y            # pressure, Pa & others
+    if args.algebraic:
+        yc = (dotm/nozzle.A(t))**2
+        ym, ye, y0, y1, y2, y3 = y
+    else:
+        P, gMM, c_pT, y0, y1, y2, y3 = y
+
     g = np.minimum(4*pi/3*cond.rho*y3, args.w0) # condensate mass fraction
     gamma = _gamma(g)                           # heat capacity ratio
     c_p = _c_p(g)                               # heat capacity
-    Ma = sqrt(gMM/gamma)                        # Mach number
-    T = c_pT/c_p                                # temperature, K
+
+    if args.algebraic:
+        a, b, c = ye*yc - ym**2/2, 2*ye*yc - gamma*ym**2/(gamma-1), ye*yc
+        Ma = sqrt(np.maximum((-b + sqrt(np.maximum(b**2 - 4*a*c, 0)))/2/a/gamma, 0))
+        P = ym/(1 + gamma*Ma**2)
+        T = (gamma*P*Ma)**2/(gamma-1)/yc/c_p
+    else:
+        Ma = sqrt(gMM/gamma)
+        T = c_pT/c_p
+
     Pvap = _Pvap(g, P)                          # vapor pressure, Pa
     rho = _rho(g, P, T)                         # density, kg/m^3
     r_mean = _r_mean(y0, y2)                    # mean particle radius, m
@@ -121,25 +134,27 @@ def func(t, y):
     dA = nozzle.dAdx(t)                         # nozzle expansion rate, 1/m
     rhoL = cond.rho                             # condensate density, kg/m^3
     H = cond.H(T)                               # latent heat, J/kg
-    r0J1 = r0*J if r0 < np.infty else 0
-    r0J2 = r0**2*J if r0 < np.infty else 0
-    r0J3 = r0**3*J if r0 < np.infty else 0
-    dotq = 4/3*pi*rhoL*(r0J3 + 3*dotr*mu_k[2])*H
 
     dydt = np.empty_like(y)
-    dydt[3] = J*A/dotm                          # mu_0/rho
-    dydt[4] = (r0J1 + dotr*mu_k[0])*A/dotm      # mu_1/rho
-    dydt[5] = (r0J2 + 2*dotr*mu_k[1])*A/dotm    # mu_2/rho
-    dydt[6] = (r0J3 + 3*dotr*mu_k[2])*A/dotm    # mu_3/rho
+    i = 2 if args.algebraic else 3
+    dydt[i] = J*A/dotm                                  # mu_0/rho
+    for k in range(1, 4):
+        r0J = r0**k*J if r0 < np.infty else 0
+        dydt[i+k] = (r0J + k*dotr*mu_k[k-1])*A/dotm     # mu_k/rho
+    dotq = 4/3*pi*rhoL*dydt[i+3]/A*dotm*H
 
-    dg = 4/3*pi*rhoL*dydt[6]
-    Q = A*dotq/c_p/T/dotm
-    dlngamma = (1-gamma)*((cond.c_p-_c_p_(vapor))/c_p + _Mmean(g)/vapor.M)*dg
-    C = gamma/(gamma-1)
+    if args.algebraic:
+        dydt[0] = gamma*P*Ma**2*dA/A                    # P*(1+gamma*Ma^2)
+        dydt[1] = A*dotq/dotm                           # c_p*T*(1+(gamma-1)*Ma^2/2)
+    else:
+        dg = 4/3*pi*rhoL*dydt[6]
+        Q = A*dotq/c_p/T/dotm
+        dlngamma = (1-gamma)*((cond.c_p-_c_p_(vapor))/c_p + _Mmean(g)/vapor.M)*dg
+        C = gamma/(gamma-1)
 
-    dydt[0] = P*y[1]/(Ma**2-1)*(dlngamma/(gamma-1) - (3+2*y[1]/C)*dA/A + Q) # P
-    dydt[1] = y[1]*dA/A - (1+y[1])*dydt[0]/P                                # gamma*M^2
-    dydt[2] = y[2]/(1+y[1]/C/2)*(Q - dydt[1]/C/2 - dlngamma*Ma**2/2)        # c_p*T
+        dydt[0] = P*y[1]/(Ma**2-1)*(dlngamma/(gamma-1) - (3+2*y[1]/C)*dA/A + Q) # P
+        dydt[1] = y[1]*dA/A - (1+y[1])*dydt[0]/P                                # gamma*M^2
+        dydt[2] = y[2]/(1+y[1]/C/2)*(Q - dydt[1]/C/2 - dlngamma*Ma**2/2)        # c_p*T
 
     return dydt
 
@@ -188,7 +203,11 @@ U0 = Ma*sqrt((gamma-1)*c_p*T0)
 S = _Pvap(0, P0)/vapor.P_eq(T0)
 n0, r0 = np.maximum(args.n0/A, _J(T0, S)*sqrt(A)/U0), _r_crit(T0, S)
 yk = n0*r0**np.arange(4)/_rho(0, P0, T0)
-y0 = [P0, gamma*Ma**2, c_p*T0, *yk]
+
+if args.algebraic:
+    y0 = [P0*(1+gamma*Ma**2), c_p*T0*(1+(gamma-1)*Ma**2/2), *yk]
+else:
+    y0 = [P0, gamma*Ma**2, c_p*T0, *yk]
 
 print(f'Initial values: T = {T0} K, P = {args.pressure} atm, Ma = {Ma:.3g}, w0 = {args.w0:.3g}')
 print(f'Vapor mass flow rate (g/min) = {dotm*args.w0*1e3*60:.3g}')
