@@ -6,6 +6,7 @@
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{physics, siunitx}
 \usepackage{multirow}
+\usepackage{chemformula}        % for \ch
 
 %%% Configuration packages
 %\usepackage{fullpage}
@@ -17,12 +18,12 @@
 
 \usepackage[
     backend=biber,
-    style=authoryear,
-    autolang=other,
+    style=numeric,
+    giveninits=true,
     sorting=none,
     mincrossrefs=100, % do not add parent collections
 ]{biblatex}
-%\addbibresource{nozzle_condensation.bib}
+\addbibresource{nozzle_condensation.bib}
 
 \title{A condensation flow in supersonic nozzles}
 \author{Oleg Rogozin}
@@ -42,6 +43,7 @@
 
 \begin{document}
 \maketitle
+\tableofcontents
 
 \section{Gas dynamics}
 
@@ -62,7 +64,7 @@ is the stagnation enthalpy (\si{\J\per\kg}). In~\eqref{eq:h0},
 $c_p$ is the specific heat capacity at constant pressure (\si{\J\per\kg\per\K}), $T$ is the temperature (\si{\K}).
 
 %%% 1D geometry
-Let us consider a one-dimensional compressible flow in a nozzle with a specified cross section area $A(x)$.
+Let us consider a one-dimensional compressible flow in a nozzle with a specified cross-sectional area $A(x)$.
 Assuming that $\bv = (v,0,0)$ and integrating Eqs.~\eqref{eq:rho}--\eqref{eq:h} over the cross section, we obtain
 \begin{gather}
     \dv{\dot{m}}{x} = 0, \label{eq:continuity}\\
@@ -103,6 +105,20 @@ and mass flow rate
     \dot{m} = \frac{\gamma pMA}{((\gamma-1)c_pT)^{1/2}}.
 \end{equation}
 
+\subsection{Isentropic solution}
+
+In the absence of heat source ($\dot{q}=0$), the differential equations~\eqref{eq:momentum2}--\eqref{eq:dotm}
+can be reduced to the algebraic ones~\cite[Sec.~5.4]{anderson1990modern}:
+\begin{gather}
+    \qty(\frac{A}{A_*})^2 = \frac1{M^2}
+        \qty(\frac{2}{\gamma+1}\qty(1+\frac{\gamma-1}{2}M^2))^{(\gamma+1)/(\gamma-1)}, \label{eq:isentropic:Ma}\\
+    \frac{T}{T_*} = \frac{\gamma+1}{2 + (\gamma-1)M^2}, \label{eq:isentropic:T}\\
+    p = \frac{\dot{m}}{\gamma MA}\qty((\gamma-1)c_pT)^{1/2}, \label{eq:isentropic:P}
+\end{gather}
+where $A_*$ and $T_*$ are the cross-sectional area and temperature at the nozzle throat.
+Eq.~\eqref{eq:isentropic:Ma} is called area Mach number relation.
+It requires that $A\geq A_*$ and gives both supersonic and subsonic solutions.
+
 \section{Gas properties}
 
 %%% Mixture
@@ -127,7 +143,7 @@ where the contribution of the condensate phase is zero.
 \section{Condensation}
 
 %%% Moment equations
-The gas dynamic equations are augmented by the following moment equations:
+The gas dynamic equations are augmented by the following moment equations~\cite{hill1966condensation}:
 \begin{equation}\label{eq:mu_k}
     \div(\mu_k\bv) = \dot{\mu}_k \quad (k=0,1,2,\dots),
 \end{equation}
@@ -161,16 +177,16 @@ where $\rho_L$ is the density of the condensed phase (\si{\kg\per\cubic\m})
 and $H$ is the latent heat of condensation (\si{\J\per\kg}).
 
 %%% Nucleation rate
-According to the Hale model, nucleation rate
+According to the Hale model~\cite{hale2004scaling}, nucleation rate
 \begin{equation}\label{eq:J}
-    J = J_0\exp(-\frac{16\pi}{3}\Omega^3\frac{(\crit{T}/T-1)^3}{\ln^2S}) \quad (S > 1),
+    J = J_0\exp(-\frac{16\pi}{3}\Omega^3\frac{(\crit{T}/T-1)^3}{\ln^2{S}}) \quad (S > 1),
 \end{equation}
 where $J_0$ is the nucleation prefactor (\si{\per\cubic\m\per\s}),
 $\Omega$ is the excess surface entropy per molecule divided by the Boltzmann constant,
 and $\crit{T}$ is the critical temperature (\si{\K}).
 
 %%% Growth rate
-The isothermal growth law states that
+The isothermal growth law~\cite{sinha2009modeling} states that
 \begin{equation}\label{eq:dotr}
     \dot{r}(r) = \frac{5\pi\alpha}{16\rho_L}
         \qty(\frac{M_\vap}{2\pi RT})^{1/2} \qty(p_\vap-p_\eq\exp(\frac{\lambda_K}{r})),
@@ -185,7 +201,7 @@ Finally, let us note that in the considered 1-D case the moment equations take t
 
 \section{Dimensional analysis}
 
-Let $A_*$, $p_*$, $T_*$, and $g_*$ be, respectively, the cross section area, pressure, temperature,
+Let $A_*$, $p_*$, $T_*$, and $g_*$ be, respectively, the cross-sectional area, pressure, temperature,
 and condensate mass fraction at the nozzle throat, where $M=1$ is assumed, and put
 \begin{equation}\label{eq:reference}
     \rho_* = \frac{p_*\bar{M}(g_*)}{RT_*}, \quad
@@ -220,7 +236,7 @@ where $g = \hat{\mu}_3/\hat{\rho}$ and
 The nucleation and growth models takes the following dimensionless form:
 \begin{gather}
     \hat{J} \equiv \frac{J}{J_0}
-        = \exp(-\frac{16\pi}{3}\Omega^3\frac{(\crit{T}/T_*\hat{T}-1)^3}{\ln^2S}), \label{eq:nucleation3}\\
+        = \exp(-\frac{16\pi}{3}\Omega^3\frac{(\crit{T}/T_*\hat{T}-1)^3}{\ln^2{S}}), \label{eq:nucleation3}\\
     \hat{\dot{r}} \equiv \frac{\dot{r}\rho_L}{p_0}\qty(\frac{RT_0}{M_v})^{1/2}
         = \frac{5\pi\alpha}{16(2\pi\hat{T})^{1/2}}
             \qty(\hat{p}_\vap - \hat{p}_\eq\exp(\frac1{\hat{r}})). \label{eq:growth3}
@@ -236,16 +252,16 @@ Four dimensionless quantities are identified in the above formulas:
 \subsection{Direct solution}
 
 The governing equations~\eqref{eq:momentum2}--\eqref{eq:dotm} can be solved directly, which yields three quantities:
-\begin{equation}\label{eq:solution1}
+\begin{equation}\label{eq:sol1:y}
     y_c = \frac{(\gamma pM)^2}{(\gamma-1)c_pT}, \quad
     y_m = p\qty(1 + \gamma M^2), \quad
     y_e = c_pT\qty(1 + \frac{\gamma-1}{2}M^2).
 \end{equation}
 Then, the Mach number is found from the algebraic equation
-\begin{equation}\label{eq:solution1}
+\begin{equation}\label{eq:sol1:Ma}
     \qty(y_c y_e - \frac12y_m^2)\gamma^2M^4 + \qty(2y_c y_e - \frac{\gamma}{\gamma-1}y_m^2)\gamma M^2 + y_cy_e = 0.
 \end{equation}
-However, we have to chose the physically correct root of Eq.~\eqref{eq:solution1} manually,
+However, we have to choose the physically correct root of Eq.~\eqref{eq:sol1:Ma} manually,
 which is not convenient for numerical analysis in the general case.
 
 \subsection{Transformed equations}
@@ -254,12 +270,12 @@ Instead, the governing equations~\eqref{eq:momentum2}--\eqref{eq:dotm} can be tr
 \begin{gather}
     \frac1p\dv{p}{x} = \frac{\gamma M^2}{M^2 - 1}
         \qty( \frac1{\gamma(\gamma-1)}\dv{\gamma}{x} - \qty(3 + 2(\gamma-1)M^2)\frac1A\dv{A}{x}
-            + \frac{A\dot{q}}{c_pT\dot{m}}), \label{eq:p}\\
+            + \frac{A\dot{q}}{c_pT\dot{m}}), \label{eq:sol2:p}\\
     \dv{\gamma M^2}{x} =
-        \frac{\gamma M^2}{A}\dv{A}{x} - \qty(1 + \gamma M^2)\frac1p\dv{p}{x}, \label{eq:Ma}\\
+        \frac{\gamma M^2}{A}\dv{A}{x} - \qty(1 + \gamma M^2)\frac1p\dv{p}{x}, \label{eq:sol2:Ma}\\
     \frac1{c_pT}\dv{c_pT}{x} = \qty(1+\frac{\gamma-1}{2}M^2)^{-1}
         \qty(\frac{A\dot{q}}{c_pT\dot{m}} - \frac{\gamma-1}{2\gamma}\dv{\gamma M^2}{x}
-            - \frac{M^2}{2\gamma}\dv{\gamma}{x}), \label{eq:T}
+            - \frac{M^2}{2\gamma}\dv{\gamma}{x}), \label{eq:sol2:T}
 \end{gather}
 where
 \begin{gather}
@@ -268,6 +284,6 @@ where
     \dv{g}{x} = \frac{4\pi}{3}\rho_L\dv{x}(\frac{\mu_3}{\rho}). \label{eq:g_prime}
 \end{gather}
 
-%\printbibliography
+\printbibliography
 
 \end{document}
