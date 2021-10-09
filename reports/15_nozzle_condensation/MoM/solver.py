@@ -18,7 +18,7 @@ parser.add_argument('-a', '--alpha', type=float, default=0.6, help='condensation
 parser.add_argument('-R', '--radius', type=float, default=2.5e-3, help='nozzle throat radius (m)')
 parser.add_argument('-H', '--height', type=float, default=5e-3, help='nozzle throat height (m)')
 parser.add_argument('-W', '--width', type=float, default=0.4, help='nozzle throat width/height')
-parser.add_argument('--xmin', type=float, default=0, help='initial distance from throat/length')
+parser.add_argument('--xmin', type=float, default=1e-6, help='initial distance from throat/length')
 parser.add_argument('--Amax', type=float, default=1.25, help='max A/throat A')
 parser.add_argument('--Amin', type=float, default=1.1, help='min A/throat A')
 parser.add_argument('--phi', type=float, default=1.5, help='nozzle divergence angle (degree)')
@@ -82,7 +82,7 @@ nozzle = {
 }[args.nozzle]
 L1, L2 = nozzle.L(1, args.Amax, phi), nozzle.L(args.Amax, args.Amin, phi2)
 L = L1 + args.diffuser*L2
-xmin = args.xmin*L1 + 1e-8
+xmin = args.xmin*L1
 
 # Material properties
 _c_p_ = lambda mat: fixed.R*mat.gamma/(mat.gamma-1)/mat.M
@@ -113,7 +113,7 @@ def calc_gas_dynamics(t, y, g):
         P = ym/(1 + gamma*Ma**2)
         T = (gamma*P*Ma)**2/(gamma-1)/yc/c_p
     else:
-        Ma = sqrt(gMM/gamma)
+        Ma = sqrt(np.maximum(gMM/gamma, 0))
         T = c_pT/c_p
 
     return gamma, Ma, T, P
@@ -165,17 +165,16 @@ def func(t, y):
         dg, dotq = 0, 0
 
     if args.algebraic:
-        dydt[0] = gamma*P*Ma**2*dA/A                        # P*(1+gamma*Ma^2)
+        dydt[0] = -gamma*P*Ma**2*dA/A                       # P*(1+gamma*Ma^2)
         dydt[1] = A*dotq/dotm                               # c_p*T*(1+(gamma-1)*Ma^2/2)
     else:
-        dg = 4/3*pi*rhoL*dydt[-1]
         Q = A*dotq/c_p/T/dotm
         dlngamma = (1-gamma)*((cond.c_p-_c_p_(vapor))/c_p + _Mmean(g)/vapor.M)*dg
         C = gamma/(gamma-1)
 
-        dydt[0] = P*y[1]/(Ma**2-1)*(dlngamma/(gamma-1) - (3+2*y[1]/C)*dA/A + Q) # P
-        dydt[1] = y[1]*dA/A - (1+y[1])*dydt[0]/P                                # gamma*M^2
-        dydt[2] = y[2]/(1+y[1]/C/2)*(Q - dydt[1]/C/2 - dlngamma*Ma**2/2)        # c_p*T
+        dydt[0] = P*y[1]/(Ma**2-1)*(dlngamma/(gamma-1) - dA/A + Q)          # P
+        dydt[1] = -y[1]*dA/A - (1+y[1])*dydt[0]/P                           # gamma*M^2
+        dydt[2] = y[2]/(1+y[1]/C/2)*(Q - dydt[1]/C/2 - dlngamma*Ma**2/2)    # c_p*T
 
     return dydt
 

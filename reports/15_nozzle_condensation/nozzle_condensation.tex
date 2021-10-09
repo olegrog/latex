@@ -68,7 +68,7 @@ Let us consider a one-dimensional compressible flow in a nozzle with a specified
 Assuming that $\bv = (v,0,0)$ and integrating Eqs.~\eqref{eq:rho}--\eqref{eq:h} over the cross section, we obtain
 \begin{gather}
     \dv{\dot{m}}{x} = 0, \label{eq:continuity}\\
-    \dv{x}(p + \rho v^2) = \frac{\dot{m}v}{A^2}\dv{A}{x}, \label{eq:momentum}\\
+    \dv{x}(p + \rho v^2) = -\frac{\rho v^2}{A}\dv{A}{x}, \label{eq:momentum}\\
     \dv{x}(c_pT + \frac{v^2}{2}) = \frac{A\dot{q}}{\dot{m}}, \label{eq:energy}
 \end{gather}
 where $\dot{m} = \rho Av$ is the constant mass flow rate through the nozzle (\si{\kg\per\s}).
@@ -97,7 +97,7 @@ Using the following relations:
 \end{equation*}
 Eqs.~\eqref{eq:momentum} and~\eqref{eq:energy} take the form
 \begin{gather}
-    \dv{x}(p\qty(1 + \gamma M^2)) = \frac{\gamma p M^2}{A}\dv{A}{x}, \label{eq:momentum2}\\
+    \dv{x}(p\qty(1 + \gamma M^2)) = -\frac{\gamma p M^2}{A}\dv{A}{x}, \label{eq:momentum2}\\
     \dv{x}(c_pT\qty(1 + \frac{\gamma-1}{2}M^2)) = \frac{A\dot{q}}{\dot{m}}, \label{eq:energy2}
 \end{gather}
 and mass flow rate
@@ -222,7 +222,7 @@ Then, the nondimensional variables are defined as follows:
 Since $\dot{m} = \rho_*v_*A_*$, the governing equations take the form
 \begin{gather}
     \dv{\hat{x}}(\hat{p}\qty(1 + \gamma M^2))
-        = \frac{\gamma \hat{p} M^2}{\hat{A}}\dv{\hat{A}}{\hat{x}}, \label{eq:momentum3}\\
+        = -\frac{\gamma \hat{p} M^2}{\hat{A}}\dv{\hat{A}}{\hat{x}}, \label{eq:momentum3}\\
     \dv{\hat{x}}(\hat{c}_p\hat{T}\qty(1 + \frac{\gamma-1}{2}M^2))
         = \frac{H}{c_p(g_*)T_*}\hat{A}\hat{\dot{\mu}}_3, \label{eq:energy3}\\
     \dv{\hat{x}}(\frac{\hat{\mu}_k}{\hat{\rho}}) = \hat{A}\hat{\dot{\mu}}_k, \label{eq:moments3}
@@ -269,13 +269,12 @@ which is not convenient for numerical analysis in the general case.
 Instead, the governing equations~\eqref{eq:momentum2}--\eqref{eq:dotm} can be transformed to the following:
 \begin{gather}
     \frac1p\dv{p}{x} = \frac{\gamma M^2}{M^2 - 1}
-        \qty( \frac1{\gamma(\gamma-1)}\dv{\gamma}{x} - \qty(3 + 2(\gamma-1)M^2)\frac1A\dv{A}{x}
-            + \frac{A\dot{q}}{c_pT\dot{m}}), \label{eq:sol2:p}\\
+        \qty( -\dv{A}{x} + \frac1{\gamma(\gamma-1)}\dv{\gamma}{x} + \frac{A\dot{q}}{c_pT\dot{m}}), \label{eq:sol2:p}\\
     \dv{\gamma M^2}{x} =
-        \frac{\gamma M^2}{A}\dv{A}{x} - \qty(1 + \gamma M^2)\frac1p\dv{p}{x}, \label{eq:sol2:Ma}\\
+        -\frac{\gamma M^2}{A}\dv{A}{x} - \qty(1 + \gamma M^2)\frac1p\dv{p}{x}, \label{eq:sol2:Ma}\\
     \frac1{c_pT}\dv{c_pT}{x} = \qty(1+\frac{\gamma-1}{2}M^2)^{-1}
-        \qty(\frac{A\dot{q}}{c_pT\dot{m}} - \frac{\gamma-1}{2\gamma}\dv{\gamma M^2}{x}
-            - \frac{M^2}{2\gamma}\dv{\gamma}{x}), \label{eq:sol2:T}
+        \qty( -\frac{\gamma-1}{2\gamma}\dv{\gamma M^2}{x}
+            - \frac{M^2}{2\gamma}\dv{\gamma}{x} + \frac{A\dot{q}}{c_pT\dot{m}}), \label{eq:sol2:T}
 \end{gather}
 where
 \begin{gather}
