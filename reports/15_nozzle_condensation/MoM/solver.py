@@ -118,6 +118,15 @@ def calc_gas_dynamics(t, y, g):
 
     return gamma, Ma, T, P
 
+def calc_dot_moments(mu, A, J, r0, dotr, rhoL, H):
+    dmudt = np.empty_like(mu)
+    dmudt[0] = J*A/dotm                             # mu_0/rho
+    for k in range(1, 4):
+        r0J = np.where(r0 < np.infty, r0**k*J, 0)
+        dmudt[k] = (r0J + k*dotr*mu[k-1])*A/dotm    # mu/rho
+    dotq = 4/3*pi*rhoL*dmudt[-1]/A*dotm*H
+    dg = 4/3*pi*rhoL*dmudt[-1]
+    return dotq, dg, dmudt
 
 def calc_all(t, y):
     y0, y1, y2, y3 = y[-4:]
@@ -132,17 +141,17 @@ def calc_all(t, y):
     J = _J(T, S)                                # nucleation rate, 1/m^3/s
     dotr = _dotr(Pvap, T, r_mean)               # growth rate, m/s
     r0 = _r_crit(T, S)                          # critical radius, m
-    mu_k = np.array(y[-4:])*rho                 # moments of PSD, m^{k-3}
+    mu = np.array(y[-4:])*rho                   # moments of PSD, m^{k-3}
 
-    return gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu_k
+    return gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu
 
 def stop(t, y):
-    gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu_k = calc_all(t, y)
+    gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu = calc_all(t, y)
     return S - args.Smax
 
 def func(t, y):
     if wet:
-        gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu_k = calc_all(t, y)
+        gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu = calc_all(t, y)
     else:
         g = 0
         gamma, Ma, T, P = calc_gas_dynamics(t, y, g)
@@ -155,14 +164,9 @@ def func(t, y):
     dydt = np.empty_like(y)
 
     if wet:
-        dydt[-4] = J*A/dotm                                 # mu_0/rho
-        for k in range(1, 4):
-            r0J = r0**k*J if r0 < np.infty else 0
-            dydt[k-4] = (r0J + k*dotr*mu_k[k-1])*A/dotm     # mu_k/rho
-        dotq = 4/3*pi*rhoL*dydt[-1]/A*dotm*H
-        dg = 4/3*pi*rhoL*dydt[-1]
+        dotq, dg, dydt[-4:] = calc_dot_moments(mu, A, J, r0, dotr, rhoL, H)
     else:
-        dg, dotq = 0, 0
+        dotq, dg = 0, 0
 
     if args.algebraic:
         dydt[0] = -gamma*P*Ma**2*dA/A                       # P*(1+gamma*Ma^2)
@@ -238,21 +242,23 @@ if args.verbose:
     print(line)
 
     rho0 = _Mmean(0)*P0/fixed.R/T0
-    v0, L = sqrt((_gamma(0)-1)*_c_p(0)*T0), sqrt(nozzle.A(0))
-    n0 = 3*rho0*args.w0/4/pi/_kelvin(T0)**3/cond.rho
-    nucl = vapor.J0*L/v0/n0
-    grow = sqrt(vapor.M/_gamma(0)/_Mmean(0))*L*rho0/_kelvin(T0)/cond.rho
+    v0 = sqrt(_gamma(0)*P0/rho0)
+    L0 = sqrt(nozzle.A(0))
+    n0 = 3*rho0/4/pi/_kelvin(T0)**3/cond.rho
+    nucl = vapor.J0*L0/v0/n0
+    grow = sqrt(vapor.M/_gamma(0)/_Mmean(0))*L0*rho0/_kelvin(T0)/cond.rho
 
     print(f'Reference values:')
-    print(f' -- rho0 = {_Mmean(0)*P0/fixed.R/T0:.3g} kg/m^3')
-    print(f' -- t0 = {L/v0:.3g} s')
+    print(f' -- rho0 = {rho0:.3g} kg/m^3')
+    print(f' -- t0 = {L0/v0:.3g} s')
     print(f' -- n0 = {n0:.3g} 1/m^3')
     print(f' -- lambda_K = {_kelvin(T0):.3g} m')
     print(f'Dimensionless quantities:')
     print(f' -- T_crit/T_0 = {vapor.T_crit/T0:.3g}')
     print(f' -- latent heat/enthalpy = {cond.H(T0)/_c_p(0)/T0:.3g}')
-    print(f' -- L/lambda_K = {L/_kelvin(T0):.3g}')
+    print(f' -- L/lambda_K = {L0/_kelvin(T0):.3g}')
     print(f' -- rho_L/rho_0 = {cond.rho/rho0:.3g}')
+    print(f' -- c_p(w0)/c_p(0) = {_c_p(args.w0)/_c_p(0):.3g}')
     print(f' -- nucleation = {nucl:.3g}')
     print(f' -- growth = {grow:.3g}')
 
@@ -266,14 +272,14 @@ solver_kwargs = {
     'max_step': L1/args.Nmin
 }
 sol = solve_ivp(func, [xmin, L], y0, events=stop, **solver_kwargs)
-gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu_k = calc_all(sol.t, sol.y)
+gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu = calc_all(sol.t, sol.y)
 
 print(f'Number of points = {sol.t.size}')
 if not sol.success:
     print('Terminated with the reason:', sol.message)
 
 Nucl = 4/3*pi*cond.rho*np.nan_to_num(r0, posinf=0)**3*J*A
-Grow = 4*pi*cond.rho*dotr*mu_k[2]*A
+Grow = 4*pi*cond.rho*dotr*mu[2]*A
 X = sol.t/L1
 
 fig, axs = plt.subplots(2, 5, figsize=(15, 8))
@@ -283,6 +289,11 @@ axs[0, 0].plot(X, P/fixed.P)
 
 axs[0, 1].set_title('T, K')
 axs[0, 1].plot(X, T)
+if args.verbose:
+    h = c_p*T*(1 + (gamma-1)/2*Ma**2) - g*cond.H(T)
+    ax = axs[0, 1].twinx()
+    ax.plot(X, h, color='red', label='total enthalpy')
+    ax.legend(loc='upper center')
 
 axs[0, 2].set_title('Ma')
 axs[0, 2].plot(X, Ma)
@@ -293,7 +304,7 @@ axs[0, 3].plot(X, 0*X + args.w0, '--', label='maximum')
 axs[0, 3].legend(loc='lower center')
 
 axs[0, 4].set_title('Number of particles, 1/m')
-axs[0, 4].plot(X, mu_k[0]*A)
+axs[0, 4].plot(X, mu[0]*A)
 axs[0, 4].set_yscale('log')
 
 axs[1, 0].set_title('Mean particle radius, m')
