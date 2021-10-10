@@ -98,35 +98,31 @@ _r_crit = np.vectorize(lambda T, S: np.infty if S <= 1 else _kelvin(T)/log(S))
 _r_mean = np.vectorize(lambda y0, y2: np.nan if y0 <= 0 else sqrt(np.maximum(y2/y0, 0)))
 
 def calc_gas_dynamics(t, y, g):
+    gamma = _gamma(g)                           # heat capacity ratio
+    c_p = _c_p(g)                               # heat capacity, J/kg/K
+
     if args.algebraic:
         yc = (dotm/nozzle.A(t))**2
         ym, ye = y[:2]
-    else:
-        P, gMM, c_pT = y[:3]
-
-    gamma = _gamma(g)                           # heat capacity ratio
-    c_p = _c_p(g)                               # heat capacity
-
-    if args.algebraic:
         a, b, c = ye*yc - ym**2/2, 2*ye*yc - gamma*ym**2/(gamma-1), ye*yc
         Ma = sqrt(np.maximum((-b + sqrt(np.maximum(b**2 - 4*a*c, 0)))/2/a/gamma, 0))
         P = ym/(1 + gamma*Ma**2)
         T = (gamma*P*Ma)**2/(gamma-1)/yc/c_p
     else:
+        P, gMM, c_pT = y[:3]
         Ma = sqrt(np.maximum(gMM/gamma, 0))
         T = c_pT/c_p
 
     return gamma, Ma, T, P
 
-def calc_dot_moments(mu, A, J, r0, dotr, rhoL, H):
-    dmudt = np.empty_like(mu)
-    dmudt[0] = J*A/dotm                             # mu_0/rho
+def calc_dot_moments(mu, A, J, r0, dotr):
+    dmu_rhodt = np.empty_like(mu)
+    dmu_rhodt[0] = J*A/dotm                             # mu_0/rho
     for k in range(1, 4):
         r0J = np.where(r0 < np.infty, r0**k*J, 0)
-        dmudt[k] = (r0J + k*dotr*mu[k-1])*A/dotm    # mu/rho
-    dotq = 4/3*pi*rhoL*dmudt[-1]/A*dotm*H
-    dg = 4/3*pi*rhoL*dmudt[-1]
-    return dotq, dg, dmudt
+        dmu_rhodt[k] = (r0J + k*dotr*mu[k-1])*A/dotm    # mu/rho
+    dg = 4/3*pi*cond.rho*dmu_rhodt[-1]
+    return dg, dmu_rhodt
 
 def calc_all(t, y):
     y0, y1, y2, y3 = y[-4:]
@@ -158,27 +154,27 @@ def func(t, y):
 
     A = nozzle.A(t)                             # nozzle area, m^2
     dA = nozzle.dAdx(t)                         # nozzle expansion rate, 1/m
-    rhoL = cond.rho                             # condensate density, kg/m^3
     H = cond.H(T)                               # latent heat, J/kg
+    dc_p = cond.c_p - _c_p_(vapor)              # dc_p/dg, J/kg/K
 
     dydt = np.empty_like(y)
 
     if wet:
-        dotq, dg, dydt[-4:] = calc_dot_moments(mu, A, J, r0, dotr, rhoL, H)
+        dg, dydt[-4:] = calc_dot_moments(mu, A, J, r0, dotr)
     else:
-        dotq, dg = 0, 0
+        dg = 0
 
     if args.algebraic:
-        dydt[0] = -gamma*P*Ma**2*dA/A                       # P*(1+gamma*Ma^2)
-        dydt[1] = A*dotq/dotm                               # c_p*T*(1+(gamma-1)*Ma^2/2)
+        dydt[0] = -gamma*P*Ma**2*dA/A           # P*(1+gamma*Ma^2)
+        dydt[1] = (H + dc_p*T)*dg               # c_p*T*(1+(gamma-1)*Ma^2/2)
     else:
-        Q = A*dotq/c_p/T/dotm
-        dlngamma = (1-gamma)*((cond.c_p-_c_p_(vapor))/c_p + _Mmean(g)/vapor.M)*dg
-        C = gamma/(gamma-1)
+        Q = (H/c_p/T + dc_p/c_p)*dg
+        dlngamma = -(gamma-1)*(dc_p/c_p + _Mmean(g)/vapor.M)*dg
+        C = (gamma-1)/2/gamma
 
-        dydt[0] = P*y[1]/(Ma**2-1)*(dlngamma/(gamma-1) - dA/A + Q)          # P
-        dydt[1] = -y[1]*dA/A - (1+y[1])*dydt[0]/P                           # gamma*M^2
-        dydt[2] = y[2]/(1+y[1]/C/2)*(Q - dydt[1]/C/2 - dlngamma*Ma**2/2)    # c_p*T
+        dydt[0] = P*y[1]/(Ma**2-1)*(-dA/A + dlngamma/(gamma-1) + Q)     # P
+        dydt[1] = -y[1]*dA/A - (1+y[1])*dydt[0]/P                       # gamma*M^2
+        dydt[2] = y[2]/(1+C*y[1])*(-C*dydt[1] - dlngamma*Ma**2/2 + Q)   # c_p*T
 
     return dydt
 
@@ -293,7 +289,7 @@ if args.verbose:
     h = c_p*T*(1 + (gamma-1)/2*Ma**2) - g*cond.H(T)
     ax = axs[0, 1].twinx()
     ax.plot(X, h, color='red', label='total enthalpy')
-    ax.legend(loc='upper center')
+    ax.legend(loc='lower center')
 
 axs[0, 2].set_title('Ma')
 axs[0, 2].plot(X, Ma)

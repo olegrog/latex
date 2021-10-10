@@ -56,12 +56,13 @@ can be described by the diabatic flow equations:
     \div(\rho\bv h_0) = \dot{q}, \label{eq:h}
 \end{gather}
 where $\rho$ is the density (\si{\kg\per\cubic\m}), $\bv$ is the velocity (\si{\m\per\s}),
-$p$ is the pressure (\si{\Pa}), $\dot{q}$ is the volumetric heat source (\si{\J\per\cubic\m\per\s}), and
+$p$ is the pressure (\si{\Pa}), $\dot{q}$ is the volumetric heat source (\si{\J\per\cubic\m\per\s}),
 \begin{equation}\label{eq:h0}
     h_0 = c_pT + \frac{|\bv|^2}{2}
 \end{equation}
-is the stagnation enthalpy (\si{\J\per\kg}). In~\eqref{eq:h0},
-$c_p$ is the specific heat capacity at constant pressure (\si{\J\per\kg\per\K}), $T$ is the temperature (\si{\K}).
+is the stagnation enthalpy (\si{\J\per\kg}),
+$c_p$ is the temperature-independent specific heat capacity at constant pressure (\si{\J\per\kg\per\K}),
+$T$ is the temperature (\si{\K}).
 
 %%% 1D geometry
 Let us consider a one-dimensional compressible flow in a nozzle with a specified cross-sectional area $A(x)$.
@@ -116,7 +117,7 @@ can be reduced to the algebraic ones~\cite[Sec.~5.4]{anderson1990modern}:
     p = \frac{\dot{m}}{\gamma MA}\qty((\gamma-1)c_pT)^{1/2}, \label{eq:isentropic:P}
 \end{gather}
 where $A_*$ and $T_*$ are the cross-sectional area and temperature at the nozzle throat.
-Eq.~\eqref{eq:isentropic:Ma} is called area Mach number relation.
+Eq.~\eqref{eq:isentropic:Ma} is called the area--Mach number relation.
 It requires that $A\geq A_*$ and gives both supersonic and subsonic solutions.
 
 \section{Gas properties}
@@ -130,15 +131,26 @@ Let $w_0$ be the initial vapor mass fraction, then
     \frac{\rho_\ine}{\rho} = 1-w_0, \quad \frac{\rho_\vap}{\rho} = w_0-g, \quad \frac{\rho_\con}{\rho} = g,
 \end{equation}
 where $g$ is the condensate mass fraction.
-The specific heat capacity of the mixture is calculated according to mass fractions as follows:
+The specific heat capacity of the mixture is expressed according to the mass fractions as
 \begin{equation}\label{eq:c_p}
-    c_p = (1-w_0)c_{p\ine} + (w_0-g)c_{p\vap} + gc_{p\con},
+    c_p = (1-w_0)c_{p\ine} + (w_0-g)c_{p\vap} + gc_{p\con}.
 \end{equation}
 Similarly,
 \begin{equation}\label{eq:M}
     \frac1{\bar{M}} = \frac{1-w_0}{M_\ine} + \frac{w_0-g}{M_\vap},
 \end{equation}
 where the contribution of the condensate phase is zero.
+
+%%% Heat source
+The heat source in the energy equation~\eqref{eq:energy2} can be written in terms of $g$ as
+\begin{equation}\label{eq:dotq}
+    \frac{A\dot{q}}{\dot{m}} = \Delta{h}\dv{g}{x},
+\end{equation}
+where the change in the specific enthalpy due to the phase transition,
+\begin{equation}\label{eq:deltah}
+    \Delta{h} = \qty(c_{p\con} - c_{p\vap})T + H,
+\end{equation}
+and $H$ is the latent heat of condensation (\si{\J\per\kg}).
 
 \section{Condensation}
 
@@ -167,14 +179,12 @@ called the critical radius, $\crit{r} = \lambda_K/\ln(S)$, where
 \end{equation}
 is the Kelvin length (\si{m}) and $\sigma$ is the surface tension coefficient (\si{\J\per\square\m}).
 
-%%% Condensate-mass quantities
-The heat source in the energy equation~\eqref{eq:energy2}
-and the condensate mass fraction are expressed in terms of $\mu_3$ as follows:
-\begin{equation}\label{eq:dotq-g}
-     \dot{q} = \frac{4\pi}{3}\rho_L\dot{\mu}_3H, \quad g = \frac{4\pi}{3} \frac{\rho_L\mu_3}{\rho},
+%%% Condensate mass fraction
+The condensate mass fraction is expressed in terms of $\mu_3$ as
+\begin{equation}\label{eq:g}
+     g = \frac{4\pi\rho_L}{3} \frac{\mu_3}{\rho},
 \end{equation}
-where $\rho_L$ is the density of the condensed phase (\si{\kg\per\cubic\m})
-and $H$ is the latent heat of condensation (\si{\J\per\kg}).
+where $\rho_L$ is the density of the condensed phase (\si{\kg\per\cubic\m}).
 
 %%% Nucleation rate
 According to the Hale model~\cite{hale2004scaling}, nucleation rate
@@ -224,7 +234,7 @@ Since $\dot{m} = \rho_*v_*A_*$, the governing equations take the form
     \dv{\hat{x}}(\hat{p}\qty(1 + \gamma M^2))
         = -\frac{\gamma \hat{p} M^2}{\hat{A}}\dv{\hat{A}}{\hat{x}}, \label{eq:momentum3}\\
     \dv{\hat{x}}(\hat{c}_p\hat{T}\qty(1 + \frac{\gamma-1}{2}M^2))
-        = \frac{H}{c_p(g_*)T_*}\hat{A}\hat{\dot{\mu}}_3, \label{eq:energy3}\\
+        = \qty(\hat{c}_p'\hat{T} + \frac{H}{c_p(g_*)T_*})\hat{A}\hat{\dot{\mu}}_3, \label{eq:energy3}\\
     \dv{\hat{x}}(\frac{\hat{\mu}_k}{\hat{\rho}}) = \hat{A}\hat{\dot{\mu}}_k, \label{eq:moments3}
 \end{gather}
 where $g = \hat{\mu}_3/\hat{\rho}$ and
@@ -269,18 +279,26 @@ which is not convenient for numerical analysis in the general case.
 Instead, the governing equations~\eqref{eq:momentum2}--\eqref{eq:dotm} can be transformed to the following:
 \begin{gather}
     \frac1p\dv{p}{x} = \frac{\gamma M^2}{M^2 - 1}
-        \qty( -\dv{A}{x} + \frac1{\gamma(\gamma-1)}\dv{\gamma}{x} + \frac{A\dot{q}}{c_pT\dot{m}}), \label{eq:sol2:p}\\
+        \qty( -\frac1A\dv{A}{x} + \frac1{\gamma(\gamma-1)}\dv{\gamma}{x} + \frac{\Delta{h}}{c_pT}\dv{g}{x}), \label{eq:sol2:p}\\
     \dv{\gamma M^2}{x} =
         -\frac{\gamma M^2}{A}\dv{A}{x} - \qty(1 + \gamma M^2)\frac1p\dv{p}{x}, \label{eq:sol2:Ma}\\
     \frac1{c_pT}\dv{c_pT}{x} = \qty(1+\frac{\gamma-1}{2}M^2)^{-1}
         \qty( -\frac{\gamma-1}{2\gamma}\dv{\gamma M^2}{x}
-            - \frac{M^2}{2\gamma}\dv{\gamma}{x} + \frac{A\dot{q}}{c_pT\dot{m}}), \label{eq:sol2:T}
+            - \frac{M^2}{2\gamma}\dv{\gamma}{x} + \frac{\Delta{h}}{c_pT}\dv{g}{x}), \label{eq:sol2:T}
 \end{gather}
 where
 \begin{gather}
     \frac1\gamma\dv{\gamma}{x}
-        = (1-\gamma)\qty(\frac{c_{p\con} - c_{p\vap}}{c_p} + \frac{\bar{M}}{M_\vap})\dv{g}{x}, \label{eq:gamma_prime}\\
-    \dv{g}{x} = \frac{4\pi}{3}\rho_L\dv{x}(\frac{\mu_3}{\rho}). \label{eq:g_prime}
+        = -(\gamma-1)\qty(\frac{c_{p\con} - c_{p\vap}}{c_p} + \frac{\bar{M}}{M_\vap})\dv{g}{x}, \label{eq:gamma_prime}\\
+    \dv{g}{x} = \frac{4\pi\rho_L}{3}\dv{x}(\frac{\mu_3}{\rho}). \label{eq:g_prime}
+\end{gather}
+Using Eqs.~\eqref{eq:deltah} and~\eqref{eq:gamma_prime}, we obtain
+\begin{gather}
+    \frac1p\dv{p}{x} = \frac{\gamma M^2}{M^2 - 1}
+        \qty( -\frac1A\dv{A}{x} + \qty(\frac{H}{c_pT} - \frac{\bar{M}}{M_\vap})\dv{g}{x} ), \label{eq:sol2:p2}\\
+    \frac1T\dv{T}{x} = \qty(1+\frac{\gamma-1}{2}M^2)^{-1}
+        \qty( -\frac{\gamma-1}{2\gamma}\dv{\gamma M^2}{x}
+            + \qty(\frac{H}{c_pT} + \frac{\gamma-1}{2}M^2\frac{\bar{M}}{M_\vap})\dv{g}{x}). \label{eq:sol2:T2}
 \end{gather}
 
 \printbibliography
