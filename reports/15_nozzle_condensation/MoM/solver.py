@@ -109,9 +109,8 @@ def calc_gas_dynamics(t, y, g):
         P = ym/(1 + gamma*Ma**2)
         T = (gamma*P*Ma)**2/(gamma-1)/yc/c_p
     else:
-        P, gMM, c_pT = y[:3]
+        P, gMM, T = y[:3]
         Ma = sqrt(np.maximum(gMM/gamma, 0))
-        T = c_pT/c_p
 
     return gamma, Ma, T, P
 
@@ -168,13 +167,12 @@ def func(t, y):
         dydt[0] = -gamma*P*Ma**2*dA/A           # P*(1+gamma*Ma^2)
         dydt[1] = (H + dc_p*T)*dg               # c_p*T*(1+(gamma-1)*Ma^2/2)
     else:
-        Q = (H/c_p/T + dc_p/c_p)*dg
-        dlngamma = -(gamma-1)*(dc_p/c_p + _Mmean(g)/vapor.M)*dg
-        C = (gamma-1)/2/gamma
+        dM = _Mmean(g)/vapor.M*dg
+        dQ = H/c_p/T*dg
 
-        dydt[0] = P*y[1]/(Ma**2-1)*(-dA/A + dlngamma/(gamma-1) + Q)     # P
-        dydt[1] = -y[1]*dA/A - (1+y[1])*dydt[0]/P                       # gamma*M^2
-        dydt[2] = y[2]/(1+C*y[1])*(-C*dydt[1] - dlngamma*Ma**2/2 + Q)   # c_p*T
+        dydt[0] = P*y[1]/(Ma**2-1)*(-dA/A + dQ - dM)        # P
+        dydt[1] = -y[1]*dA/A - (1+y[1])*dydt[0]/P           # gamma*M^2
+        dydt[2] = T*(dA/A + (y[1]-1)/y[1]*dydt[0]/P + dM)   # T
 
     return dydt
 
@@ -226,7 +224,7 @@ yk = n0*r0**np.arange(4)/_rho(0, P0, T0)
 if args.algebraic:
     y0 = [P0*(1+gamma*Ma0**2), c_p*T0*(1+(gamma-1)*Ma0**2/2), *yk]
 else:
-    y0 = [P0, gamma*Ma0**2, c_p*T0, *yk]
+    y0 = [P0, gamma*Ma0**2, T0, *yk]
 
 print(f'Initial values: T = {T0} K, P = {args.pressure} atm, Ma = {Ma0:.3g}, w0 = {args.w0:.3g}')
 print(f'Vapor mass flow rate (g/min) = {dotm*args.w0*1e3*60:.3g}')

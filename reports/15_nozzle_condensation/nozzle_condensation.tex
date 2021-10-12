@@ -77,19 +77,19 @@ where $\dot{m} = \rho Av$ is the constant mass flow rate through the nozzle (\si
 %%% Equation of state
 The system of governing equations is closed by the equation of state
 \begin{equation}\label{eq:eos}
-    p = \frac{\rho RT}{\bar{M}},
+    p = \frac{\rho RT}{\mathcal{M}},
 \end{equation}
-where $\bar{M}$ is average molar mass of the mixture of ideal gases (\si{\kg\per\mol}),
+where $\mathcal{M}$ is molar mass of the mixture of ideal gases (\si{\kg\per\mol}),
 $R$ is the universal gas constant ($= \SI{8.3145}{\J\per\mol\per\K}$).
 
 %%% Mach number
 Next, it is convenient to deal with the Mach number
 \begin{equation}\label{eq:Mach}
-    M = \qty(\frac{\bar{M}v^2}{\gamma RT})^{1/2},
+    M = \qty(\frac{\mathcal{M}v^2}{\gamma RT})^{1/2},
 \end{equation}
 where
 \begin{equation}\label{eq:gamma}
-    \gamma = \qty(1-\frac{R}{c_p\bar{M}})^{-1}
+    \gamma = \qty(1-\frac{R}{c_p\mathcal{M}})^{-1}
 \end{equation}
 is the heat capacity ratio.
 Using the following relations:
@@ -137,7 +137,7 @@ The specific heat capacity of the mixture is expressed according to the mass fra
 \end{equation}
 Similarly,
 \begin{equation}\label{eq:M}
-    \frac1{\bar{M}} = \frac{1-w_0}{M_\ine} + \frac{w_0-g}{M_\vap},
+    \frac1{\mathcal{M}} = \frac{1-w_0}{\mathcal{M}_\ine} + \frac{w_0-g}{\mathcal{M}_\vap},
 \end{equation}
 where the contribution of the condensate phase is zero.
 
@@ -170,12 +170,12 @@ Here, $J$ is the nucleation rate (\si{\per\cubic\m\per\s}),
 $\dot{r}$ is the growth rate function (\si{\m\per\s}) of droplet radius $r$,
 and $r_\Hill=\sqrt{\mu_2/\mu_0}$ is the surface-averaged radius (\si{\m}).
 The nucleation terms in the source~\eqref{eq:dotmu} vanish, when oversaturation $S = p_\vap/p_\eq$,
-which is the ratio of the vapor pressure $p_\vap = (w_0 - g)p\bar{M}/M_\vap$
+which is the ratio of the vapor pressure $p_\vap = (w_0 - g)p\mathcal{M}/\mathcal{M}_\vap$
 to the saturated pressure $p_\eq$ at local flow temperature, is less or equal to one.
 When $S>1$, new particles nucleate at a given size,
 called the critical radius, $\crit{r} = \lambda_K/\ln(S)$, where
 \begin{equation}\label{eq:Kelvin}
-    \lambda_K = \frac{2\sigma M_\vap}{\rho_L R T}
+    \lambda_K = \frac{2\sigma \mathcal{M}_\vap}{\rho_L R T}
 \end{equation}
 is the Kelvin length (\si{m}) and $\sigma$ is the surface tension coefficient (\si{\J\per\square\m}).
 
@@ -199,7 +199,7 @@ and $\crit{T}$ is the critical temperature (\si{\K}).
 The isothermal growth law~\cite{sinha2009modeling} states that
 \begin{equation}\label{eq:dotr}
     \dot{r}(r) = \frac{5\pi\alpha}{16\rho_L}
-        \qty(\frac{M_\vap}{2\pi RT})^{1/2} \qty(p_\vap-p_\eq\exp(\frac{\lambda_K}{r})),
+        \qty(\frac{\mathcal{M}_\vap}{2\pi RT})^{1/2} \qty(p_\vap-p_\eq\exp(\frac{\lambda_K}{r})),
 \end{equation}
 where $\alpha$ is the condensation coefficient.
 
@@ -214,7 +214,7 @@ Finally, let us note that in the considered 1-D case the moment equations take t
 Let $A_*$, $p_*$, $T_*$, and $g_*$ be, respectively, the cross-sectional area, pressure, temperature,
 and condensate mass fraction at the nozzle throat, where $M=1$ is assumed, and put
 \begin{equation}\label{eq:reference}
-    \rho_* = \frac{p_*\bar{M}(g_*)}{RT_*}, \quad
+    \rho_* = \frac{p_*\mathcal{M}(g_*)}{RT_*}, \quad
     v_* = \qty(\gamma(g_*)\frac{p_*}{\rho_*})^{1/2}, \quad
     L = \sqrt{A_*}, \quad
     n_0 = \frac{3\rho_*}{4\pi\lambda_K^3\rho_L},
@@ -240,21 +240,21 @@ Since $\dot{m} = \rho_*v_*A_*$, the governing equations take the form
 where $g = \hat{\mu}_3/\hat{\rho}$ and
 \begin{equation}\label{eq:dot_mu_k}
     \hat{\dot{\mu}}_k = \qty( \frac{J_0L}{n_0v_*} \crit{\hat{r}}^{k}\hat{J}
-        + \qty(\frac{M_v}{\gamma(g_*)\bar{M}(g_*)})^{1/2}\frac{L\rho_*}{\lambda_K\rho_L}
+        + \qty(\frac{\mathcal{M}_\vap}{\gamma(g_*)\mathcal{M}(g_*)})^{1/2}\frac{L\rho_*}{\lambda_K\rho_L}
             k\hat{\dot{r}}(\hat{r}_\Hill)\hat{\mu}_{k-1}).
 \end{equation}
 The nucleation and growth models takes the following dimensionless form:
 \begin{gather}
     \hat{J} \equiv \frac{J}{J_0}
         = \exp(-\frac{16\pi}{3}\Omega^3\frac{(\crit{T}/T_*\hat{T}-1)^3}{\ln^2{S}}), \label{eq:nucleation3}\\
-    \hat{\dot{r}} \equiv \frac{\dot{r}\rho_L}{p_0}\qty(\frac{RT_0}{M_v})^{1/2}
+    \hat{\dot{r}} \equiv \frac{\dot{r}\rho_L}{p_0}\qty(\frac{RT_0}{\mathcal{M}_\vap})^{1/2}
         = \frac{5\pi\alpha}{16(2\pi\hat{T})^{1/2}}
             \qty(\hat{p}_\vap - \hat{p}_\eq\exp(\frac1{\hat{r}})). \label{eq:growth3}
 \end{gather}
 Four dimensionless quantities are identified in the above formulas:
 \begin{equation}\label{eq:dimensionless}
     \frac{\crit{T}}{T_*}, \quad \frac{H}{c_p(g_*)T_*}, \quad
-    \frac{J_0L}{n_0v_*}, \quad \qty(\frac{M_v}{\gamma(g_*)\bar{M}(g_*)})^{1/2}\frac{L\rho_*}{\lambda_K\rho_L}.
+    \frac{J_0L}{n_0v_*}, \quad \qty(\frac{\mathcal{M}_v}{\gamma(g_*)\mathcal{M}(g_*)})^{1/2}\frac{L\rho_*}{\lambda_K\rho_L}.
 \end{equation}
 
 \section{Numerical analysis}
@@ -279,28 +279,24 @@ which is not convenient for numerical analysis in the general case.
 Instead, the governing equations~\eqref{eq:momentum2}--\eqref{eq:dotm} can be transformed to the following:
 \begin{gather}
     \frac1p\dv{p}{x} = \frac{\gamma M^2}{M^2 - 1}
-        \qty( -\frac1A\dv{A}{x} + \frac1{\gamma(\gamma-1)}\dv{\gamma}{x} + \frac{\Delta{h}}{c_pT}\dv{g}{x}), \label{eq:sol2:p}\\
+        \qty( -\frac1A\dv{A}{x} + \qty(\frac{H}{c_pT} - \frac{\mathcal{M}}{\mathcal{M}_\vap})\dv{g}{x} ), \label{eq:sol2:p}\\
     \dv{\gamma M^2}{x} =
         -\frac{\gamma M^2}{A}\dv{A}{x} - \qty(1 + \gamma M^2)\frac1p\dv{p}{x}, \label{eq:sol2:Ma}\\
-    \frac1{c_pT}\dv{c_pT}{x} = \qty(1+\frac{\gamma-1}{2}M^2)^{-1}
-        \qty( -\frac{\gamma-1}{2\gamma}\dv{\gamma M^2}{x}
-            - \frac{M^2}{2\gamma}\dv{\gamma}{x} + \frac{\Delta{h}}{c_pT}\dv{g}{x}), \label{eq:sol2:T}
+    \frac1T\dv{T}{x} = \frac1{A}\dv{A}{x} + \frac{\gamma M^2-1}{\gamma p M^2}\dv{p}{x}
+        + \frac{\mathcal{M}}{\mathcal{M}_\vap}\dv{g}{x}, \label{eq:sol2:T}
 \end{gather}
 where
+\begin{equation}\label{eq:g_prime}
+    \dv{g}{x} = \frac{4\pi\rho_L}{3}\dv{x}(\frac{\mu_3}{\rho}).
+\end{equation}
+The following relations are used to derive these equations:
 \begin{gather}
     \frac1\gamma\dv{\gamma}{x}
-        = -(\gamma-1)\qty(\frac{c_{p\con} - c_{p\vap}}{c_p} + \frac{\bar{M}}{M_\vap})\dv{g}{x}, \label{eq:gamma_prime}\\
-    \dv{g}{x} = \frac{4\pi\rho_L}{3}\dv{x}(\frac{\mu_3}{\rho}). \label{eq:g_prime}
+        = -(\gamma-1)\qty(\frac1{c_p}\dv{c_p}{x} + \frac1{\mathcal{M}}\dv{\mathcal{M}}{x}), \label{eq:gamma_prime}\\
+    \frac1{c_p}\dv{c_p}{x} = \frac{c_{p\con} - c_{p\vap}}{c_p}\dv{g}{x}, \label{eq:c_p_prime}\\
+    \frac1{\mathcal{M}}\dv{\mathcal{M}}{x} = \frac{\mathcal{M}}{\mathcal{M}_\vap}\dv{g}{x}. \label{eq:barM_prime}
 \end{gather}
-Using Eqs.~\eqref{eq:deltah} and~\eqref{eq:gamma_prime}, we obtain
-\begin{gather}
-    \frac1p\dv{p}{x} = \frac{\gamma M^2}{M^2 - 1}
-        \qty( -\frac1A\dv{A}{x} + \qty(\frac{H}{c_pT} - \frac{\bar{M}}{M_\vap})\dv{g}{x} ), \label{eq:sol2:p2}\\
-    \frac1T\dv{T}{x} = \qty(1+\frac{\gamma-1}{2}M^2)^{-1}
-        \qty( -\frac{\gamma-1}{2\gamma}\dv{\gamma M^2}{x}
-            + \qty(\frac{H}{c_pT} + \frac{\gamma-1}{2}M^2\frac{\bar{M}}{M_\vap})\dv{g}{x}). \label{eq:sol2:T2}
-\end{gather}
-
+They are obtained by taking the derivative of~\eqref{eq:gamma}, \eqref{eq:c_p}, and~\eqref{eq:M}.
 \printbibliography
 
 \end{document}
