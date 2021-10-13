@@ -66,13 +66,14 @@ $T$ is the temperature (\si{\K}).
 
 %%% 1D geometry
 Let us consider a one-dimensional compressible flow in a nozzle with a specified cross-sectional area $A(x)$.
-Assuming that $\bv = (v,0,0)$ and integrating Eqs.~\eqref{eq:rho}--\eqref{eq:h} over the cross section, we obtain
+Integrating Eqs.~\eqref{eq:rho}--\eqref{eq:h} over the cross section, we obtain
 \begin{gather}
     \dv{\dot{m}}{x} = 0, \label{eq:continuity}\\
     \dv{x}(p + \rho v^2) = -\frac{\rho v^2}{A}\dv{A}{x}, \label{eq:momentum}\\
     \dv{x}(c_pT + \frac{v^2}{2}) = \frac{A\dot{q}}{\dot{m}}, \label{eq:energy}
 \end{gather}
-where $\dot{m} = \rho Av$ is the constant mass flow rate through the nozzle (\si{\kg\per\s}).
+where $\dot{m} = \rho Av$ is the constant mass flow rate through the nozzle (\si{\kg\per\s})
+and $v$ is the velocity component normal to the cross section.
 
 %%% Equation of state
 The system of governing equations is closed by the equation of state
@@ -80,7 +81,7 @@ The system of governing equations is closed by the equation of state
     p = \frac{\rho RT}{\mathcal{M}},
 \end{equation}
 where $\mathcal{M}$ is molar mass of the mixture of ideal gases (\si{\kg\per\mol}),
-$R$ is the universal gas constant ($= \SI{8.3145}{\J\per\mol\per\K}$).
+$R$ is the universal gas constant ($=\SI{8.3145}{\J\per\mol\per\K}$).
 
 %%% Mach number
 Next, it is convenient to deal with the Mach number
@@ -163,7 +164,7 @@ where $\mu_k$ is the $k$th moment of the particle distribution function ($\si{\m
 \begin{equation}\label{eq:dotmu}
     \dot\mu_k = \begin{cases}
         J &\text{if } k=0,\\
-        \crit{r}^{k}J + k\dot{r}(r_\Hill)\mu_{k-1} &\text{if } k>1.
+        \crit{r}^{k}J + k\dot{r}(r_\Hill)\mu_{k-1} &\text{if } k>0.
     \end{cases}
 \end{equation}
 Here, $J$ is the nucleation rate (\si{\per\cubic\m\per\s}),
