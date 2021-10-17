@@ -109,7 +109,9 @@ and mass flow rate
 
 \subsection{Isentropic solution}
 
-In the absence of heat source ($\dot{q}=0$), the differential equations~\eqref{eq:momentum2}--\eqref{eq:dotm}
+In the absence of heat source ($\dot{q}=0$) and constant $\gamma$,
+which corresponds to a steady isentropic flow of a calorically perfect gas,
+the differential equations~\eqref{eq:momentum2}--\eqref{eq:dotm}
 can be reduced to the algebraic ones~\cite[Sec.~5.4]{anderson1990modern}:
 \begin{gather}
     \qty(\frac{A}{A_*})^2 = \frac1{M^2}
@@ -149,9 +151,30 @@ The heat source in the energy equation~\eqref{eq:energy2} can be written in term
 \end{equation}
 where the change in the specific enthalpy due to the phase transition,
 \begin{equation}\label{eq:deltah}
-    \Delta{h} = \qty(c_{p\con} - c_{p\vap})T + H,
+    \Delta{h} = \qty(c_{p\con} - c_{p\vap})T + H(T),
 \end{equation}
 and $H$ is the latent heat of condensation (\si{\J\per\kg}).
+
+\subsection{Derivation of the heat-source term}
+
+Substituting the condensate continuity equation
+\begin{equation}\label{eq:rho_c}
+    \div(\rho_c\bv) = \dot\rho_c
+\end{equation}
+into the energy equation
+\begin{equation}\label{eq:h-H}
+    \div(\rho\bv h_0) = \Delta{h}\dot\rho_c
+\end{equation}
+and integrating the latter over the cross section, we obtain
+\begin{equation}\label{eq:energy-H}
+    \dv{x}(c_pT + \frac{v^2}{2}) = \Delta{h}\dv{g}{x}.
+\end{equation}
+Comparing Eq.~\eqref{eq:energy-H} with Eq.~\eqref{eq:energy} gives us Eq.~\eqref{eq:dotq}.
+In turn, rewriting Eq.~\eqref{eq:energy-H} as
+\begin{equation}\label{eq:energy-H2}
+    c_p\dv{T}{x} + v\dv{v}{x} = \qty(\Delta{h} - \dv{c_p}{g})\dv{g}{x},
+\end{equation}
+we obtain Eq.~\eqref{eq:deltah} using the definition of $H$.
 
 \section{Condensation}
 
