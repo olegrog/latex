@@ -233,6 +233,36 @@ Finally, let us note that in the considered 1-D case the moment equations take t
     \dv{x}(\frac{\mu_k}{\rho}) = \frac{\dot{\mu}_kA}{\dot{m}}.
 \end{equation}
 
+\subsection{Derivation of the equations of moments}
+
+%%% GDE
+The evolution of the particle distribution function $f(\bx,r)$,
+which is the number density of particles with radius $r$ at point $\bx$,
+is governed by the general dynamic equation~\cite{seinfeld2006atmospheric, hagmeijer2005solution}
+\begin{equation}\label{eq:gde}
+    \div(f\bv) + \pdv{r}\qty(\dot{r}f) = \delta(r-\crit{r})J,
+\end{equation}
+where $\delta(r)$ is the Dirac delta function.
+Multiplying Eq.~\eqref{eq:gde} by $r^k$ and integrating the result over all possible $r$,
+we obtain
+\begin{equation}\label{eq:int_gde}
+    \div(\mu_k\bv) + \int_0^\infty r^k\pdv{r}\qty(\dot{r}f)\dd{r} = \crit{r}^k J,
+\end{equation}
+where
+\begin{equation}\label{eq:int_mu_k}
+    \mu_k = \int_0^\infty r^k f \dd{r}
+\end{equation}
+is the $k$th moment of the particle distribution function.
+
+%%% Hill's closure
+The growth term in Eq.~\eqref{eq:int_gde} vanishes when $k=0$.
+For $k>0$, putting $\dot{r}(r) = \dot{r}(r_H)$, we have
+\begin{equation}\label{eq:Hill}
+    \int_0^\infty r^k\pdv{r}\qty(\dot{r}f)\dd{r} = -k\dot{r}(r_H)\mu_{k-1}.
+\end{equation}
+Substituting Eq.~\eqref{eq:int_mu_k} into Eq.~\eqref{eq:int_gde},
+we come to Eqs.~\eqref{eq:mu_k} with sources~\eqref{eq:dotmu}.
+
 \section{Dimensional analysis}
 
 Let $A_*$, $p_*$, $T_*$, and $g_*$ be, respectively, the cross-sectional area, pressure, temperature,
