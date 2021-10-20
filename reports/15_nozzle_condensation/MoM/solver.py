@@ -24,7 +24,7 @@ parser.add_argument('--Amin', type=float, default=1.1, help='min A/throat A')
 parser.add_argument('--phi', type=float, default=1.5, help='nozzle divergence angle (degree)')
 parser.add_argument('--phi2', type=float, default=0.5, help='diffuser convergence angle (degree)')
 parser.add_argument('-w0', type=float, default=0.1, help='initial vapor mass fraction')
-parser.add_argument('-n0', type=float, default=1e-18, help='initial particle concentration (1/m)')
+parser.add_argument('-g0', type=float, default=1e-12, help='initial condensate mass fraction')
 parser.add_argument('-t', '--tol', type=float, default=1e-6, help='solution tolerance')
 parser.add_argument('--Smax', type=float, default=1e8, help='maximum oversaturation')
 parser.add_argument('--Nmin', type=int, default=50, help='minumum number of integration points')
@@ -90,10 +90,12 @@ _c_p = lambda g: (1-args.w0)*_c_p_(inert) + (args.w0-g)*_c_p_(vapor) + g*cond.c_
 _Mmean = lambda g: 1/((1-args.w0)/inert.M + (args.w0-g)/vapor.M)
 _gamma = lambda g: 1/(1 - fixed.R/_c_p(g)/_Mmean(g))
 _rho = lambda g, P, T: _gamma(g)*P/(_gamma(g)-1)/_c_p(g)/T
-_Pvap = lambda g, P: (args.w0 - g)*P*_Mmean(g)/vapor.M
+_Pvap = lambda g, P: (args.w0-g)*P*_Mmean(g)/vapor.M
 _kelvin = lambda T: 2*vapor.sigma(T)*vapor.M/cond.rho/fixed.R/T
-_dotr = lambda Pvap, T, r: 5*pi/16*args.alpha/cond.rho*sqrt(vapor.M/2/pi/fixed.R/T)*(Pvap - vapor.P_eq(T)*exp(_kelvin(T)/r))
-_J = np.vectorize(lambda T, S: 0. if S <= 1 else vapor.J0*exp(-16*pi/3*(vapor.Omega*(vapor.T_crit/T - 1))**3/log(S)**2))
+_dotr = lambda Pvap, T, r: 5*pi/16*args.alpha/cond.rho*sqrt(vapor.M/2/pi/fixed.R/T) \
+    *np.maximum(Pvap - vapor.P_eq(T)*exp(_kelvin(T)/r), 0)
+_J = np.vectorize(lambda T, S: 0. if S <= 1 else
+    vapor.J0*exp(-16*pi/3*(vapor.Omega*(vapor.T_crit/T - 1))**3/log(S)**2))
 _r_crit = np.vectorize(lambda T, S: np.infty if S <= 1 else _kelvin(T)/log(S))
 _r_mean = np.vectorize(lambda y0, y2: np.nan if y0 <= 0 else sqrt(np.maximum(y2/y0, 0)))
 
@@ -148,7 +150,7 @@ def func(t, y):
     if wet:
         gamma, Ma, T, P, Pvap, rho, g, S, r0, r_mean, J, dotr, mu = calc_all(t, y)
     else:
-        g = 0
+        g = args.g0
         gamma, Ma, T, P = calc_gas_dynamics(t, y, g)
 
     A = nozzle.A(t)                             # nozzle area, m^2
@@ -209,7 +211,7 @@ if args.plots:
     fig.tight_layout()
     plt.show()
 
-gamma, c_p = _gamma(0), _c_p(0)
+gamma, c_p = _gamma(args.g0), _c_p(args.g0)
 A, Amax, Amin = nozzle.A(xmin), nozzle.A(L1), nozzle.A(L1+L2)
 Ma0 = A/nozzle.A(0)
 if nozzle.dAdx(xmin) < 0:
@@ -217,17 +219,23 @@ if nozzle.dAdx(xmin) < 0:
 P0, T0 = args.pressure*fixed.P, args.temp
 dotm = gamma*P0*Ma0*A/sqrt((gamma-1)*c_p*T0)
 U0 = Ma0*sqrt((gamma-1)*c_p*T0)
-S = _Pvap(0, P0)/vapor.P_eq(T0)
-n0, r0 = np.maximum(args.n0/A, _J(T0, S)*sqrt(A)/U0), _r_crit(T0, S)
-yk = n0*r0**np.arange(4)/_rho(0, P0, T0)
+S = _Pvap(args.g0, P0)/vapor.P_eq(T0)
+r0 = _kelvin(T0)
+n0 = 3*_rho(args.g0, P0, T0)*args.g0/4/pi/cond.rho/r0**3
+yk = n0*r0**np.arange(4)/_rho(args.g0, P0, T0)
 
 if args.algebraic:
     y0 = [P0*(1+gamma*Ma0**2), c_p*T0*(1+(gamma-1)*Ma0**2/2), *yk]
 else:
     y0 = [P0, gamma*Ma0**2, T0, *yk]
 
-print(f'Initial values: T = {T0} K, P = {args.pressure} atm, Ma = {Ma0:.3g}, w0 = {args.w0:.3g}')
+print(f'Initial values: T = {T0} K, P = {args.pressure} atm, Ma = {Ma0:.3g}, w0 = {args.w0:.3g}'
+    + f', S = {S:.3g}')
 print(f'Vapor mass flow rate (g/min) = {dotm*args.w0*1e3*60:.3g}')
+
+if S > args.Smax:
+    print(f'Initial oversaturation is too high!', file=sys.stderr)
+    sys.exit(1)
 
 if args.verbose:
     line = f'Geometry: A[m^2] = {A:.3g} -({L1:.3g} m, {args.phi:.2g}°)-> {Amax:.3g}'
@@ -330,7 +338,7 @@ if args.dry:
     print(f'Number of points = {sol.t.size}')
     if not sol.success:
         print('Terminated with the reason:', sol.message)
-    gamma, Ma, T, P = calc_gas_dynamics(sol.t, sol.y, 0)
+    gamma, Ma, T, P = calc_gas_dynamics(sol.t, sol.y, args.g0)
     X = sol.t/L1
 
     opts = ['g:']
@@ -343,9 +351,9 @@ if args.dry:
         gp, gm = gamma+1, gamma-1
         return Aratio**2 - (2/gp*(1+gm/2*Ma**2))**(gp/gm)/Ma**2
 
-    gamma, c_p = _gamma(0), _c_p(0)
+    gamma, c_p = _gamma(args.g0), _c_p(args.g0)
     Aratio = nozzle.A(X*L1)/nozzle.A(0)
-    Ma = np.array([ root_scalar(isentropic, args=x, x0=x, bracket=[1,1e2]).root for x in Aratio ])
+    Ma = Ma0*np.array([ root_scalar(isentropic, args=x, x0=x, bracket=[1,1e2]).root for x in Aratio ])
     T = T0*(1 + (gamma-1)*Ma0**2/2)/(1 + (gamma-1)*Ma**2/2)
     P = dotm*sqrt((gamma-1)*c_p*T)/gamma/Ma/nozzle.A(X*L1)
     kwargs = { 'color': 'black', 'linewidth': 1 }
