@@ -170,7 +170,7 @@ def func(t, y):
         dydt[1] = (H + dc_p*T)*dg               # c_p*T*(1+(gamma-1)*Ma^2/2)
     else:
         dM = _Mmean(g)/vapor.M*dg
-        dQ = H/c_p/T*dg
+        dQ = H/_c_p(g)/T*dg
 
         dydt[0] = P*y[1]/(Ma**2-1)*(-dA/A + dQ - dM)        # P
         dydt[1] = -y[1]*dA/A - (1+y[1])*dydt[0]/P           # gamma*M^2
@@ -211,23 +211,23 @@ if args.plots:
     fig.tight_layout()
     plt.show()
 
-gamma, c_p = _gamma(args.g0), _c_p(args.g0)
-A, Amax, Amin = nozzle.A(xmin), nozzle.A(L1), nozzle.A(L1+L2)
-Ma0 = A/nozzle.A(0)
+gamma0, c_p0 = _gamma(args.g0), _c_p(args.g0)
+A0, Amax, Amin = nozzle.A(xmin), nozzle.A(L1), nozzle.A(L1+L2)
+Ma0 = A0/nozzle.A(0)
 if nozzle.dAdx(xmin) < 0:
     Ma0 = 1/Ma0
 P0, T0 = args.pressure*fixed.P, args.temp
-dotm = gamma*P0*Ma0*A/sqrt((gamma-1)*c_p*T0)
-U0 = Ma0*sqrt((gamma-1)*c_p*T0)
+dotm = gamma0*P0*Ma0*A0/sqrt((gamma0-1)*c_p0*T0)
+U0 = Ma0*sqrt((gamma0-1)*c_p0*T0)
 S = _Pvap(args.g0, P0)/vapor.P_eq(T0)
 r0 = _kelvin(T0)
 n0 = 3*_rho(args.g0, P0, T0)*args.g0/4/pi/cond.rho/r0**3
 yk = n0*r0**np.arange(4)/_rho(args.g0, P0, T0)
 
 if args.algebraic:
-    y0 = [P0*(1+gamma*Ma0**2), c_p*T0*(1+(gamma-1)*Ma0**2/2), *yk]
+    y0 = [P0*(1+gamma0*Ma0**2), c_p0*T0*(1+(gamma0-1)*Ma0**2/2), *yk]
 else:
-    y0 = [P0, gamma*Ma0**2, T0, *yk]
+    y0 = [P0, gamma0*Ma0**2, T0, *yk]
 
 print(f'Initial values: T = {T0} K, P = {args.pressure} atm, Ma = {Ma0:.3g}, w0 = {args.w0:.3g}'
     + f', S = {S:.3g}')
@@ -238,7 +238,7 @@ if S > args.Smax:
     sys.exit(1)
 
 if args.verbose:
-    line = f'Geometry: A[m^2] = {A:.3g} -({L1:.3g} m, {args.phi:.2g}°)-> {Amax:.3g}'
+    line = f'Geometry: A[m^2] = {A0:.3g} -({L1:.3g} m, {args.phi:.2g}°)-> {Amax:.3g}'
     if args.diffuser:
         line += f' -({L2:.3g} m, {args.phi2:.2g}°)-> {Amin:.3g}'
     print(line)
@@ -270,7 +270,7 @@ solver_kwargs = {
     'atol': 0,
     'rtol': args.tol,
     'method': args.method,
-    'first_step': sqrt(A)*args.tol,
+    'first_step': sqrt(A0)*args.tol,
     'max_step': L1/args.Nmin
 }
 sol = solve_ivp(func, [xmin, L], y0, events=stop, **solver_kwargs)
@@ -280,8 +280,8 @@ print(f'Number of points = {sol.t.size}')
 if not sol.success:
     print('Terminated with the reason:', sol.message)
 
-Nucl = 4/3*pi*cond.rho*np.nan_to_num(r0, posinf=0)**3*J*A
-Grow = 4*pi*cond.rho*dotr*mu[2]*A
+Nucl = 4/3*pi*cond.rho*np.nan_to_num(r0, posinf=0)**3*J*A0
+Grow = 4*pi*cond.rho*dotr*mu[2]*A0
 X = sol.t/L1
 
 fig, axs = plt.subplots(2, 5, figsize=(15, 8))
@@ -292,7 +292,7 @@ axs[0, 0].plot(X, P/fixed.P)
 axs[0, 1].set_title('T, K')
 axs[0, 1].plot(X, T)
 if args.verbose:
-    h = c_p*T*(1 + (gamma-1)/2*Ma**2) - g*cond.H(T)
+    h = _c_p(g)*T*(1 + (gamma-1)/2*Ma**2)
     ax = axs[0, 1].twinx()
     ax.plot(X, h, color='red', label='total enthalpy')
     ax.legend(loc='lower center')
@@ -306,7 +306,7 @@ axs[0, 3].plot(X, 0*X + args.w0, '--', label='maximum')
 axs[0, 3].legend(loc='lower center')
 
 axs[0, 4].set_title('Number of particles, 1/m')
-axs[0, 4].plot(X, mu[0]*A)
+axs[0, 4].plot(X, mu[0]*nozzle.A(sol.t))
 axs[0, 4].set_yscale('log')
 
 axs[1, 0].set_title('Mean particle radius, m')
