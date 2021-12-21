@@ -1,0 +1,448 @@
+\documentclass{article}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+
+%%% Functional packages
+\usepackage{amsmath, amssymb, amsthm, mathtools}
+\usepackage{physics, siunitx}
+\usepackage{graphicx}
+    \graphicspath{{plots/}}
+\usepackage[subfolder]{gnuplottex}
+\usepackage[export]{adjustbox}      % For centering wide figures
+
+%%% Configuration packages
+%\usepackage{fullpage}
+
+\usepackage[
+    pdfusetitle,
+    colorlinks
+]{hyperref}
+
+\usepackage[
+    backend=biber,
+    style=numeric,
+    giveninits=true,
+    sorting=none,
+    mincrossrefs=100, % do not add parent collections
+]{biblatex}
+\addbibresource{directional_solidification.bib}
+
+\title{Stability analysis in directional solidification}
+\author{Oleg Rogozin}
+
+%%% Problem-specific aliases
+\newcommand{\liq}{\text{L}}
+\newcommand{\sol}{\text{S}}
+\newcommand{\hV}[1][\qty(\bar{V})]{\vphantom{#1}\smash{\hat{V}}}
+\newcommand{\hG}[1][\qty(\bar{G})]{\vphantom{#1}\smash{\hat{G}}}
+
+
+%%% Bold symbols
+\newcommand{\bv}{\vb*{v}}
+\newcommand{\bn}{\vu*{n}}
+\newcommand{\bx}{\vb*{x}}
+\newcommand{\bk}{\vb*{k}}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Symmetric model for a pure substance}
+
+A first systematic analysis of the linear stability of the planar solidification front is due to~\textcite{mullins1964stability}.
+In this section, we present a simplified theory for a pure substance according to~\textcite{langer1987lectures}.
+It is based on the so-called symmetric model, where the diffusion coefficient is the same for both liquid and solid phases.
+
+\subsection{Formulation of the problem}
+
+%%% Governing equation for the dimensionless temperature
+The dimensionless thermal diffusion field is conveniently chosen to be
+\begin{equation}\label{eq:u}
+    u = \frac{T-T_\infty}{L/c},
+\end{equation}
+where $T_\infty$ is the temperature of liquid infinitely far from the growing solid (\si{\K})
+and the ratio of the latent heat $L$ (\si{\J\per\m\cubed}) to the specific heat $c$ (\si{\J\per\m\cubed\per\K})
+is an appropriate unit of undercooling.
+The field $u$ satisfies the diffusion equation
+\begin{equation}\label{eq:diffusion}
+    \pdv{u}{t} = D\nabla^2u,
+\end{equation}
+where $D$ is the thermal diffusion coefficient (\si{\m\squared\per\s}).
+
+%%% Boundary conditions
+Two boundary conditions are imposed at the solidification front.
+First, there is heat conservation:
+\begin{equation}\label{eq:bc1}
+    v_n = -[D\bn\vdot\grad{u}],
+\end{equation}
+where $v_n$ is the normal growth velocity (\si{\m\per\s}),
+$\bn$ is the unit normal directed outward from the solid,
+and brackets denote the discontinuity of the flux across the boundary.
+Second, the statement of local thermodynamic equilibrium determines the interface temperature:
+\begin{equation}\label{eq:bc2}
+    u_s = \Delta - d_0\kappa,
+\end{equation}
+where
+\begin{equation}\label{eq:undercooling}
+    \Delta = \frac{T_M - T_\infty}{L/c}
+\end{equation}
+is the dimensionless undercooling,
+$\kappa$ is the sum of the principal curvatures (\si{\per\m}), and
+$d_0 = \sigma c T_M/L^2$ is the thermal capillary length (\si{\m}),
+which is proportional to the surface tension $\sigma$ (\si{\J\per\m\squared}).
+
+\subsection{Steady-state solution}
+
+%%% Formulation of the 1D problem
+The simplest steady-state solution of the solidification problem is the planar front
+moving in the $z$ direction with velocity $V$.
+In the one-dimensional case, the diffusion equation take the form
+\begin{equation}\label{eq:problem_1d}
+    Du'' + Vu' = 0
+\end{equation}
+and is solved with the boundary conditions
+\begin{equation}\label{eq:bc_1d}
+    u(0) = \Delta, \quad D[u'(0)] = -V,
+\end{equation}
+which assumes that the solid--liquid interface is located at $z=0$.
+For the specific case $\Delta=1$, there is stationary solution
+\begin{equation}\label{eq:solution_1d}
+    u(z) = \begin{cases}
+        \exp(-z/\ell) & \text{ for } z>0, \\
+        1 & \text{ for } z<0,
+    \end{cases}
+\end{equation}
+where $\ell=D/V$ is the diffusion length.
+
+\subsection{Stability of the planar front}
+
+%%% Linear stability
+Let us now analyze a linear stability of the front given by~\eqref{eq:solution_1d}.
+The full nondimensional diffusion equation in the moving frame is
+\begin{equation}\label{eq:pure:problem_2d}
+    \pdv{u}{\tilde{t}} = \tilde{\nabla}^2u + \pdv{u}{\tilde{z}},
+\end{equation}
+where $\tilde{t} = tV^2/D$, $\tilde{z} = xV/D$.
+The unperturbed front is given by $\tilde{z} = \zeta_s(\bx)=0$,
+where $\tilde\bx$ denote positions in the plane normal to the $z$ axis.
+The infinitesimal perturbation can be written as a sum of Fourier components:
+\begin{equation}\label{eq:pure:perturbation}
+    \delta\zeta_k(\tilde\bx, \tilde{t}) = \hat\zeta(\bk)\exp(i\bk\vdot\tilde\bx + a_0\tilde{t}),
+\end{equation}
+where $\bk$ is a 2-D wave vector perpendicular to the $z$ axis
+and $a_0$ is the amplification rate to be determined.
+Then, the solution of~\eqref{eq:pure:problem_2d} is
+\begin{equation}\label{eq:pure:solution_2d}
+    u(\tilde{z}) = \begin{cases}
+        \exp(-\tilde{z}) + \hat{u}_\liq\exp(i\bk\vdot\tilde\bx - q_\liq\tilde{z} + a_0\tilde{t}) &\text{ for } \tilde{z}>0, \\
+        1 + \hat{u}_\sol\exp(i\bk\vdot\tilde\bx + q_\sol\tilde{z} + a_0\tilde{t})& \text{ for } \tilde{z}<0,
+    \end{cases}
+\end{equation}
+where the relations
+\begin{equation}\label{eq:pure:qLS}
+    a_0 + k^2 = q_\liq^2 - q_\liq = q_\sol^2 + q_\sol
+\end{equation}
+determine $q_\sol$ and $q_\liq$ as positive functions of $k$ and $a_0$.
+
+%%% Dispersion relation
+Imposing the boundary conditions~\eqref{eq:bc1} and~\eqref{eq:bc2} on~\eqref{eq:pure:solution_2d}
+at $z=\delta\zeta_k$, we obtain the following dispersion relation:
+\begin{equation}\label{eq:pure:a0}
+    \Delta(a_0,k) = a_0 + 1 - q_\liq + \frac{d_0}{\ell}k^2(q_\liq + q_\sol) = 0,
+\end{equation}
+or
+\begin{equation}\label{eq:pure:2a0}
+    1+2a_0 = \qty(1-2\hV k^2)\qty(1 + 4a_0 + 4k^2)^{1/2},
+\end{equation}
+where
+\begin{equation}\label{eq:pure:hatV}
+    \hV = \frac{d_0}{\ell} = \frac{\sigma c T_M}{DL^2}V.
+\end{equation}
+For $k\leq1/2$, there are two real solutions of~\eqref{eq:pure:2a0}, one of which is always negative.
+For $\hV < 1$, the larger solution is positive for all wavevectors under condition $|\bk| < k_0$
+and reaches its maximum at $k_m$ as shown in Fig.~\ref{fig:pure:a0}.
+For $\hV \geq 1$, the planar front is unconditionally stable,
+which is referred to as \emph{absolute stability} by metallurgists.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{pure/a0-V0.25}
+    \caption{
+        Amplification factor $a_0(k)$ for a pure substance at $\hV=0.25$.
+        Both solutions are drawn by thick lines.
+        The lower solution can exist only in the gray area defined by Eq.~\eqref{eq:pure:a_0_intervals}.
+        The dotted curve is Eq.~\eqref{eq:pure:bar_a_0}.
+        The vertical line $k=1/2$ is the maximum $k$, until which two real solutions exist.
+        For small $k$, the dashed lines are the asymptotic expansions from Eq.~\eqref{eq:pure:a0_asymptotics}.
+        Near the $k_0$, the dashed curve is given by~\eqref{eq:pure:a_0_near_k_0}.
+    }\label{fig:pure:a0}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{pure/kV}
+    \caption{
+        Boundary of the linear stability of the plane solidification front for a pure substance.
+        The dashed lines are determined by the asymptotic relations~\eqref{eq:pure:k_asymptotics}.
+    }\label{fig:pure:kV}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{pure/lambdaV}
+    \caption{
+        Stability of the wavelength $\hat\lambda$ as a function of the front speed $\hV$.
+        The dashed lines are determined by the asymptotic relations~\eqref{eq:pure:k_asymptotics}.
+    }\label{fig:pure:lambdaV}
+\end{figure}
+
+%%% Neutral stability and the most dangerous mode
+Generally, the point of neutral stability $k_0$ is determined by the equation
+\begin{equation}\label{eq:pure:marginal}
+    1 = \qty(1-2\hV k_0^2)\qty(1+4k_0^2)^{1/2},
+\end{equation}
+which is obtained by putting $a_0=0$ in Eq.~\eqref{eq:pure:2a0}.
+In turn, the most unstable wavenumber $k_m$ is obtained by from the relation
+\begin{equation}\label{eq:pure:most}
+    \frac{1+\hV-6\hV k_m^2}{2\hV\qty(1-2\hV k_m^2)} = \qty(\frac{1-2\hV k_m^2}{\hV})^{1/2}.
+\end{equation}
+The stability diagram in the ($\hV,k$) coordinates are shown in Fig.~\ref{fig:pure:kV}.
+Note, however, that $k$ is proportional to $V$.
+The dependence of the wavelength $\lambda$ on $V$ is shown in Fig.~\ref{fig:pure:lambdaV},
+where $\hat\lambda = \lambda/d_0 = 2\pi/\hV k$.
+
+\subsection{Supplementary estimates}
+
+%%% Asymptotic behavior
+The asymptotic behavior of the amplification rate is
+\begin{equation}\label{eq:pure:a0_asymptotics}
+    a_0 = \begin{cases}
+        \pm\qty(1-\hV)^{1/2}k - \qty(\hV+1)k^2/2 + \order{k^3} \text{ as } k\to0,\\
+        -k^2 + \qty(1-\hV^2)/4\hV^2 + \order{k^{-2}} \text{ as } k\to\infty.
+    \end{cases}
+\end{equation}
+For $k\gg1$ and quasi-stationary approximation ($a_0\ll k^2$),
+\begin{equation}\label{eq:pure:a0_approx}
+    a_0 \cong k\qty(1-2\hV k^2).
+\end{equation}
+This approximation works well in the vicinity of point $k_0$ for small $\hV$
+and, moreover, gives a simple estimate of $k_0$:
+\begin{equation}\label{eq:pure:k_0}
+    k_0 \cong \qty(2\hV)^{-1/2}.
+\end{equation}
+In the vicinity of $k_0$, the amplification rate can be estimated as
+\begin{equation}\label{eq:pure:a_0_near_k_0}
+    a_0 \cong \frac12 - \qty(1-2\hV k^2)\qty(\frac1{2\hV} - \frac12)^{1/2}.
+\end{equation}
+
+%%% How to separate a1 and a2?
+To find two real roots of $a_0(k)$, the solution domain should be divided by curve given
+\begin{equation}\label{eq:pure:bar_a_0}
+    \bar{a}_0 = \hV^2k^4 - \qty(1+\hV)k^2,
+\end{equation}
+which is obtained as a solution of the system: $\Delta=0$ and $\pdv*{\Delta}{a_0}=0$.
+Thus, two roots of the dispersion equation lies in the following intervals:
+\begin{equation}\label{eq:pure:a_0_intervals}
+    -k^2 - 1/4 \leq a_{01} < \bar{a}_0 < a_{02} < 1/8\hV,
+\end{equation}
+where the last inequality is obtained at $k=k_m$ for small $\hV$.
+
+%%% Estimates for k_max and k_0
+For the most interesting points $k_m$ and $k_0$, the following asymptotic relations hold:
+\begin{equation}\label{eq:pure:k_asymptotics}
+    k_m^2 = \begin{cases}
+        1/6\hV \text{ as } \hV\to0,\\
+        \qty(\frac1{\sqrt3} - \frac12)\qty(1-\hV) \text{ as } \hV\to1,
+    \end{cases} \quad k_0^2 = \begin{cases}
+        1/2\hV \text{ as } \hV\to0,\\
+        \qty(1-\hV)/3 \text{ as } \hV\to1,
+    \end{cases}
+\end{equation}
+which are obtained from Eqs.~\eqref{eq:pure:most} and~\eqref{eq:pure:marginal}.
+
+\section{Realistic model for a binary mixture}
+
+The following model is described by~\textcite{caroli1982emergence},
+while the particular case of no solute diffusion in a solid was first presented by~\textcite{wollkind1970nonlinear}.
+A special case when solidus and liquidus slopes are parallel ($K=1$) is considered by~\textcite{langer1977studies}.
+
+\subsection{Formulation of the problem}
+
+%%% Nondimensionalization
+First of all, let us introduce the reference values:
+$C_{\liq0}$ is the equilibrium concentration of the liquid phase at the interface temperature,
+$T_M$ is the melting temperature (\si{\K}) of the \emph{pure solvent},
+$D_\liq$ is the solute diffusion coefficient (\si{\m\squared\per\s}) in the liquid phase at $T_M$,
+$V$ is the constant mean speed of the interface (\si{\m\per\s}).
+Then, $D_\liq/V$ and $D_\liq/V^2$ are the reference length and time, respectively.
+Hereinafter, a tilde over a symbol denotes a dimensionless quantity.
+
+%%% Governing equations and BC
+Let $z = \epsilon\zeta(x,t)$ be the position of the front in the laboratory frame,
+where $\epsilon$ is the smallness parameter.
+Then, solidification of a binary mixture is described by the following equations:
+\begin{gather}
+    \left.\begin{aligned}
+        &\pdv{\tilde{C}_\liq}{t} = \nabla^2 \tilde{C}_\liq + \pdv{\tilde{C}_\liq}{z}, \\
+        &\nabla^2 \tilde{T}_\liq = 0,
+    \end{aligned}\right\} \quad z > \epsilon\zeta(x,t) \label{eq:governingL}\\
+    \left.\begin{aligned}
+        &\pdv{\tilde{C}_\sol}{t} = \nabla^2 \tilde{C}_\sol + \pdv{\tilde{C}_\sol}{z}, \\
+        &\nabla^2 \tilde{T}_\sol = 0,
+    \end{aligned}\right\} \quad z < \epsilon\zeta(x,t) \label{eq:governingS}
+\end{gather}
+where $\tilde{C}_\liq C_{\liq0}$ and $\tilde{T}_\liq T_M$ are the solute concentration and temperature in liquid,
+and $\tilde{C}_\sol C_{\sol0}$ and $\tilde{T}_\sol T_M$ are the same in solid.
+Note that heat diffusion is assumed to be much faster than solute diffusion;
+therefore, the temperature behaves like a frozen field determined by the boundary conditions.
+Solute concentration is specified far ahead the solidification front: $\tilde{C}(z\to\infty) = K$,
+where $K = m_\liq/m_\sol$ is the partition (solute distribution) coefficient,
+$m_{\liq/\sol} = (\dv*{T}{C})_{\liq/\sol}$ are the slopes of the liquidus and solidus curves
+on the binary phase diagram at $T_M$.
+
+%%% Interface conditions
+At the solid--liquid interface, the following conditions are satisfied up to $\order{\epsilon}$:
+\begin{gather}
+    \tilde{T}_\sol = \tilde{T}_\liq, \label{eq:BCT1}\\
+    n\pdv{\tilde{T}_\sol}{z} - \pdv{\tilde{T}_\liq}{z}
+        = \epsilon\zeta_x\qty(n\pdv{\tilde{T}_\sol}{x} - \pdv{\tilde{T}_\liq}{x}), \label{eq:BCT2}\\
+    \tilde{C}_\sol = K\tilde{C}_\liq, \label{eq:BCC1}\\
+    \pdv{\tilde{C}_\liq}{z} - \eta\pdv{\tilde{C}_\sol}{z}
+        = \epsilon\zeta_x\qty(n\pdv{\tilde{T}_\liq}{x} - \pdv{\tilde{T}_\sol}{x})
+        + (K-1)\tilde{C}_\liq(1+\epsilon\zeta_t), \label{eq:BCC2}\\
+    \tilde{T}_\liq = 1 + M\tilde{C_\liq} + \gamma\epsilon\zeta_{xx}, \label{eq:BCgamma}
+\end{gather}
+where $M = C_{\liq0}m_\liq/T_M$ is the dimensionless liquidus slope,
+which is assumed to have the same sign as the solidus one, i.e., $M(K-1) > 0$,
+\begin{equation}\label{eq:n_eta}
+    \eta = D_\sol/D_\liq, \quad n = \kappa_\sol/\kappa_\liq
+\end{equation}
+are the solute diffusion and thermal conductivity ratios, respectively.
+Dimensionless capillary constant
+\begin{equation}\label{eq:gamma}
+    \gamma = \frac{\sigma V}{LD_\liq},
+\end{equation}
+where $\sigma$ is the surface tension (\si{\J\per\m\squared})
+and $L$ is the latent heat of fusion (\si{\J\per\m\cubed}).
+
+\subsection{Planar stationary solution}
+
+By choosing the position of the front as the origin of the $z$ coordinate,
+one finds the following planar stationary solution:
+\begin{gather}
+    \left.\begin{aligned}
+        &\tilde{C}_\liq = 1 + (K-1)(1-e^{-z}), \\
+        &\tilde{T}_\liq = 1 + M + \tilde{G}z,
+    \end{aligned} \right\} \quad z > 0 \label{eq:solutionL}\\
+    \left.\begin{aligned}
+        &\tilde{C}_\sol = K, \hphantom{+(K-1)(1-e^{-z})}\\
+        &\tilde{T}_\sol = 1 + M + \tilde{G}z/n,
+    \end{aligned} \right\} \quad z < 0 \label{eq:solutionS}
+\end{gather}
+where $\tilde{G}T_MV/D_\liq$ is the temperature gradient in the liquid phase.
+This solution is shown in Fig.~\ref{fig:binary:solution}.
+
+\begin{figure}
+    \centering
+    \begin{gnuplot}[scale=0.8, terminal=epslatex, terminaloptions=color lw 4]
+        set sample 1000
+        set xrange [-1:1]
+        set yrange [0.25:1.75]
+        set key top center
+        set grid
+        K=0.5; M=0.1; G=0.5; n=1.5
+        C(x) = x>0 ? 1 + (K-1)*(1-exp(-x)) : K
+        T(x) = x>0 ? 1 + M + G*x : 1 + M + G*x/n
+        plot C(x) title '$\tilde{C}$', T(x) title '$\tilde{T}$'
+    \end{gnuplot}
+    \caption{
+        The one-dimensional steady-state solution of the solidification problem of a binary mixture
+        for $K=0.5$, $M=0.1$, $\tilde{G}=0.5$, and $n=1.5$.
+        The jump of the concentration at the interface given by Eq.~\eqref{eq:BCC1} is called \emph{solute rejection}.
+    }
+    \label{fig:binary:solution}
+\end{figure}
+
+\subsection{Linear stability analysis}
+
+By perturbing the planar solidification front harmonically as
+\begin{equation}\label{eq:binary:perturbation}
+    \epsilon\zeta(x,t) = \epsilon\exp(ikx + a_0t),
+\end{equation}
+one comes to the following dispersion relation:
+\begin{equation}\label{eq:binary:a_0}
+    \Delta(a_0,k) = a_0 + K(1+q_\sol) - (\mathcal{G}-\beta k^2)(q_\liq-1 + K(1+q_\sol)) = 0,
+\end{equation}
+where
+\begin{equation}\label{eq:binary:qSL}
+    q_\liq = \frac12 + \qty(\frac14 + a_0 + k^2)^{1/2}, \quad
+    q_\sol = -\frac12 + \qty(\frac14 + \eta a_0 + \eta^2k^2)^{1/2}
+\end{equation}
+and
+\begin{equation}\label{eq:Gbeta}
+    \mathcal{G} = 1 - \frac{2\tilde{G}}{(n+1)M(K-1)}, \quad
+    \beta = \frac{\gamma}{M(K-1)}.
+\end{equation}
+
+%%% Change the dimensionless variables
+In practice, for a given mixture, we can vary the temperature gradient and pulling speed in direction solidification.
+Therefore, it is convenient to nondimensionalize them independently:
+\begin{equation}\label{eq:hatGV}
+    \hV = \frac{d_0}{\ell}, \quad \hG = \frac{d_0}{\ell_T},
+\end{equation}
+where
+\begin{equation}\label{eq:lengths}
+    d_0 = \frac{\Gamma}{C_{\liq0}|m_\liq|}, \quad \ell = \frac{D_\liq}{V}, \quad \ell_T = \frac{C_{\liq0}|m_\liq|}{G}
+\end{equation}
+are the chemical capillary, solute diffusion, and thermal lengths, respectively.
+The quantity $\Gamma = \sigma T_M/L$ is called the Gibbs--Thomson coefficient.
+Substituting relations
+\begin{equation}\label{eq:tildeGgamma}
+    \tilde{G} = |M|\hG/\hV, \quad
+    \gamma = |M|\hV
+\end{equation}
+into Eqs.~\eqref{eq:Gbeta}, we obtain
+\begin{equation}\label{eq:Gbeta2}
+    \mathcal{G} = 1 - \frac{2\hG}{(n+1)\hV|K-1|}, \quad
+    \beta = \frac{\hV}{|K-1|}.
+\end{equation}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{binary/bifurcation}
+    \caption{
+        The bifurcation diagram for the directional solidification of a binary mixture at $K=0.5$, $\eta=0$, and $n=1$.
+        Here, $\hG_\text{max} = 0.022542$ at $\hV = 0.23607$ and $k = 0.63601$.
+    }\label{fig:bifurcation}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{binary/a0-G0.01-V0.2}
+    \caption{
+        Amplification factor $a_0(k)$ for a binary mixture at $\hG=0.01$ and $\hV=0.2$.
+        Both real solutions are drawn by thick lines.
+        Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
+    }\label{fig:binary:a0}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.6\textwidth,center]{binary/lambda-G0.01-V0.2}
+    \caption{
+        Stability of the wavelength $\hat\lambda=2\pi/\hV k$ as a function of $\hV$ at $\hG=0.01$
+        and of $\hG$ at $\hV=0.2$.
+        Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
+    }\label{fig:binary:lambdaGV}
+\end{figure}
+
+%%% Results
+The typical bifurcation diagram in the ($\hV,\hG$) coordinates is shown in Fig.~\ref{fig:bifurcation}.
+It is seen that for $0<\hG<\hG_\text{max}$, there are two critical points, between which the planar front is unstable.
+Stabilization is due to positive temperature gradient for longer wavelengths
+and due to surface tension for shorter ones (see also Fig.~\ref{fig:binary:a0}).
+As a result, the neutral stability curve in the ($\hV,\hat\lambda$) looks like oval (Fig.~\ref{fig:binary:lambdaGV}).
+
+\printbibliography
+
+\end{document}
