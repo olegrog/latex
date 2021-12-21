@@ -12,7 +12,7 @@ from termcolor import colored
 parser = argparse.ArgumentParser(
     description='Solver for analyzing the Mullins--Sekerka instability of a binary mixture')
 
-modes = { 'b': 'bifurcation', 'f': 'fixedGV', '2': '2d', '3': '3d', 'n': None }
+modes = { 'b': 'bifurcation', 'f': 'fixedGV', 'G': 'diagramVk', 'V': 'diagramGk', '3': 'diagramVGk', 'n': None }
 class ParseMode(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
         setattr(namespace, self.dest, modes[values[0]])
@@ -26,7 +26,7 @@ parser.add_argument('-D', '--Dratio', type=float, default=0, help='D_S/D_L')
 parser.add_argument('-K', type=float, default=0.5, help='partition coefficient')
 parser.add_argument('-V', type=float, default=0.02, help='capillary length/diffusion length')
 parser.add_argument('-G', type=float, default=0.01, help='capillary length/thermal length')
-parser.add_argument('-s', '--size', type=float, default=5, help='figure size')
+parser.add_argument('-s', '--figsize', type=str2pair, default='5:4', help='figure size')
 parser.add_argument('-a', '--asymptotics', action='store_true', help='plot the asymptotics as well')
 parser.add_argument('-l', '--log', action='store_true', help='use log scale for V and G')
 parser.add_argument('-w', '--wavelength', action='store_true', help='use wavelength instead of wavenumber')
@@ -113,7 +113,7 @@ if args.pdf:
         'ytick.labelsize': 10,
         'text.usetex': True,
         'pgf.rcfonts': False,
-        'figure.figsize': [5,4]
+        'figure.figsize': args.figsize
     }
     plt.rcParams.update(params)
 
@@ -129,14 +129,17 @@ if args.verbose:
 ### Mode 1: Bifurcation diagram in the (V,G) coordinates
 ### Stable region corresponds to the MS stability for any wave numbers
 if args.mode == modes['b']:
+    if args.verbose:
+        print(f' -- Plot the (V,G) bifurcation diagram')
+
     factor = 1 if args.Dratio > 0 else 2    # NB: asymptotics for Dratio=0 differ!
 
     K = np.logspace(-1, 1, args.N)*k_star
     V = _V_bif(K)
-    G = _G_kv(K, V)
+    G = _G_kv(K,V)
 
     if args.verbose:
-        fig, axs = plt.subplots(ncols=2, figsize=args.size*np.array((2.2,1)))
+        fig, axs = plt.subplots(ncols=2, figsize=args.figsize[0]*np.array((2.2,1)))
         axs[0].plot(k2k(K,V), V)
         axs[0].plot(k2k(k_star,v_star), v_star, **Style.point)
         axs[0].set_xlabel(klabel(s='_\mathrm{bif}'))
@@ -172,21 +175,21 @@ if args.mode == modes['b']:
     ax.annotate(r'$\hat{G}_\mathrm{max}$', (v_star, Gmax), **Style.annotate)
 
     if args.verbose:
-        axs[1].set_xlabel(r'$\hat{V}$')
-        axs[1].set_ylabel(r'$\hat{G}$', rotation=0)
+        ax.set_xlabel(r'$\hat{V}$')
+        ax.set_ylabel(r'$\hat{G}$', rotation=0)
     else:
-        plt.xlabel(r'$\hat{V}$')
-        plt.ylabel(r'$\hat{G}$', rotation=0)
+        ax.xlabel(r'$\hat{V}$')
+        ax.ylabel(r'$\hat{G}$', rotation=0)
 
     if args.log:
-        plt.loglog()
+        ax.loglog()
     else:
         if args.verbose:
-            axs[1].set_xlim(0, Vmax)
-            axs[1].set_ylim(add_tmargin(0, Gmax))
+            ax.set_xlim(0, Vmax)
+            ax.set_ylim(add_tmargin(0, Gmax))
         else:
-            plt.xlim(0, Vmax)
-            plt.ylim(add_tmargin(0, Gmax))
+            ax.xlim(0, Vmax)
+            ax.ylim(add_tmargin(0, Gmax))
 
     if args.asymptotics:
         _calG_asym1 = lambda k: args.K/(1 + args.K*args.Dratio)*(
@@ -203,6 +206,9 @@ if args.mode == modes['b']:
 
 ### Mode 2: Amplification rate (a_0) vs wave number (k)
 elif args.mode == modes['f']:
+    if args.verbose:
+        print(f' -- Plot a0(k) for given G = {args.G} and V = {args.V}')
+
     beta, calG = _beta(args.V), _calG(args.G, args.V)
     omax = 10*(1 + sqrt(args.K*etaK))**2
 
@@ -280,6 +286,7 @@ elif args.mode == modes['f']:
             Kzero.append(root_scalar(partial(_a_eq, 0), x0=k_max, x1=k_max*2).root)
             if args.G > 0:
                 Kzero.append(root_scalar(partial(_a_eq, 0), x0=k_max, x1=k_max/2).root)
+            Kzero = np.array(Kzero)
             if args.verbose:
                 plt.plot(_k2k(Kzero), np.zeros_like(Kzero), **Style.point)
                 I = [2,1] if args.G > 0 else [0]
@@ -333,19 +340,16 @@ elif args.mode == modes['f']:
         plt.fill_between(_k2k(K[m0]), _amin(K)[m0], Amean, **Style.gray)
         plt.ylim(add_tmargin(np.min(np.r_[A1,A2]), np.max(A1)))
 
-### Mode 3a: Stability diagram in the (G,k) and (V,k) coordinates
-elif args.mode == modes['2']:
-    if (args.G < 0 or args.G > Gmax or args.V <= 0 or args.V >= Vmax):
-        print('The planar front is unconditionally stable for given G and V.')
+### Mode 3a: Stability diagram in the (V,k) coordinates
+elif args.mode == modes['G']:
+    if args.verbose:
+        print(f' -- Plot the (V,k) stability diagram for given G = {args.G}')
+
+    if (args.G < 0 or args.G > Gmax):
+        print('The planar front is unconditionally stable.')
         sys.exit()
 
-    fig, axs = plt.subplots(ncols=2, figsize=args.size*np.array((2,1)))
-
-    ### Subfigure A
-    if args.verbose:
-        print(f' == (V,k) diagram for given G = {args.G} ==')
-
-    ### A1. Find two bifurcation points and create a mesh between them
+    ### 1. Find two bifurcation points and create a mesh between them
     if args.G > 0:
         _k_eq = lambda k: _calG_kv(k, _V_bif(k)) - _calG(args.G, _V_bif(k))
 
@@ -363,7 +367,7 @@ elif args.mode == modes['2']:
         for i,s in zip(range(2), ['Min', 'Max']):
             print(f'{s} unstable V = {V_bif[i]:.5g} with k = {K_bif[i]:.5g}')
 
-    ### A2. Find the most unstable curve
+    ### 2. Find the most unstable curve
     if args.G > 0:
         # NB: it is crucial that _k_guess(v) is a straight line on a log-log plot
         _k_guess = lambda v: np.exp(np.interp(np.log(v), np.log(V_bif), np.log(K_bif)))
@@ -374,7 +378,7 @@ elif args.mode == modes['2']:
     A_most, K_most = np.array([
         root(lambda x: _most_eq(*x, args.G, v), [0, _k_guess(v)], method='lm').x for v in V ]).T
 
-    ### A3. Find the boundary of the MS instability
+    ### 3. Find the boundary of the MS instability
     _k_eq = lambda k,v: _calG_kv(k,v) - _calG(args.G, v)
     K2 = np.array([ root_scalar(_k_eq, args=v, bracket=[k, kmax]).root for k,v in zip(K_most,V) ])
     if args.G > 0:
@@ -383,29 +387,34 @@ elif args.mode == modes['2']:
         K1 = 2e-2*np.ones_like(K2)
         if args.wavelength:
             K1 = K1/V
-            axs[0].ylim(np.min(k2k(K2,V))/factorY, k2k(K1,V)[0])
+            plt.ylim(np.min(k2k(K2,V))/factorY, k2k(K1,V)[0])
         else:
-            axs[0].ylim(K1[0], factorY*K2[0])
+            plt.ylim(K1[0], factorY*K2[0])
 
-    ### A4. Plot the stability diagram
-    axs[0].plot(V, k2k(K1,V))
-    axs[0].plot(V, k2k(K2,V), color='C0')
-    axs[0].plot(V, k2k(K_most,V), label=r'$\mathrm{the\ most\ unstable}$')
-    axs[0].fill_between(V, k2k(K1,V), k2k(K2,V), **Style.unstable)
-    axs[0].loglog() if args.log else axs[0].semilogy()
-    axs[0].set_xlabel(r'$\hat{V}$')
-    axs[0].set_ylabel(klabel(), rotation=0)
-    axs[0].legend()
+    ### 4. Plot the stability diagram
+    plt.plot(V, k2k(K1,V))
+    plt.plot(V, k2k(K2,V), color='C0')
+    plt.plot(V, k2k(K_most,V), label=r'$\mathrm{the\ most\ unstable}$')
+    plt.fill_between(V, k2k(K1,V), k2k(K2,V), **Style.unstable)
+    plt.loglog() if args.log else plt.semilogy()
+    plt.xlabel(r'$\hat{V}$')
+    plt.ylabel(klabel(), rotation=0)
+    plt.legend()
 
     if args.verbose:
         if args.G > 0:
-            axs[0].plot(V_bif, k2k(K_bif,V_bif), **Style.point)
+            plt.plot(V_bif, k2k(K_bif,V_bif), **Style.point)
 
-    ### Subfigure B
+### Mode 3b: Stability diagram in the (G,k) coordinates
+elif args.mode == modes['V']:
     if args.verbose:
-        print(f' == (G,k) diagram for given V = {args.V} ==')
+        print(f' -- Plot the (G,k) stability diagram for given V = {args.V}')
 
-    ### B1. Find the bifurcation point and create a mesh up to it
+    if (args.V <= 0 or args.V >= Vmax):
+        print('The planar front is unconditionally stable.')
+        sys.exit()
+
+    ### 1. Find the bifurcation point and create a mesh up to it
     _k_eq = lambda k: _V_bif(k) - args.V
 
     k_bif = root_scalar(_k_eq, bracket=[kmin, kmax]).root
@@ -415,31 +424,34 @@ elif args.mode == modes['2']:
     if args.verbose:
         print(f'Max unstable G = {G_bif:.5g} with k = {k_bif:.5g}')
 
-    ### B2. Find the most unstable curve
+    ### 2. Find the most unstable curve
     A_most, K_most = np.array([
         root(lambda x: _most_eq(*x, g, args.V), [0, k_bif], method='lm').x for g in G ]).T
 
-    ### B3. Find the boundary of the MS instability
+    ### 3. Find the boundary of the MS instability
     _k_eq = lambda k,g: _calG_kv(k, args.V) - _calG(g, args.V)
 
     K1 = np.array([ root_scalar(_k_eq, args=g, bracket=[kmin, k]).root for k,g in zip(K_most,G) ])
     K2 = np.array([ root_scalar(_k_eq, args=g, bracket=[k, kmax]).root for k,g in zip(K_most,G) ])
 
-    ### B4. Plot the stability diagram
-    axs[1].plot(G, _k2k(K1))
-    axs[1].plot(G, _k2k(K2), color='C0')
-    axs[1].fill_between(G, _k2k(K1), _k2k(K2), **Style.unstable)
-    axs[1].plot(G, _k2k(K_most), label=r'$\mathrm{the\ most\ unstable}$')
-    axs[1].loglog() if args.log else axs[1].semilogy()
-    axs[1].set_xlabel(r'$\hat{G}$')
-    axs[1].set_ylabel(klabel(), rotation=0)
-    axs[1].legend()
+    ### 4. Plot the stability diagram
+    plt.plot(G, _k2k(K1))
+    plt.plot(G, _k2k(K2), color='C0')
+    plt.fill_between(G, _k2k(K1), _k2k(K2), **Style.unstable)
+    plt.plot(G, _k2k(K_most), label=r'$\mathrm{the\ most\ unstable}$')
+    plt.loglog() if args.log else plt.semilogy()
+    plt.xlabel(r'$\hat{G}$')
+    plt.ylabel(klabel(), rotation=0)
+    plt.legend()
 
     if args.verbose:
-        axs[1].plot(G_bif, _k2k(k_bif), **Style.point)
+        plt.plot(G_bif, _k2k(k_bif), **Style.point)
 
-### Mode 3b: Stability diagram in the (V,G,k) coordinates
+### Mode 3c: Stability diagram in the (V,G,k) coordinates
 elif args.mode == modes['3']:
+    if args.verbose:
+        print(f' -- Plot the (V,G,k) stability diagram')
+
     from mpl_toolkits import mplot3d
     fig = plt.figure()
     ax = plt.axes(projection='3d')
@@ -509,7 +521,7 @@ if args.mode:
     plt.tight_layout()
     if args.pdf:
         if args.verbose:
-            print(f'Saving to {filename}...')
+            print(f' -- Save to {filename}')
         plt.savefig(filename, bbox_inches='tight')
     else:
         plt.show()

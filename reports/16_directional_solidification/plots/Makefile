@@ -8,7 +8,7 @@ POPTS = -N=200 --pdf
 BOPTS = -N=200 -K=0.5 --Dratio=0 --kratio=1 --pdf
 
 PPLOTS = a0-V0.25 kV lambdaV
-BPLOTS = bifurcation a0-G0.01-V0.2 lambda-G0.01-V0.2
+BPLOTS = bifurcation a0-G0.01-V0.1 lambda-G0.01 lambda-V0.1
 
 PFIGURES = $(addprefix $(PDIR)/,$(addsuffix .pdf,$(PPLOTS)))
 BFIGURES = $(addprefix $(BDIR)/,$(addsuffix .pdf,$(BPLOTS)))
@@ -32,10 +32,13 @@ $(BDIR)/bifurcation.pdf: $(BINARY)
 	./$< b $(BOPTS) --output=$@
 
 $(BDIR)/a0-%.pdf: $(BINARY)
-	./$< f $(BOPTS) $(call parseGV,$*) -v --krange=0.1:3 --output=$@
+	./$< f $(BOPTS) $(call parseGV,$*) -v --krange=0.1:4 --output=$@
 
-$(BDIR)/lambda-%.pdf: $(BINARY)
-	./$< 2 $(BOPTS) -v -l -w --output=$@
+$(BDIR)/lambda-V%.pdf: $(BINARY)
+	./$< V $(BOPTS) -V=$* -v -l -w --output=$@ --figsize=4:4
+
+$(BDIR)/lambda-G%.pdf: $(BINARY)
+	./$< G $(BOPTS) -G=$* -v -l -w --output=$@ --figsize=4:4
 
 .PHONY: all clean mkdirs
 

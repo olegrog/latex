@@ -21,7 +21,7 @@ str2pair = lambda s: [float(item) for item in s.split(':')]
 parser.add_argument('mode', choices=[*modes.keys(), *modes.values()], action=ParseMode, help='Execution mode')
 parser.add_argument('-N', type=int, default=100, help='number of points')
 parser.add_argument('-V', type=float, default=0.02, help='capillary length/diffusion length')
-parser.add_argument('-s', '--size', type=float, default=5, help='figure size')
+parser.add_argument('-s', '--figsize', type=str2pair, default='5:4', help='figure size')
 parser.add_argument('-a', '--asymptotics', action='store_true', help='plot the asymptotics as well')
 parser.add_argument('-l', '--log', action='store_true', help='use log scale for V')
 parser.add_argument('-w', '--wavelength', action='store_true', help='use wavelength instead of wavenumber')
@@ -89,7 +89,7 @@ if args.pdf:
         'ytick.labelsize': 10,
         'text.usetex': True,
         'pgf.rcfonts': False,
-        'figure.figsize': [5,4]
+        'figure.figsize': args.figsize
     }
     plt.rcParams.update(params)
 
@@ -98,6 +98,9 @@ if args.verbose:
 
 ### Mode 1: Amplification rate (a_0) vs wave number (k)
 if args.mode == modes['f']:
+    if args.verbose:
+        print(f' -- Plot a0(k) for given V = {args.V}')
+
     omax = 1/8/args.V
     _k2k = lambda k: k2k(k, args.V)
 
@@ -172,8 +175,11 @@ if args.mode == modes['f']:
 
 ### Mode 2: Stability diagram in the (V,k) coordinates
 elif args.mode == modes['2']:
+    if args.verbose:
+        print(f' -- Plot the (V,k) stability diagram')
+
     if (args.V <= 0 or args.V >= Vmax):
-        print('The planar front is unconditionally stable for given V.')
+        print('The planar front is unconditionally stable.')
         sys.exit()
 
     V = interval_mesh(0, Vmax, 1.8, logN+1)
@@ -211,7 +217,7 @@ if args.mode:
     plt.tight_layout()
     if args.pdf:
         if args.verbose:
-            print(f'Saving to {filename}...')
+            print(f' -- Save to {filename}')
         plt.savefig(filename, bbox_inches='tight')
     else:
         plt.show()

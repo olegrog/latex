@@ -8,10 +8,12 @@
 \usepackage{graphicx}
     \graphicspath{{plots/}}
 \usepackage[subfolder]{gnuplottex}
-\usepackage[export]{adjustbox}      % For centering wide figures
+\usepackage{subcaption}
+\usepackage{overpic}
 
 %%% Configuration packages
 %\usepackage{fullpage}
+\usepackage[export]{adjustbox}      % For centering wide figures
 
 \usepackage[
     pdfusetitle,
@@ -36,9 +38,7 @@
 \newcommand{\hV}[1][\qty(\bar{V})]{\vphantom{#1}\smash{\hat{V}}}
 \newcommand{\hG}[1][\qty(\bar{G})]{\vphantom{#1}\smash{\hat{G}}}
 
-
 %%% Bold symbols
-\newcommand{\bv}{\vb*{v}}
 \newcommand{\bn}{\vu*{n}}
 \newcommand{\bx}{\vb*{x}}
 \newcommand{\bk}{\vb*{k}}
@@ -327,21 +327,6 @@ and $L$ is the latent heat of fusion (\si{\J\per\m\cubed}).
 
 \subsection{Planar stationary solution}
 
-By choosing the position of the front as the origin of the $z$ coordinate,
-one finds the following planar stationary solution:
-\begin{gather}
-    \left.\begin{aligned}
-        &\tilde{C}_\liq = 1 + (K-1)(1-e^{-z}), \\
-        &\tilde{T}_\liq = 1 + M + \tilde{G}z,
-    \end{aligned} \right\} \quad z > 0 \label{eq:solutionL}\\
-    \left.\begin{aligned}
-        &\tilde{C}_\sol = K, \hphantom{+(K-1)(1-e^{-z})}\\
-        &\tilde{T}_\sol = 1 + M + \tilde{G}z/n,
-    \end{aligned} \right\} \quad z < 0 \label{eq:solutionS}
-\end{gather}
-where $\tilde{G}T_MV/D_\liq$ is the temperature gradient in the liquid phase.
-This solution is shown in Fig.~\ref{fig:binary:solution}.
-
 \begin{figure}
     \centering
     \begin{gnuplot}[scale=0.8, terminal=epslatex, terminaloptions=color lw 4]
@@ -363,7 +348,41 @@ This solution is shown in Fig.~\ref{fig:binary:solution}.
     \label{fig:binary:solution}
 \end{figure}
 
+By choosing the position of the front as the origin of the $z$ coordinate,
+one finds the following planar stationary solution:
+\begin{gather}
+    \left.\begin{aligned}
+        &\tilde{C}_\liq = 1 + (K-1)(1-e^{-z}), \\
+        &\tilde{T}_\liq = 1 + M + \tilde{G}z,
+    \end{aligned} \right\} \quad z > 0 \label{eq:solutionL}\\
+    \left.\begin{aligned}
+        &\tilde{C}_\sol = K, \hphantom{+(K-1)(1-e^{-z})}\\
+        &\tilde{T}_\sol = 1 + M + \tilde{G}z/n,
+    \end{aligned} \right\} \quad z < 0 \label{eq:solutionS}
+\end{gather}
+where $\tilde{G}T_MV/D_\liq$ is the temperature gradient in the liquid phase.
+This solution is shown in Fig.~\ref{fig:binary:solution}.
+
 \subsection{Linear stability analysis}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{binary/bifurcation}
+    \caption{
+        The bifurcation diagram for the directional solidification of a binary mixture at $K=0.5$, $\eta=0$, and $n=1$.
+        Here, $\hG_\text{max} = 0.022542$ at $\hV = 0.23607$ and $k = 0.63601$.
+    }\label{fig:bifurcation}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{binary/a0-G0.01-V0.1}
+    \caption{
+        Amplification factor $a_0(k)$ for a binary mixture at $\hG=0.01$ and $\hV=0.1$.
+        Both real solutions are drawn by thick lines.
+        Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
+    }\label{fig:binary:a0}
+\end{figure}
 
 By perturbing the planar solidification front harmonically as
 \begin{equation}\label{eq:binary:perturbation}
@@ -384,6 +403,22 @@ and
     \beta = \frac{\gamma}{M(K-1)}.
 \end{equation}
 
+\begin{figure}
+    \begin{adjustbox}{max width=1.6\linewidth,center}
+        \begin{overpic}[width=0.8\textwidth]{binary/lambda-G0.01}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambdaVk}}}
+        \end{overpic}
+        \begin{overpic}[width=0.8\textwidth]{binary/lambda-V0.1}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambdaGk}}}
+        \end{overpic}
+    \end{adjustbox}
+    \caption{
+        Stability of the wavelength $\hat\lambda=2\pi/\hV k$ as a function of $\hV$
+        at $\hG=0.01$ (\subref{sfig:binary:lambdaVk}) and of $\hG$ at $\hV=0.1$ (\subref{sfig:binary:lambdaGk}).
+        Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
+    }\label{fig:binary:lambda}
+\end{figure}
+
 %%% Change the dimensionless variables
 In practice, for a given mixture, we can vary the temperature gradient and pulling speed in direction solidification.
 Therefore, it is convenient to nondimensionalize them independently:
@@ -398,8 +433,7 @@ are the chemical capillary, solute diffusion, and thermal lengths, respectively.
 The quantity $\Gamma = \sigma T_M/L$ is called the Gibbs--Thomson coefficient.
 Substituting relations
 \begin{equation}\label{eq:tildeGgamma}
-    \tilde{G} = |M|\hG/\hV, \quad
-    \gamma = |M|\hV
+    \tilde{G} = |M|\hG/\hV, \quad \gamma = |M|\hV
 \end{equation}
 into Eqs.~\eqref{eq:Gbeta}, we obtain
 \begin{equation}\label{eq:Gbeta2}
@@ -407,41 +441,12 @@ into Eqs.~\eqref{eq:Gbeta}, we obtain
     \beta = \frac{\hV}{|K-1|}.
 \end{equation}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{binary/bifurcation}
-    \caption{
-        The bifurcation diagram for the directional solidification of a binary mixture at $K=0.5$, $\eta=0$, and $n=1$.
-        Here, $\hG_\text{max} = 0.022542$ at $\hV = 0.23607$ and $k = 0.63601$.
-    }\label{fig:bifurcation}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{binary/a0-G0.01-V0.2}
-    \caption{
-        Amplification factor $a_0(k)$ for a binary mixture at $\hG=0.01$ and $\hV=0.2$.
-        Both real solutions are drawn by thick lines.
-        Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
-    }\label{fig:binary:a0}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=1.6\textwidth,center]{binary/lambda-G0.01-V0.2}
-    \caption{
-        Stability of the wavelength $\hat\lambda=2\pi/\hV k$ as a function of $\hV$ at $\hG=0.01$
-        and of $\hG$ at $\hV=0.2$.
-        Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
-    }\label{fig:binary:lambdaGV}
-\end{figure}
-
 %%% Results
 The typical bifurcation diagram in the ($\hV,\hG$) coordinates is shown in Fig.~\ref{fig:bifurcation}.
 It is seen that for $0<\hG<\hG_\text{max}$, there are two critical points, between which the planar front is unstable.
 Stabilization is due to positive temperature gradient for longer wavelengths
 and due to surface tension for shorter ones (see also Fig.~\ref{fig:binary:a0}).
-As a result, the neutral stability curve in the ($\hV,\hat\lambda$) looks like oval (Fig.~\ref{fig:binary:lambdaGV}).
+As a result, the neutral stability curve in the ($\hV,\hat\lambda$) looks like oval (Fig.~\ref{sfig:binary:lambdaVk}).
 
 \printbibliography
 
