@@ -430,22 +430,6 @@ and
     }\label{fig:binary:lambdaGV}
 \end{figure}
 
-\begin{figure}
-    \begin{adjustbox}{max width=1.4\linewidth,center}
-        \begin{overpic}[width=0.7\textwidth]{binary/lambda-G0.01}
-            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambdaV}}}
-        \end{overpic}
-        \begin{overpic}[width=0.7\textwidth]{binary/lambda-V0.1}
-            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambdaG}}}
-        \end{overpic}
-    \end{adjustbox}
-    \caption{
-        Stability of the wavelength $\hat\lambda=2\pi/\hV k$ as a function of $\hV$
-        at $\hG=0.01$ (\subref{sfig:binary:lambdaV}) and of $\hG$ at $\hV=0.1$ (\subref{sfig:binary:lambdaG}).
-        Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
-    }\label{fig:binary:lambda}
-\end{figure}
-
 %%% Change the dimensionless variables
 In practice, for a given mixture, we can vary the temperature gradient and pulling speed in direction solidification.
 Therefore, it is convenient to nondimensionalize them independently:
@@ -499,6 +483,33 @@ The maximum point $\hG_\text{max}$ on the curve $\hG_c(\hV_c)$ can be found by a
 \end{equation}
 to the system of equations~\eqref{eq:bifurcation}.
 
+\begin{figure}
+    \begin{adjustbox}{max width=1.4\linewidth,center}
+        \begin{overpic}[width=0.7\textwidth]{binary/lambda-G0.01}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambdaV1}}}
+        \end{overpic}
+        \begin{overpic}[width=0.7\textwidth]{binary/lambda-V0.1}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambdaG1}}}
+        \end{overpic}
+    \end{adjustbox}
+    \begin{adjustbox}{max width=1.4\linewidth,center}
+        \begin{overpic}[width=0.7\textwidth]{binary/lambda-G0.0001}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambdaV2}}}
+        \end{overpic}
+        \begin{overpic}[width=0.7\textwidth]{binary/lambda-V0.9}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambdaG2}}}
+        \end{overpic}
+    \end{adjustbox}
+    \caption{
+        Stability of the wavelength $\hat\lambda=2\pi/\hV k$ as a function of $\hV$
+        at $\hG=0.01$ (\subref{sfig:binary:lambdaV1}) and $\hG=0.0001$ (\subref{sfig:binary:lambdaV2})
+        as well as a function of $\hG$
+        at $\hV=0.1$ (\subref{sfig:binary:lambdaG1}) and $\hV=0.9$ (\subref{sfig:binary:lambdaG2}).
+        Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
+        The analytical and numerical models are given in Eqs.~\eqref{eq:cell_spacing} and~\eqref{eq:Hunt96}.
+    }\label{fig:binary:lambda}
+\end{figure}
+
 %%% Amplification rate
 For some point inside the unstable region in the bifurcation diagram (Fig.~\ref{fig:bifurcation}),
 there is a interval of wavenumbers $(k_1,k_2)$
@@ -511,25 +522,9 @@ We have seen that for $0<\hG<\hG_\text{max}$, there are two critical points, bet
 Stabilization is due to positive temperature gradient for longer wavelengths
 and due to surface tension for shorter ones.
 As a result, the neutral stability curve in the ($\hV,\hat\lambda$) coordinates
-takes the oval form as seen in Figs.~\ref{fig:binary:lambdaGV} and~\ref{sfig:binary:lambdaV}.
+takes the oval form as seen in Fig.~\ref{fig:binary:lambda}.
 
 \subsection{Selection of the cell spacing}
-
-\begin{figure}
-    \begin{adjustbox}{max width=1.4\linewidth,center}
-        \begin{overpic}[width=0.7\textwidth]{binary/lambda-G0.0001}
-            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambda2V}}}
-        \end{overpic}
-        \begin{overpic}[width=0.7\textwidth]{binary/lambda-V0.9}
-            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambda2G}}}
-        \end{overpic}
-    \end{adjustbox}
-    \caption{
-        Stability of the wavelength $\hat\lambda=2\pi/\hV k$ as a function of $\hV$
-        at $\hG=0.0001$ (\subref{sfig:binary:lambda2V}) and of $\hG$ at $\hV=0.9$ (\subref{sfig:binary:lambda2G}).
-        Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
-    }\label{fig:binary:lambda2}
-\end{figure}
 
 %%% Cellular structures
 The presented linear stability analysis enables us to predict conditions
@@ -537,16 +532,17 @@ under which a flat solidification front becomes unstable.
 Moreover, we know the most unstable wavelength, which dominates during a linear perturbation.
 However, the wavelength of a stable cellular structure cannot be found from this theory.
 
-%%% Two Hunt's models
-Two analytical predictions of the cell spacing is compared with the stability results
-in Figs.~\ref{fig:binary:lambda} and~\ref{fig:binary:lambda2}.
-The following models assume that $\eta=0$ and $n=1$.
-First, \textcite{hunt1979solidification} proposed a simple model
-\begin{equation}\label{eq:Hunt79}
-    \hat\lambda^4 = \frac{64K}{\hV \hG^2} \qty(|K-1| - \frac{\hG}{\hV}),
+%%% Models for cell spacing
+Two different models for the cell spacing is compared with the linear stability theory
+in Fig.~\ref{fig:binary:lambda}.
+The following models imply that $\eta=0$ and $n=1$.
+First, an simple model can be formulated based on some ansatz for the shape of the solidification front.
+For example, assuming that the solid is a dense hexagonal array of semi-ellipsoids,
+we can obtain~\cite{rappaz2009solidification}
+\begin{equation}\label{eq:cell_spacing}
+    \hat\lambda^4 = \frac{72\pi^2|K-1|}{K\hV\hG^2}.
 \end{equation}
-which is based on assumption that the solidification front is a dense array of hemispheres.
-Second, \textcite{hunt1996numerical} employed a numerical model with spacing selection
+Second, \textcite{hunt1996numerical} employed a numerical model with dynamic spacing selection
 and fitted their numerical results by
 \begin{equation}\label{eq:Hunt96}
     \begin{gathered}

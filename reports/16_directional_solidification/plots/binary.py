@@ -103,7 +103,9 @@ def error(msg):
     print(colored(msg, 'red'), file=sys.stderr)
 
 def pdas_models(G, V, axes, X, Y=None):
-    _Hunt = lambda g,v: l2k((64*args.K/v/g**2*(fabs(args.K-1) - g/v))**0.25, v)
+    #_Hunt = lambda g,v: l2k((64*args.K/v/g**2*(fabs(args.K-1) - g/v))**0.25, v)
+    # This model is described in [Dantzig & Rappaz 2009]
+    _LGK = lambda g,v: l2k((72*pi**2*fabs(args.K-1)/args.K/v/g**2)**0.25, v)
     a = 5.273e-3 + 0.5519*args.K - 0.1865*args.K**2
     _g = lambda g: args.K*g/(args.K-1)**2
     _v = lambda v: args.K*v/fabs(args.K-1)
@@ -120,8 +122,8 @@ def pdas_models(G, V, axes, X, Y=None):
         _plot = lambda X,Y,V,K,**kwargs: \
             axes.plot_surface(X, Y, make_log(k2k(K,V)), **Style.surface, **kwargs)
 
-    _plot(X, Y, V, _Hunt(G,V), label='$\\mathrm{Hunt\ (1979)}$')
-    _plot(X, Y, V, _HuntLu(G,V), label='$\\mathrm{Hunt\&Lu\ (1996)}$')
+    _plot(X, Y, V, _LGK(G,V), label='$\\mathrm{analytical\ model}$')
+    _plot(X, Y, V, _HuntLu(G,V), label='$\\mathrm{numerical\ model}$')
 
 np.seterr(all='raise')  # Consider warnings as errors
 
