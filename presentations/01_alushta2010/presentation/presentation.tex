@@ -1,22 +1,29 @@
 \documentclass[ucs]{beamer}
 \usetheme{Frankfurt}
-%\usefonttheme{serif}
+    \usecolortheme[named=cyan]{structure}
+    \usefonttheme{serif}
 
-\usepackage[T2A]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage[english,russian]{babel}
+\usepackage{polyglossia}
+    \setdefaultlanguage{russian}
+    \setotherlanguage{english}
+    \setkeys{russian}{babelshorthands=true} % for "= and others
+    \setmainfont{Times New Roman}
+    \setsansfont{Arial}
+    \setmonofont{Courier New}
+    \newfontfamily{\cyrillicfont}{Times New Roman}
+    \newfontfamily{\cyrillicfonttt}{Courier New}
+    \newfontfamily{\cyrillicfontsf}{Arial}
+\usepackage{xltxtra}
+\usepackage{unicode-math}
+
 \usepackage{amssymb, amsmath, amsfonts}
 \usepackage{graphicx}
 \usepackage{subfigure}
 \usepackage{color}
 \usepackage{multimedia}
 \usepackage{tikz}
-\usepackage{pgfmath}
-\usetikzlibrary{arrows,fit,positioning,shapes.multipart}
+    \usetikzlibrary{arrows,fit,positioning,shapes.multipart}
 \usepackage[percent]{overpic}
-
-
-\usecolortheme[named=cyan]{structure}
 
 \title{Компьютерные модели микронасоса Кнудсена на основе численного решения уравнения Больцмана}
 \author{Мартынов Д.В.\inst{1}, Рогозин О.А.\inst{1}, Клосс Ю.Ю.\inst{2}, Черемисин~Ф.Г.\inst{3}}
@@ -77,7 +84,7 @@
 \begin{frame}
 	\frametitle{Оригинальный насос Кнудсена}
 	\begin{block}{}
-		\textbf{Knudsen M.} Eine Revision der Gleichgewichtsbedingung der Gase. Thermische Molekularströmung 
+		\textbf{Knudsen M.} Eine Revision der Gleichgewichtsbedingung der Gase. Thermische Molekularströmung
 		// Ann. der Phys. — 1910. — Bd.~31, Nr.~9. — S.~205–229.
 	\end{block}
 	\begin{figure}
@@ -118,11 +125,11 @@
 \begin{frame}
 	\frametitle{Численное решение уравнения Больцмана}
 	Кинетическое уравнение Больцмана для одноатомного газа
-	\[
-		{\partial{f} \over \partial{t}} + \boldsymbol{\xi} \cdot {\partial{f} \over \partial\mathbf{r}} = 
-		\int\limits_{\mathbb R^3} \int\limits_0^{2\pi} \int\limits_0^{b_m} 
+    \[
+		{\partial{f} \over \partial{t}} + \boldsymbol{\xi} \cdot {\partial{f} \over \partial\mathbf{r}} =
+		\int\limits_{\mathbb R^3} \int\limits_0^{2\pi} \int\limits_0^{b_m}
 		(f_1' f' - f_1 f) gb \dd{b} \dd\varepsilon \dd\boldsymbol\xi_1 \equiv J(f)
-	\]
+    \]
 	\begin{itemize}
 		\item статистические методы
 		\begin{itemize}
@@ -231,7 +238,7 @@
 	\begin{block}{}
 		\textit{Черемисин Ф.Г.} Консервативный метод вычисления интеграла столкновений Больцмана
 			// Доклады РАН. — 1997. — Т. 357, № 1. — С. 53—56.
-%		\textit{Tcheremissine F.G.} Solution of the Boltzmann Kinetic Equation for Low Speed Flows 
+%		\textit{Tcheremissine F.G.} Solution of the Boltzmann Kinetic Equation for Low Speed Flows
 %			// Transport Theory and Statistical Physics. — 2008. — V.~37, N.~5. — P. 564—575.
 	\end{block}
 \end{frame}
@@ -240,9 +247,9 @@
 	\frametitle{Проекционный метод}
 	\begin{columns}
 		\begin{column}{6cm}
-			\[ 
+			\[
 				\boldsymbol\xi_{\alpha_\nu},\boldsymbol\xi_{\beta_\nu}\in \Omega \rightarrow
-				\boldsymbol\xi'_{\alpha_\nu},\boldsymbol\xi'_{\beta_\nu}\notin \Omega 
+				\boldsymbol\xi'_{\alpha_\nu},\boldsymbol\xi'_{\beta_\nu}\notin \Omega
 			\]
 			\begin{center}
 			\begin{tikzpicture}[every node/.style={circle,draw=blue!50,fill=blue!20,thick,inner sep=0pt,minimum size=8mm}, >=latex',thick, node distance=.5]
@@ -297,7 +304,7 @@
 	\begin{tikzpicture}[every node/.style={shape=rectangle split,rectangle split parts=2,rounded corners,draw=blue!50,fill=blue!20,thick,inner sep=5pt,
 						minimum size=1cm,node distance=1cm,text width=3cm,text badly centered}, >=latex',thick]
 		\node[shape=rectangle] (solver)				{\Large\textbf{SOLVER}};
-		\node[shape=rectangle] (geometry)[left=of solver]	{\textbf{геометрия \\ \smallнач. условия}};
+		\node[shape=rectangle] (geometry)[left=of solver]	{\textbf{геометрия \\ \small нач. условия}};
 		\node (mesh)	[above left=of solver] 	{\textbf{сетки} \nodepart{second}\footnotesize прямоугольные неструктурные};
 		\node (scheme)	[above=of solver] 	{\textbf{разностные схемы} \nodepart{second}\footnotesize первого порядка TVD-схема цилиндрическая};
 		\node (integral)[above right=of solver]	{\textbf{интеграл столкновений} \nodepart{second}\footnotesize одноатомный газ многоатомный газ смеси};
@@ -320,8 +327,8 @@
 	\frametitle{Неструктурированные сетки}
 	\begin{columns}
 	\column{0.7\columnwidth}
-		{\Large \textcolor{green}{GMSH} - генератор трехмерных неструктурированных сеток} 
-		\newline Авторы: \textcolor{magenta}{Christophe Geuzaine\newline Jean-François Remacle\newline} 
+		{\Large \textcolor{green}{GMSH} - генератор трехмерных неструктурированных сеток}
+		\newline Авторы: \textcolor{magenta}{Christophe Geuzaine\newline Jean-François Remacle\newline}
 	\column{0.3\columnwidth}
 %		\includegraphics[width=\columnwidth]{author.png}
 	\end{columns}
@@ -330,7 +337,7 @@
 	\item удобный и простой интерфейс
 	\item возможность параметрического задания геометрии
 	\item быстрый и надежный инструмент для построения неструктурированных сеток
-	\item взаимодействие с внешними солверами 
+	\item взаимодействие с внешними солверами
 	\end{itemize}
 	\textit{C. Geuzaine and J.-F. Remacle, Gmsh: a three-dimensional finite element mesh generator with built-in pre- and post-processing facilities. International Journal for Numerical Methods in Engineering, Volume 79, Issue 11, pages 1309-1331, 2009}
 \end{frame}
@@ -350,16 +357,16 @@
 	\end{columns}
 	\textcolor{cyan}{Качество тетраэдра} $\gamma=6 \sqrt{6} (V/\displaystyle\sum_{i=1}^4 S_i L)$, $\gamma \in (0,1]$\newline
 	$\gamma = 1$ для равностороннего тетраэдра,\newline
-	$V$ - объем тетраэдра,\newline 
-	$S_i$ - площадь $i$-й грани,\newline 
-	$L$ - длина самого длинного ребра.\newline 
+	$V$ - объем тетраэдра,\newline
+	$S_i$ - площадь $i$-й грани,\newline
+	$L$ - длина самого длинного ребра.\newline
 \end{frame}
 
 \section{Результаты моделирования}
 
 \subsection{}
 \begin{frame}
-	\frametitle{Виды молекулярных термонасосов}	
+	\frametitle{Виды молекулярных термонасосов}
 	\begin{center}
 	\includegraphics[width=0.7\columnwidth]{Klassic.png}
 	\end{center}
@@ -373,7 +380,7 @@
 
 \begin{frame}
 	\frametitle{Геометрия задачи}
-	\textcolor{green}{Схема насоса} 
+	\textcolor{green}{Схема насоса}
 	\begin{columns}[c]
 	\column{0.55\paperwidth}
 	\begin{itemize}
@@ -387,7 +394,7 @@
 	\column{0.4\paperwidth}
 		\includegraphics[width=\columnwidth]{pump_scheme.pdf}
 	\end{columns}
-	\textcolor{green}{Тетраэдрическая сетка} 
+	\textcolor{green}{Тетраэдрическая сетка}
 	\begin{columns}[c]
 	\column{0.55\paperwidth}
 	\begin{itemize}
@@ -499,7 +506,7 @@
 		\item красочно визуализировать результаты\newline
 	\end{itemize}
 	\textit{Клосс Ю.Ю., Хохлов Н.И., Черемисин Ф.Г., Шурыгин Б.А. Программно-моделирующая среда для исследования течений газа в микро- и наноструктурах на основе решения уравнения Больцмана // Атомная энергия. — 2008 — Т. 105, № 4. — С. 211–217.}
-	
+
 \end{frame}
 
 \subsection{}
