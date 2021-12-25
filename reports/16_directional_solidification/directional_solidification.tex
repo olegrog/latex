@@ -8,6 +8,7 @@
 \usepackage{graphicx}
     \graphicspath{{plots/}}
 \usepackage[subfolder]{gnuplottex}
+\usepackage[font=small]{caption}
 \usepackage{subcaption}
 \usepackage{overpic}
 
@@ -35,7 +36,11 @@
 %%% Problem-specific aliases
 \newcommand{\liq}{\text{L}}
 \newcommand{\sol}{\text{S}}
-\newcommand{\hV}[1][\qty(\bar{V})]{\vphantom{#1}\smash{\hat{V}}}
+\newcommand{\qL}{q_\liq}
+\newcommand{\qS}{q_\sol}
+\newcommand{\bqL}{\bar{q}_\liq}
+\newcommand{\bqS}{\bar{q}_\sol}
+\newcommand{\hV}[1][\qty(\bar{V})]{\vphantom{#1}\mathrlap{\smash{\hat{V}}}V}
 \newcommand{\hG}[1][\qty(\bar{G})]{\vphantom{#1}\smash{\hat{G}}}
 
 %%% Bold symbols
@@ -134,21 +139,21 @@ and $a_0$ is the amplification rate to be determined.
 Then, the solution of~\eqref{eq:pure:problem_2d} is
 \begin{equation}\label{eq:pure:solution_2d}
     u(\tilde{z}) = \begin{cases}
-        \exp(-\tilde{z}) + \hat{u}_\liq\exp(i\bk\vdot\tilde\bx - q_\liq\tilde{z} + a_0\tilde{t}) &\text{ for } \tilde{z}>0, \\
-        1 + \hat{u}_\sol\exp(i\bk\vdot\tilde\bx + q_\sol\tilde{z} + a_0\tilde{t})& \text{ for } \tilde{z}<0,
+        \exp(-\tilde{z}) + \hat{u}_\liq\exp(i\bk\vdot\tilde\bx - \qL\tilde{z} + a_0\tilde{t}) &\text{ for } \tilde{z}>0, \\
+        1 + \hat{u}_\sol\exp(i\bk\vdot\tilde\bx + \qS\tilde{z} + a_0\tilde{t})& \text{ for } \tilde{z}<0,
     \end{cases}
 \end{equation}
 where the relations
 \begin{equation}\label{eq:pure:qLS}
-    a_0 + k^2 = q_\liq^2 - q_\liq = q_\sol^2 + q_\sol
+    a_0 + k^2 = \qL^2 - \qL = \qS^2 + \qS
 \end{equation}
-determine $q_\sol$ and $q_\liq$ as positive functions of $k$ and $a_0$.
+determine $\qS$ and $\qL$ as positive functions of $k$ and $a_0$.
 
 %%% Dispersion relation
 Imposing the boundary conditions~\eqref{eq:bc1} and~\eqref{eq:bc2} on~\eqref{eq:pure:solution_2d}
 at $z=\delta\zeta_k$, we obtain the following dispersion relation:
 \begin{equation}\label{eq:pure:a0}
-    \Delta(a_0,k) = a_0 + 1 - q_\liq + \frac{d_0}{\ell}k^2(q_\liq + q_\sol) = 0,
+    \Delta(a_0,k) = a_0 + 1 - \qL + \frac{d_0}{\ell}k^2(\qL + \qS) = 0,
 \end{equation}
 or
 \begin{equation}\label{eq:pure:2a0}
@@ -366,11 +371,20 @@ This solution is shown in Fig.~\ref{fig:binary:solution}.
 \subsection{Linear stability analysis}
 
 \begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{binary/bifurcation}
+    \begin{adjustbox}{max width=1.2\linewidth,center}
+        \begin{overpic}[width=0.6\textwidth]{binary/bifurcation}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:bifurcation}}}
+        \end{overpic}
+        \begin{overpic}[width=0.6\textwidth]{binary/bifurcation-log}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:bifurcation-log}}}
+        \end{overpic}
+    \end{adjustbox}
     \caption{
         The bifurcation diagram for the directional solidification of a binary mixture at $K=0.5$, $\eta=0$, and $n=1$.
-        Here, $\hG_\text{max} = 0.022542$ at $\hV = 0.23607$ and $k = 0.63601$.
+        Both linear (\subref{sfig:bifurcation}) and logarithmic (\subref{sfig:bifurcation-log}) scales are shown.
+        The dashed line corresponds to limit~\eqref{eq:Vmin}, which takes the form $\hV_\text{min} = 2\hG$.
+        The maximum velocity given by~\eqref{eq:Vmax} is $\hV_\text{max} = 1$.
+        The bifurcation curve has a single maximum $\hG_\text{max} = 0.022542$ at $\hV = 0.23607$ and $k = 0.63601$.
     }\label{fig:bifurcation}
 \end{figure}
 
@@ -384,19 +398,20 @@ This solution is shown in Fig.~\ref{fig:binary:solution}.
     }\label{fig:binary:a0}
 \end{figure}
 
+%%% Dispersion relation
 By perturbing the planar solidification front harmonically as
 \begin{equation}\label{eq:binary:perturbation}
     \epsilon\zeta(x,t) = \epsilon\exp(ikx + a_0t),
 \end{equation}
 one comes to the following dispersion relation:
 \begin{equation}\label{eq:binary:a_0}
-    \Delta(a_0,k) = a_0 + K(1+q_\sol) - (\mathcal{G}-\beta k^2)(q_\liq-1 + K(1+q_\sol)) = 0,
+    \Delta(a_0,k) = a_0 + K(1+\qS) - (\mathcal{G}-\beta k^2)(\qL-1 + K(1+\qS)) = 0,
 \end{equation}
 where
-\begin{equation}\label{eq:binary:qSL}
-    q_\liq = \frac12 + \qty(\frac14 + a_0 + k^2)^{1/2}, \quad
-    q_\sol = -\frac12 + \qty(\frac14 + \eta a_0 + \eta^2k^2)^{1/2}
-\end{equation}
+\begin{gather}
+    \qL(a_0,k) = \frac12 + \qty(\frac14 + a_0 + k^2)^{\mathrlap{1/2}}, \label{eq:binary:qL}\\
+    \qS(a_0,k) = -\frac12 + \qty(\frac14 + \eta a_0 + \eta^2k^2)^{\mathrlap{1/2}}, \label{eq:binary:qS}
+\end{gather}
 and
 \begin{equation}\label{eq:Gbeta}
     \mathcal{G} = 1 - \frac{2\tilde{G}}{(n+1)M(K-1)}, \quad
@@ -404,17 +419,29 @@ and
 \end{equation}
 
 \begin{figure}
-    \begin{adjustbox}{max width=1.6\linewidth,center}
-        \begin{overpic}[width=0.8\textwidth]{binary/lambda-G0.01}
-            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambdaVk}}}
+    \centering
+    \vspace{-80pt}
+    \includegraphics[width=\textwidth]{binary/lambdaGV}
+    \caption{
+        Stability of the wavelength $\hat\lambda=2\pi/\hV k$ as a function of $\hG$ and $\hV$.
+        The gray surface corresponds to the neutral stability.
+        The colored surface represents the most unstable wavelength with the amplitude $a_0$ displayed in the color bar.
+        Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
+    }\label{fig:binary:lambdaGV}
+\end{figure}
+
+\begin{figure}
+    \begin{adjustbox}{max width=1.4\linewidth,center}
+        \begin{overpic}[width=0.7\textwidth]{binary/lambda-G0.01}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambdaV}}}
         \end{overpic}
-        \begin{overpic}[width=0.8\textwidth]{binary/lambda-V0.1}
-            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambdaGk}}}
+        \begin{overpic}[width=0.7\textwidth]{binary/lambda-V0.1}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambdaG}}}
         \end{overpic}
     \end{adjustbox}
     \caption{
         Stability of the wavelength $\hat\lambda=2\pi/\hV k$ as a function of $\hV$
-        at $\hG=0.01$ (\subref{sfig:binary:lambdaVk}) and of $\hG$ at $\hV=0.1$ (\subref{sfig:binary:lambdaGk}).
+        at $\hG=0.01$ (\subref{sfig:binary:lambdaV}) and of $\hG$ at $\hV=0.1$ (\subref{sfig:binary:lambdaG}).
         Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
     }\label{fig:binary:lambda}
 \end{figure}
@@ -441,12 +468,102 @@ into Eqs.~\eqref{eq:Gbeta}, we obtain
     \beta = \frac{\hV}{|K-1|}.
 \end{equation}
 
-%%% Results
+%%% Bifurcation diagram
 The typical bifurcation diagram in the ($\hV,\hG$) coordinates is shown in Fig.~\ref{fig:bifurcation}.
-It is seen that for $0<\hG<\hG_\text{max}$, there are two critical points, between which the planar front is unstable.
+The planar front is stable for all wavenumbers when $\mathcal{G} < \mathcal{G}_c(\beta_c(k))$ given by
+\begin{equation}\label{eq:bifurcation}
+    \beta_c = \frac{K}{\mathcal{D}^2}\qty(\frac{1+\bqS}{2\bqL-1} + \eta^2\frac{\bqS-1}{2\bqS+1}), \quad
+    \mathcal{G}_c = \beta_c k^2 + \frac{K(1+\bqS)}{\mathcal{D}},
+\end{equation}
+where $\bqL(k)=\qL(0,k)$, $\bqS(k)=\qS(0,k)$, and $\mathcal{D} = \bqL-1 + K(1+\bqS)$.
+Eqs.~\eqref{eq:bifurcation} are obtained by taking $\Delta(0,k)=0$ and ${\pdv*{\Delta}{k^2}}(0,k)=0$.
+In the \emph{absolute stability limit}~\cite{mullins1964stability} ($k\to0$),
+\begin{equation}\label{eq:Vmax}
+    \hV_\text{max} = \frac{|K-1|}{K},
+\end{equation}
+which is obtained from $\lim_{k\to0}\beta_c = 1/K$.
+In the \emph{constitutional undercooling limit}~\cite{tiller1953redistribution} ($k\to\infty$),
+$\lim_{k\to\infty}\beta_ck^2 = 0$, which gives
+\begin{equation}\label{eq:Vmin}
+    \hV_\text{min} = \frac{2(1+\eta K)}{(n+1)|K-1|}\hG.
+\end{equation}
+Moving back to dimensional variables, we have
+\begin{equation}\label{eq:Vminmax}
+    V_\text{min} = \frac{2(1+\eta K)}{n+1}\frac{GD_L}{\Delta{T}_0}, \quad
+    V_\text{max} = \frac{D_L\Delta{T}_0}{K\Gamma},
+\end{equation}
+where $\Delta{T}_0 = C_{\liq0}m_\liq(K-1)$ is the freezing range of the alloy.
+The maximum point $\hG_\text{max}$ on the curve $\hG_c(\hV_c)$ can be found by adding
+\begin{equation}\label{eq:Gmax}
+    \mathcal{G}_c = 1 - \beta_ck^2
+\end{equation}
+to the system of equations~\eqref{eq:bifurcation}.
+
+%%% Amplification rate
+For some point inside the unstable region in the bifurcation diagram (Fig.~\ref{fig:bifurcation}),
+there is a interval of wavenumbers $(k_1,k_2)$
+for which $a_0>0$ as shown in Fig.~\ref{fig:binary:a0}.
+Note that for $\hG>0$, $k_1>0$ and, moreover, there is a critical wavenumber $k_c$
+such that $a_0$ is complex for any $k<k_c$.
+
+%%% Stability diagrams
+We have seen that for $0<\hG<\hG_\text{max}$, there are two critical points, between which the planar front is unstable.
 Stabilization is due to positive temperature gradient for longer wavelengths
-and due to surface tension for shorter ones (see also Fig.~\ref{fig:binary:a0}).
-As a result, the neutral stability curve in the ($\hV,\hat\lambda$) looks like oval (Fig.~\ref{sfig:binary:lambdaVk}).
+and due to surface tension for shorter ones.
+As a result, the neutral stability curve in the ($\hV,\hat\lambda$) coordinates
+takes the oval form as seen in Figs.~\ref{fig:binary:lambdaGV} and~\ref{sfig:binary:lambdaV}.
+
+\subsection{Selection of the cell spacing}
+
+\begin{figure}
+    \begin{adjustbox}{max width=1.4\linewidth,center}
+        \begin{overpic}[width=0.7\textwidth]{binary/lambda-G0.0001}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambda2V}}}
+        \end{overpic}
+        \begin{overpic}[width=0.7\textwidth]{binary/lambda-V0.9}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:binary:lambda2G}}}
+        \end{overpic}
+    \end{adjustbox}
+    \caption{
+        Stability of the wavelength $\hat\lambda=2\pi/\hV k$ as a function of $\hV$
+        at $\hG=0.0001$ (\subref{sfig:binary:lambda2V}) and of $\hG$ at $\hV=0.9$ (\subref{sfig:binary:lambda2G}).
+        Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
+    }\label{fig:binary:lambda2}
+\end{figure}
+
+%%% Cellular structures
+The presented linear stability analysis enables us to predict conditions
+under which a flat solidification front becomes unstable.
+Moreover, we know the most unstable wavelength, which dominates during a linear perturbation.
+However, the wavelength of a stable cellular structure cannot be found from this theory.
+
+%%% Two Hunt's models
+Two analytical predictions of the cell spacing is compared with the stability results
+in Figs.~\ref{fig:binary:lambda} and~\ref{fig:binary:lambda2}.
+The following models assume that $\eta=0$ and $n=1$.
+First, \textcite{hunt1979solidification} proposed a simple model
+\begin{equation}\label{eq:Hunt79}
+    \hat\lambda^4 = \frac{64K}{\hV \hG^2} \qty(|K-1| - \frac{\hG}{\hV}),
+\end{equation}
+which is based on assumption that the solidification front is a dense array of hemispheres.
+Second, \textcite{hunt1996numerical} employed a numerical model with spacing selection
+and fitted their numerical results by
+\begin{equation}\label{eq:Hunt96}
+    \begin{gathered}
+        \check\lambda = 8.18 K^{-0.485}\check{V}^{-0.29}(\check{V} - \check{G})^{-0.3}
+            \Delta\check{T}^{-0.3}(1-\check{V})^{-1.4}, \\
+        \Delta\check{T} = \frac{\check{G}}{\check{V}}
+            + \qty(a + (1-a)\check{V}^{0.45})\qty(1-\frac{\check{G}}{\check{V}}), \\
+        a = \num{5.273e-3} + 0.5519K - 0.1865K^2,
+    \end{gathered}
+\end{equation}
+where quantities
+\begin{equation}\label{eq:checked}
+    \check\lambda = \frac{|K-1|}{K}\hat\lambda, \quad
+    \check{V} = \frac{K}{|K-1|}\hV, \quad \check{G} = \frac{K}{|K-1|^2}\hG
+\end{equation}
+are chosen to replace limits~\eqref{eq:Vmax} and~\eqref{eq:Vmin} with $\check{V}=1$ and $\check{V}=\check{G}$;
+product $\check\lambda\check{V} = \lambda V/D$ is the spacing Peclet number.
 
 \printbibliography
 

@@ -44,7 +44,7 @@ class Style:
     unstable = { 'label': r'$\mathrm{unstable\ region}$', 'hatch': 'XX', 'color':'none', 'edgecolor': 'gray' }
     gray = { 'color': 'lightgray' }
     point = { 'color': 'black', 'marker': '.', 'linestyle': 'None', 'zorder': 10 }
-    surface = { 'rstride': 1, 'cstride': 1, 'color': 'gray', 'edgecolor': 'none', 'alpha': 0.5 }
+    surface = { 'rstride': 1, 'cstride': 1, 'edgecolor': 'none', 'alpha': 0.5 }
     annotate = { 'xytext': (0,3), 'textcoords': 'offset points' }
 
 ### Global constants
@@ -94,12 +94,34 @@ _most_eq = lambda a,k,g,v: (__f(a,k,g,v), __f_kk(a,k,g,v))
 interval_mesh = lambda a, b, va, vb: (erf(np.linspace(-va, vb, args.N)) + 1)*(b-a)/2 + a
 make_log = lambda f: np.log10(f) if args.log else f
 k2k = lambda k,v: 2*pi/k/v if args.wavelength else k
+l2k = lambda l,v: 2*pi/l/v
 _k2k = lambda k: k2k(k, args.V)
 klabel = lambda p='', s='': f'${p}'+r'\hat\lambda'+f'{s}$' if args.wavelength else f'${p}k{s}$'
 add_tmargin = lambda a,b: (a, b+(factorY-1)*(b-a))
 
 def error(msg):
     print(colored(msg, 'red'), file=sys.stderr)
+
+def pdas_models(G, V, axes, X, Y=None):
+    _Hunt = lambda g,v: l2k((64*args.K/v/g**2*(fabs(args.K-1) - g/v))**0.25, v)
+    a = 5.273e-3 + 0.5519*args.K - 0.1865*args.K**2
+    _g = lambda g: args.K*g/(args.K-1)**2
+    _v = lambda v: args.K*v/fabs(args.K-1)
+    _l = lambda l: 2*args.K*l/fabs(args.K-1)
+    _dT = lambda g,v: _g(g)/_v(v) + a + (1-a)*_v(v)**0.45 - _g(g)/_v(v)*(a+(1-a)*_v(v)**0.45)
+    _HuntLu = lambda g,v: l2k(_l(4.09*args.K**-0.485*_v(v)**-0.29*(_v(v)-_g(g))**-0.3*_dT(g,v)**-0.3*(1-_v(v))**-1.4), v)
+    # This is a very crude estimate from Hunt & Lu => we do not use it
+    #_HuntLu1 = lambda g,v: l2k(2*4.09*args.K**0.335*(args.K*fabs(args.K-1))**-0.41*v**-0.59, v) + 0*g
+    #_HuntLu1 = lambda g,v: l2k(_l(4.09*args.K**-0.485*_v(v)**-0.59), v) + 0*g
+
+    if Y is None:
+        _plot = lambda X,_,V,K,**kwargs: axes.plot(X, k2k(K,V), **kwargs)
+    else:
+        _plot = lambda X,Y,V,K,**kwargs: \
+            axes.plot_surface(X, Y, make_log(k2k(K,V)), **Style.surface, **kwargs)
+
+    _plot(X, Y, V, _Hunt(G,V), label='$\\mathrm{Hunt\ (1979)}$')
+    _plot(X, Y, V, _HuntLu(G,V), label='$\\mathrm{Hunt\&Lu\ (1996)}$')
 
 np.seterr(all='raise')  # Consider warnings as errors
 
@@ -133,6 +155,8 @@ if args.mode == modes['b']:
         print(f' -- Plot the (V,G) bifurcation diagram')
 
     factor = 1 if args.Dratio > 0 else 2    # NB: asymptotics for Dratio=0 differ!
+    # Asymptotic approximation of v(k) for small v
+    _vsmall = lambda k: _V(factor*args.K*(1+args.Dratio)/4/k**3/(1+etaK)**2)
 
     K = np.logspace(-1, 1, args.N)*k_star
     V = _V_bif(K)
@@ -159,8 +183,6 @@ if args.mode == modes['b']:
         if args.asymptotics:
             K1, K2 = np.split(K, 2)
             V1, V2 = np.split(V, 2)
-            # Asymptotic approximation of v(k) for small v
-            _vsmall = lambda k: _V(factor*args.K*(1+args.Dratio)/4/k**3/(1+args.K*args.Dratio)**2)
             axs[0].plot(k2k(K2,V2), _vsmall(K2), **Style.dashed)
 
     K = np.logspace(-logN+1, logN-1, args.N)*k_star
@@ -169,7 +191,7 @@ if args.mode == modes['b']:
 
     ax = axs[1] if args.verbose else plt
     ax.plot(V, G)
-    ax.fill_between(V, 0*G, G, **Style.unstable)
+    ax.fill_between(V, np.min(G) + 0*G, G, **Style.unstable)
     ax.legend()
     ax.plot(v_star, Gmax, **Style.point)
     ax.annotate(r'$\hat{G}_\mathrm{max}$', (v_star, Gmax), **Style.annotate)
@@ -183,6 +205,7 @@ if args.mode == modes['b']:
 
     if args.log:
         ax.loglog()
+        ax.margins(0, 0)
     else:
         if args.verbose:
             ax.set_xlim(0, Vmax)
@@ -192,17 +215,21 @@ if args.mode == modes['b']:
             ax.ylim(add_tmargin(0, Gmax))
 
     if args.asymptotics:
-        _calG_asym1 = lambda k: args.K/(1 + args.K*args.Dratio)*(
-            args.Dratio + (1 + (1+args.Dratio)/2/(1+args.K*args.Dratio))*factor/2/k )
-        _calG_asym2 = lambda k: 1 - 1*k**4 # TODO: calculate the coefficient
         K1, K2 = np.split(K, 2)
+        V2, V1 = np.split(V, 2)
 
-        V1 = _vsmall(K2)
-        G1 = _G(_calG_asym1(K2), V1)
         if args.verbose:
-            axs[1].plot(V1, G1, **Style.dashed)
+            _calG_asym1 = lambda k: args.K/(1+etaK)*(
+                args.Dratio + (1 + (1+args.Dratio)/2/(1+etaK))*factor/2/k )
+            #_calG_asym2 = lambda k: 1 - 1*k**4 # TODO: calculate the coefficient
+
+            V1 = _vsmall(K2)
+            ax.plot(V1, _G(_calG_asym1(K2), V1), **Style.dashed)
+            #ax.plot(V2, _G(_calG_asym2(K1), V2), **Style.dashed)
         else:
-            plt.plot(V1, G1, **Style.dashed)
+            slope = fabs(args.K-1)*(1+args.kratio)/2/(1+etaK)
+            ax.plot(V, slope*V, **Style.dashed)
+            ax.axvline(Vmax, **Style.dashed)
 
 ### Mode 2: Amplification rate (a_0) vs wave number (k)
 elif args.mode == modes['f']:
@@ -399,6 +426,8 @@ elif args.mode == modes['G']:
     plt.loglog() if args.log else plt.semilogy()
     plt.xlabel(r'$\hat{V}$')
     plt.ylabel(klabel(), rotation=0)
+    if args.asymptotics:
+        pdas_models(args.G, V, plt, X=V)
     plt.legend()
 
     if args.verbose:
@@ -442,6 +471,8 @@ elif args.mode == modes['V']:
     plt.loglog() if args.log else plt.semilogy()
     plt.xlabel(r'$\hat{G}$')
     plt.ylabel(klabel(), rotation=0)
+    if args.asymptotics:
+        pdas_models(G, args.V, plt, X=G)
     plt.legend()
 
     if args.verbose:
@@ -494,8 +525,8 @@ elif args.mode == modes['3']:
     ### 5. Set logarithmic scales
     # NB: due to some bug in Matplotlib, ax.set_xscale('log') doesn't work for all axes;
     #   therefore, we have to transform the data manually.
-    KK_most = np.log10(k2k(KK_most,VV)); KK1 = np.log10(k2k(KK1,VV)); KK2 = np.log10(k2k(KK2,VV))
-    VV = make_log(VV); GG = make_log(GG)
+    pKK_most = np.log10(k2k(KK_most,VV)); pKK1 = np.log10(k2k(KK1,VV)); pKK2 = np.log10(k2k(KK2,VV))
+    pVV = make_log(VV); pGG = make_log(GG)
     ax.set_zlabel(klabel(p=r'\log_{10}'))
     if args.log:
         ax.set_xlabel(r'$\log_{10}\hat{V}$'); ax.set_ylabel(r'$\log_{10}\hat{G}$')
@@ -503,9 +534,9 @@ elif args.mode == modes['3']:
         ax.set_xlabel(r'$\hat{V}$'); ax.set_ylabel(r'$\hat{G}$')
 
     ### 6. Plot the 3D stability diagram
-    ax.plot_surface(VV, GG, KK1, **Style.surface)
-    ax.plot_surface(VV, GG, KK2, **Style.surface)
-    p = ax.plot_surface(VV, GG, KK_most, cmap='viridis')
+    ax.plot_surface(pVV, pGG, pKK1, **Style.surface, color='gray')
+    ax.plot_surface(pVV, pGG, pKK2, **Style.surface, color='gray')
+    p = ax.plot_surface(pVV, pGG, pKK_most, cmap='viridis')
     fig.colorbar(p)
 
     if args.verbose:
@@ -515,6 +546,9 @@ elif args.mode == modes['3']:
         K1 = np.log10(k2k(K1,_V_bif(K1))); K2 = np.log10(k2k(K2,_V_bif(K2)))
         ax.plot3D(V1, G, K1, **Style.thick)
         ax.plot3D(V2, G, K2, **Style.thick)
+
+    if args.asymptotics:
+        pdas_models(GG, VV, ax, X=pVV, Y=pGG)
 
 if args.mode:
     filename = args.output if args.output else f'{args.mode}.pdf'
