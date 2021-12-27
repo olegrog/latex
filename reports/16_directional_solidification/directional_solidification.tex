@@ -41,7 +41,7 @@
 \newcommand{\bqL}{\bar{q}_\liq}
 \newcommand{\bqS}{\bar{q}_\sol}
 \newcommand{\hV}[1][\qty(\bar{V})]{\vphantom{#1}\mathrlap{\smash{\hat{V}}}V}
-\newcommand{\hG}[1][\qty(\bar{G})]{\vphantom{#1}\smash{\hat{G}}}
+\newcommand{\hG}[1][\qty(\bar{G})]{\vphantom{#1}\mathrlap{\smash{\hat{G}}}G}
 
 %%% Bold symbols
 \newcommand{\bn}{\vu*{n}}
@@ -85,11 +85,11 @@ $\bn$ is the unit normal directed outward from the solid,
 and brackets denote the discontinuity of the flux across the boundary.
 Second, the statement of local thermodynamic equilibrium determines the interface temperature:
 \begin{equation}\label{eq:bc2}
-    u_s = \Delta - d_0\kappa,
+    u_s = u_0 - d_0\kappa,
 \end{equation}
 where
 \begin{equation}\label{eq:undercooling}
-    \Delta = \frac{T_M - T_\infty}{L/c}
+    u_0 = \frac{T_M - T_\infty}{L/c}
 \end{equation}
 is the dimensionless undercooling,
 $\kappa$ is the sum of the principal curvatures (\si{\per\m}), and
@@ -107,10 +107,10 @@ In the one-dimensional case, the diffusion equation take the form
 \end{equation}
 and is solved with the boundary conditions
 \begin{equation}\label{eq:bc_1d}
-    u(0) = \Delta, \quad D[u'(0)] = -V,
+    u(0) = u_0, \quad D[u'(0)] = -V,
 \end{equation}
 which assumes that the solid--liquid interface is located at $z=0$.
-For the specific case $\Delta=1$, there is stationary solution
+For the specific case $u_0=1$, there is stationary solution
 \begin{equation}\label{eq:solution_1d}
     u(z) = \begin{cases}
         \exp(-z/\ell) & \text{ for } z>0, \\
@@ -176,10 +176,10 @@ which is referred to as \emph{absolute stability} by metallurgists.
         Amplification factor $a_0(k)$ for a pure substance at $\hV=0.25$.
         Both solutions are drawn by thick lines.
         The lower solution can exist only in the gray area defined by Eq.~\eqref{eq:pure:a_0_intervals}.
-        The dotted curve is Eq.~\eqref{eq:pure:bar_a_0}.
+        The dotted curve is determined by Eq.~\eqref{eq:pure:bar_a_0}.
         The vertical line $k=1/2$ is the maximum $k$, until which two real solutions exist.
         For small $k$, the dashed lines are the asymptotic expansions from Eq.~\eqref{eq:pure:a0_asymptotics}.
-        Near the $k_0$, the dashed curve is given by~\eqref{eq:pure:a_0_near_k_0}.
+        Near the $k_0$, the dashed curve is given by Eq.~\eqref{eq:pure:a_0_near_k_0}.
     }\label{fig:pure:a0}
 \end{figure}
 
@@ -245,7 +245,7 @@ To find two real roots of $a_0(k)$, the solution domain should be divided by cur
 \begin{equation}\label{eq:pure:bar_a_0}
     \bar{a}_0 = \hV^2k^4 - \qty(1+\hV)k^2,
 \end{equation}
-which is obtained as a solution of the system: $\Delta=0$ and $\pdv*{\Delta}{a_0}=0$.
+which is equivalent to $\pdv*{\Delta}{a_0}=0$.
 Thus, two roots of the dispersion equation lies in the following intervals:
 \begin{equation}\label{eq:pure:a_0_intervals}
     -k^2 - 1/4 \leq a_{01} < \bar{a}_0 < a_{02} < 1/8\hV,
@@ -376,15 +376,16 @@ This solution is shown in Fig.~\ref{fig:binary:solution}.
             \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:bifurcation}}}
         \end{overpic}
         \begin{overpic}[width=0.6\textwidth]{binary/bifurcation-log}
-            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:bifurcation-log}}}
+            \put (0,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:bifurcation-log}}}
         \end{overpic}
     \end{adjustbox}
     \caption{
         The bifurcation diagram for the directional solidification of a binary mixture at $K=0.5$, $\eta=0$, and $n=1$.
         Both linear (\subref{sfig:bifurcation}) and logarithmic (\subref{sfig:bifurcation-log}) scales are shown.
-        The dashed line corresponds to limit~\eqref{eq:Vmin}, which takes the form $\hV_\text{min} = 2\hG$.
-        The maximum velocity given by~\eqref{eq:Vmax} is $\hV_\text{max} = 1$.
-        The bifurcation curve has a single maximum $\hG_\text{max} = 0.022542$ at $\hV = 0.23607$ and $k = 0.63601$.
+        The maximum velocity given by~\eqref{eq:Vmax} is $\hV_\text{max} = 2$.
+        The dashed line corresponds to the constitutional undercooling limit~\eqref{eq:Vmin},
+        which takes the form $\hG = \hV_\text{min}$.
+        The bifurcation curve has a single maximum $\hG_\text{max} = 0.09017$ at $\hV = 0.47214$ and $k = 0.63601$.
     }\label{fig:bifurcation}
 \end{figure}
 
@@ -394,6 +395,9 @@ This solution is shown in Fig.~\ref{fig:binary:solution}.
     \caption{
         Amplification factor $a_0(k)$ for a binary mixture at $\hG=0.01$ and $\hV=0.1$.
         Both real solutions are drawn by thick lines.
+        The smaller solution (orange line) can exist only in the gray area.
+        Its lower boundary corresponds to a zero radicand in Eqs.~\eqref{eq:binary:qL} or~\eqref{eq:binary:qS},
+        while the upper boundary marked by the dotted line is given by $\pdv*{\Delta}{a_0}=0$.
         Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
     }\label{fig:binary:a0}
 \end{figure}
@@ -438,18 +442,19 @@ Therefore, it is convenient to nondimensionalize them independently:
 \end{equation}
 where
 \begin{equation}\label{eq:lengths}
-    d_0 = \frac{\Gamma}{C_{\liq0}|m_\liq|}, \quad \ell = \frac{D_\liq}{V}, \quad \ell_T = \frac{C_{\liq0}|m_\liq|}{G}
+    d_0 = \frac{\Gamma}{\Delta{T}_0}, \quad
+    \ell = \frac{D_\liq}{V}, \quad \ell_T = \frac{\Delta{T}_0}{G}
 \end{equation}
 are the chemical capillary, solute diffusion, and thermal lengths, respectively.
-The quantity $\Gamma = \sigma T_M/L$ is called the Gibbs--Thomson coefficient.
+The quantity $\Gamma = \sigma T_M/L$ is called the Gibbs--Thomson coefficient,
+and $\Delta{T}_0 = m_\liq C_{\liq0}(K-1)$ is the freezing range of the alloy.
 Substituting relations
 \begin{equation}\label{eq:tildeGgamma}
-    \tilde{G} = |M|\hG/\hV, \quad \gamma = |M|\hV
+    \tilde{G} = M(K-1)\hG/\hV, \quad \gamma = M(K-1)\hV
 \end{equation}
 into Eqs.~\eqref{eq:Gbeta}, we obtain
 \begin{equation}\label{eq:Gbeta2}
-    \mathcal{G} = 1 - \frac{2\hG}{(n+1)\hV|K-1|}, \quad
-    \beta = \frac{\hV}{|K-1|}.
+    \mathcal{G} = 1 - 2\hG/(n+1)\hV, \quad \beta = \hV.
 \end{equation}
 
 %%% Bifurcation diagram
@@ -463,20 +468,18 @@ where $\bqL(k)=\qL(0,k)$, $\bqS(k)=\qS(0,k)$, and $\mathcal{D} = \bqL-1 + K(1+\b
 Eqs.~\eqref{eq:bifurcation} are obtained by taking $\Delta(0,k)=0$ and ${\pdv*{\Delta}{k^2}}(0,k)=0$.
 In the \emph{absolute stability limit}~\cite{mullins1964stability} ($k\to0$),
 \begin{equation}\label{eq:Vmax}
-    \hV_\text{max} = \frac{|K-1|}{K},
+    \hV_\text{max} = 1/K.
 \end{equation}
-which is obtained from $\lim_{k\to0}\beta_c = 1/K$.
 In the \emph{constitutional undercooling limit}~\cite{tiller1953redistribution} ($k\to\infty$),
 $\lim_{k\to\infty}\beta_ck^2 = 0$, which gives
 \begin{equation}\label{eq:Vmin}
-    \hV_\text{min} = \frac{2(1+\eta K)}{(n+1)|K-1|}\hG.
+    \hV_\text{min} = \frac{2(1+\eta K)}{n+1}\hG.
 \end{equation}
 Moving back to dimensional variables, we have
 \begin{equation}\label{eq:Vminmax}
     V_\text{min} = \frac{2(1+\eta K)}{n+1}\frac{GD_L}{\Delta{T}_0}, \quad
-    V_\text{max} = \frac{D_L\Delta{T}_0}{K\Gamma},
+    V_\text{max} = \frac{D_L\Delta{T}_0}{K\Gamma}.
 \end{equation}
-where $\Delta{T}_0 = C_{\liq0}m_\liq(K-1)$ is the freezing range of the alloy.
 The maximum point $\hG_\text{max}$ on the curve $\hG_c(\hV_c)$ can be found by adding
 \begin{equation}\label{eq:Gmax}
     \mathcal{G}_c = 1 - \beta_ck^2
@@ -540,26 +543,17 @@ First, an simple model can be formulated based on some ansatz for the shape of t
 For example, assuming that the solid is a dense hexagonal array of semi-ellipsoids,
 we can obtain~\cite{rappaz2009solidification}
 \begin{equation}\label{eq:cell_spacing}
-    \hat\lambda^4 = \frac{72\pi^2|K-1|}{K\hV\hG^2}.
+    \hat\lambda^4 = \frac{72\pi^2}{K\hV\hG^2}.
 \end{equation}
 Second, \textcite{hunt1996numerical} employed a numerical model with dynamic spacing selection
 and fitted their numerical results by
 \begin{equation}\label{eq:Hunt96}
     \begin{gathered}
-        \check\lambda = 8.18 K^{-0.485}\check{V}^{-0.29}(\check{V} - \check{G})^{-0.3}
-            \Delta\check{T}^{-0.3}(1-\check{V})^{-1.4}, \\
-        \Delta\check{T} = \frac{\check{G}}{\check{V}}
-            + \qty(a + (1-a)\check{V}^{0.45})\qty(1-\frac{\check{G}}{\check{V}}), \\
-        a = \num{5.273e-3} + 0.5519K - 0.1865K^2,
+        \hat\lambda = 8.18 K^{-0.075}\hV^{-0.29}\qty(\hV - \hG)^{-0.3}\Delta\hat{T}_\sol^{-0.3}\qty(1-K\hV)^{-1.4}, \\
+        \Delta\hat{T}_\sol = \hG/\hV + \qty(a + (1-a)\qty(K\hV)^{0.45})\qty(1-\hG/\hV), \\
+        a = \num{5.273e-3} + 0.5519K - 0.1865K^2.
     \end{gathered}
 \end{equation}
-where quantities
-\begin{equation}\label{eq:checked}
-    \check\lambda = \frac{|K-1|}{K}\hat\lambda, \quad
-    \check{V} = \frac{K}{|K-1|}\hV, \quad \check{G} = \frac{K}{|K-1|^2}\hG
-\end{equation}
-are chosen to replace limits~\eqref{eq:Vmax} and~\eqref{eq:Vmin} with $\check{V}=1$ and $\check{V}=\check{G}$;
-product $\check\lambda\check{V} = \lambda V/D$ is the spacing Peclet number.
 
 \printbibliography
 

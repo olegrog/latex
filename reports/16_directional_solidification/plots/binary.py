@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import root_scalar, root
 from scipy.special import erf
-from numpy import pi, sqrt, infty, fabs
+from numpy import pi, sqrt
 from functools import partial
 from termcolor import colored
 
@@ -31,8 +31,9 @@ parser.add_argument('-a', '--asymptotics', action='store_true', help='plot the a
 parser.add_argument('-l', '--log', action='store_true', help='use log scale for V and G')
 parser.add_argument('-w', '--wavelength', action='store_true', help='use wavelength instead of wavenumber')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
-parser.add_argument('--krange', type=str2pair, default=None, help='range of wavenumbers')
 parser.add_argument('-o', '--output', type=str, default=None, help='PDF filename')
+parser.add_argument('--krange', type=str2pair, default=None, help='range of wavenumbers')
+parser.add_argument('--pad', type=float, default=0.1, help='amount of padding around the figures (inches)')
 parser.add_argument('--pdf', action='store_true', help='save a PDF file instead')
 args = parser.parse_args()
 
@@ -53,7 +54,7 @@ factorY = 1.1
 kmin, kmax = 1e-5, 1e5  #TODO: provide some reasonable estimates
 
 ### Parameter-dependent constants
-Vmax = fabs(1-args.K)/args.K
+Vmax = 1/args.K
 etaK = args.Dratio*args.K
 logN = np.log10(args.N)
 
@@ -67,27 +68,24 @@ _S_a = lambda a,k: args.Dratio/(2*_S(a,k) + 1)
 _S_kk = lambda a,k: args.Dratio**2/(2*_S(a,k) + 1)
 _s = lambda k: _S(0,k)
 
-### Formulas for calculating beta, V, calG, G
-_beta = lambda v: v/fabs(1-args.K)
-_V = lambda beta: beta*fabs(1-args.K)
-_calG = lambda g,v: 1 - 2*g/(args.kratio+1)/v/fabs(1-args.K)
-_G = lambda calG,v: (args.kratio+1)*v*fabs(1-args.K)*(1 - calG)/2
+### Formulas for calculating calG, G
+_calG = lambda g,v: 1 - 2*g/(args.kratio+1)/v
+_G = lambda calG,v: (args.kratio+1)*v*(1 - calG)/2
 
 ### Formulas for marginal stability (a_0 = 0)
 _denom = lambda k: (_l(k)-1) + args.K*(1+_s(k))
-_calG_kv = lambda k,v: _beta(v)*k**2 + args.K*(1+_s(k))/_denom(k)
+_calG_kv = lambda k,v: v*k**2 + args.K*(1+_s(k))/_denom(k)
 _G_kv = lambda k,v: _G(_calG_kv(k,v), v)
 
 ### Formulas for finding bifurcation points
-_beta_bif = lambda k: args.K/_denom(k)**2*(
+_V_bif = lambda k: args.K/_denom(k)**2*(
     (1+_s(k))/(2*_l(k)-1) - args.Dratio**2*(_l(k)-1)/(2*_s(k)+1) )
-_V_bif = lambda k: _V(_beta_bif(k))
 
 ### The 2D equation for finding the most unstable wavenumber
-__f = lambda a,k,g,v: a + args.K*(1+_S(a,k)) - (_calG(g,v) - _beta(v)*k**2)*(
+__f = lambda a,k,g,v: a + args.K*(1+_S(a,k)) - (_calG(g,v) - v*k**2)*(
     _L(a,k)-1 + args.K*(1+_S(a,k)) )
-__f_kk = lambda a,k,g,v: args.K*_S_kk(a,k) - (_calG(g,v) - _beta(v)*k**2)*(
-    _L_kk(a,k) + args.K*_S_kk(a,k)) + _beta(v)*(_L(a,k)-1 + args.K*(1+_S(a,k)))
+__f_kk = lambda a,k,g,v: args.K*_S_kk(a,k) - (_calG(g,v) - v*k**2)*(
+    _L_kk(a,k) + args.K*_S_kk(a,k)) + v*(_L(a,k)-1 + args.K*(1+_S(a,k)))
 _most_eq = lambda a,k,g,v: (__f(a,k,g,v), __f_kk(a,k,g,v))
 
 ### Other functions
@@ -103,18 +101,13 @@ def error(msg):
     print(colored(msg, 'red'), file=sys.stderr)
 
 def pdas_models(G, V, axes, X, Y=None):
-    #_Hunt = lambda g,v: l2k((64*args.K/v/g**2*(fabs(args.K-1) - g/v))**0.25, v)
     # This model is described in [Dantzig & Rappaz 2009]
-    _LGK = lambda g,v: l2k((72*pi**2*fabs(args.K-1)/args.K/v/g**2)**0.25, v)
+    _LGK = lambda g,v: l2k((72*pi**2/args.K/v/g**2)**0.25, v)
     a = 5.273e-3 + 0.5519*args.K - 0.1865*args.K**2
-    _g = lambda g: args.K*g/(args.K-1)**2
-    _v = lambda v: args.K*v/fabs(args.K-1)
-    _l = lambda l: 2*args.K*l/fabs(args.K-1)
-    _dT = lambda g,v: _g(g)/_v(v) + a + (1-a)*_v(v)**0.45 - _g(g)/_v(v)*(a+(1-a)*_v(v)**0.45)
-    _HuntLu = lambda g,v: l2k(_l(4.09*args.K**-0.485*_v(v)**-0.29*(_v(v)-_g(g))**-0.3*_dT(g,v)**-0.3*(1-_v(v))**-1.4), v)
+    _dT = lambda g,v: g/v + (a + (1-a)*(args.K*v)**0.45)*(1-g/v)
+    _HuntLu = lambda g,v: l2k(8.18*args.K**-0.075*v**-0.29*(v-g)**-0.3*_dT(g,v)**-0.3*(1-(args.K*v))**-1.4, v)
     # This is a very crude estimate from Hunt & Lu => we do not use it
-    #_HuntLu1 = lambda g,v: l2k(2*4.09*args.K**0.335*(args.K*fabs(args.K-1))**-0.41*v**-0.59, v) + 0*g
-    #_HuntLu1 = lambda g,v: l2k(_l(4.09*args.K**-0.485*_v(v)**-0.59), v) + 0*g
+    #_HuntLu1 = lambda g,v: l2k(8.18*args.K**-0.075*v**-0.59), v) + 0*g
 
     if Y is None:
         _plot = lambda X,_,V,K,**kwargs: axes.plot(X, k2k(K,V), **kwargs)
@@ -142,9 +135,9 @@ if args.pdf:
     plt.rcParams.update(params)
 
 ### Calculate Gmax
-_k_star_eq = lambda k: _calG_kv(k, _V_bif(k)) + _beta_bif(k)*k**2 - 1
+_k_star_eq = lambda k: _calG_kv(k, _V_bif(k)) + _V_bif(k)*k**2 - 1
 k_star = root_scalar(_k_star_eq, bracket=[1e-3, 1e3]).root
-v_star = _V(_beta_bif(k_star))
+v_star = _V_bif(k_star)
 Gmax = _G_kv(k_star, v_star)
 if args.verbose:
     print(f'Vmax = {Vmax:.5g} at G = 0 and k -> 0')
@@ -229,7 +222,7 @@ if args.mode == modes['b']:
             ax.plot(V1, _G(_calG_asym1(K2), V1), **Style.dashed)
             #ax.plot(V2, _G(_calG_asym2(K1), V2), **Style.dashed)
         else:
-            slope = fabs(args.K-1)*(1+args.kratio)/2/(1+etaK)
+            slope = (1+args.kratio)/2/(1+etaK)
             ax.plot(V, slope*V, **Style.dashed)
             ax.axvline(Vmax, **Style.dashed)
 
@@ -238,39 +231,39 @@ elif args.mode == modes['f']:
     if args.verbose:
         print(f' -- Plot a0(k) for given G = {args.G} and V = {args.V}')
 
-    beta, calG = _beta(args.V), _calG(args.G, args.V)
+    calG = _calG(args.G, args.V)
     omax = 10*(1 + sqrt(args.K*etaK))**2
 
     # Simple estimate for the reference wavenumber (depends on G, V, kratio, Dratio, K)
-    _k0 = lambda g,v: sqrt(max(0, _calG(g,v)*(1+etaK) - etaK)/_beta(v)/(1+etaK))
+    _k0 = lambda g,v: sqrt(max(0, _calG(g,v)*(1+etaK) - etaK)/v/(1+etaK))
     k0 = _k0(args.G, args.V)
     if args.verbose:
         print(f'k_0 = {k0:.5g}')
 
     # Equation for a_0(k) and its derivatives w.r.t. a_0 and k^2
-    _a_eq = lambda a,k: a + args.K*(1+_S(a,k)) - (calG - beta*k**2)*(
+    _a_eq = lambda a,k: a + args.K*(1+_S(a,k)) - (calG - args.V*k**2)*(
         _L(a,k)-1 + args.K*(1+_S(a,k)) )
-    _a_eq_a = lambda a,k: 1 + args.K*_S_a(a,k) - (calG - beta*k**2)*(
+    _a_eq_a = lambda a,k: 1 + args.K*_S_a(a,k) - (calG - args.V*k**2)*(
         _L_a(a,k) + args.K*_S_a(a,k) )
-    _a_eq_kk = lambda a,k: args.K*_S_kk(a,k) - (calG - beta*k**2)*(
-        _L_kk(a,k) + args.K*_S_kk(a,k)) + beta*(_L(a,k)-1 + args.K*(1+_S(a,k)))
+    _a_eq_kk = lambda a,k: args.K*_S_kk(a,k) - (calG - args.V*k**2)*(
+        _L_kk(a,k) + args.K*_S_kk(a,k)) + args.V*(_L(a,k)-1 + args.K*(1+_S(a,k)))
     # Lower boundary for a_0
     _aminL = lambda k: -k**2 - 1/4
-    _aminS = lambda k: -args.Dratio*k**2 - 1/4/args.Dratio if args.Dratio > 0 else -infty
+    _aminS = lambda k: -args.Dratio*k**2 - 1/4/args.Dratio if args.Dratio > 0 else -np.infty
     _amin = lambda k: almost_one*np.maximum(_aminL(k), _aminS(k))
-    # For Dratio = 0: _amean = lambda k: -k**2 - (1 - (calG-beta*k**2)**2)/4
+    # For Dratio = 0: _amean = lambda k: -k**2 - (1 - (calG-args.V*k**2)**2)/4
     _amean = lambda k: root_scalar(_a_eq_a, args=k, bracket=[_amin(k), omax]).root
 
     ### 1. Find a critical point (where a1(k)=a2(k)); a_0 is complex behind this point
     if args.G > 0:
         # Try the exact solution for Dratio=0 as initial guess
         A = calG + 2*args.K - 1
-        D = (A-2/beta)**2 + (2*args.K)**2 - A**2
+        D = (A-2/args.V)**2 + (2*args.K)**2 - A**2
         if D > 0:
-            B = A-2/beta + sqrt(D)
+            B = A-2/args.V + sqrt(D)
             if B > 0:
-                k_crit = sqrt(B/beta)
-                _a_crit = lambda k: -k**2 - (1 - (calG-beta*k**2)**2)/4
+                k_crit = sqrt(B/args.V)
+                _a_crit = lambda k: -k**2 - (1 - (calG-args.V*k**2)**2)/4
                 a_crit = _a_crit(k_crit)
         try:
             k_crit
@@ -312,9 +305,9 @@ elif args.mode == modes['f']:
             print(f'Maximum point: k = {k_max:.5g}, a = {a_max:.5g}')
         Kzero = []
         if a_max > 0:
-            Kzero.append(root_scalar(partial(_a_eq, 0), x0=k_max, x1=k_max*2).root)
+            Kzero.append(root_scalar(partial(_a_eq, 0), bracket=[k_max,kmax]).root)
             if args.G > 0:
-                Kzero.append(root_scalar(partial(_a_eq, 0), x0=k_max, x1=k_max/2).root)
+                Kzero.append(root_scalar(partial(_a_eq, 0), bracket=[kmin, k_max]).root)
             Kzero = np.array(Kzero)
             if args.verbose:
                 plt.plot(_k2k(Kzero), np.zeros_like(Kzero), **Style.point)
@@ -554,11 +547,11 @@ elif args.mode == modes['3']:
 
 if args.mode:
     filename = args.output if args.output else f'{args.mode}.pdf'
-    plt.tight_layout()
+    plt.tight_layout(pad=1)
     if args.pdf:
         if args.verbose:
             print(f' -- Save to {filename}')
-        plt.savefig(filename, bbox_inches='tight')
+        plt.savefig(filename, bbox_inches='tight', pad_inches=args.pad)
     else:
         plt.show()
 

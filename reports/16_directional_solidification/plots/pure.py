@@ -26,8 +26,9 @@ parser.add_argument('-a', '--asymptotics', action='store_true', help='plot the a
 parser.add_argument('-l', '--log', action='store_true', help='use log scale for V')
 parser.add_argument('-w', '--wavelength', action='store_true', help='use wavelength instead of wavenumber')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
-parser.add_argument('--krange', type=str2pair, default=None, help='range of wavenumbers')
 parser.add_argument('-o', '--output', type=str, default=None, help='PDF filename')
+parser.add_argument('--krange', type=str2pair, default=None, help='range of wavenumbers')
+parser.add_argument('--pad', type=float, default=0.1, help='amount of padding around the figures (inches)')
 parser.add_argument('--pdf', action='store_true', help='save a PDF file instead')
 args = parser.parse_args()
 
@@ -214,11 +215,11 @@ elif args.mode == modes['2']:
 
 if args.mode:
     filename = args.output if args.output else f'{args.mode}.pdf'
-    plt.tight_layout()
+    plt.tight_layout(pad=1)
     if args.pdf:
         if args.verbose:
             print(f' -- Save to {filename}')
-        plt.savefig(filename, bbox_inches='tight')
+        plt.savefig(filename, bbox_inches='tight', pad_inches=args.pad)
     else:
         plt.show()
 
