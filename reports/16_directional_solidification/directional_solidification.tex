@@ -38,8 +38,8 @@
 \newcommand{\sol}{\text{S}}
 \newcommand{\qL}{q_\liq}
 \newcommand{\qS}{q_\sol}
-\newcommand{\bqL}{\bar{q}_\liq}
-\newcommand{\bqS}{\bar{q}_\sol}
+\newcommand{\pL}{p_\liq}
+\newcommand{\pS}{p_\sol}
 \newcommand{\hV}[1][\qty(\bar{V})]{\vphantom{#1}\mathrlap{\smash{\hat{V}}}V}
 \newcommand{\hG}[1][\qty(\bar{G})]{\vphantom{#1}\mathrlap{\smash{\hat{G}}}G}
 
@@ -175,11 +175,11 @@ which is referred to as \emph{absolute stability} by metallurgists.
     \caption{
         Amplification factor $a_0(k)$ for a pure substance at $\hV=0.25$.
         Both solutions are drawn by thick lines.
-        The lower solution can exist only in the gray area defined by Eq.~\eqref{eq:pure:a_0_intervals}.
-        The dotted curve is determined by Eq.~\eqref{eq:pure:bar_a_0}.
+        The lower solution can exist only in the gray area defined by Eq.~\eqref{eq:pure:a0_intervals}.
+        The dotted curve is determined by Eq.~\eqref{eq:pure:bar_a0}.
         The vertical line $k=1/2$ is the maximum $k$, until which two real solutions exist.
         For small $k$, the dashed lines are the asymptotic expansions from Eq.~\eqref{eq:pure:a0_asymptotics}.
-        Near the $k_0$, the dashed curve is given by Eq.~\eqref{eq:pure:a_0_near_k_0}.
+        Near the $k_0$, the dashed curve is given by Eq.~\eqref{eq:pure:a0_near_k0}.
     }\label{fig:pure:a0}
 \end{figure}
 
@@ -232,22 +232,22 @@ For $k\gg1$ and quasi-stationary approximation ($a_0\ll k^2$),
 \end{equation}
 This approximation works well in the vicinity of point $k_0$ for small $\hV$
 and, moreover, gives a simple estimate of $k_0$:
-\begin{equation}\label{eq:pure:k_0}
+\begin{equation}\label{eq:pure:k0}
     k_0 \cong \qty(2\hV)^{-1/2}.
 \end{equation}
 In the vicinity of $k_0$, the amplification rate can be estimated as
-\begin{equation}\label{eq:pure:a_0_near_k_0}
+\begin{equation}\label{eq:pure:a0_near_k0}
     a_0 \cong \frac12 - \qty(1-2\hV k^2)\qty(\frac1{2\hV} - \frac12)^{1/2}.
 \end{equation}
 
 %%% How to separate a1 and a2?
 To find two real roots of $a_0(k)$, the solution domain should be divided by curve given
-\begin{equation}\label{eq:pure:bar_a_0}
+\begin{equation}\label{eq:pure:bar_a0}
     \bar{a}_0 = \hV^2k^4 - \qty(1+\hV)k^2,
 \end{equation}
 which is equivalent to $\pdv*{\Delta}{a_0}=0$.
 Thus, two roots of the dispersion equation lies in the following intervals:
-\begin{equation}\label{eq:pure:a_0_intervals}
+\begin{equation}\label{eq:pure:a0_intervals}
     -k^2 - 1/4 \leq a_{01} < \bar{a}_0 < a_{02} < 1/8\hV,
 \end{equation}
 where the last inequality is obtained at $k=k_m$ for small $\hV$.
@@ -408,7 +408,7 @@ By perturbing the planar solidification front harmonically as
     \epsilon\zeta(x,t) = \epsilon\exp(ikx + a_0t),
 \end{equation}
 one comes to the following dispersion relation:
-\begin{equation}\label{eq:binary:a_0}
+\begin{equation}\label{eq:binary:a0}
     \Delta(a_0,k) = a_0 + K(1+\qS) - (\mathcal{G}-\beta k^2)(\qL-1 + K(1+\qS)) = 0,
 \end{equation}
 where
@@ -461,10 +461,10 @@ into Eqs.~\eqref{eq:Gbeta}, we obtain
 The typical bifurcation diagram in the ($\hV,\hG$) coordinates is shown in Fig.~\ref{fig:bifurcation}.
 The planar front is stable for all wavenumbers when $\mathcal{G} < \mathcal{G}_c(\beta_c(k))$ given by
 \begin{equation}\label{eq:bifurcation}
-    \beta_c = \frac{K}{\mathcal{D}^2}\qty(\frac{1+\bqS}{2\bqL-1} + \eta^2\frac{\bqS-1}{2\bqS+1}), \quad
-    \mathcal{G}_c = \beta_c k^2 + \frac{K(1+\bqS)}{\mathcal{D}},
+    \beta_c = \frac{K}{\mathcal{D}^2}\qty(\frac{1+\pS}{2\pL-1} + \eta^2\frac{\pS-1}{2\pS+1}), \quad
+    \mathcal{G}_c = \beta_c k^2 + \frac{K(1+\pS)}{\mathcal{D}},
 \end{equation}
-where $\bqL(k)=\qL(0,k)$, $\bqS(k)=\qS(0,k)$, and $\mathcal{D} = \bqL-1 + K(1+\bqS)$.
+where $\pL(k)=\qL(0,k)$, $\pS(k)=\qS(0,k)$, and $\mathcal{D} = \pL-1 + K(1+\pS)$.
 Eqs.~\eqref{eq:bifurcation} are obtained by taking $\Delta(0,k)=0$ and ${\pdv*{\Delta}{k^2}}(0,k)=0$.
 In the \emph{absolute stability limit}~\cite{mullins1964stability} ($k\to0$),
 \begin{equation}\label{eq:Vmax}
@@ -554,6 +554,41 @@ and fitted their numerical results by
         a = \num{5.273e-3} + 0.5519K - 0.1865K^2.
     \end{gathered}
 \end{equation}
+
+\subsection{Extension to the multicomponent case}
+
+%%% Assumptions
+\textcite{coriell1987stability} have extended the presented theory to the multicomponent case
+under the following assumptions:
+\begin{enumerate}
+    \item Solute diffusion in solid is absent.
+    \item There is no diffusional interaction amongst solutes.
+    \item The interface conditions are independent for each solute.
+\end{enumerate}
+
+%%% Dispersion relation
+Let $m_{\liq i}$, $C_{i0}$, and $D_i$ be the liquidus slope, concentration at the interface,
+and diffusion of the $i$th solute.
+Its equilibrium solid-liquid concentration ratio is $K_i = m_{\liq i}/m_{\sol i}$.
+Then the dispersion relation for an $N+1$ component mixture takes the form
+\begin{equation}\label{eq:multi:a0}
+    \Delta(a_0,k) = \sum_{i=1}^{N}I_i\frac{q_i - 1 - r_ia_0}{q_i - 1 + K_i} - g - k^2 = 0,
+\end{equation}
+where $r_i = D_i/\bar{D}$, $\bar{D}$ is the reference diffusion coefficient,
+\begin{equation}\label{eq:multi:q}
+    q_i(a_0,k) = \frac12 + \qty(\frac14 + r_ia_0 + (r_ik)^2)^{\mathrlap{1/2}},
+\end{equation}
+and
+\begin{equation}\label{eq:multi:gI}
+    g = \frac{2G\bar{D}}{(n+1)\Gamma V^2}, \quad I_i = \frac{\Delta{T}_{0i}\bar{D}}{\Gamma V}.
+\end{equation}
+Here, $\Delta{T}_{0i} = m_{\liq i}C_{i0}(K_i-1)$ is the $i$th contribution to the solidification range
+$\Delta{T}_0 = \sum_i \Delta{T}_{0i}$.
+Using the same definition of $\hV$ and $\hG$, given in~\eqref{eq:hatGV}, one can find that
+\begin{equation}\label{eq:multi:gI2}
+    g = \frac{2\hG}{(n+1)\hV^2}, \quad I_i = \frac{\Delta{T}_{0i}}{\Delta{T}_0}\frac1{\hV}.
+\end{equation}
+It is easy to check that Eq.~\eqref{eq:multi:a0} reduces to Eq.~\eqref{eq:binary:a0} at $N=1$, $\eta=0$, $r_1=1$.
 
 \printbibliography
 
