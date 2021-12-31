@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import root_scalar, root
 from scipy.special import erf
-from numpy import pi, sqrt
+from numpy import pi, sqrt, real, imag
 from functools import partial
 from termcolor import colored
 
@@ -247,12 +247,6 @@ elif args.mode == modes['f']:
         _L_a(a,k) + args.K*_S_a(a,k) )
     _a_eq_kk = lambda a,k: args.K*_S_kk(a,k) - (calG - args.V*k**2)*(
         _L_kk(a,k) + args.K*_S_kk(a,k)) + args.V*(_L(a,k)-1 + args.K*(1+_S(a,k)))
-    # Lower boundary for a_0
-    _aminL = lambda k: -k**2 - 1/4
-    _aminS = lambda k: -args.Dratio*k**2 - 1/4/args.Dratio if args.Dratio > 0 else -np.infty
-    _amin = lambda k: almost_one*np.maximum(_aminL(k), _aminS(k))
-    # For Dratio = 0: _amean = lambda k: -k**2 - (1 - (calG-args.V*k**2)**2)/4
-    _amean = lambda k: root_scalar(_a_eq_a, args=k, bracket=[_amin(k), omax]).root
 
     ### 1. Find a critical point (where a1(k)=a2(k)); a_0 is complex behind this point
     if args.G > 0:
@@ -324,10 +318,18 @@ elif args.mode == modes['f']:
         error(f'Failed to find a maximum point: {err}')
 
     ### 3. Create a mesh and find solutions on it
+    # Lower boundary for a_0
+    _aminL = lambda k: -k**2 - 1/4
+    _aminS = lambda k: -args.Dratio*k**2 - 1/4/args.Dratio if args.Dratio > 0 else -np.infty
+    _amin = lambda k: almost_one*np.maximum(_aminL(k), _aminS(k))
+    # For Dratio = 0: _amean = lambda k: -k**2 - (1 - (calG-args.V*k**2)**2)/4
+    _amean = lambda k: root_scalar(_a_eq_a, args=k, bracket=[_amin(k), omax]).root
+
     K = np.geomspace(*args.krange, args.N) if args.krange else np.logspace(-1.5, 0.5, args.N)*k0
     if k_crit > K[0]:
         # Refine the mesh near the critical point
         K = np.r_[K[K<k_crit], interval_mesh(k_crit, K[-1], logN+1, 0)]
+
     m0 = _a_eq_a(_amin(K), K) < 0           # if amin < amean, where a2 < amean < a1
     m1 = np.zeros_like(K, dtype=bool)       # if a1 (larger) is real
     m2 = np.copy(m1)                        # if a2 (smaller) is real
@@ -361,6 +363,16 @@ elif args.mode == modes['f']:
         plt.plot(_k2k(K[m0]), Amean, **Style.dotted)
         plt.fill_between(_k2k(K[m0]), _amin(K)[m0], Amean, **Style.gray)
         plt.ylim(add_tmargin(np.min(np.r_[A1,A2]), np.max(A1)))
+
+    ### 6. Find and plot complex a(k) for k < k_crit
+    if args.verbose and k_crit > K[0]:
+        _ac = lambda x: x[0] + x[1]*1j
+        _a_complex_eq = lambda x,k: (real(_a_eq(_ac(x),k)), imag(_a_eq(_ac(x),k)))
+        Kc = interval_mesh(K[0], k_crit, 1, logN)[::2]
+        A_guess = np.vectorize(_amean)(Kc)*(1 - 0.5*(Kc-k_crit)/(Kc[0]-k_crit))
+        A_real, A_imag = np.array([ root(_a_complex_eq, [a,0], args=k).x for a,k in zip(A_guess,Kc) ]).T
+        plt.plot(Kc, A_real)
+        plt.ylim(add_tmargin(np.min(np.r_[A1,A2]), np.max(np.r_[A1,A_real])))
 
 ### Mode 3a: Stability diagram in the (V,k) coordinates
 elif args.mode == modes['G']:

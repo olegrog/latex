@@ -283,8 +283,8 @@ Then, $D_\liq/V$ and $D_\liq/V^2$ are the reference length and time, respectivel
 Hereinafter, a tilde over a symbol denotes a dimensionless quantity.
 
 %%% Governing equations and BC
-Let $z = \epsilon\zeta(x,t)$ be the position of the front in the laboratory frame,
-where $\epsilon$ is the smallness parameter.
+Let $z = \epsilon\zeta(x,t)$ be the perturbation of the position of the front in the laboratory frame,
+where $\epsilon$ is a small parameter.
 Then, solidification of a binary mixture is described by the following equations:
 \begin{gather}
     \left.\begin{aligned}
@@ -394,7 +394,8 @@ This solution is shown in Fig.~\ref{fig:binary:solution}.
     \includegraphics[width=0.8\textwidth]{binary/a0-G0.01-V0.1}
     \caption{
         Amplification factor $a_0(k)$ for a binary mixture at $\hG=0.01$ and $\hV=0.1$.
-        Both real solutions are drawn by thick lines.
+        There are two real solutions (blue and orange lines)
+        and one complex solution (green line) of Eq.~\eqref{eq:binary:a0}.
         The smaller solution (orange line) can exist only in the gray area.
         Its lower boundary corresponds to a zero radicand in Eqs.~\eqref{eq:binary:qL} or~\eqref{eq:binary:qS},
         while the upper boundary marked by the dotted line is given by $\pdv*{\Delta}{a_0}=0$.
@@ -435,7 +436,7 @@ and
 \end{figure}
 
 %%% Change the dimensionless variables
-In practice, for a given mixture, we can vary the temperature gradient and pulling speed in direction solidification.
+In practice, for a given mixture, we can vary the temperature gradient and pulling speed in directional solidification.
 Therefore, it is convenient to nondimensionalize them independently:
 \begin{equation}\label{eq:hatGV}
     \hV = \frac{d_0}{\ell}, \quad \hG = \frac{d_0}{\ell_T},
@@ -515,7 +516,7 @@ to the system of equations~\eqref{eq:bifurcation}.
 
 %%% Amplification rate
 For some point inside the unstable region in the bifurcation diagram (Fig.~\ref{fig:bifurcation}),
-there is a interval of wavenumbers $(k_1,k_2)$
+there is an interval of wavenumbers $(k_1,k_2)$
 for which $a_0>0$ as shown in Fig.~\ref{fig:binary:a0}.
 Note that for $\hG>0$, $k_1>0$ and, moreover, there is a critical wavenumber $k_c$
 such that $a_0$ is complex for any $k<k_c$.
@@ -525,21 +526,21 @@ We have seen that for $0<\hG<\hG_\text{max}$, there are two critical points, bet
 Stabilization is due to positive temperature gradient for longer wavelengths
 and due to surface tension for shorter ones.
 As a result, the neutral stability curve in the ($\hV,\hat\lambda$) coordinates
-takes the oval form as seen in Fig.~\ref{fig:binary:lambda}.
+takes the oval shape as seen in Fig.~\ref{fig:binary:lambda}.
 
 \subsection{Selection of the cell spacing}
 
 %%% Cellular structures
-The presented linear stability analysis enables us to predict conditions
+The linear stability analysis enables us to predict conditions
 under which a flat solidification front becomes unstable.
 Moreover, we know the most unstable wavelength, which dominates during a linear perturbation.
 However, the wavelength of a stable cellular structure cannot be found from this theory.
 
 %%% Models for cell spacing
-Two different models for the cell spacing is compared with the linear stability theory
+Two different models for the cell spacing are compared with the linear stability theory
 in Fig.~\ref{fig:binary:lambda}.
 The following models imply that $\eta=0$ and $n=1$.
-First, an simple model can be formulated based on some ansatz for the shape of the solidification front.
+First, a simple model can be formulated based on some ansatz for the shape of the solidification front.
 For example, assuming that the solid is a dense hexagonal array of semi-ellipsoids,
 we can obtain~\cite{rappaz2009solidification}
 \begin{equation}\label{eq:cell_spacing}
