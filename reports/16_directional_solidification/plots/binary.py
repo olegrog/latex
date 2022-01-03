@@ -31,6 +31,7 @@ parser.add_argument('-a', '--asymptotics', action='store_true', help='plot the a
 parser.add_argument('-l', '--log', action='store_true', help='use log scale for V and G')
 parser.add_argument('-w', '--wavelength', action='store_true', help='use wavelength instead of wavenumber')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
+parser.add_argument('-d', '--debug', action='store_true', help='maximum information')
 parser.add_argument('-o', '--output', type=str, default=None, help='PDF filename')
 parser.add_argument('--krange', type=str2pair, default=None, help='range of wavenumbers')
 parser.add_argument('--pad', type=float, default=0.1, help='amount of padding around the figures (inches)')
@@ -117,6 +118,17 @@ def pdas_models(G, V, axes, X, Y=None):
 
     _plot(X, Y, V, _LGK(G,V), label='$\\mathrm{analytical\ model}$')
     _plot(X, Y, V, _HuntLu(G,V), label='$\\mathrm{numerical\ model}$')
+
+    if args.debug:
+        # J.D.Hunt, Solidification and Casting of Metals, pp.3-9 (1979)
+        _Hunt = lambda g,v: l2k((64*args.K*(1+g/v)/v/g**2)**0.25, v)
+        # W.Kurz & D.J.Fisher, Acta Metallurgica, V.29, pp.11-20 (1981)
+        _KF_lowV = lambda g,v: sqrt(6*(1/v - args.K/g)*(1-g/v)/g)/(1-args.K)
+        _KF_highV = lambda g,v: 4.3/(args.K*v*g**2)**0.25
+        _KF = np.vectorize(lambda g,v: l2k(_KF_highV(g,v) if v>g/args.K else _KF_lowV(g,v), v))
+
+        _plot(X, Y, V, _Hunt(G,V), label='$\\mathrm{Hunt79}$')
+        _plot(X, Y, V, _KF(G,V), label='$\\mathrm{KurzFisher81}$')
 
 np.seterr(all='raise')  # Consider warnings as errors
 
