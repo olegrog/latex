@@ -1,0 +1,31 @@
+% \onecolumngrid
+\appendix
+
+\section{Differentiation in the surface region}\label{sec:surface}
+
+In the curvilinear coordinates $(\tx,\zeta)$, where $\zeta$ is defined in \cref{eq:zeta}, the gradient $\tgrad\psi$ takes the following form:
+\begin{equation}\label{eq:gradS}
+    \begin{pmatrix}
+        \ptx \\ \pty \\ \ptz
+    \end{pmatrix}\psi(\tx,\tz) =
+    \begin{pmatrix}
+        \frac{\ptx}{1+\eps^2r_x^2} \\ \frac{\pty}{1+\eps^2r_y^2} \\
+        \frac{\pzeta}{\eps h} + \frac{\eps r_x\ptx}{1+\eps^2r_x^2}
+        + \frac{\eps r_y\pty}{1+\eps^2r_y^2}
+    \end{pmatrix}\psi(\tx,\zeta),
+\end{equation}
+where $r_x$ and $r_y$ are defined in \cref{eq:PQRrxy}. Therefore, the surface gradient
+\begin{equation}\label{eq:ndotgradS}
+    \bn_s\vdot\tgrad\psi(\tx,\tz_s)
+        = \frac{\pzeta\psi(\tx,0)}{\eps h\qty(1 + \eps^2r^2)^{1/2}}
+\end{equation}
+and laplacian
+\begin{equation}\label{eq:laplacianS}
+    \begin{aligned}[b]
+    \tD\psi(\tx,\tz) &= \bigg(\frac{\pzeta^2}{(\eps h)^2}
+        + \frac{\ptx^2}{1+\eps^2r_x^2} + \frac{\pty^2}{1+\eps^2r_y^2} \\
+        &+ \frac{2r_x\ptx\pzeta}{h(1+\eps^2r_x^2)} + \frac{2r_y\pty\pzeta}{h(1+\eps^2r_y^2)} \\
+        &+ \frac{2\eps^2r_xr_y\ptx\pty}{(1+\eps^2r_x^2)(1+\eps^2r_y^2)}\bigg)\psi(\tx,\zeta).
+    \end{aligned}
+\end{equation}
+

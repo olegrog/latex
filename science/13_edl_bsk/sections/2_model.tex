@@ -1,0 +1,237 @@
+
+\section{Theory}
+\label{sec:model}
+\subsection{Problem statement}
+\label{sec:setup}
+
+%%% Variables
+Let us consider an equilibrium \red{symmetric 1:1} \Oc{should be clarified for the general reader. Valency is equal to one?} ionic liquid at rest near a rough conducting surface. The ions are modeled as charged hard spheres of diameter $d$.
+Let $\psi(x,y,z)/\beta e$ be the electrostatic potential in the ionic liquid,
+where $\beta=1/k_B T$, $k_B$ is the Boltzmann constant, $T$ is the temperature, $e$ is the elementary charge. This potential induces the ion densities $\rho_\pm(x,y,z)c_0$, where $c_0$ is the component bulk density and subscripts $\pm$ correspond to cations and anions, respectively.
+
+%%% Governing equations + BC
+According to the BSK model~\cite{bazant2011double}, the electrolyte permittivity is a linear second-order differential operator, describing electrostatic correlations in terms of the displacement field
+\begin{equation}\label{eq:D}
+    \bD=-\frac{\epsilon}{\beta e}\qty(1-\lambda_c^2\Delta)\grad\psi,
+\end{equation}
+where $\grad=(\partial_{x}, \partial_{y}, \partial_{z})^\tran$ is the gradient vector, $\Delta=\grad\vdot\grad$ denotes Laplace's operator, $\epsilon$ is the bulk permittivity, $\lambda_c$ is the electrostatic correlation length. Therefore, the electrolyte behavior is governed by the fourth-order differential equation
+\begin{equation}\label{eq:BSK}
+    (1-\lambda_c^2\Delta)\Delta\psi(x,y,z) = -\rho(x,y,z)/\lambdaD^2,
+\end{equation}
+where $\lambdaD=(c_0\beta e^2/\epsilon)^{-1/2}$ is the Debye length and $\rho=\rho_+-\rho_-$.
+At the rough electrode surface given by $z=z_s(x,y)$, the following boundary conditions are imposed:
+\begin{gather}
+    \psi(x,y,z_s) = \Psi, \label{eq:Psi} \\
+    \bn_s\vdot(1-\lambda_c^2\Delta)\grad\psi(x,y,z_s) = -Q_s(x,y)/\lambdaD, \label{eq:Qs}
+\end{gather}
+where $\Psi/\beta e$ is the potential of the electrode, $\epsilon Q_s/\lambdaD\beta e$ is its surface charge density, and $\bn_s$ is the unit normal vector to the electrode surface pointing to the electrolyte, which can be evaluated as
+\begin{equation}\label{eq:n_s}
+    \bn_s = \frac{(-\partial_xz_s, -\partial_yz_s, 1)^\tran}
+        {((\partial_xz_s)^2 + (\partial_yz_s)^2 + 1)^{1/2}}.
+\end{equation}
+Volume and surface charge densities are coupled by the integral relationship
+\begin{equation}\label{eq:integral_Omega}
+    \int_\Omega\rho\dd{V} = \lambdaD\int_{\mathrlap{z=z_s}\hphantom\Omega}Q_s\dd{S},
+\end{equation}
+where domain $\Omega=\Set{(x,y,z) | z_s < z < +\infty}$.
+
+%%% Additional BC
+The latter boundary condition~\eqref{eq:Qs} can be simplified to
+\begin{equation}\label{eq:zero3}
+    \bn_s\vdot\grad\Delta\psi(x,y,z_s) = 0,
+\end{equation}
+if we additionally postulate that
+\begin{equation}\label{eq:Qs2}
+    \bn_s\vdot\grad\psi(x,y,z_s) = -Q_s/\lambdaD
+\end{equation}
+as in classical electrostatics.
+
+%%% Equilibrium RHS
+According to the finite ion volume model~\cite{kornyshev2007double}, the ion densities are functions of potential $\psi$ only and are related as follows:
+\begin{equation}\label{eq:rho}
+    \rho = -\frac{\sinh\psi}{1+2\gamma\sinh^2(\psi/2)}, \quad \frac{\rho_+}{\rho_-} = \red{\exp(2\psi)},
+\end{equation}
+where $\gamma=2v c_0$ is the volume fraction of the solvated ions in the bulk, $v=\pi d^3/6$ is \red{the molecular volume of the ions.}\Oc{In BSK, they divide this quantity by 0.63, since ions cannot occupy the whole space. I do not know how they obtain this estimate. FCC has 0.74, BCC has 0.68, cubic lattice yields 0.52.}%the minimum volume of close packing spheres.
+
+%%% Averaging over a random surface
+Following Ref.~\cite{aslyamov2021electrolyte}, we assume that the electrode surface is given by a random function $z_s(x,y)$ that is a Gauss correlated process. The averaging procedure is based on the following properties of $z_s$:
+\begin{equation}\label{eq:z_s_aver}
+    \begin{gathered}
+        \overline{z_s(x,y)} = 0, \quad \overline{z_s(x,y)^2} = \sigma^2, \\
+        \overline{z_s(x_1,y_1)z_s(x_2,y_2)}\sim\exp(-r/\lambda_s),
+    \end{gathered}
+\end{equation}
+\Oc{I do not understand the last property. How do we use it?}
+where $r=((x_1-x_2)^2+(y_1-y_2)^2)^{1/2}$ and $\lambda_s\gg d$. The last property implies a sparse distribution of peaks on the surface, allowing ions easily penetrate between them. Thus, the averaged density
+\begin{equation}\label{eq:rho_av}
+    \rhoav(x,y,z) = \frac1{\sigma\sqrt{2\pi}}\int_{\mathrlap{-\infty}}^{z} \rho(x,y,z; z_s)\exp(-\frac{z_s^2}{2\sigma^2})\dd{z_s},
+\end{equation}
+where $\rho(x,y,z; z_s(x,y))$ is the solution of the problem given by \cref{eq:BSK,eq:Psi,eq:zero3} in $\Omega$ for a given $z_s(x,y)$.
+
+\subsection{Perturbation approach}
+
+%%% Problem scales and our scaling
+Four length scales can be distinguished in the problem formulated in the previous section. First, there are parameters $\lambdaD$ and $\lambda_c$ in the governing equation~\eqref{eq:BSK}. Second, properties of $z_s(x,y)$ depends on the standard deviation $\sigma$ in the normal direction and the tangential correlation length $\lambda_s$. For large $\Psi$, ions forms a screening layer with thickness of order $\lambdaD\sqrt{\Psi}$, which should be compared with the roughness strength $\sigma$. In the present work, we focus on the following scaling:
+\begin{equation}\label{eq:scaling}
+    \lambdaD\sqrt{\Psi}\cong\sigma<\lambda_c\cong\lambda_s.
+\end{equation}
+The first asymptotic equivalence means that the electric potential of the electrode is large enough to \red{fill the considered roughness} with ions of the same sign. The middle inequality requires that electrostatic correlation effects appear on a larger scale as well as variations of $z_s(x,y)$. This scaling can be applicable for ionic liquid EDL on the electrode surface with molecular roughness and, at the same time, allows us to find an approximate solution of the problem by treating $\eps=\sigma/\lambda_c$ as a small parameter.
+%The last strong inequality ensures that all derivatives of $z_s(x,y)$ can be neglected.
+
+%%% Domain decomposition
+To isolate the spatial layer where surface roughness dominates, we formally decompose the entire physical domain into two parts: the volume region $\Omega_V=\Set{(x,y,z) | \delta<z<+\infty}$ and the surface region $\Omega_S=\Set{(x,y,z) | z_s(x,y)<z<\delta}$, where $\delta$ is of order $\sigma$.
+% Parameter $\delta$ determines the width of the region where effect of roughness is crucial.
+% In other words, the solution in $\Omega$ can be written in the piecewise form
+% \begin{equation}\label{eq:decomposed}
+%     \psi = \begin{cases}
+%          \psi_V \text{ if } (x,y,z)\in\Omega_V, \\
+%          \psi_S \text{ if } (x,y,z)\in\Omega_S.
+%     \end{cases}
+% \end{equation}
+Then, solving the original problem is equivalent to finding a pair $\{\psi_V\in\Omega_V,\psi_S\in\Omega_S\}$ with the following transmission conditions at the flat interface:
+\begin{equation}\label{eq:interface}
+    \partial_z^k\psi_V(x,y,\delta) = \partial_z^k\psi_S(x,y,\delta), \quad k = 0,1,2,3,
+\end{equation}
+where $\partial_z^k$ denotes the $k$th partial derivative with respect to $z$.
+
+%%% Final nondimensionalization
+By choosing $\lambda_c$ as the reference length, we obtain the nondimensional BSK equation
+\begin{equation}\label{eq:BSKtilde}
+    (1-\tD)\tD\psi(\tx,\tz) = -\alpha\rho(\psi)/\eps^4,
+\end{equation}
+where $\tD\psi(\tx,\tz) = \lambda_c^2\Delta\psi(x,y,z)$ and
+\begin{equation}\label{eq:alpha}
+    \alpha = \qty(\frac{\sigma^2}{\lambda_c\lambdaD})^2 = \order{\eps^2}
+\end{equation}
+according to the scaling~\eqref{eq:scaling}.
+
+%%% Stretched coordinate
+In the surface region, we introduce the stretched coordinate
+\begin{equation}\label{eq:zeta}
+    \zeta = (z-z_s)/(\delta-z_s)
+\end{equation}
+instead of $z$ and assume that $z_s$ is $\order{\sigma}$, following properties~\eqref{eq:z_s_aver}. In the transformed coordinates, subdomain $\Omega_S$ becomes a flat layer $\Set{(\tx,\zeta) | 0<\zeta<1}$ and the differential operators take the following form (see \cref{sec:surface}):
+\begin{gather}
+    \ptz = (\eps h)^{-1}\pzeta + \eps \mathcal{P}_x + \order{\eps^3}, \label{eq:ptz_zeta}\\
+    \bn_s\vdot\tgrad|_{\tz=\tz_s} = (\eps h)^{-1}(1-\eps^2r^2/2)\pzeta + \order{\eps^3}, \label{eq:ngrad_zeta}\\
+    \tD = (\eps h)^{-2}\pzeta^2 + \mathcal{Q}_{x\zeta} + \mathcal{R}_{x^2} + \order{\eps^2}, \label{eq:laplacian_zeta}
+\end{gather}
+where $h(x,y)=(\delta-z_s)/\sigma$ and
+\begin{equation}\label{eq:PQRrxy}
+    \begin{cases}
+        \mathcal{P}_x = r_x\ptx + r_y\pty, \\
+        \mathcal{Q}_{x\zeta} = (2/h)\mathcal{P}_x\pzeta, \\
+        \mathcal{R}_{x^2} = \ptx^2 + \pty^2, \\
+        r_x = (1-\zeta)\partial_x z_s/\eps, \\
+        r_y = (1-\zeta)\partial_y z_s/\eps, \\
+        r^2 = \qty((\partial_x z_s)^2 + (\partial_y z_s)^2)/\eps^2.
+    \end{cases}
+\end{equation}
+Note that $r_x$ and $r_y$ are $\order{\lambda_c/\lambda_s} = \order{1}$.
+
+%%% Perturbation problem
+Substituting \cref{eq:zeta,eq:ptz_zeta,eq:ngrad_zeta,eq:laplacian_zeta} into \cref{eq:zero3,eq:interface,eq:BSKtilde} for $\psi_S$, we arrive to the perturbation problem
+\begin{subnumcases}{\label{eq:perturbed}}
+    (1-\tD)\tD\psi_V(\tx,\tz) = -\alpha\rho(\psi_V)/\eps^4, \label{eq:psiV}\\
+    \begin{multlined}[b]
+    \qty(\pzeta^2 + (\eps h)^2(2\mathcal{Q}_{x\zeta} + 2\mathcal{R}_{x^2}-1))\pzeta^2\psi_S(\tx,\zeta) \\
+        = -\alpha h^4 + \order{\eps^4},
+    \end{multlined}\label{eq:psiS}\\
+    \psi_S(\tx,0) = \Psi, \label{eq:psiSat0}\\
+    \qty(\pzeta^2 + (\eps h)^2(\mathcal{Q}_{x\zeta} + \mathcal{R}_{x^2}))\pzeta\psi_S(x,y,0) = \order{\eps^3},\label{eq:d3psiSat0}\\
+    \psi_S(\tx,1) = \psi_V(\tx,\hav), \label{eq:psiSat1}\\
+    \begin{multlined}[b]
+    (\pzeta + k\eps^2h\mathcal{P}_x)\pzeta^{k-1}\psi_S(\tx,1) \\
+        = (\eps h\ptz)^k\psi_V(\tx,\hav) + \order{\eps^4}, \quad k=1,2,3,
+    \end{multlined}\label{eq:dpsiSat1}
+\end{subnumcases}
+where $\hav = \delta/\sigma$. As seen in \cref{eq:psiS}, we additionally assume that
+\begin{equation}\label{eq:rhoS}
+    \rho(\psi_S) = -1 + \order{\eps^4},
+\end{equation}
+which is valid for large $\psi$ in \cref{eq:rho}.
+\Oc{Note that I take $\gamma=1$. As mentioned in the BSK erratum, it is better to choose the appropriate definition of $\lambdaD$.}
+
+%%% Expansions
+Let us now estimate the leading orders of $\psi_S$ and $\psi_V$. First, $\pzeta\psi_S(x,y,0) = \order{\sqrt\alpha/\eps} = \order{1}$ since \cref{eq:Qs2} transforms to
+\begin{equation}\label{eq:Qs_zeta}
+    (\eps h)^{-1}\pzeta\psi_S(x,y,0) + \order{\eps} = -Q_s\sqrt\alpha/\eps^2,
+\end{equation}
+and $Q_s = \order{\Psi^{1/2}}$. Second, $\ptz^3\psi_V(x,y,\hav) = \order{\eps^{-1}}$ since $\pzeta^3\psi_S(x,y,1) = \order{\alpha,\eps\sqrt\alpha}$, which is obtained from integrating Eq.~\eqref{eq:psiS} over $\zeta$ and using the boundary condition~\eqref{eq:d3psiSat0}. Relying on these arguments, let us expand the solution of the decomposed problem in the following power series of $\eps$:
+\begin{equation}\label{eq:expansions}
+    \begin{cases}
+        \psi_S = \psi_{S0} + \eps\psi_{S1} + \eps^2\psi_{S2} + \cdots, \\
+        \psi_V = \eps^{-1}\psi_{V-1} + \psi_{V0} + \eps\psi_{V1} + \cdots.
+    \end{cases}
+\end{equation}
+Substituting the expansions~\eqref{eq:expansions} into the problem~\eqref{eq:perturbed} and arranging the same-order terms in $\eps$, we find the following explicit expressions:
+\begin{align}
+    \psi_{S0} &= \Psi + h\psi_{V-1}'(\tx,\hav)\zeta, \label{eq:psiS0}\\
+    \psi_{S1} &= h\psi_{V0}'(\tx,\hav)\zeta \nonumber\\
+        &+ h^2\psi_{V-1}''(\tx,\hav)(\zeta^2/2-\zeta), \label{eq:psiS1}\\
+    \psi_{S2} &= h\psi_{V1}'(\tx,\hav)\zeta + h^2\psi_{V0}''(\tx,\hav)(\zeta^2/2-\zeta) \nonumber\\
+        &+ h^2\mathcal{R}_{x^2}h\psi_{V-1}'(\tx,\hav)(\zeta^3/6-\zeta^2/2+\zeta/2) \nonumber\\
+        &- \alpha\eps^{-2}h^4(\zeta^4/24-\zeta^2/4+\zeta/3). \label{eq:psiS2}
+\end{align}
+Applying \cref{eq:Qs_zeta}, we additionally find that
+\begin{gather}
+    \psi_{V-1}'(\tx,\hav) = -Q_s\sqrt\alpha/\eps, \label{eq:Qs_psiV}\\
+    \psi_{V0}'(\tx,\hav) = h\psi_{V-1}''(\tx,\hav). \label{eq:dpsiV0}
+\end{gather}
+
+%%% Approximate solution
+Combining \cref{eq:expansions,eq:psiS0,eq:psiS1,eq:psiS2,eq:Qs_psiV}, we can obtain an approximate solution in the following form:
+\begin{subnumcases}{\label{eq:approx}}
+    \begin{aligned}[b]
+    \psi_S &= \Psi + \eps h\psi_V'(\tx,\hav)\zeta \\
+        &+ (\eps h)^2\psi_V''(\tx,\hav)(\zeta^2/2-\zeta) \\
+        &- (\eps h)^2\sqrt\alpha \mathcal{R}_{x^2}hQ_s(\zeta^3/6-\zeta^2/2+\zeta/2) \\
+        &- \alpha h^4(\zeta^4/24-\zeta^2/4+\zeta/3),
+    \end{aligned}\label{eq:psiSeps}\\
+    (1-\tD)\tD\psi_V(\tx,\tz) = -\alpha\rho(\psi_V)/\eps^4, \label{eq:psiVeps}\\
+    \psi_V(\tx,\hav) = \psi_S(\tx,1), \label{eq:dpsiVat1}\\
+    \red{\psi_V|_{\tz=\hav} = \psi_S|_{\zeta=1}}, \text{\Oc{which notation is better?}}\nonumber\\
+    \ptz^3\psi_V(\tx,\hav) = -(\sqrt\alpha/\eps^2h)\mathcal{R}_{x^2}hQ_s - \alpha h/\eps^3. \label{eq:d3psiVat1}
+\end{subnumcases}
+Note that $\psi_S(\tx,1)$ should be large enough to support the assumption~\eqref{eq:rhoS}.
+
+\subsection{Averaging over a random surface}
+
+%%% Averaging of the RHS
+%Up to this point, we treat $z_s(x,y)$ as an arbitrary function of two variables.
+We use the model from Ref.~\cite{aslyamov2021electrolyte} to find the average charge distribution
+\begin{equation}\label{eq:rho_aver}
+   \rhoav(z,\psiav) = \theta(z+\sigma)s(z)\rho(\psiav),
+\end{equation}
+where $\psiav(z)$ is the averaged electrostatic potential, $\theta$ denotes the Heaviside function,
+\begin{equation}\label{eq:s}
+    s(z) = \frac12 + \frac12\erf\qty(\frac{z}{\sqrt2\sigma})
+\end{equation}
+is the surface area fraction permitted for ionic liquid, and $\erf$ denotes the error function.
+%which is found from the Gauss process properties (see S9 in Ref.~\cite{aslyamov2021electrolyte}),
+The essential ingredients of this model are the following: (i) the rough solid surface acts with averaged repulsion potential that gives the pre-factor $\theta(z+z_c)$, where the penetration depth $z_c=-\sigma$ is obtained in the limit case; (ii) solid molecules occupy space, decreasing the surface area available for liquid molecules, and thereby introducing $s(z)$ in the form~\eqref{eq:s}; (iii) $\rhoav$ is a function of the average potential $\psiav$.
+
+%%% Averaging of the solution
+The approximate solution up to $\order{\sigma^2}$ in the surface region has the averaged form
+\begin{equation}\label{eq:surface_sol_aver}
+    \psiav_S(z) = \Psi + z\partial_z\psiav_V(\sigma).
+\end{equation}
+Using \cref{eq:surface_sol_aver} in averaging the volume part of the solution, we obtain
+\begin{equation}\label{eq:volume_aver}
+    \begin{dcases}
+        (1-\lambda_c^2\partial_z^2)\partial_z^2\psiav_V(z) = -\rhoav(z,\psiav_V)/\lambdaD^2, \\
+        \psiav_V(+\infty) = \partial_z\psiav_V(+\infty) = 0, \\
+        \psiav_V(\sigma) = \Psi + \sigma\partial_z\psiav_V(\sigma), \\
+        \partial^2_z\psiav_V(\sigma) = 0.
+    \end{dcases}
+\end{equation}
+
+
+\subsection{Numerical method}
+
+%%% Integral boundary condition
+Since the governing equation~\eqref{eq:BSK} becomes autonomous, it can be integrated over $\psi$, yielding
+\begin{equation}\label{eq:integral}
+    (\partial_z^2\psi(x,y,z))^2 + (\partial_z\psi(x,y,z))^2
+    + \frac2{\lambdaD}\int_0^{\psi(z)}
+\end{equation}

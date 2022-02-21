@@ -1,0 +1,64 @@
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{images/density_distributions.eps}
+    \caption{The red and blue lines correspond to cation $\rho_+(z)$ and anion $\rho_-(z)$ density distributions, respectively. The green line is the charge density defined as $\rho(z)=\rho_+-\rho_-$. The gray line is the rough surface ratio $s(z)$. Figures (a-c) calculated at $\Psi=1, 10, 100$, respectively for $\sigma=1.2d$, $\lambda_c=d$ and $\lambda_D=0.1d$. \Oc{Explain what the filled areas mean.} \Oc{$\rho_\pm(z),\rho(z)$ should be removed from the $y$ label, since $s(z)$ is also shown.} \Oc{I suggest to add a thin dashed line at $y=0$ and $y=1$.} \Oc{Is it better to add a legend to (a)?}}
+    \label{fig:densities}
+\end{figure*}
+
+\section{Results and discussion}
+\label{sec:results}
+We apply theory of  the  previous section to the numerical analysis of the ionic liquid EDL on a rough surface. To define the parameter of the ionic liquids we follow to Ref.~\cite{bazant2011double}---the ILs exhibit small Debye length $\lambda_D=0.1 d$; the electrostatic correlation length is comparable with molecular diameter $\lambda_c=d$, where $d=d_+=d_-$ is the diameter of both cations and anions. 
+% We consider the surfaces with the correlation length is much higher than the width of the roughness region $\lambda\gg \delta$. For such surfaces the penetration of ions into rough region depends on the electrostatic field only: the penetration's depth reaches $-\delta/2$, as $\Psi\to 0$. Recalling the condition $\delta/2>\lambda_c$ we restricted the roughness parameter from below $\delta/2\ge 1.2d$    
+We considered a wide range of the applied potentials ($0\le\Psi\le100$) solving \cref{eq:volume_aver} and calculating \cref{eq:surface_sol_aver} numerically using Wolfram Mathematica~\cite{mathematica2020}. First of all, we demonstrated that our numerical results for flat electrodes with $\sigma=0$ fits the published results from Ref.~\cite{bazant2011double}, see \red{Fig~SM}. 
+
+Next, we investigated the electrodes with the molecular scale roughness $\delta/2=1.2d$.
+Similarly, with Ref.~\cite{bazant2011double} we omit the electrostatic correlations on the flat-boundary $z=\sigma/2$, which allows us to use the simplified displacement field  $D_v(\sigma/2)=-\partial_z\overline{\psi}_v(\sigma/2)$ in \cref{eq:surface_sol_aver,eq:volume_aver}. The numerical results for \cref{eq:surface_sol_aver,eq:volume_aver} are shown in 
+\cref{fig:densities}, where $\rho_\pm(z)$ and $q(z)=\rho_-(z)-\rho_+(z)$ are calculated at various applied potentials $\Psi=1, 10, 100$. 
+The case of a low applied potential corresponds to \cref{fig:densities}(a)---both cations and anions penetrate inside the surface region. For an intermediate value of $\Psi$ the surface region is filled with the counter-ions (cations at $\Psi>0$) only, see \cref{fig:densities}(b). Such distribution of ions induces a significant charge stored in the surface region. Notice that unlike flat surface, the allowable area ratio for ions area is limited by $s(z)<1$. This geometrical pre-factor in \cref{eq:rho_aver} defines the functional form of $\rhoav(z)$ inside surface zone at moderate and high potentials--- \cref{fig:densities}(b,c) show that $s(z)$ fits the curves of $\rhoav(z)$ in the surface region. 
+% For high voltages shown in \cref{fig:densities}(c), the surface region is completely filled, while the volume part of EDL depends on $\Psi$ via \cref{eq:volume_problem_aver}. 
+All \cref{fig:densities}(a-c) demonstrates that the surface region provides the major contribution to the total charge, while the charge of the volume zone is negligible even at high voltages.
+We illustrated the last statement by the graphical integration of $\rho(z)$ over the volume region (color filled areas in \cref{fig:densities}). 
+% Indeed, the flat layers formed on the filled surface region accumulate the charges of opposite signs which compensate to each other. 
+\red{Need to add justification of the surfaces region accumulates whole charging.}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.47\textwidth]{images/cumulant.eps}
+    \caption{(a) Cumulants $q(z)$ scaled at total charge density $Q_s$ at $\Psi=1, 10, 100$ for $\sigma=2.4d$, $\lambda_c=d$ and $\lambda_D=0.1d$.
+    (b) Comparison with the flat electrode cumulants calculated at the same conditions as (a), but with $\sigma=0$. The condition $q(z)/Q_s$ detects the overscreening state. 
+    }
+    \label{fig:cumulant}
+\end{figure}
+
+Further, we quantitatively characterize the structure of the rough surface EDLs. Following to \cite{bazant2011double,de2020interfacial} we described the charge distribution in terms of the following cumulant function:
+\begin{equation}
+    \label{eq:cumulant}
+    q(z)=\int_{-\sigma/2}^z dz'S(z')\rho(z')
+\end{equation}
+which defines the total charge density $Q_s=q(H/2)$ as the value at $H/2$. 
+For overscreening state, the charge accumulated in the first layer is larger than a total charge of the EDL.
+Therefore, the overscreening corresponds to the ratio $q(z)/Q_s>1$ for the distances comparable to ion diameter $z\sim d$. 
+In \cref{fig:cumulant}(a) we plot the cumulants for the ion distributions near rough surface from \cref{fig:densities}. Considering the surface region, the ratio $q(\sigma/2)/Q_s<1$ for all voltages ($1\le\Psi\leq 100$) show the lack of the overscreening states. This result is in stark contrast with the corresponding calculations for the flat surfaces as compared in \cref{fig:cumulant}(b). Indeed, the first layer around flat electrodes accumulate 2-4 times larger charge than the surface.  Therefore, our calculations show that the surface roughness of the molecular scale ($\sigma\sim d$) destroy the overscreening state.  Moreover, all rough surface qumulants are similar to the flat one calculated at high potentials, where crowding state is a favorable. Thus, the surface roughness induces the formation of the crowding state starting from low voltages.
+
+Above we observed that the roughness $\sigma=2.2d$ completely destroys the overscreening state detected on the flat electrodes at the same conditions. 
+Now, we study the overscreening/crowding transition varying the parameter $\sigma$ in our numerical calculations. More precisely, we start with the IL near almost flat surface with $\sigma=0.2 d$ at $\Phi=10$, which exhibits strong overscreening, see \cref{fig:roughness_range}. From \cref{fig:roughness_range} we observed that the overscreening intensity drops dramatically as the surface roughness becomes larger. For example, the surface with $\sigma=d$ results in more than 50\% of the reduction for the overscreening amplitude. Therefore, we demonstrated quantitatively that the EDL structure is highly sensitive to the electrodes morphology. Such sensitivity of the IL EDL to the electrodes morphology was observed in computer simulations \cite{breitsprecher2015electrode}, where the authors demonstrated that the electrodes with atomic structure induces a significant changes of the interfacial properties. In additions, experimental investigation \cite{sheehan2016layering} of the IL layering on the nano-patterned substrate revealed a strong dependence on the morphology at low density of the defects. 
+Another observation from \cref{fig:roughness_range} is the overscreening remains until the surface region does not exceed the ions diameter. Then, almost whole EDL's charge is stored inside structureless surface region, where the layering is descroyed by the surface heterogeneity.  
+Thus, moderate surface roughness induces the crowding state instead of overscreening.
+
+% \red{Is it crowding with almost all charge stored into the surface region.?}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.47\textwidth]{images/roughness_impact.eps}
+    \caption{Cumulative charge density normalized by the total charge. The shown profiles are for $\Psi=10$ for $\lambda_c=d$ and $\lambda_D=0.1d$ varying $\sigma$ from $0.2d$ to $2.0d$ with the step $0.2d$. \Oc{The shown curves deserve to be slightly smoother. Also the main font size should be decreased.}
+    }
+    \label{fig:roughness_range}
+\end{figure}
+
+% \red{To discuss the low defect density in \cite{sheehan2016layering} which results in strong dependence of EDL on the morphology.} 
+
+% \red{Is it crowding with almost all charge stored into the surface region.?}
+
+% \red{The observed structure of EDL for rough electrodes agrees with experiment?}
+
+

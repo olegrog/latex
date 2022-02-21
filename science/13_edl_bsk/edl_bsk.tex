@@ -1,0 +1,96 @@
+\documentclass[%
+ reprint,
+superscriptaddress,
+%groupedaddress,
+%unsortedaddress,
+%runinaddress,
+%frontmatterverbose,
+%preprint,
+%showpacs,preprintnumbers,
+%nofootinbib,
+%nobibnotes,
+%bibnotes,
+ amsmath,amssymb,
+ aps,
+%pra,
+%prb,
+%rmp,
+%prstab,
+%prstper,
+%floatfix,
+]{revtex4-2}
+
+\usepackage{graphicx}% Include figure files
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{bm}% bold math
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{physics, siunitx}
+\usepackage{subfigure}
+\usepackage[noend]{algorithmic}
+\usepackage{algorithm}
+%\usepackage{titling}
+
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{systeme}
+\usepackage{hyperref}
+\usepackage[capitalize]{cleveref}
+    \newcommand{\creflastconjunction}{, and\nobreakspace}
+    \newcommand{\crefrangeconjunction}{--}
+\usepackage[normalem]{ulem} % For \sout
+\usepackage{braket} % For \Set
+\usepackage{mathtools} % For many cool math features!
+\usepackage{cases} % For subnumcases
+
+
+\newcommand{\appendixsectionname}{\appendixautorefname}
+%\newcommand{\appendixsectionname}{Section}
+
+%%% General aliases
+%\newcommand{\tr}{\text{tr}} % OLEG: already in physics
+\newcommand{\tran}{\mathsf{T}} %{^{\mkern-1.5mu\mathsf{T}}} % OLEG: instead of temperature for transpose
+
+%%% Bold symbols
+\newcommand{\bD}{\vb*{D}}
+\newcommand{\bn}{\vu*{n}}
+
+%%% Problem-specific aliases
+\newcommand{\lambdaD}{\lambda_\text{D}}
+\newcommand{\psiav}{\overline{\psi}}
+\newcommand{\hav}{\overline{h}}
+\newcommand{\rhoav}{\rho_\text{av}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\pzeta}{\partial_\zeta}
+\newcommand{\ptx}{\partial_{\tilde{x}}}
+\newcommand{\pty}{\partial_{\tilde{y}}}
+\newcommand{\ptz}{\partial_{\tilde{z}}}
+\newcommand{\tz}{\tilde{z}}
+\newcommand{\td}{\tilde\delta}
+\newcommand{\tD}{\tilde\Delta}
+\newcommand{\tgrad}{\tilde\grad}
+\newcommand{\tx}{\tilde{x},\tilde{y}}
+
+%%% For coloring
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\amended}[1]{\color{red}#1\color{black}}
+%\newcommand{\amended}[1]{#1}
+\newcommand{\hangingcite}[0]{\color{red}[REFERENCE]\color{black}}
+\newcommand{\Oc}[1]{\textcolor{magenta}{\it [#1]}}
+\newcommand{\Od}[2]{\textcolor{red}{\sout{#1}}\textcolor{blue}{#2}}
+
+\bibliographystyle{apsrev4-2}
+
+\begin{document}
+\input{sections/frontmatter}
+\input{sections/highlights}
+\input{sections/1_introduction}
+\input{sections/2_model}
+\input{sections/3_results}
+\input{sections/conclusions}
+\input{sections/acknowledgments}
+\newpage
+\input{sections/appendices}
+\input{sections/bibliography}
+
+\end{document}
