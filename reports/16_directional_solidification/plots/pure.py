@@ -37,7 +37,7 @@ class Style:
     dashed = { 'linestyle': '--', 'linewidth': 0.5, 'color': 'k' }
     thin = { 'linestyle': '-', 'linewidth': 0.5, 'color': 'k' }
     thick = { 'linestyle': '-', 'linewidth': 1, 'color': 'k', 'zorder': 10 }
-    unstable = { 'label': r'$\mathrm{unstable\ region}$', 'hatch': 'XX', 'color':'none', 'edgecolor': 'gray' }
+    unstable = { 'label': r'$\mathrm{unstable\ region}$', 'hatch': 'XX', 'color': 'none', 'edgecolor': 'gray' }
     gray = { 'color': 'lightgray' }
     point = { 'color': 'black', 'marker': '.', 'linestyle': 'None', 'zorder': 10 }
     annotate = { 'xytext': (0,3), 'textcoords': 'offset points' }

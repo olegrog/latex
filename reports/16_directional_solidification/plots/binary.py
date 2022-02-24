@@ -366,7 +366,7 @@ elif args.mode == modes['f']:
     plt.plot(_k2k(K[m1]), A1)
     plt.semilogx()
     plt.xlabel(klabel())
-    plt.ylabel(r'$a_0$', rotation=0)
+    plt.ylabel(r'$\mathrm{Re}(a_0)$', rotation=0)
     plt.axhline(y=0, **Style.thin)
 
     ### 5. Plot a2(k)
