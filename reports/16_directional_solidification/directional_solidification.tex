@@ -297,7 +297,7 @@ Then, solidification of a binary mixture is described by the following equations
     \end{aligned}\right\} \quad z < \epsilon\zeta(x,t) \label{eq:governingS}
 \end{gather}
 where $\tilde{C}_\liq C_{\liq0}$ and $\tilde{T}_\liq T_M$ are the solute concentration and temperature in liquid,
-and $\tilde{C}_\sol C_{\sol0}$ and $\tilde{T}_\sol T_M$ are the same in solid.
+and $\tilde{C}_\sol C_{\liq0}$ and $\tilde{T}_\sol T_M$ are the same in solid.
 Note that heat diffusion is assumed to be much faster than solute diffusion;
 therefore, the temperature behaves like a frozen field determined by the boundary conditions.
 Solute concentration is specified far ahead the solidification front: $\tilde{C}(z\to\infty) = K$,
@@ -448,7 +448,8 @@ where
 \end{equation}
 are the chemical capillary, solute diffusion, and thermal lengths, respectively.
 The quantity $\Gamma = \sigma T_M/L$ is called the Gibbs--Thomson coefficient,
-and $\Delta{T}_0 = m_\liq C_{\liq0}(K-1)$ is the freezing range of the alloy.
+$\Delta{T}_0 = m_\liq C_0(K-1)/K$ is the freezing range of the alloy,
+and $C_0 = KC_{\liq0}$ is the initial solute concentration.
 Substituting relations
 \begin{equation}\label{eq:tildeGgamma}
     \tilde{G} = M(K-1)\hG/\hV, \quad \gamma = M(K-1)\hV
@@ -568,22 +569,22 @@ under the following assumptions:
 \end{enumerate}
 
 %%% Dispersion relation
-Let $m_{\liq i}$, $C_{i0}$, and $D_i$ be the liquidus slope, concentration at the interface,
-and diffusion of the $i$th solute.
-Its equilibrium solid-liquid concentration ratio is $K_i = m_{\liq i}/m_{\sol i}$.
-Then the dispersion relation for an $N+1$ component mixture takes the form
+Let $m_{\liq i}$, $C_{0i}$, and $D_i$ be the liquidus slope, initial solute concentration,
+and diffusion coefficient of the $i$th solute.
+Its equilibrium solid--liquid concentration ratio is $K_i = m_{\liq i}/m_{\sol i}$.
+Then the dispersion relation for an $(N+1)$-component mixture takes the form
 \begin{equation}\label{eq:multi:a0}
     \Delta(a_0,k) = \sum_{i=1}^{N}I_i\frac{q_i - 1 - r_ia_0}{q_i - 1 + K_i} - g - k^2 = 0,
 \end{equation}
-where $r_i = D_i/\bar{D}$, $\bar{D}$ is the reference diffusion coefficient,
+where $r_i = D_i/D_0$, $D_0$ is the reference diffusion coefficient,
 \begin{equation}\label{eq:multi:q}
     q_i(a_0,k) = \frac12 + \qty(\frac14 + r_ia_0 + (r_ik)^2)^{\mathrlap{1/2}},
 \end{equation}
 and
 \begin{equation}\label{eq:multi:gI}
-    g = \frac{2G\bar{D}}{(n+1)\Gamma V^2}, \quad I_i = \frac{\Delta{T}_{0i}\bar{D}}{\Gamma V}.
+    g = \frac{2GD_0}{(n+1)\Gamma V^2}, \quad I_i = \frac{\Delta{T}_{0i}D_0}{\Gamma V}.
 \end{equation}
-Here, $\Delta{T}_{0i} = m_{\liq i}C_{i0}(K_i-1)$ is the $i$th contribution to the solidification range
+Here, $\Delta{T}_{0i} = m_{\liq i}C_{0i}(K_i-1)/K_i$ is the $i$th contribution to the solidification range
 $\Delta{T}_0 = \sum_i \Delta{T}_{0i}$.
 Using the same definition of $\hV$ and $\hG$, given in~\eqref{eq:hatGV}, one can find that
 \begin{equation}\label{eq:multi:gI2}
