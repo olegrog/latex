@@ -7,9 +7,10 @@
 \usepackage{physics, siunitx}
 \usepackage{multirow}
 \usepackage[subfolder]{gnuplottex}
+\usepackage[referable]{threeparttablex} % for \tnotex
 
 %%% configuration packages
-\usepackage{fullpage}
+%\usepackage{fullpage}
 
 \usepackage[
     pdfusetitle,
@@ -45,19 +46,19 @@ In the frame of this source, the temperature $T$ (\si{K}) is governed by the fol
 where $a$ is thermal diffusivity (\si{\m\squared\per\s}),
 $k$ is the thermal conductivity (\si{\W\per\K\per\m}),
 $P$ is the heat source power (\si{\W}),
-and $\delta$ is the Dirac delta function (\si{\per\m\cubed}).w
+and $\delta$ is the Dirac delta function (\si{\per\m\cubed}).
 
 %%% Solutions
-The quasi-steady-state solution of~\eqref{eq:heat} with boundary conditions
+The quasi-steady-state solution of~\eqref{eq:heat} with the boundary conditions
 \begin{equation}\label{eq:bc}
     \begin{cases}
         T\to0 \text{ as } |\bx|\to\infty & \text{if } z>0, \\
-        \pdv{T}{z}=0 & \text{if } z=0
+        \pdv{T}{z}=0 & \text{if } z=0,
     \end{cases}
 \end{equation}
 has the form~\autocite{levin2008general}
-\begin{equation}\label{eq:solution1}
-    T = \frac{Pv(1-\xi)}{4\pi ka}\qty( \frac1{\sqrt{\xi^2 +\rho^2}} - \frac1{\sqrt{(2-\xi)^2 +\rho^2}} ),
+\begin{equation}\label{eq:TL}
+    T_L = \frac{Pv(1-\xi)}{4\pi ka}\qty( \frac1{\sqrt{\xi^2 +\rho^2}} - \frac1{\sqrt{(2-\xi)^2 +\rho^2}} ),
 \end{equation}
 where the following coordinates are introduced:
 \begin{equation}
@@ -65,8 +66,8 @@ where the following coordinates are introduced:
     \rho = \frac{v}{a}\exp(-\frac{v}{a}|x|)\sqrt{y^2 + z^2}.
 \end{equation}
 The alternative solution
-\begin{equation}\label{eq:solution2}
-    T = \frac{P}{4\pi kr}\exp(-\frac{v(x+r)}{2a}),
+\begin{equation}\label{eq:TR}
+    T_R = \frac{P}{4\pi kr}\exp(-\frac{v(x+r)}{2a}),
 \end{equation}
 where $r = |\bx|$, is due to~\textcite{rosenthal1946theory} but is not symmetric.
 
@@ -75,17 +76,16 @@ The characteristic temperature and length are
 \begin{equation}\label{eq:reference}
     T_0 = \frac{Pv}{4\pi ka}, \quad L = \frac{a}{v}.
 \end{equation}
-In the dimensionless form,
-\begin{equation}\label{eq:hats}
-    \hat{T} = T/T_0, \quad \hat{\bx} = \bx/L, \quad
+In the nondimensional variables, given by $\hat{T} = T/T_0$ and $\hat{\bx} = \bx/L$,
+\begin{equation}\label{eq:xi-rho}
     \xi = 1 - \exp(-|\hat{x}|), \quad \rho = \exp(-|\hat{x}|)\sqrt{\hat{y}^2 + \hat{z}^2},
 \end{equation}
-solutions~\eqref{eq:solution1} and~\eqref{eq:solution2} take the form
-\begin{equation}\label{eq:hat_solutions}
-    \hat{T} = (1-\xi)\qty( \frac1{\sqrt{\xi^2 +\rho^2}} - \frac1{\sqrt{(2-\xi)^2 +\rho^2}} ), \quad
-    \hat{T} = \frac1{\hat{r}}\exp(-\frac{\hat{x}+\hat{r}}2).
-\end{equation}
-and shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
+and solutions~\eqref{eq:TL},~\eqref{eq:TR} take the form
+\begin{gather}
+    \hat{T}_L = (1-\xi)\qty( \frac1{\sqrt{\xi^2 +\rho^2}} - \frac1{\sqrt{(2-\xi)^2 +\rho^2}} ), \label{eq:hatTL}\\
+    \hat{T}_R = \frac1{\hat{r}}\exp(-\frac{\hat{x}+\hat{r}}2), \label{eq:hatTR}
+\end{gather}
+which are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
 
 \begin{figure}
     \centering
@@ -97,12 +97,12 @@ and shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
         set key center top spacing 1.5 outside
         xi(x) = 1 - exp(-abs(x))
         plot (1-xi(x))*(1/xi(x) - 1/(2-xi(x))) \
-                title '$\hat{T} = (1-\xi)^2/\xi(2-\xi)$ \autocite{levin2008general}', \
+                title '$\hat{T}_L = 2(1-\xi)^2/\xi(2-\xi)$ \autocite{levin2008general}', \
             exp(-(abs(x)+x)/2)/abs(x) \
-                title '$\hat{T} = \exp(-(|x|+x)/2)/|x|$ \autocite{rosenthal1946theory}'
+                title '$\hat{T}_R = \exp(-(|x|+x)/2)/|x|$ \autocite{rosenthal1946theory}'
     \end{gnuplot}
     \caption{
-        Solutions~\eqref{eq:hat_solutions} for $y=z=0$.
+        Solutions~\eqref{eq:hatTL} and~\eqref{eq:hatTR} at $y=z=0$.
     }
     \label{fig:solutions_x}
 \end{figure}
@@ -116,12 +116,12 @@ and shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
         set grid
         set key center top spacing 1.5 outside
         plot 1/x - 1/sqrt(4+x**2) \
-                title '$\hat{T} = 1/\rho - 1/\sqrt{4+\rho^2}$ \autocite{levin2008general}', \
+                title '$\hat{T}_L = 1/\rho - 1/\sqrt{4+\rho^2}$ \autocite{levin2008general}', \
             exp(-x/2)/x \
-                title '$\hat{T} = \exp(-r/2)/r$ \autocite{rosenthal1946theory}'
+                title '$\hat{T}_R = \exp(-r/2)/r$ \autocite{rosenthal1946theory}'
     \end{gnuplot}
     \caption{
-        Solutions~\eqref{eq:hat_solutions} for $x=0$.
+        Solutions~\eqref{eq:hatTL} and~\eqref{eq:hatTR} at $x=0$.
     }
     \label{fig:solutions_r}
 \end{figure}
@@ -130,6 +130,7 @@ and shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
 
 \begin{table}
     \centering
+    \begin{threeparttable}[b]
     \caption{
         Dimensional parameters used in estimations taken as typical values
         for SS316L and Trumpf TruPrint 1000.
@@ -141,28 +142,34 @@ and shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
         \hline\noalign{\smallskip}
         Quantity & Symbol & Value & Unit & Formula \\[3pt]
         \hline\noalign{\smallskip}
-        Laser power & $P$ & \num{113} & \si{\W} & \multirow{5}*{---}\\
-        Thermal conductivity & $k$ & \num{10} & \si{\W\per\K\per\m} & \\
-        Heat capacity & $c_p$ & \num{700} & \si{\J\per\kg\per\K} & \\
-        Density & $\rho_0$ & \num{7500} & \si{\kg\per\m\cubed} & \\
-        Melting temperature & $T_M$ & \num{1700} & \si{\K} & \\[3pt]
+        Laser power & $P$ & \num{113} & \si{\W} & \multirow{2}*{---} \\
+        Scanning speed & $v$ & \num{0.7} & \si{\m\per\s} & \\[3pt]
         \hline\noalign{\smallskip}
-        Thermal diffusivity & $a$ & \num{1.90} & \si{\mm\squared\per\s} & $=k/(\rho_0 c_p)$ \\
-        Reference temperature & $T_0$ & \num{330e3} & \si{\K} & \multirow{2}*{Eq.~\eqref{eq:reference}} \\
-        Reference length & $L$ & \num{2.72} & \si{\um} & \\
-        Melt-pool depth & $d$ & \num{20} & \si{\um} & Eq.~\eqref{eq:depth} \\
+        Thermal conductivity & $k$ & \num{27.0} & \si{\W\per\K\per\m} & $=(35.96+17.98)/2$\tnotex{a} \\
+        Heat capacity & $c_p$ & \num{727} & \si{\J\per\kg\per\K} & $=(684.8+769.9)/2$\tnotex{a} \\
+        Density & $\rho_0$ & \num{7120} & \si{\kg\per\m\cubed} & $=(7270+6975)/2$\tnotex{a} \\
+        Melting temperature & $T_M$ & \num{1690} & \si{\K} & $=(1675+1708)/2$\tnotex{a} \\[3pt]
+        \hline\noalign{\smallskip}
+        Thermal diffusivity & $a$ & \num{5.22} & \si{\mm\squared\per\s} & $=k/(\rho_0 c_p)$ \\
+        Reference temperature & $T_0$ & \num{44700} & \si{\K} & \multirow{2}*{Eq.~\eqref{eq:reference}} \\
+        Reference length & $L$ & \num{7.46} & \si{\um} & \\
+        Melt-pool depth & $d$ & \num{28.0} & \si{\um} & Eq.~\eqref{eq:depth} \\
         \hline
     \end{tabular}
+    \begin{tablenotes}
+        \item[a]\label{a} Values are taken as half-sums of solidus and liquidus values.
+    \end{tablenotes}
+    \end{threeparttable}
 \end{table}
 
 The melt-pool depth can be roughly estimated as a $r$-coordinate
 that corresponds to the melting temperature $T_M$ at $x=0$.
-For solution~\eqref{eq:solution1}, we have
-\begin{equation}\label{eq:solution1_r}
+For solution~\eqref{eq:TL}, we have
+\begin{equation}\label{eq:TL_r}
     T_M = T_0\qty( \frac1{\rho} - \frac1{\sqrt{4 +\rho^2}} ),
 \end{equation}
-which can be simplified to 
-\begin{equation}\label{eq:solution1_r2}
+which can be simplified to
+\begin{equation}\label{eq:TL_r2}
     T_M = \frac{2T_0}{\rho^3},
 \end{equation}
 under assumption $\rho^2 \gg 1$.
