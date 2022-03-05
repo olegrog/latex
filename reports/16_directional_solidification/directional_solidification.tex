@@ -11,6 +11,9 @@
 \usepackage[font=small]{caption}
 \usepackage{subcaption}
 \usepackage{overpic}
+\usepackage{tikz}
+    \usetikzlibrary{arrows, intersections, calc}
+
 
 %%% Configuration packages
 %\usepackage{fullpage}
@@ -303,7 +306,64 @@ therefore, the temperature behaves like a frozen field determined by the boundar
 Solute concentration is specified far ahead the solidification front: $\tilde{C}(z\to\infty) = K$,
 where $K = m_\liq/m_\sol$ is the partition (solute distribution) coefficient,
 $m_{\liq/\sol} = (\dv*{T}{C})_{\liq/\sol}$ are the slopes of the liquidus and solidus curves
-on the binary phase diagram at $T_M$.
+on the binary phase diagram at $T_M$ (see Fig.~\ref{fig:binary:diagram}).
+
+\begin{figure}
+    \centering\small
+    \begin{tikzpicture}[
+            solution/.style={blue, very thick},
+            boundary/.style={thick},
+            mydashed/.style={densely dashed, shorten >=1mm},
+            dot/.style = {thick, draw, fill=white, circle, inner sep=0pt, minimum size=3pt},
+            >=latex', scale=1.3]
+
+        \path (0,0) coordinate (origin) node[below] {0};
+        \path (1.4,0) coordinate (C0) node[below] {$C_0$};
+        \path (0,3.5) coordinate (TM) node[left] {$T_M$};
+
+        \node at (0.75,0.5) {solid};
+        \node at (3.5,0.5) {liquid+solid};
+        \node at (3.5,2.5) {liquid};
+
+        \draw[boundary,->] (origin) -- +(5,0) node[below] {$C$};
+        \draw[boundary,->] (origin) -- +(0,4) node[left] {$T$};
+        \draw[boundary,name path=liquidus] (TM) -- (4.5,0.5) node[near end, above, sloped] {liquidus};
+        \draw[boundary,name path=solidus] (TM) -- (2.5,0.5) node[very near end, below, sloped] {solidus};
+        \draw[mydashed,name path=lineC0] (C0) -- +(0,4);
+
+        \path[name intersections={of=solidus and lineC0, by=intS}];
+        \path (intS) -- (intS -| TM) coordinate (TS0) node[left] {$T_{\sol0}$};
+        \draw[mydashed,name path=interface] (TS0) -- +(3,0);
+
+        \path[name intersections={of=liquidus and lineC0, by=P}];
+        \path (P) -- (P -| TM) coordinate (TL0) node[left] {$T_{\liq0}$};
+        \draw[mydashed] (TL0) -- +(1.8,0);
+
+        \path[name intersections={of=liquidus and interface, by=intL}];
+        \path (intL) -- (intL |- C0) coordinate (CL0) node[below] {$C_{\liq0}$};
+        \draw[mydashed] (CL0) -- +(0,2.5);
+
+        \begin{scope}[transform canvas={xshift=0.25cm}]
+            \draw[<->] (TL0) -- (TS0) node[midway,right] {$\Delta{T}_0$};
+        \end{scope}
+
+        \draw[solution] let \p1=($ (CL0)-(C0) $), \n1={veclen(\x1,\y1)*1pt/1cm}
+            in (C0) -- (intS) -- (intL) -- plot[shift={(intL)}, domain=0:-\n1*0.9] (\x,{(ln(\n1)-ln(\x+\n1))*25});
+
+        \node[dot] at (origin) {}; \node[dot] at (TM) {};
+        \node[dot] at (C0) {}; \node[dot] at (CL0) {};
+        \node[dot] at (TS0) {}; \node[dot] at (TL0) {};
+    \end{tikzpicture}
+    \caption{
+        The phase diagram linearized for dilute binary alloys.
+        The liquidus and solidus lines are given by equations $T=T_M + m_{\liq/\sol}C$.
+        The blue line corresponds to the superimposed one-dimensional steady-state solution.
+        Here, $C_0 = KC_{\liq0}$ is the initial solute concentration,
+        $T_{\liq0}$ and $T{\sol0}$ are the liquidus and solidus temperatures of the given alloy, respectively,
+        $\Delta{T}_0 = (m_\liq-m_\sol)C_0$ is the solidification range.
+    }
+    \label{fig:binary:diagram}
+\end{figure}
 
 %%% Interface conditions
 At the solid--liquid interface, the following conditions are satisfied up to $\order{\epsilon}$:
@@ -317,7 +377,7 @@ At the solid--liquid interface, the following conditions are satisfied up to $\o
         + (K-1)\tilde{C}_\liq(1+\epsilon\zeta_t), \label{eq:BCC2}\\
     \tilde{T}_\liq = 1 + M\tilde{C_\liq} + \gamma\epsilon\zeta_{xx}, \label{eq:BCgamma}
 \end{gather}
-where $M = C_{\liq0}m_\liq/T_M$ is the dimensionless liquidus slope,
+where $M = m_\liq C_{\liq0}/T_M$ is the dimensionless liquidus slope,
 which is assumed to have the same sign as the solidus one, i.e., $M(K-1) > 0$,
 \begin{equation}\label{eq:n_eta}
     \eta = D_\sol/D_\liq, \quad n = \kappa_\sol/\kappa_\liq
@@ -334,7 +394,7 @@ and $L$ is the latent heat of fusion (\si{\J\per\m\cubed}).
 
 \begin{figure}
     \centering
-    \begin{gnuplot}[scale=0.8, terminal=epslatex, terminaloptions=color lw 4]
+    \begin{gnuplot}[scale=0.8, terminal=epslatex, terminaloptions=color lw 5]
         set sample 1000
         set xrange [-1:1]
         set yrange [0.25:1.75]
@@ -366,7 +426,7 @@ one finds the following planar stationary solution:
     \end{aligned} \right\} \quad z < 0 \label{eq:solutionS}
 \end{gather}
 where $\tilde{G}T_MV/D_\liq$ is the temperature gradient in the liquid phase.
-This solution is shown in Fig.~\ref{fig:binary:solution}.
+This solution is shown in Fig.~\ref{fig:binary:diagram} and~\ref{fig:binary:solution}.
 
 \subsection{Linear stability analysis}
 
@@ -448,8 +508,7 @@ where
 \end{equation}
 are the chemical capillary, solute diffusion, and thermal lengths, respectively.
 The quantity $\Gamma = \sigma T_M/L$ is called the Gibbs--Thomson coefficient,
-$\Delta{T}_0 = m_\liq C_0(K-1)/K$ is the freezing range of the alloy,
-and $C_0 = KC_{\liq0}$ is the initial solute concentration.
+and $\Delta{T}_0 = m_\liq C_0(K-1)/K$ is the freezing range of the alloy.
 Substituting relations
 \begin{equation}\label{eq:tildeGgamma}
     \tilde{G} = M(K-1)\hG/\hV, \quad \gamma = M(K-1)\hV
@@ -477,7 +536,7 @@ $\lim_{k\to\infty}\beta_ck^2 = 0$, which gives
 \begin{equation}\label{eq:Vmin}
     \hV_\text{min} = \frac{2(1+\eta K)}{n+1}\hG.
 \end{equation}
-Moving back to dimensional variables, we have
+Moving back to the dimensional variables, we have
 \begin{equation}\label{eq:Vminmax}
     V_\text{min} = \frac{2(1+\eta K)}{n+1}\frac{GD_L}{\Delta{T}_0}, \quad
     V_\text{max} = \frac{D_L\Delta{T}_0}{K\Gamma}.
