@@ -25,6 +25,7 @@ parser.add_argument('-k', '--kratio', type=float, default=1, help='k_S/k_L')
 parser.add_argument('-D', '--Dratio', type=float, default=0, help='D_S/D_L')
 parser.add_argument('-K', type=float, default=0.5, help='partition coefficient')
 parser.add_argument('-V', type=float, default=0.02, help='capillary length/diffusion length')
+parser.add_argument('-VD', type=float, default=np.infty, help='solute trapping velocity')
 parser.add_argument('-G', type=float, default=0.01, help='capillary length/thermal length')
 parser.add_argument('-s', '--figsize', type=str2pair, default='5:4', help='figure size')
 parser.add_argument('-a', '--asymptotics', action='store_true', help='plot the asymptotics as well')
@@ -33,7 +34,8 @@ parser.add_argument('-w', '--wavelength', action='store_true', help='use wavelen
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
 parser.add_argument('-d', '--debug', action='store_true', help='maximum information')
 parser.add_argument('-o', '--output', type=str, default=None, help='PDF filename')
-parser.add_argument('--krange', type=str2pair, default=None, help='range of wavenumbers')
+parser.add_argument('--xrange', type=str2pair, default=None, help='range of values along x-axis')
+parser.add_argument('--yrange', type=str2pair, default=None, help='range of values along y-axis')
 parser.add_argument('--pad', type=float, default=0.1, help='amount of padding around the figures (inches)')
 parser.add_argument('--pdf', action='store_true', help='save a PDF file instead')
 args = parser.parse_args()
@@ -51,6 +53,7 @@ class Style:
 
 ### Global constants
 almost_one = 1 - 10*np.finfo(float).eps
+small = np.finfo(float).eps
 factorY = 1.1
 kmin, kmax = 1e-5, 1e5  #TODO: provide some reasonable estimates
 
@@ -68,25 +71,28 @@ _S = lambda a,k: -1/2 + sqrt(1/4 + args.Dratio*a + (args.Dratio*k)**2)
 _S_a = lambda a,k: args.Dratio/(2*_S(a,k) + 1)
 _S_kk = lambda a,k: args.Dratio**2/(2*_S(a,k) + 1)
 _s = lambda k: _S(0,k)
+_K = lambda v: (args.K + v/args.VD)/(1 + v/args.VD)
+_dK = lambda v: (1 - args.K)/args.VD/(1 + v/args.VD)**2
 
 ### Formulas for calculating calG, G
 _calG = lambda g,v: 1 - 2*g/(args.kratio+1)/v
 _G = lambda calG,v: (args.kratio+1)*v*(1 - calG)/2
 
 ### Formulas for marginal stability (a_0 = 0)
-_denom = lambda k: (_l(k)-1) + args.K*(1+_s(k))
-_calG_kv = lambda k,v: v*k**2 + args.K*(1+_s(k))/_denom(k)
+_denom = lambda k,v: (_l(k)-1) + _K(v)*(_s(k)+1)
+_calG_kv = lambda k,v: v*k**2 + _K(v)*(_s(k)+1)/_denom(k,v)
 _G_kv = lambda k,v: _G(_calG_kv(k,v), v)
 
 ### Formulas for finding bifurcation points
-_V_bif = lambda k: args.K/_denom(k)**2*(
-    (1+_s(k))/(2*_l(k)-1) - args.Dratio**2*(_l(k)-1)/(2*_s(k)+1) )
+_V_bif_eq = lambda v,k: v - _K(v)/_denom(k,v)**2*(
+    (_s(k)+1)/(2*_l(k)-1) - args.Dratio**2*(_l(k)-1)/(2*_s(k)+1) )
+_V_bif = np.vectorize(lambda k: root_scalar(_V_bif_eq, args=k, bracket=[0, Vmax]).root + small)
 
 ### The 2D equation for finding the most unstable wavenumber
-__f = lambda a,k,g,v: a + args.K*(1+_S(a,k)) - (_calG(g,v) - v*k**2)*(
-    _L(a,k)-1 + args.K*(1+_S(a,k)) )
-__f_kk = lambda a,k,g,v: args.K*_S_kk(a,k) - (_calG(g,v) - v*k**2)*(
-    _L_kk(a,k) + args.K*_S_kk(a,k)) + v*(_L(a,k)-1 + args.K*(1+_S(a,k)))
+__f = lambda a,k,g,v: a + _K(v)*(_S(a,k)+1) - (_calG(g,v) - v*k**2)*(
+    _L(a,k)-1 + _K(v)*(_S(a,k)+1) )
+__f_kk = lambda a,k,g,v: _K(v)*_S_kk(a,k) - (_calG(g,v) - v*k**2)*(
+    _L_kk(a,k) + _K(v)*_S_kk(a,k)) + v*(_L(a,k)-1 + _K(v)*(_S(a,k)+1))
 _most_eq = lambda a,k,g,v: (__f(a,k,g,v), __f_kk(a,k,g,v))
 
 ### Other functions
@@ -147,7 +153,9 @@ if args.pdf:
     plt.rcParams.update(params)
 
 ### Calculate Gmax
-_k_star_eq = lambda k: _calG_kv(k, _V_bif(k)) + _V_bif(k)*k**2 - 1
+_rapid_Gmax = lambda k,v: (_denom(k,v) + _dK(v)*v*(_s(k)+1))/(_denom(k,v) - _dK(v)*v*(_s(k)+1))
+_Gmax = lambda k: 1 - k**2*_V_bif(k)*_rapid_Gmax(k, _V_bif(k))
+_k_star_eq = lambda k: _calG_kv(k, _V_bif(k)) - _Gmax(k)
 k_star = root_scalar(_k_star_eq, bracket=[1e-3, 1e3]).root
 v_star = _V_bif(k_star)
 Gmax = _G_kv(k_star, v_star)
@@ -253,12 +261,12 @@ elif args.mode == modes['f']:
         print(f'k_0 = {k0:.5g}')
 
     # Equation for a_0(k) and its derivatives w.r.t. a_0 and k^2
-    _a_eq = lambda a,k: a + args.K*(1+_S(a,k)) - (calG - args.V*k**2)*(
-        _L(a,k)-1 + args.K*(1+_S(a,k)) )
+    _a_eq = lambda a,k: a + args.K*(_S(a,k)+1) - (calG - args.V*k**2)*(
+        _L(a,k)-1 + args.K*(_S(a,k)+1) )
     _a_eq_a = lambda a,k: 1 + args.K*_S_a(a,k) - (calG - args.V*k**2)*(
         _L_a(a,k) + args.K*_S_a(a,k) )
     _a_eq_kk = lambda a,k: args.K*_S_kk(a,k) - (calG - args.V*k**2)*(
-        _L_kk(a,k) + args.K*_S_kk(a,k)) + args.V*(_L(a,k)-1 + args.K*(1+_S(a,k)))
+        _L_kk(a,k) + args.K*_S_kk(a,k)) + args.V*(_L(a,k)-1 + args.K*(_S(a,k)+1))
 
     ### 1. Find a critical point (where a1(k)=a2(k)); a_0 is complex behind this point
     if args.G > 0:
@@ -337,7 +345,7 @@ elif args.mode == modes['f']:
     # For Dratio = 0: _amean = lambda k: -k**2 - (1 - (calG-args.V*k**2)**2)/4
     _amean = lambda k: root_scalar(_a_eq_a, args=k, bracket=[_amin(k), omax]).root
 
-    K = np.geomspace(*args.krange, args.N) if args.krange else np.logspace(-1.5, 0.5, args.N)*k0
+    K = np.geomspace(*args.xrange, args.N) if args.xrange else np.logspace(-1.5, 0.5, args.N)*k0
     if k_crit > K[0]:
         # Refine the mesh near the critical point
         K = np.r_[K[K<k_crit], interval_mesh(k_crit, K[-1], logN+1, 0)]
@@ -448,6 +456,10 @@ elif args.mode == modes['G']:
     if args.asymptotics:
         pdas_models(args.G, V, plt, X=V)
     plt.legend()
+    if args.xrange:
+        plt.xlim(args.xrange)
+    if args.yrange:
+        plt.ylim(args.yrange)
 
     if args.verbose:
         if args.G > 0:

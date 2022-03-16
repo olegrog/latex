@@ -27,7 +27,8 @@ parser.add_argument('-l', '--log', action='store_true', help='use log scale for 
 parser.add_argument('-w', '--wavelength', action='store_true', help='use wavelength instead of wavenumber')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
 parser.add_argument('-o', '--output', type=str, default=None, help='PDF filename')
-parser.add_argument('--krange', type=str2pair, default=None, help='range of wavenumbers')
+parser.add_argument('--xrange', type=str2pair, default=None, help='range of values along x-axis')
+parser.add_argument('--yrange', type=str2pair, default=None, help='range of values along y-axis')
 parser.add_argument('--pad', type=float, default=0.1, help='amount of padding around the figures (inches)')
 parser.add_argument('--pdf', action='store_true', help='save a PDF file instead')
 args = parser.parse_args()
@@ -116,8 +117,8 @@ if args.mode == modes['f']:
     _amin = lambda k: almost_one*(-k**2 - 1/4)
     _amean = lambda k: -k**2*(1+args.V) + (args.V*k**2)**2
 
-    if args.krange:
-        K = np.geomspace(*args.krange, args.N)
+    if args.xrange:
+        K = np.geomspace(*args.xrange, args.N)
     else:
         K = np.geomspace(_kmax(args.V)/4, 1.5*k0, args.N)
 
@@ -205,6 +206,10 @@ elif args.mode == modes['2']:
     plt.ylabel(klabel(), rotation=0)
     plt.xlim(V[0], Vmax)
     plt.legend()
+    if args.xrange:
+        plt.xlim(args.xrange)
+    if args.yrange:
+        plt.ylim(args.yrange)
 
     if args.asymptotics:
         V1, V2 = np.split(V, 2)

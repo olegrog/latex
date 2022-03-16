@@ -79,14 +79,14 @@ where $D$ is the thermal diffusion coefficient (\si{\m\squared\per\s}).
 
 %%% Boundary conditions
 Two boundary conditions are imposed at the solidification front.
-First, there is heat conservation:
+First, heat is conserved, which is expressed as
 \begin{equation}\label{eq:bc1}
     v_n = -[D\bn\vdot\grad{u}],
 \end{equation}
 where $v_n$ is the normal growth velocity (\si{\m\per\s}),
 $\bn$ is the unit normal directed outward from the solid,
 and brackets denote the discontinuity of the flux across the boundary.
-Second, the statement of local thermodynamic equilibrium determines the interface temperature:
+Second, the statement of local thermodynamic equilibrium determines the interface temperature
 \begin{equation}\label{eq:bc2}
     u_s = u_0 - d_0\kappa,
 \end{equation}
@@ -104,7 +104,7 @@ which is proportional to the surface tension $\sigma$ (\si{\J\per\m\squared}).
 %%% Formulation of the 1D problem
 The simplest steady-state solution of the solidification problem is the planar front
 moving in the $z$ direction with velocity $V$.
-In the one-dimensional case, the diffusion equation take the form
+In the one-dimensional case, the diffusion equation takes the form
 \begin{equation}\label{eq:problem_1d}
     Du'' + Vu' = 0
 \end{equation}
@@ -130,7 +130,7 @@ The full nondimensional diffusion equation in the moving frame is
 \begin{equation}\label{eq:pure:problem_2d}
     \pdv{u}{\tilde{t}} = \tilde{\nabla}^2u + \pdv{u}{\tilde{z}},
 \end{equation}
-where $\tilde{t} = tV^2/D$, $\tilde{z} = xV/D$.
+where $\tilde{t} = tV/\ell$, $\tilde{z} = x/\ell$.
 The unperturbed front is given by $\tilde{z} = \zeta_s(\bx)=0$,
 where $\tilde\bx$ denote positions in the plane normal to the $z$ axis.
 The infinitesimal perturbation can be written as a sum of Fourier components:
@@ -295,12 +295,13 @@ Then, solidification of a binary mixture is described by the following equations
         &\nabla^2 \tilde{T}_\liq = 0,
     \end{aligned}\right\} \quad z > \epsilon\zeta(x,t) \label{eq:governingL}\\
     \left.\begin{aligned}
-        &\pdv{\tilde{C}_\sol}{t} = \nabla^2 \tilde{C}_\sol + \pdv{\tilde{C}_\sol}{z}, \\
+        &\pdv{\tilde{C}_\sol}{t} = \eta\nabla^2 \tilde{C}_\sol + \pdv{\tilde{C}_\sol}{z}, \\
         &\nabla^2 \tilde{T}_\sol = 0,
     \end{aligned}\right\} \quad z < \epsilon\zeta(x,t) \label{eq:governingS}
 \end{gather}
 where $\tilde{C}_\liq C_{\liq0}$ and $\tilde{T}_\liq T_M$ are the solute concentration and temperature in liquid,
-and $\tilde{C}_\sol C_{\liq0}$ and $\tilde{T}_\sol T_M$ are the same in solid.
+$\tilde{C}_\sol C_{\liq0}$ and $\tilde{T}_\sol T_M$ are the same in solid,
+and $\eta = D_\sol/D_\liq$ is the solute diffusion ratio.
 Note that heat diffusion is assumed to be much faster than solute diffusion;
 therefore, the temperature behaves like a frozen field determined by the boundary conditions.
 Solute concentration is specified far ahead the solidification front: $\tilde{C}(z\to\infty) = K$,
@@ -359,7 +360,7 @@ on the binary phase diagram at $T_M$ (see Fig.~\ref{fig:binary:diagram}).
         The liquidus and solidus lines are given by equations $T=T_M + m_{\liq/\sol}C$.
         The blue line corresponds to the superimposed one-dimensional steady-state solution.
         Here, $C_0 = KC_{\liq0}$ is the initial solute concentration,
-        $T_{\liq0}$ and $T{\sol0}$ are the liquidus and solidus temperatures of the given alloy, respectively,
+        $T_{\liq0}$ and $T_{\sol0}$ are the liquidus and solidus temperatures of the given alloy, respectively,
         $\Delta{T}_0 = (m_\liq-m_\sol)C_0$ is the solidification range.
     }
     \label{fig:binary:diagram}
@@ -379,10 +380,7 @@ At the solid--liquid interface, the following conditions are satisfied up to $\o
 \end{gather}
 where $M = m_\liq C_{\liq0}/T_M$ is the dimensionless liquidus slope,
 which is assumed to have the same sign as the solidus one, i.e., $M(K-1) > 0$,
-\begin{equation}\label{eq:n_eta}
-    \eta = D_\sol/D_\liq, \quad n = \kappa_\sol/\kappa_\liq
-\end{equation}
-are the solute diffusion and thermal conductivity ratios, respectively.
+and $n = \kappa_\sol/\kappa_\liq$ is the thermal conductivity ratio.
 Dimensionless capillary constant
 \begin{equation}\label{eq:gamma}
     \gamma = \frac{\sigma V}{LD_\liq},
@@ -470,7 +468,7 @@ By perturbing the planar solidification front harmonically as
 \end{equation}
 one comes to the following dispersion relation:
 \begin{equation}\label{eq:binary:a0}
-    \Delta(a_0,k) = a_0 + K(1+\qS) - (\mathcal{G}-\beta k^2)(\qL-1 + K(1+\qS)) = 0,
+    \Delta(a_0,k) = a_0 + K(\qS+1) - (\mathcal{G}-\beta k^2)(\qL-1 + K(\qS+1)) = 0,
 \end{equation}
 where
 \begin{gather}
@@ -522,10 +520,10 @@ into Eqs.~\eqref{eq:Gbeta}, we obtain
 The typical bifurcation diagram in the ($\hV,\hG$) coordinates is shown in Fig.~\ref{fig:bifurcation}.
 The planar front is stable for all wavenumbers when $\mathcal{G} < \mathcal{G}_c(\beta_c(k))$ given by
 \begin{equation}\label{eq:bifurcation}
-    \beta_c = \frac{K}{\mathcal{D}^2}\qty(\frac{1+\pS}{2\pL-1} + \eta^2\frac{\pS-1}{2\pS+1}), \quad
-    \mathcal{G}_c = \beta_c k^2 + \frac{K(1+\pS)}{\mathcal{D}},
+    \beta_c = \frac{K}{\mathcal{D}^2}\qty(\frac{\pS+1}{2\pL-1} - \eta^2\frac{\pL-1}{2\pS+1}), \quad
+    \mathcal{G}_c = \beta_c k^2 + \frac{K(\pS+1)}{\mathcal{D}},
 \end{equation}
-where $\pL(k)=\qL(0,k)$, $\pS(k)=\qS(0,k)$, and $\mathcal{D} = \pL-1 + K(1+\pS)$.
+where $\pL(k)=\qL(0,k)$, $\pS(k)=\qS(0,k)$, and $\mathcal{D} = \pL-1 + K(\pS+1)$.
 Eqs.~\eqref{eq:bifurcation} are obtained by taking $\Delta(0,k)=0$ and ${\pdv*{\Delta}{k^2}}(0,k)=0$.
 In the \emph{absolute stability limit}~\cite{mullins1964stability} ($k\to0$),
 \begin{equation}\label{eq:Vmax}
@@ -546,6 +544,7 @@ The maximum point $\hG_\text{max}$ on the curve $\hG_c(\hV_c)$ can be found by a
     \mathcal{G}_c = 1 - \beta_ck^2
 \end{equation}
 to the system of equations~\eqref{eq:bifurcation}.
+Eq.~\eqref{eq:Gmax} can be obtained from ${\pdv*{\Delta}{\hV}}(0,k;\hV_c,\hG_c)=0$.
 
 \begin{figure}
     \begin{adjustbox}{max width=1.4\linewidth,center}
@@ -614,6 +613,74 @@ and fitted their numerical results by
         \Delta\hat{T}_\sol = \hG/\hV + \qty(a + (1-a)\qty(K\hV)^{0.45})\qty(1-\hG/\hV), \\
         a = \num{5.273e-3} + 0.5519K - 0.1865K^2.
     \end{gathered}
+\end{equation}
+
+\subsection{Rapid solidification}
+
+%%% Solute trapping and Aziz model
+For high solidification rates, the planar solid--liquid interface is no longer in the equilibrium state.
+The speed of solute diffusion becomes insufficient to equalize the chemical potential
+with the corresponding concentration jump. In other words, solute atoms do not have enough time
+to be rejected out of the solid and are therefore trapped in it.
+This nonequlibrium phenomenon is called \emph{solute trapping}.
+\textcite{aziz1982model} proposed a simple model for \emph{dilute} solutions to account for this effect
+by introducing an effective partition coefficient
+\begin{equation}\label{eq:Aziz}
+    K_V = \frac{K + V/V_D}{1 + V/V_D},
+\end{equation}
+where $V_D$ is the so-called diffusion speed, which can be estimated as
+\begin{equation}\label{eq:V_D}
+    V_D = D_L/\delta_{\sol\liq},
+\end{equation}
+where $\delta_{\sol\liq}$ is the thickness of the diffuse interface.
+In this sense, the dimensionless ratio $V/V_D$ can be interpreted as an interface P\'eclet number
+and (cf.~Eq~\eqref{eq:hatGV})
+\begin{equation}\label{eq:hatV_D}
+    \hV_D = d_0/\delta_{\sol\liq}.
+\end{equation}
+Eq.~\eqref{eq:Aziz} correctly describes both limits:
+$K_V$ tends to the equilibrium value $K$ as $V/V_D\to0$ and to unity as $V/V_D\to\infty$.
+The latter case corresponds to complete solute trapping, where diffusion can be ignored.
+
+%%% Changing of slopes
+It can be shown that the kinetic liquidus slope for a dilute solution
+takes the form~\cite[see Appendix 6]{kurz1989fundamentals}
+\begin{equation}\label{eq:mVL}
+    m_{\liq V} = m_\liq\qty(1 + \frac{K - K_V(1+\ln(K/K_V))}{1-K}),
+\end{equation}
+which is consistent with Eq.~\eqref{eq:Aziz}.
+
+\begin{figure}
+    \begin{adjustbox}{max width=1.4\linewidth,center}
+        \begin{overpic}[width=0.7\textwidth]{binary/lambda-rapid1}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:rapid1}}}
+        \end{overpic}
+        \begin{overpic}[width=0.7\textwidth]{binary/lambda-rapid0.1}
+            \put (5,90) {\adjustbox{minipage=0pt}{\subcaption{}\label{sfig:rapid0.1}}}
+        \end{overpic}
+    \end{adjustbox}
+    \caption{
+        Stability of the wavelength $\hat\lambda=2\pi/\hV k$ as a function of $\hV$
+        at $\hG=0.01$ for rapid solidification of a dilute binary mixture.
+        Cases $\hV_D=1$ (\subref{sfig:rapid1}) and $\hV_D=0.1$ (\subref{sfig:rapid0.1}) are plotted.
+        Case corresponding to the limit $\hV_D\to\infty$ is shown in Fig.~\ref{sfig:binary:lambdaV1}.
+        Parameters $K$, $\eta$, and $n$ are specified in the caption of Fig.~\ref{fig:bifurcation}.
+    }\label{fig:rapid}
+\end{figure}
+
+%%% Stability analysis
+The linear stability analysis for a binary mixture remains valid in the case of rapid solidification.
+The only amendment is that now the partition coefficient $K$ should be replaced by the kinetic one $K_V$,
+which is a function of the velocity $\hV$.
+For $K<1$, this correction leads to shrinking the area of instability as seen in Fig.~\ref{fig:rapid}.
+This shrinkage is mainly observed in the region of larger $\hV$.
+Note also that Eq.~\eqref{eq:Gmax} should be replaced by
+\begin{equation}\label{eq:Gmax_rapid}
+    \mathcal{G}_c = 1 - \beta_ck^2\frac{\mathcal{D} + K_V'\beta_c(p_\sol+1)}{\mathcal{D} - K_V'\beta_c(p_\sol+1)},
+\end{equation}
+where
+\begin{equation}\label{eq:dK_V}
+    K_V' = \frac{1-K}{\hV_D(1+V/V_D)^2}.
 \end{equation}
 
 \subsection{Extension to the multicomponent case}
