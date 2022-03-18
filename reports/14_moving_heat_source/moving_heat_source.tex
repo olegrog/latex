@@ -62,30 +62,30 @@ has the form~\autocite{levin2008general}
 \end{equation}
 where the following coordinates are introduced:
 \begin{equation}
-    \xi = 1 - \exp(-\frac{v}{a}|x|), \quad
-    \rho = \frac{v}{a}\exp(-\frac{v}{a}|x|)\sqrt{y^2 + z^2}.
+    \xi = 1 - \exp(-\frac{v}{a}x), \quad
+    \rho = \frac{v}{a}\exp(-\frac{v}{a}x)\sqrt{y^2 + z^2}.
 \end{equation}
 The alternative solution
 \begin{equation}\label{eq:TR}
     T_R = \frac{P}{4\pi kr}\exp(-\frac{v(x+r)}{2a}),
 \end{equation}
-where $r = |\bx|$, is due to~\textcite{rosenthal1946theory} but is not symmetric.
+where $r = |\bx|$, is due to~\textcite{rosenthal1946theory}, but it decays too slowly as $x\to-\infty$.
 
 %%% Nondimensionalization
 The characteristic temperature and length are
 \begin{equation}\label{eq:reference}
     T_0 = \frac{Pv}{4\pi ka}, \quad L = \frac{a}{v}.
 \end{equation}
-In the nondimensional variables, given by $\hat{T} = T/T_0$ and $\hat{\bx} = \bx/L$,
+In the nondimensional variables given by $\hat{T} = T/T_0$ and $\hat{\bx} = \bx/L$,
 \begin{equation}\label{eq:xi-rho}
-    \xi = 1 - \exp(-|\hat{x}|), \quad \rho = \exp(-|\hat{x}|)\sqrt{\hat{y}^2 + \hat{z}^2},
+    \xi = 1 - \exp(-\hat{x}), \quad \rho = \exp(-\hat{x})\sqrt{\hat{y}^2 + \hat{z}^2},
 \end{equation}
 and solutions~\eqref{eq:TL},~\eqref{eq:TR} take the form
 \begin{gather}
     \hat{T}_L = (1-\xi)\qty( \frac1{\sqrt{\xi^2 +\rho^2}} - \frac1{\sqrt{(2-\xi)^2 +\rho^2}} ), \label{eq:hatTL}\\
-    \hat{T}_R = \frac1{\hat{r}}\exp(-\frac{\hat{x}+\hat{r}}2), \label{eq:hatTR}
+    \hat{T}_R = \frac1{\hat{r}}\exp(-\frac{\hat{x}+\hat{r}}2). \label{eq:hatTR}
 \end{gather}
-which are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
+They are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
 
 \begin{figure}
     \centering
@@ -95,9 +95,9 @@ which are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
         #set log y; set yrange [1e-3: 1e3]
         set grid
         set key center top spacing 1.5 outside
-        xi(x) = 1 - exp(-abs(x))
-        plot (1-xi(x))*(1/xi(x) - 1/(2-xi(x))) \
-                title '$\hat{T}_L = 2(1-\xi)^2/\xi(2-\xi)$ \autocite{levin2008general}', \
+        xi(x) = 1 - exp(-x)
+        plot (1-xi(x))*(1/abs(xi(x)) - 1/(2-xi(x))) \
+                title '$\hat{T}_L = (1-\xi)(|\xi|^{-1}-(2-\xi)^{-1})$ \autocite{levin2008general}', \
             exp(-(abs(x)+x)/2)/abs(x) \
                 title '$\hat{T}_R = \exp(-(|x|+x)/2)/|x|$ \autocite{rosenthal1946theory}'
     \end{gnuplot}
