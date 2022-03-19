@@ -5,6 +5,8 @@
 %%% Functional packages
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{physics, siunitx}
+\usepackage{graphicx}
+    \graphicspath{{plots/}}
 \usepackage{multirow}
 \usepackage[subfolder]{gnuplottex}
 \usepackage[referable]{threeparttablex} % for \tnotex
@@ -128,6 +130,26 @@ They are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
 
 \section{Dimensional estimations}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{profiles}
+    \caption{
+        The melt-pool boundary obtained as the temperature contour line for $\hat{T}=T_M/T_0=0.0378$,
+        where $T_M$ and $T_0$ are taken from Table~\ref{table:parameters}.
+        Solutions~\eqref{eq:hatTL} and~\eqref{eq:hatTR} are shown.
+        The dimensions of the melt pool are as follows:
+        $\hat{l} = 6.0$ and $\hat{d} = 4.5$ for Levin's model,
+        $\hat{l} = 29$ and $\hat{d} = 6.0$ for Rosenthal's model,
+        where $\hat{l} = \hat{x}_\text{max} - \hat{x}_\text{min}$ is the length and $\hat{d}$ is the depth.
+    }\label{fig:profiles}
+\end{figure}
+
+%%% Melt-pool boundary
+Despite the fact that the difference between the two solutions seems small
+in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r},
+the predicted melt-pool boundaries differ considerably as seen in Fig.~\ref{fig:profiles}.
+The actual shape of the melt pool is closer to that given by Levin's solution~\eqref{eq:hatTL}.
+
 \begin{table}
     \centering
     \begin{threeparttable}[b]
@@ -153,15 +175,19 @@ They are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
         Thermal diffusivity & $a$ & \num{5.22} & \si{\mm\squared\per\s} & $=k/(\rho_0 c_p)$ \\
         Reference temperature & $T_0$ & \num{44700} & \si{\K} & \multirow{2}*{Eq.~\eqref{eq:reference}} \\
         Reference length & $L$ & \num{7.46} & \si{\um} & \\
-        Melt-pool depth & $d$ & \num{28.0} & \si{\um} & Eq.~\eqref{eq:depth} \\
+        \multirow{2}*{Melt-pool depth} & \multirow{2}*{$d$} & \num{28.0} & \multirow{2}*{\si{\um}} & Eq.~\eqref{eq:depth} \\
+        & & \num{33.6} & & Fig.~\ref{fig:profiles} \\
+        \multirow{2}*{Melt-pool length} & \multirow{2}*{$l$} & \num{44.4} & \multirow{2}*{\si{\um}} & Eq.~\eqref{eq:length} \\
+        & & \num{44.7} & & Fig.~\ref{fig:profiles} \\
         \hline
     \end{tabular}
     \begin{tablenotes}
-        \item[a]\label{a} Values are taken as half-sums of solidus and liquidus values.
+        \item[a]\label{a} Values are taken as half-sums of the solidus and liquidus values.
     \end{tablenotes}
     \end{threeparttable}
 \end{table}
 
+%%% Estimations
 The melt-pool depth can be roughly estimated as a $r$-coordinate
 that corresponds to the melting temperature $T_M$ at $x=0$.
 For solution~\eqref{eq:TL}, we have
@@ -172,10 +198,21 @@ which can be simplified to
 \begin{equation}\label{eq:TL_r2}
     T_M = \frac{2T_0}{\rho^3},
 \end{equation}
-under assumption $\rho^2 \gg 1$.
-Finally, replacing here $\rho$ by $d/L$, we obtain the estimation for the melt-pool depth
+under the assumption $\rho^2 \gg 1$.
+Finally, replacing here $\rho$ by $d/L$ and $a$ by $k/(\rho_0 c_p)$, we obtain the estimation for the melt-pool depth
 \begin{equation}\label{eq:depth}
     d = L\qty(\frac{2T_0}{T_M})^{1/3} = \qty(\frac{kP}{2\pi T_M})^{1/3}\qty(\rho_0 c_p v)^{-2/3}.
+\end{equation}
+The similar estimations can be obtained for the melt-pool length
+\begin{equation}\label{eq:length}
+    l = \frac32L\ln\frac{2T_0}{T_M} = \frac32\frac{k}{\rho_0 c_p v}\ln\frac{P\rho_0 c_p v}{2\pi k^2 T_M},
+\end{equation}
+which follows from the asymptotic relations
+\begin{equation}\label{eq:TL_x}
+    T_L \to \begin{cases}
+        2(1-\xi)^2 &\text{ as } \xi\to1-0, \\
+        -2/\xi &\text{ as } \xi\to-\infty.
+    \end{cases}
 \end{equation}
 The typical values are presented in Table~\ref{table:parameters}.
 

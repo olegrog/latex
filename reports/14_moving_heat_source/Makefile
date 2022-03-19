@@ -1,12 +1,16 @@
 PROJECT = $(shell git ls-tree head --name-only | grep \.tex$$ | cut -f 1 -d '.')
 SOURCES = $(PROJECT).tex
+SUBDIRS = plots
 
 all: $(PROJECT).pdf
 
-$(PROJECT).pdf: $(SOURCES)
-	latexmk -pdf -xelatex $(PROJECT) -shell-escape
+$(SUBDIRS)::
+	$(MAKE) -C $@ $(MAKECMDGOALS)
 
-.PHONY: clean
+$(PROJECT).pdf: $(SOURCES) $(SUBDIRS)
+	latexmk -xelatex $(PROJECT) -shell-escape
+
+.PHONY: all clean $(SUBDIRS)
 
 clean:
 	latexmk -C $(PROJECT)
