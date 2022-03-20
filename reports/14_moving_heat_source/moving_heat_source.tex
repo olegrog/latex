@@ -97,12 +97,15 @@ They are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
         #set log y; set yrange [1e-3: 1e3]
         set grid
         set key center top spacing 1.5 outside
+        set xlabel '$\hat{x}$'
+        set ylabel '$\hat{T}$' rotate by 0
         xi(x) = 1 - exp(-x)
         plot (1-xi(x))*(1/abs(xi(x)) - 1/(2-xi(x))) \
                 title '$\hat{T}_L = (1-\xi)(|\xi|^{-1}-(2-\xi)^{-1})$ \autocite{levin2008general}', \
             exp(-(abs(x)+x)/2)/abs(x) \
                 title '$\hat{T}_R = \exp(-(|x|+x)/2)/|x|$ \autocite{rosenthal1946theory}'
     \end{gnuplot}
+    \vspace{-10pt}
     \caption{
         Solutions~\eqref{eq:hatTL} and~\eqref{eq:hatTR} at $y=z=0$.
     }
@@ -117,22 +120,25 @@ They are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
         #set log y; set yrange [1e-3: 1e3]
         set grid
         set key center top spacing 1.5 outside
+        set xlabel '$\hat{z}$'
+        set ylabel '$\hat{T}$' rotate by 0
         plot 1/x - 1/sqrt(4+x**2) \
                 title '$\hat{T}_L = 1/\rho - 1/\sqrt{4+\rho^2}$ \autocite{levin2008general}', \
             exp(-x/2)/x \
                 title '$\hat{T}_R = \exp(-r/2)/r$ \autocite{rosenthal1946theory}'
     \end{gnuplot}
+    \vspace{-10pt}
     \caption{
         Solutions~\eqref{eq:hatTL} and~\eqref{eq:hatTR} at $x=0$.
     }
     \label{fig:solutions_r}
 \end{figure}
 
-\section{Dimensional estimations}
+\section{Example and discussion}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\textwidth]{profiles}
+    \includegraphics[width=\textwidth]{boundary}
     \caption{
         The melt-pool boundary obtained as the temperature contour line for $\hat{T}=T_M/T_0=0.0378$,
         where $T_M$ and $T_0$ are taken from Table~\ref{table:parameters}.
@@ -141,44 +147,51 @@ They are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
         $\hat{l} = 6.0$ and $\hat{d} = 4.5$ for Levin's model,
         $\hat{l} = 29$ and $\hat{d} = 6.0$ for Rosenthal's model,
         where $\hat{l} = \hat{x}_\text{max} - \hat{x}_\text{min}$ is the length and $\hat{d}$ is the depth.
-    }\label{fig:profiles}
+    }\label{fig:boundary}
 \end{figure}
 
 %%% Melt-pool boundary
 Despite the fact that the difference between the two solutions seems small
 in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r},
-the predicted melt-pool boundaries differ considerably as seen in Fig.~\ref{fig:profiles}.
-The actual shape of the melt pool is closer to that given by Levin's solution~\eqref{eq:hatTL}.
+the predicted melt-pool boundaries differ considerably as seen in Fig.~\ref{fig:boundary}.
+The parameters of the material and process are presented in Table~\ref{table:parameters}.
+The actual shape of the melt pool under the specified conditions is closer to that
+given by Levin's solution~\eqref{eq:hatTL}.
 
 \begin{table}
     \centering
     \begin{threeparttable}[b]
     \caption{
-        Dimensional parameters used in estimations taken as typical values
-        for SS316L and Trumpf TruPrint 1000.
+        Dimensional parameters taken as typical values for stainless steel 316L printed on Trumpf TruPrint 1000
+        and estimations based on them.
     }
     %\footnotesize
     \sisetup{per-mode=repeated-symbol}
     \label{table:parameters}
     \begin{tabular}{lccccc}
         \hline\noalign{\smallskip}
-        Quantity & Symbol & Value & Unit & Formula \\[3pt]
+        Quantity & Symbol & Value & Unit & Formula \\[2pt]
         \hline\noalign{\smallskip}
         Laser power & $P$ & \num{113} & \si{\W} & \multirow{2}*{---} \\
-        Scanning speed & $v$ & \num{0.7} & \si{\m\per\s} & \\[3pt]
+        Scanning speed & $v$ & \num{0.7} & \si{\m\per\s} & \\[2pt]
         \hline\noalign{\smallskip}
         Thermal conductivity & $k$ & \num{27.0} & \si{\W\per\K\per\m} & $=(35.96+17.98)/2$\tnotex{a} \\
         Heat capacity & $c_p$ & \num{727} & \si{\J\per\kg\per\K} & $=(684.8+769.9)/2$\tnotex{a} \\
         Density & $\rho_0$ & \num{7120} & \si{\kg\per\m\cubed} & $=(7270+6975)/2$\tnotex{a} \\
-        Melting temperature & $T_M$ & \num{1690} & \si{\K} & $=(1675+1708)/2$\tnotex{a} \\[3pt]
+        Melting temperature & $T_M$ & \num{1690} & \si{\K} & $=(1675+1708)/2$\tnotex{a} \\
+        Boiling temperature & $T_B$ & \num{3090} & \si{\K} & --- \\[2pt]
         \hline\noalign{\smallskip}
         Thermal diffusivity & $a$ & \num{5.22} & \si{\mm\squared\per\s} & $=k/(\rho_0 c_p)$ \\
         Reference temperature & $T_0$ & \num{44700} & \si{\K} & \multirow{2}*{Eq.~\eqref{eq:reference}} \\
-        Reference length & $L$ & \num{7.46} & \si{\um} & \\
+        Reference length & $L$ & \num{7.46} & \si{\um} & \\[2pt]
+        \hline\noalign{\smallskip}
         \multirow{2}*{Melt-pool depth} & \multirow{2}*{$d$} & \num{28.0} & \multirow{2}*{\si{\um}} & Eq.~\eqref{eq:depth} \\
-        & & \num{33.6} & & Fig.~\ref{fig:profiles} \\
+        & & \num{33.6} & & Fig.~\ref{fig:boundary} \\[2pt]
         \multirow{2}*{Melt-pool length} & \multirow{2}*{$l$} & \num{44.4} & \multirow{2}*{\si{\um}} & Eq.~\eqref{eq:length} \\
-        & & \num{44.7} & & Fig.~\ref{fig:profiles} \\
+        & & \num{44.7} & & Fig.~\ref{fig:boundary} \\[2pt]
+        \multirow{3}*{Temperature gradient} & \multirow{3}*{$\nabla T$} & \num{41.6} & \multirow{3}*{\si{\K\per\um}} & $=(T_B-T_M)/d$ \\
+        & & \num{94.7} & & $\min(\nabla T)$ in Fig.~\ref{fig:gradient} \\
+        & & \num{400} & & $\max(\nabla T)$ in Fig.~\ref{fig:gradient} \\[2pt]
         \hline
     \end{tabular}
     \begin{tablenotes}
@@ -214,7 +227,43 @@ which follows from the asymptotic relations
         -2/\xi &\text{ as } \xi\to-\infty.
     \end{cases}
 \end{equation}
-The typical values are presented in Table~\ref{table:parameters}.
+The resulting estimations are included in Table~\ref{table:parameters}.
+Comparing with the exact values presented in Fig.~\ref{fig:boundary},
+it is seen that Eq.~\eqref{eq:length} are quite accurate,
+while Eq.~\eqref{eq:depth} gives an error of more than 15\% error mostly because the deepest point does not lie on the $x$ axis.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{gradient}
+    \caption{
+        The temperature gradient along the melt-pool boundary for $\hat{T}=T_M/T_0=0.0378$,
+        where $T_M$ and $T_0$ are taken from Table~\ref{table:parameters}.
+        Solutions~\eqref{eq:hatTL} and~\eqref{eq:hatTR} are shown.
+        The middle black points correspond to the deepest points of the melt pool
+        and divide the profiles into two parts,
+        where solidification (solid line) and fusion (dashed line) occurs.
+        The values on the solidification part of the curves vary in the following ranges:
+        $0.016 \leq \hat{\nabla}\hat{T} \leq 0.067$ for Levin's model,
+        $0.0014 \leq \hat{\nabla}\hat{T} \leq 0.011$ for Rosenthal's model,
+        where $\hat{\nabla}\hat{T} = ((\partial\hat{T}/\partial\hat{x})^2 + (\partial\hat{T}/\partial\hat{z})^2)^{1/2}$.
+    }\label{fig:gradient}
+\end{figure}
+
+%%% Temperature gradients
+The temperature gradient can be evaluated using the following formulas:
+\begin{gather}
+    \pdv{\hat{T}_L}{\hat{x}} =
+        (1-\xi)\qty( \frac{2-\xi}{((2-\xi)^2 + \rho^2)^{3/2}} - \frac{\xi}{(\xi^2 + \rho^2)^{3/2}} ), \label{eq:dTLdx}\\
+    \pdv{\hat{T}_L}{\hat{z}} =
+        \rho(1-\xi)^2\qty( \frac1{((2-\xi)^2 + \rho^2)^{3/2}} - \frac1{(\xi^2 + \rho^2)^{3/2}} ), \label{eq:dTLdz}\\
+    \pdv{\hat{T}_R}{\hat{x}} =
+        -\hat{T}_R\qty( \frac{\hat{x}}{\hat{r}^2} + \frac12\qty(1 + \frac{\hat{x}}{\hat{r}}) ), \label{eq:dTRdx}\\
+    \pdv{\hat{T}_R}{\hat{x}} =
+        -\hat{T}_R\frac{\hat{x}}{\hat{r}}\qty( \frac1{\hat{r}} + \frac12 ). \label{eq:dTRdz}
+\end{gather}
+Its magnitude along the melt-pool boundary is shown in Fig.~\ref{fig:gradient}.
+It can be seen that Rosenthal's model predicts a much smaller temperature gradient
+on the solidification section of the curve.
 
 \printbibliography
 
