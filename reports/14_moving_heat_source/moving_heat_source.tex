@@ -192,6 +192,7 @@ given by Levin's solution~\eqref{eq:hatTL}.
         \multirow{3}*{Temperature gradient} & \multirow{3}*{$\nabla T$} & \num{41.6} & \multirow{3}*{\si{\K\per\um}} & $=(T_B-T_M)/d$ \\
         & & \num{94.7} & & $\min(\nabla T)$ in Fig.~\ref{fig:gradient} \\
         & & \num{400} & & $\max(\nabla T)$ in Fig.~\ref{fig:gradient} \\[2pt]
+        Cooling rate & $\dot{T}$ & \num{155} & \si{\K\per\us} & $\max(\dot{T})$ in Fig.~\ref{fig:rate} \\[2pt]
         \hline
     \end{tabular}
     \begin{tablenotes}
@@ -230,7 +231,8 @@ which follows from the asymptotic relations
 The resulting estimations are included in Table~\ref{table:parameters}.
 Comparing with the exact values presented in Fig.~\ref{fig:boundary},
 it is seen that Eq.~\eqref{eq:length} are quite accurate,
-while Eq.~\eqref{eq:depth} gives an error of more than 15\% error mostly because the deepest point does not lie on the $x$ axis.
+while Eq.~\eqref{eq:depth} gives an error of more than 15\% error
+mostly because the deepest point does not lie on the $x$ axis.
 
 \begin{figure}
     \centering
@@ -239,14 +241,34 @@ while Eq.~\eqref{eq:depth} gives an error of more than 15\% error mostly because
         The temperature gradient along the melt-pool boundary for $\hat{T}=T_M/T_0=0.0378$,
         where $T_M$ and $T_0$ are taken from Table~\ref{table:parameters}.
         Solutions~\eqref{eq:hatTL} and~\eqref{eq:hatTR} are shown.
-        The middle black points correspond to the deepest points of the melt pool
-        and divide the profiles into two parts,
-        where solidification (solid line) and fusion (dashed line) occurs.
+        The coordinates $s=0$ and $s=1$ correspond to points $\hat{x}_\text{min}$ and $\hat{x}_\text{max}$, respectively.
+        The middle black points are the deepest points of the melt pool and divide the profiles into two parts,
+        where solidification (solid line) and fusion (dashed line) occur.
         The values on the solidification part of the curves vary in the following ranges:
         $0.016 \leq \hat{\nabla}\hat{T} \leq 0.067$ for Levin's model,
         $0.0014 \leq \hat{\nabla}\hat{T} \leq 0.011$ for Rosenthal's model,
         where $\hat{\nabla}\hat{T} = ((\partial\hat{T}/\partial\hat{x})^2 + (\partial\hat{T}/\partial\hat{z})^2)^{1/2}$.
     }\label{fig:gradient}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{speed}
+    \caption{
+        The nondimensional solidification speed along the melt-pool boundary.
+        Solidification occurs at positive values.
+    }\label{fig:speed}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{rate}
+    \caption{
+        The nondimensional cooling rate along the melt-pool boundary.
+        The values on the solidification part of the curves are limited as follows:
+        $\hat{\nabla}\hat{T}\cos\phi \leq 0.037$ for Levin's model,
+        $\hat{\nabla}\hat{T}\cos\phi \leq 0.0013$ for Rosenthal's model.
+    }\label{fig:rate}
 \end{figure}
 
 %%% Temperature gradients
@@ -264,6 +286,20 @@ The temperature gradient can be evaluated using the following formulas:
 Its magnitude along the melt-pool boundary is shown in Fig.~\ref{fig:gradient}.
 It can be seen that Rosenthal's model predicts a much smaller temperature gradient
 on the solidification section of the curve.
+
+%%% Cooling rate
+The solidification speed of the melt-pool boundary is equal to $v\cos\phi$ (see Fig.~\ref{fig:speed}),
+where $\phi$ is the angle between the velocity vector and temperature gradient:
+\begin{equation}\label{eq:phi}
+    \phi = \arctan\qty(\frac{\partial\hat{T}/\partial\hat{z}}{\partial\hat{T}/\partial\hat{x}}).
+\end{equation}
+It varies from $v$ at the left end to $-v$ at the right one.
+The negative values correspond to the fusion speed.
+The cooling rate of the melt-pool boundary
+\begin{equation}\label{eq:dotT}
+    \dot{T} = v\cos\phi\nabla T,
+\end{equation}
+which profile is shown in Fig.~\ref{fig:rate}.
 
 \printbibliography
 

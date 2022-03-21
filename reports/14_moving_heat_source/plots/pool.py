@@ -5,12 +5,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import root_scalar, root
 from scipy.special import erf
-from numpy import sqrt, exp, log
+from numpy import sqrt, exp, log, arctan2, cos, tan
 from functools import partial
 
 parser = argparse.ArgumentParser(description='Draw a solid--liquid interface of a melt pool')
 
-modes = { 'b': 'boundary', 'g': 'gradient' }
+modes = { 'b': 'boundary', 'g': 'gradient', 's': 'speed', 'r': 'rate' }
 class ParseMode(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
         setattr(namespace, self.dest, modes[values[0]])
@@ -21,6 +21,7 @@ parser.add_argument('mode', choices=[*modes.keys(), *modes.values()], action=Par
 parser.add_argument('-N', type=int, default=100, help='number of points along each axis')
 parser.add_argument('-T', '--Tratio', type=float, default=0.05, help='T_M/T_0')
 parser.add_argument('-s', '--figsize', type=str2pair, default='5:4', help='figure size')
+parser.add_argument('-a', '--arc', action='store_true', help='use the arc-length coordinate instead of x')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
 parser.add_argument('-d', '--debug', action='store_true', help='maximum information')
 parser.add_argument('-o', '--output', type=str, default='profiles.pdf', help='PDF filename')
@@ -91,21 +92,49 @@ if args.verbose and args.mode == modes['b']:
 
 for n, label in enumerate([ 'Levin 2008', 'Rosenthal 1946' ]):
     model = label.split(' ')[0]
+
+    # 1. Find the melt-pool boundary
     xmin = root_scalar(partial(_contour_eq(model), 0), bracket=[-large, -small]).root
     xmax = root_scalar(partial(_contour_eq(model), 0), bracket=[small, large]).root
     length = xmax - xmin
-    depth, xdepth = root(_depth_eq(model), [depthAtZeroX, 0], method='lm').x
+    xminmax = np.array([xmin, xmax])
     X = _mesh(xmin, xmax, logN+1, logN+1.5)
     R = np.array([ root_scalar(_contour_eq(model), args=x, bracket=[small, large]).root for x in X ])
-    minmax = np.array([xmin, xmax])
+
+    # 2. Find the deepest point
+    depth, xdepth = root(_depth_eq(model), [depthAtZeroX, 0], method='lm').x
+    sol, fus = X <= xdepth, X > xdepth
+
+    # 3. Find temperature gradient
+    gradT_depth = _gradT(model)(depth, xdepth)
+    gradT_minmax = _gradT(model)(np.zeros(2), xminmax)
+    GradT = _gradT(model)(R,X)
+
+    # 4. Find the normal speed of the melt-pool boundary
+    Phi = arctan2(ddr[model](R,X), ddx[model](R,X))
+    CosPhi = cos(arctan2(ddr[model](R,X), ddx[model](R,X)))
+    rate_minmax = np.array([1,-1])*gradT_minmax
+
+    # 5. Find the coordinate along the curve using the midpoint integration rule
+    DX = np.zeros_like(X)
+    DX[0], DX[-1] = X[0] - xmin, xmax - X[-1]
+    DX[1:-2] = (X[2:-1] - X[0:-3])/2
+    S = np.cumsum(sqrt(1 + 1/tan(Phi)**2)*DX)
+    arc_length = S[-1]
+    S /= arc_length
 
     ### Mode 1: Melt-pool boundary
     if args.mode == modes['b']:
         if args.verbose:
-            print(f'{label:>14s}: {xmin:.5g} < x < {xmax:.5g}, length = {length:.5g}, depth = {depth:.5g}')
+            print(f'{label:>14s}: {xmin:.5g} < x < {xmax:.5g}, length = {length:.5g}, '
+                + f'depth = {depth:.5g}, boundary length = {arc_length:.5}')
         plt.plot(X, -R, label=_latex(label))
-        plt.plot(minmax, np.zeros(2), **Style.point)
+        plt.plot(xminmax, np.zeros(2), **Style.point)
         plt.plot(xdepth, -depth, **Style.point)
+        plt.axvline(**Style.thin)
+        plt.axis('scaled')
+        plt.ylim(top=depth/4)
+        plt.ylabel(r'$\hat{z}$', rotation=0)
         if label.startswith('R'):
             plt.annotate('$\hat{x}_\mathrm{min}$', (xmin, 0), **Style.annotate)
             plt.annotate('$\hat{x}_\mathrm{max}$', (xmax, 0), **Style.annotate)
@@ -115,31 +144,59 @@ for n, label in enumerate([ 'Levin 2008', 'Rosenthal 1946' ]):
 
     ### Mode 2: Temperature gradient along the melt-pool boundary
     elif args.mode == modes['g']:
-        GradT = _gradT(model)(R,X)
-        gradTdepth = _gradT(model)(depth, xdepth)
-        sol, fus = X < xdepth, X > xdepth
-        X1, GradT1 = np.append(X[sol], xdepth), np.append(GradT[sol], gradTdepth)
-        X2, GradT2 = X[fus], GradT[fus]
-        plt.plot(X1, GradT1, label=_latex(label))
-        plt.plot(X2, GradT2, color=f'C{n}', linestyle='--')
-        plt.plot(minmax, _gradT(model)(np.zeros(2), minmax), **Style.point)
-        plt.plot(xdepth, gradTdepth, **Style.point)
+        GradT1, GradT2 = GradT[sol], GradT[fus]
         if args.verbose:
             print(f'{label:>14s}: temperature gradient at solidification: ' +
-                f'min = {np.min(GradT1):.5g}, max = {np.max(GradT1):.5g}' +
-                f' at fusion: min = {np.min(GradT2):.5g}, max = {np.max(GradT2):.5g}')
+                f'min = {np.min(GradT1):.5g}, max = {np.max(GradT1):.5g} at fusion: ' +
+                f'min = {np.min(GradT2):.5g}, max = {np.max(GradT2):.5g}')
+        if args.arc:
+            X1, X2 = S[sol], S[fus]
+            xminmax = [0,1]
+            xdepth = np.interp(xdepth, X, S)
+            for x in [0,1]:
+                plt.axvline(x=x, **Style.thin)
+        else:
+            X1, X2 = X[sol], X[fus]
+        plt.plot(xdepth, gradT_depth, **Style.point)
+        X1, GradT1 = np.append(X1, xdepth), np.append(GradT1, gradT_depth)
+        plt.plot(X1, GradT1, label=_latex(label))
+        plt.plot(X2, GradT2, color=f'C{n}', linestyle='--')
+        plt.plot(xminmax, gradT_minmax, **Style.point)
+        plt.ylabel(r'$\hat{\nabla}\hat{T}$', rotation=0, ha='right')
 
-if args.mode == modes['b']:
-    plt.axvline(x=0, **Style.thin)
-    plt.axis('scaled')
-    plt.ylim(top=depth/4)
-    plt.ylabel(r'$\hat{z}$', rotation=0)
-elif args.mode == modes['g']:
-    plt.ylabel(r'$\hat{\nabla}\hat{T}$', rotation=0, ha='right')
+    ### Mode 3: Speed of the melt-pool boundary (positive is for solidification)
+    elif args.mode == modes['s']:
+        for y in [-1,1]:
+            plt.axhline(y=y, **Style.thin)
+        if args.arc:
+            xminmax = [0,1]
+            xdepth = np.interp(xdepth, X, S)
+            X = S
+        plt.plot(X, CosPhi, label=_latex(label))
+        plt.plot(xdepth, 0, **Style.point)
+        plt.plot(xminmax, [1,-1], **Style.point)
+        plt.ylabel(r'$\cos\phi$', rotation=0, ha='right')
 
-plt.axhline(y=0, **Style.thin)
-plt.xlabel(r'$\hat{x}$')
+    ### Mode 4: Cooling/heating rate along the melt-pool boundary
+    elif args.mode == modes['r']:
+        if args.verbose:
+            print(f'{label:>14s}: cooling rate: max = {rate_minmax[0]:.5g}' +
+                f' heating rate: max = {-rate_minmax[1]:.5g}')
+        if args.arc:
+            xminmax = [0,1]
+            xdepth = np.interp(xdepth, X, S)
+            X = S
+        plt.plot(X, CosPhi*GradT, label=_latex(label))
+        plt.plot(xdepth, 0, **Style.point)
+        plt.plot(xminmax, rate_minmax, **Style.point)
+        plt.ylabel(r'$\hat{\nabla}\hat{T}\cos\phi$', rotation=0, ha='right')
+
+plt.axhline(**Style.thin)
 plt.legend()
+if args.arc and args.mode != modes['b']:
+    plt.xlabel(r'$s$')
+else:
+    plt.xlabel(r'$\hat{x}$')
 
 if args.xrange:
     plt.xlim(args.xrange)
