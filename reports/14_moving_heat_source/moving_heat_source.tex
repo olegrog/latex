@@ -21,7 +21,7 @@
 
 \usepackage[
     backend=biber,
-    style=authoryear,
+    style=numeric,
     autolang=other,
     sorting=none,
     mincrossrefs=100, % do not add parent collections
@@ -31,6 +31,11 @@
 \title{A moving point heat source}
 \author{Oleg Rogozin}
 
+%%% Problem-specific aliases
+\newcommand{\liq}{\text{L}}
+\newcommand{\sol}{\text{S}}
+
+%%% Bold symbols
 \newcommand{\bx}{\vb*{x}}
 
 \begin{document}
@@ -51,14 +56,19 @@ $P$ is the heat source power (\si{\W}),
 and $\delta$ is the Dirac delta function (\si{\per\m\cubed}).
 
 %%% Solutions
-The quasi-steady-state solution of~\eqref{eq:heat} with the boundary conditions
+For the natural boundary conditions
 \begin{equation}\label{eq:bc}
     \begin{cases}
         T\to0 \text{ as } |\bx|\to\infty & \text{if } z>0, \\
         \pdv{T}{z}=0 & \text{if } z=0,
     \end{cases}
 \end{equation}
-has the form~\autocite{levin2008general}
+the well-known solution
+\begin{equation}\label{eq:TR}
+    T_R = \frac{P}{4\pi kr}\exp(-\frac{v(x+r)}{2a}),
+\end{equation}
+where $r = |\bx|$, is due to~\textcite{rosenthal1946theory}, but it decays too slowly as $x\to-\infty$.
+\textcite{levin2008general} eliminated this drawback and found an alternative solution
 \begin{equation}\label{eq:TL}
     T_L = \frac{Pv(1-\xi)}{4\pi ka}\qty( \frac1{\sqrt{\xi^2 +\rho^2}} - \frac1{\sqrt{(2-\xi)^2 +\rho^2}} ),
 \end{equation}
@@ -67,11 +77,6 @@ where the following coordinates are introduced:
     \xi = 1 - \exp(-\frac{v}{a}x), \quad
     \rho = \frac{v}{a}\exp(-\frac{v}{a}x)\sqrt{y^2 + z^2}.
 \end{equation}
-The alternative solution
-\begin{equation}\label{eq:TR}
-    T_R = \frac{P}{4\pi kr}\exp(-\frac{v(x+r)}{2a}),
-\end{equation}
-where $r = |\bx|$, is due to~\textcite{rosenthal1946theory}, but it decays too slowly as $x\to-\infty$.
 
 %%% Nondimensionalization
 The characteristic temperature and length are
@@ -82,10 +87,10 @@ In the nondimensional variables given by $\hat{T} = T/T_0$ and $\hat{\bx} = \bx/
 \begin{equation}\label{eq:xi-rho}
     \xi = 1 - \exp(-\hat{x}), \quad \rho = \exp(-\hat{x})\sqrt{\hat{y}^2 + \hat{z}^2},
 \end{equation}
-and solutions~\eqref{eq:TL},~\eqref{eq:TR} take the form
+and solutions~\eqref{eq:TR},~\eqref{eq:TL} take the form
 \begin{gather}
-    \hat{T}_L = (1-\xi)\qty( \frac1{\sqrt{\xi^2 +\rho^2}} - \frac1{\sqrt{(2-\xi)^2 +\rho^2}} ), \label{eq:hatTL}\\
-    \hat{T}_R = \frac1{\hat{r}}\exp(-\frac{\hat{x}+\hat{r}}2). \label{eq:hatTR}
+    \hat{T}_R = \frac1{\hat{r}}\exp(-\frac{\hat{x}+\hat{r}}2), \label{eq:hatTR}\\
+    \hat{T}_L = (1-\xi)\qty( \frac1{\sqrt{\xi^2 +\rho^2}} - \frac1{\sqrt{(2-\xi)^2 +\rho^2}} ). \label{eq:hatTL}
 \end{gather}
 They are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
 
@@ -100,14 +105,14 @@ They are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
         set xlabel '$\hat{x}$'
         set ylabel '$\hat{T}$' rotate by 0
         xi(x) = 1 - exp(-x)
-        plot (1-xi(x))*(1/abs(xi(x)) - 1/(2-xi(x))) \
-                title '$\hat{T}_L = (1-\xi)(|\xi|^{-1}-(2-\xi)^{-1})$ \autocite{levin2008general}', \
-            exp(-(abs(x)+x)/2)/abs(x) \
-                title '$\hat{T}_R = \exp(-(|x|+x)/2)/|x|$ \autocite{rosenthal1946theory}'
+        plot exp(-(abs(x)+x)/2)/abs(x) \
+                title '$\hat{T}_R = \exp(-(|x|+x)/2)/|x|$ \textcite{rosenthal1946theory}', \
+            (1-xi(x))*(1/abs(xi(x)) - 1/(2-xi(x))) \
+                title '$\hat{T}_L = (1-\xi)(|\xi|^{-1}-(2-\xi)^{-1})$ \textcite{levin2008general}'
     \end{gnuplot}
     \vspace{-10pt}
     \caption{
-        Solutions~\eqref{eq:hatTL} and~\eqref{eq:hatTR} at $y=z=0$.
+        Solutions~\eqref{eq:hatTR} and~\eqref{eq:hatTL} at $y=z=0$.
     }
     \label{fig:solutions_x}
 \end{figure}
@@ -122,14 +127,14 @@ They are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
         set key center top spacing 1.5 outside
         set xlabel '$\hat{z}$'
         set ylabel '$\hat{T}$' rotate by 0
-        plot 1/x - 1/sqrt(4+x**2) \
-                title '$\hat{T}_L = 1/\rho - 1/\sqrt{4+\rho^2}$ \autocite{levin2008general}', \
-            exp(-x/2)/x \
-                title '$\hat{T}_R = \exp(-r/2)/r$ \autocite{rosenthal1946theory}'
+        plot exp(-x/2)/x \
+                title '$\hat{T}_R = \exp(-r/2)/r$ \textcite{rosenthal1946theory}', \
+            1/x - 1/sqrt(4+x**2) \
+                title '$\hat{T}_L = 1/\rho - 1/\sqrt{4+\rho^2}$ \textcite{levin2008general}'
     \end{gnuplot}
     \vspace{-10pt}
     \caption{
-        Solutions~\eqref{eq:hatTL} and~\eqref{eq:hatTR} at $x=0$.
+        Solutions~\eqref{eq:hatTR} and~\eqref{eq:hatTL} at $x=0$.
     }
     \label{fig:solutions_r}
 \end{figure}
@@ -142,20 +147,20 @@ They are shown in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r}.
     \caption{
         The melt-pool boundary obtained as the temperature contour line for $\hat{T}=T_M/T_0=0.0378$,
         where $T_M$ and $T_0$ are taken from Table~\ref{table:parameters}.
-        Solutions~\eqref{eq:hatTL} and~\eqref{eq:hatTR} are shown.
+        Solutions~\eqref{eq:hatTR} and~\eqref{eq:hatTL} are shown.
         The dimensions of the melt pool are as follows:
-        $\hat{l} = 6.0$ and $\hat{d} = 4.5$ for Levin's model,
-        $\hat{l} = 29$ and $\hat{d} = 6.0$ for Rosenthal's model,
+        $\hat{l} = 28.9$ and $\hat{d} = 5.96$ for Rosenthal's solution,
+        $\hat{l} = 5.96$ and $\hat{d} = 4.46$ for Levin's solution,
         where $\hat{l} = \hat{x}_\text{max} - \hat{x}_\text{min}$ is the length and $\hat{d}$ is the depth.
     }\label{fig:boundary}
 \end{figure}
 
 %%% Melt-pool boundary
-Despite the fact that the difference between the two solutions seems small
+Although the difference between the two solutions seems small
 in Figs.~\ref{fig:solutions_x} and~\ref{fig:solutions_r},
 the predicted melt-pool boundaries differ considerably as seen in Fig.~\ref{fig:boundary}.
-The parameters of the material and process are presented in Table~\ref{table:parameters}.
-The actual shape of the melt pool under the specified conditions is closer to that
+The parameters of the material and process are specified in Table~\ref{table:parameters}.
+The actual shape of the melt pool under the considered conditions is closer to that
 given by Levin's solution~\eqref{eq:hatTL}.
 
 \begin{table}
@@ -164,9 +169,10 @@ given by Levin's solution~\eqref{eq:hatTL}.
     \caption{
         Dimensional parameters taken as typical values for stainless steel 316L printed on Trumpf TruPrint 1000
         and estimations based on them.
+        The tabular values are taken from~\cite{kim1975thermophysical,pichler2020measurements}.
     }
     %\footnotesize
-    \sisetup{per-mode=repeated-symbol}
+    \sisetup{per-mode=symbol}
     \label{table:parameters}
     \begin{tabular}{lccccc}
         \hline\noalign{\smallskip}
@@ -186,17 +192,18 @@ given by Levin's solution~\eqref{eq:hatTL}.
         Reference length & $L$ & \num{7.46} & \si{\um} & \\[2pt]
         \hline\noalign{\smallskip}
         \multirow{2}*{Melt-pool depth} & \multirow{2}*{$d$} & \num{28.0} & \multirow{2}*{\si{\um}} & Eq.~\eqref{eq:depth} \\
-        & & \num{33.6} & & Fig.~\ref{fig:boundary} \\[2pt]
+        & & \num{33.6} & & Fig.~\ref{fig:boundary}\tnotex{b} \\[2pt]
         \multirow{2}*{Melt-pool length} & \multirow{2}*{$l$} & \num{44.4} & \multirow{2}*{\si{\um}} & Eq.~\eqref{eq:length} \\
-        & & \num{44.7} & & Fig.~\ref{fig:boundary} \\[2pt]
+        & & \num{44.7} & & Fig.~\ref{fig:boundary}\tnotex{b} \\[2pt]
         \multirow{3}*{Temperature gradient} & \multirow{3}*{$\nabla T$} & \num{41.6} & \multirow{3}*{\si{\K\per\um}} & $=(T_B-T_M)/d$ \\
-        & & \num{94.7} & & $\min(\nabla T)$ in Fig.~\ref{fig:gradient} \\
-        & & \num{400} & & $\max(\nabla T)$ in Fig.~\ref{fig:gradient} \\[2pt]
-        Cooling rate & $\dot{T}$ & \num{155} & \si{\K\per\us} & $\max(\dot{T})$ in Fig.~\ref{fig:rate} \\[2pt]
+        & & \num{94.7} & & $\min(\nabla T)$ in Fig.~\ref{fig:gradient}\tnotex{b} \\
+        & & \num{400} & & $\max(\nabla T)$ in Fig.~\ref{fig:gradient}\tnotex{b} \\[2pt]
+        Cooling rate & $\dot{T}$ & \num{155} & \si{\K\per\us} & $\max(\dot{T})$ in Fig.~\ref{fig:rate}\tnotex{b} \\[2pt]
         \hline
     \end{tabular}
     \begin{tablenotes}
         \item[a]\label{a} Values are taken as half-sums of the solidus and liquidus values.
+        \item[b]\label{b} Estimations are based on Levin's solution.
     \end{tablenotes}
     \end{threeparttable}
 \end{table}
@@ -238,16 +245,16 @@ mostly because the deepest point does not lie on the $x$ axis.
     \centering
     \includegraphics[width=\textwidth]{gradient}
     \caption{
-        The temperature gradient along the melt-pool boundary for $\hat{T}=T_M/T_0=0.0378$,
+        Nondimensional temperature gradient along the melt-pool boundary for $\hat{T}=T_M/T_0=0.0378$,
         where $T_M$ and $T_0$ are taken from Table~\ref{table:parameters}.
-        Solutions~\eqref{eq:hatTL} and~\eqref{eq:hatTR} are shown.
+        Solutions~\eqref{eq:hatTR} and~\eqref{eq:hatTL} are shown.
         The coordinates $s=0$ and $s=1$ correspond to points $\hat{x}_\text{min}$ and $\hat{x}_\text{max}$, respectively.
         The middle black points are the deepest points of the melt pool and divide the profiles into two parts,
         where solidification (solid line) and fusion (dashed line) occur.
         The values on the solidification part of the curves vary in the following ranges:
-        $0.016 \leq \hat{\nabla}\hat{T} \leq 0.067$ for Levin's model,
-        $0.0014 \leq \hat{\nabla}\hat{T} \leq 0.011$ for Rosenthal's model,
-        where $\hat{\nabla}\hat{T} = ((\partial\hat{T}/\partial\hat{x})^2 + (\partial\hat{T}/\partial\hat{z})^2)^{1/2}$.
+        $0.00143 \leq \hat{\nabla}\hat{T} \leq 0.0113$ for Rosenthal's solution,
+        $0.0168 \leq \hat{\nabla}\hat{T} \leq 0.068$ for Levin's solution,
+        and $\hat{\nabla}\hat{T} = ((\partial\hat{T}/\partial\hat{x})^2 + (\partial\hat{T}/\partial\hat{z})^2)^{1/2}$.
     }\label{fig:gradient}
 \end{figure}
 
@@ -255,8 +262,8 @@ mostly because the deepest point does not lie on the $x$ axis.
     \centering
     \includegraphics[width=\textwidth]{speed}
     \caption{
-        The nondimensional solidification speed along the melt-pool boundary.
-        Solidification occurs at positive values.
+        Nondimensional growth rate along the melt-pool boundary.
+        Solidification occurs at positive values of $\cos\phi$.
     }\label{fig:speed}
 \end{figure}
 
@@ -264,42 +271,126 @@ mostly because the deepest point does not lie on the $x$ axis.
     \centering
     \includegraphics[width=\textwidth]{rate}
     \caption{
-        The nondimensional cooling rate along the melt-pool boundary.
-        The values on the solidification part of the curves are limited as follows:
-        $\hat{\nabla}\hat{T}\cos\phi \leq 0.037$ for Levin's model,
-        $\hat{\nabla}\hat{T}\cos\phi \leq 0.0013$ for Rosenthal's model.
+        Nondimensional cooling rate along the melt-pool boundary.
+        The values are limited as follows:
+        $-0.054\leq \cos\phi\hat{\nabla}\hat{T} \leq 0.00143$ for Rosenthal's solution,
+        $-0.077\leq \cos\phi\hat{\nabla}\hat{T} \leq 0.038$ for Levin's solution,
+        where the negative values correspond to the heating rate at the fusion line.
     }\label{fig:rate}
 \end{figure}
 
 %%% Temperature gradients
 The temperature gradient can be evaluated using the following formulas:
 \begin{gather}
-    \pdv{\hat{T}_L}{\hat{x}} =
-        (1-\xi)\qty( \frac{2-\xi}{((2-\xi)^2 + \rho^2)^{3/2}} - \frac{\xi}{(\xi^2 + \rho^2)^{3/2}} ), \label{eq:dTLdx}\\
-    \pdv{\hat{T}_L}{\hat{z}} =
-        \rho(1-\xi)^2\qty( \frac1{((2-\xi)^2 + \rho^2)^{3/2}} - \frac1{(\xi^2 + \rho^2)^{3/2}} ), \label{eq:dTLdz}\\
     \pdv{\hat{T}_R}{\hat{x}} =
         -\hat{T}_R\qty( \frac{\hat{x}}{\hat{r}^2} + \frac12\qty(1 + \frac{\hat{x}}{\hat{r}}) ), \label{eq:dTRdx}\\
     \pdv{\hat{T}_R}{\hat{x}} =
-        -\hat{T}_R\frac{\hat{x}}{\hat{r}}\qty( \frac1{\hat{r}} + \frac12 ). \label{eq:dTRdz}
+        -\hat{T}_R\frac{\hat{x}}{\hat{r}}\qty( \frac1{\hat{r}} + \frac12 ), \label{eq:dTRdz}\\
+    \pdv{\hat{T}_L}{\hat{x}} =
+        (1-\xi)\qty( \frac{2-\xi}{((2-\xi)^2 + \rho^2)^{3/2}} - \frac{\xi}{(\xi^2 + \rho^2)^{3/2}} ), \label{eq:dTLdx}\\
+    \pdv{\hat{T}_L}{\hat{z}} =
+        \rho(1-\xi)^2\qty( \frac1{((2-\xi)^2 + \rho^2)^{3/2}} - \frac1{(\xi^2 + \rho^2)^{3/2}} ). \label{eq:dTLdz}
 \end{gather}
-Its magnitude along the melt-pool boundary is shown in Fig.~\ref{fig:gradient}.
-It can be seen that Rosenthal's model predicts a much smaller temperature gradient
-on the solidification section of the curve.
-
-%%% Cooling rate
-The solidification speed of the melt-pool boundary is equal to $v\cos\phi$ (see Fig.~\ref{fig:speed}),
-where $\phi$ is the angle between the velocity vector and temperature gradient:
+Its magnitude along the melt-pool boundary is shown in Fig.~\ref{fig:gradient},
+where $s$ in the normalized arc-length coordinate defined as
+\begin{equation}\label{eq:s}
+    s(\hat{x}) = \frac1{s_0}\int_{\hat{x}_\text{min}}^{\hat{x}}\sqrt{1+\tan^{-1}\phi}\dd{x}',
+        \quad s_0 = s(\hat{x}_\text{max}),
+\end{equation}
+and $\phi$ is the angle between the velocity vector and temperature gradient, i.e.,
 \begin{equation}\label{eq:phi}
     \phi = \arctan\qty(\frac{\partial\hat{T}/\partial\hat{z}}{\partial\hat{T}/\partial\hat{x}}).
 \end{equation}
-It varies from $v$ at the left end to $-v$ at the right one.
+It can be seen that Rosenthal's solution predicts a much smaller temperature gradient
+on the solidification section of the curve.
+
+%%% Growth and cooling rate
+The growth rate at the melt-pool boundary is equal to $v\cos\phi$.
+It varies from $v$ at the left end to $-v$ at the right one as seen in Fig.~\ref{fig:speed}.
 The negative values correspond to the fusion speed.
 The cooling rate of the melt-pool boundary
 \begin{equation}\label{eq:dotT}
     \dot{T} = v\cos\phi\nabla T,
 \end{equation}
 which profile is shown in Fig.~\ref{fig:rate}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{bifurcation}
+    \caption{
+        The bifurcation diagram for the linear stability of a planar solidification front
+        in the dimensionless $(\hat{V},\hat{G})$ coordinates for the binary mixture
+        with properties specified in Table~\ref{table:microstructure}.
+        The temperature gradient and growth rate profiles along the melt-pool boundary,
+        which are shown in Figs.~\ref{fig:gradient} and~\ref{fig:speed}, are projected on the diagram.
+        The segments of the curves lying inside the hatched region of instability correspond to the case
+        of microstructure formation. In the stability region, solidification proceeds homogeneously.
+        Thin dashed lines correspond to the constitutional supercooling ($\hat{G} = \hat{V}$)
+        and absolute stability ($\hat{V} = 1/K$) limits.
+    }\label{fig:bifurcation}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{wavelength}
+    \caption{
+        The nondimensional wavelength $\hat\lambda=\lambda/d_0$ predicted by the linear stability theory
+        along the solidification part of the melt-pool boundary.
+        The values are in the following ranges:
+        $17.8\leq \hat\lambda \leq 103.5$ for Rosenthal's solution,
+        $0\leq \hat\lambda \leq 33.8$ for Levin's solution.
+        Zero values correspond to a stable planar solidification front.
+    }\label{fig:wavelength}
+\end{figure}
+
+\begin{table}
+    \centering
+    \caption{
+        Parameters of stainless steel 316L used for microstructure predictions.
+        The estimations of $\lambda$ are based on Levin's solution.
+    }
+    %\footnotesize
+    \sisetup{per-mode=symbol}
+    \label{table:microstructure}
+    \begin{tabular}{lccccc}
+        \hline\noalign{\smallskip}
+        Quantity & Symbol & Value & Unit & Formula/Reference \\[2pt]
+        \hline\noalign{\smallskip}
+        Enthalpy of fusion & $H$ & \num{290} & \si{\kJ\per\kg} & \cite{pichler2020measurements} \\
+        Freezing range & $\Delta{T}_0$ & \num{33.0} & \si{\K} & \cite{pichler2020measurements} \\
+        Surface energy & $\sigma$ & \num{0.26} & \si{\J\per\m\squared} & \cite{bobadilla1988influence} \\
+        Solute diffusion in liquid & $D_\liq$ & \num{2e-9} & \si{\m\squared\per\s} & --- \\
+        Partition coefficient & $K$ & \num{0.4} & --- & --- \\[2pt]
+        \hline\noalign{\smallskip}
+        Gibbs--Thomson coefficient & $\Gamma$ & \num{21.3} & \si{\K\um} & $=\sigma T_M/(\rho H)$ \\
+        Capillary length & $d_0$ & \num{6.45} & \si{\nm} & $=\Gamma/\Delta{T}_0$ \\[2pt]
+        \multirow{2}*{Coupling coefficients} & $\alpha_V$ & \num{2.26} & \multirow{2}*{---} & \multirow{2}*{Eq.~\eqref{eq:alphaVG}} \\
+        & $\alpha_G$ & \num{1.17} & & \\[2pt]
+        \hline\noalign{\smallskip}
+        \multirow{2}*{Most unstable wavelength} & \multirow{2}*{$\lambda$} & \num{0} & \multirow{2}*{\si{\um}} & $\min(\lambda)$ in Fig.~\ref{fig:wavelength} \\
+        & & \num{0.22} & & $\max(\lambda)$ in Fig.~\ref{fig:wavelength} \\[2pt]
+        \hline
+    \end{tabular}
+\end{table}
+
+%%% Microstructure predictions
+Based on the obtained profiles of temperature gradient and cooling rate,
+one can predict some properties of the microstructure in the solidified material.
+In particular, the analysis of the linear stability of a flat solidification front allows us
+to determine the conditions under which a cellular structure forms and to estimate the resulting cell spacing.
+Such conditions and estimations based on the binary-mixture assumption are presented
+in Figs.~\ref{fig:bifurcation} and~\ref{fig:wavelength}, where
+\begin{equation}\label{eq:hatVG}
+    \hat{V} = \alpha_V\cos\phi, \quad \hat{G} = \alpha_G\nabla{T},
+\end{equation}
+and
+\begin{equation}\label{eq:alphaVG}
+    \alpha_V = \frac{vd_0}{D_\liq}, \quad \alpha_G = \frac{d_0T_0}{L\Delta{T}_0}
+\end{equation}
+are the dimensionless coupling coefficients.
+Here, $d_0$ is the capillary length (\si{\m}),
+$D_\liq$ is the solute diffusion coefficient in liquid (\si{\m\squared\per\s}),
+and $\Delta{T}_0$ is the freezing range of the alloy (\si{\K}).
 
 \printbibliography
 

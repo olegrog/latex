@@ -7,6 +7,7 @@ from scipy.optimize import root_scalar, root
 from scipy.special import erf
 from numpy import pi, sqrt, real, imag
 from functools import partial
+from collections import defaultdict
 from termcolor import colored
 
 parser = argparse.ArgumentParser(
@@ -33,6 +34,7 @@ parser.add_argument('-l', '--log', action='store_true', help='use log scale for 
 parser.add_argument('-w', '--wavelength', action='store_true', help='use wavelength instead of wavenumber')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
 parser.add_argument('-d', '--debug', action='store_true', help='maximum information')
+parser.add_argument('--stdin', action='store_true', help='read bunch of (G,V) pairs from stdin')
 parser.add_argument('-o', '--output', type=str, default=None, help='PDF filename')
 parser.add_argument('--xrange', type=str2pair, default=None, help='range of values along x-axis')
 parser.add_argument('--yrange', type=str2pair, default=None, help='range of values along y-axis')
@@ -87,6 +89,7 @@ _G_kv = lambda k,v: _G(_calG_kv(k,v), v)
 _V_bif_eq = lambda v,k: v - _K(v)/_denom(k,v)**2*(
     (_s(k)+1)/(2*_l(k)-1) - args.Dratio**2*(_l(k)-1)/(2*_s(k)+1) )
 _V_bif = np.vectorize(lambda k: root_scalar(_V_bif_eq, args=k, bracket=[0, Vmax]).root + small)
+_Vmin = lambda G: 2*G*(1 + etaK)/(args.kratio + 1)
 
 ### The 2D equation for finding the most unstable wavenumber
 __f = lambda a,k,g,v: a + _K(v)*(_S(a,k)+1) - (_calG(g,v) - v*k**2)*(
@@ -163,6 +166,32 @@ if args.verbose:
     print(f'Vmax = {Vmax:.5g} at G = 0 and k -> 0')
     print(f'Gmax = {Gmax:.5g} at V = {v_star:.5g} and k = {k_star:.5g}')
 
+
+### Dump stability results for given pairs of (V,G) reading from stdin
+if args.stdin:
+    Vs, Gs, Ks = defaultdict(list), defaultdict(list), defaultdict(list)
+    for line in sys.stdin:
+        v,g,label = line.rstrip('\n').split(':')
+        g,v = [ float(f) for f in (g,v) ]
+        if v > Vmax:
+            k_max, status = np.infty, 'absolute_stability'
+        elif v < _Vmin(g):
+            k_max, status = np.infty, 'constitutional_supercooling'
+        elif g > Gmax:
+            k_max, status = np.infty, 'too_large_gradient'
+        else:
+            _k0 = lambda g,v: sqrt(max(0, _calG(g,v)*(1+etaK) - etaK)/v/(1+etaK))
+            k0 = _k0(g,v)
+            a0 = -__f(0,k0,g,v)
+            res = root(lambda x: _most_eq(*x,g,v), [a0,k0], method='lm')
+            if not res.success:
+                k_max, status = np.infty, 'failed'
+            else:
+                a_max, k_max = res.x
+                k_max, status = np.abs(k_max), f'a={a_max}'
+        Vs[label].append(v); Gs[label].append(g); Ks[label].append(k_max)
+        print(f'{k2k(k_max,v)}:{status}', flush=True)
+
 ### Mode 1: Bifurcation diagram in the (V,G) coordinates
 ### Stable region corresponds to the MS stability for any wave numbers
 if args.mode == modes['b']:
@@ -194,7 +223,6 @@ if args.mode == modes['b']:
         else:
             axs[0].semilogx(); ax.semilogx()
 
-
         if args.asymptotics:
             K1, K2 = np.split(K, 2)
             V1, V2 = np.split(V, 2)
@@ -207,6 +235,11 @@ if args.mode == modes['b']:
     ax = axs[1] if args.verbose else plt
     ax.plot(V, G)
     ax.fill_between(V, np.min(G) + 0*G, G, **Style.unstable)
+
+    if args.stdin:
+        for label in Ks:
+            ax.plot(Vs[label], Gs[label], label=label)
+
     ax.legend()
     ax.plot(v_star, Gmax, **Style.point)
     ax.annotate(r'$\hat{G}_\mathrm{max}$', (v_star, Gmax), **Style.annotate)

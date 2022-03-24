@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, argparse, matplotlib
+import sys, subprocess, argparse, matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import root_scalar, root
@@ -10,7 +10,7 @@ from functools import partial
 
 parser = argparse.ArgumentParser(description='Draw a solid--liquid interface of a melt pool')
 
-modes = { 'b': 'boundary', 'g': 'gradient', 's': 'speed', 'r': 'rate' }
+modes = { 'b': 'boundary', 'g': 'gradient', 's': 'speed', 'r': 'rate', 'w': 'wavelength' }
 class ParseMode(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
         setattr(namespace, self.dest, modes[values[0]])
@@ -20,6 +20,8 @@ str2pair = lambda s: [float(item) for item in s.split(':')]
 parser.add_argument('mode', choices=[*modes.keys(), *modes.values()], action=ParseMode, help='Execution mode')
 parser.add_argument('-N', type=int, default=100, help='number of points along each axis')
 parser.add_argument('-T', '--Tratio', type=float, default=0.05, help='T_M/T_0')
+parser.add_argument('--micro-coeffs', type=str2pair, default='1:1', help='V/cosPhi and G/gradT')
+parser.add_argument('-K', type=float, default=0.5, help='partition coefficient')
 parser.add_argument('-s', '--figsize', type=str2pair, default='5:4', help='figure size')
 parser.add_argument('-a', '--arc', action='store_true', help='use the arc-length coordinate instead of x')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
@@ -60,18 +62,18 @@ _mesh = lambda a, b, va, vb: (erf(np.linspace(-va, vb, args.N)) + 1)*(b-a)/2 + a
 _latex = lambda text: r'$\mathrm{' + text.replace(' ', r'\ ') + r'}$'
 
 func = {
-    'Levin': lambda r,x: (1-_xi(x))*(1/_norm(_xi(x), _rho(r,x)) - 1/_norm(2-_xi(x), _rho(r,x))),
-    'Rosenthal': lambda r,x: exp(-(x+_norm(r,x))/2)/_norm(r,x)
+    'Rosenthal': lambda r,x: exp(-(x+_norm(r,x))/2)/_norm(r,x),
+    'Levin': lambda r,x: (1-_xi(x))*(1/_norm(_xi(x), _rho(r,x)) - 1/_norm(2-_xi(x), _rho(r,x)))
 }
 
 ddx = {
-    'Levin': lambda r,x: (1-_xi(x))*((2-_xi(x))/_norm(2-_xi(x), _rho(r,x))**3 - _xi(x)/_norm(_xi(x), _rho(r,x))**3),
-    'Rosenthal': lambda r,x: -exp(-(x+_norm(r,x))/2)*(x/_norm(r,x)**3 + (1 + x/_norm(r,x))/2/_norm(r,x))
+    'Rosenthal': lambda r,x: -exp(-(x+_norm(r,x))/2)*(x/_norm(r,x)**3 + (1 + x/_norm(r,x))/2/_norm(r,x)),
+    'Levin': lambda r,x: (1-_xi(x))*((2-_xi(x))/_norm(2-_xi(x), _rho(r,x))**3 - _xi(x)/_norm(_xi(x), _rho(r,x))**3)
 }
 
 ddr = {
-    'Levin': lambda r,x: _rho(r,x)*(1-_xi(x))**2*(1/_norm(2-_xi(x), _rho(r,x))**3 - 1/_norm(_xi(x), _rho(r,x))**3),
-    'Rosenthal': lambda r,x: -exp(-(x+_norm(r,x))/2)*r/_norm(r,x)**2*(1/_norm(r,x) + 1/2)
+    'Rosenthal': lambda r,x: -exp(-(x+_norm(r,x))/2)*r/_norm(r,x)**2*(1/_norm(r,x) + 1/2),
+    'Levin': lambda r,x: _rho(r,x)*(1-_xi(x))**2*(1/_norm(2-_xi(x), _rho(r,x))**3 - 1/_norm(_xi(x), _rho(r,x))**3)
 }
 
 if args.debug:
@@ -90,7 +92,14 @@ lengthApprox = 1.5*log(2/args.Tratio)
 if args.verbose and args.mode == modes['b']:
     print(f'First estimation: length = {lengthApprox:.5g}, depth = {depthAtZeroX:.5g}')
 
-for n, label in enumerate([ 'Levin 2008', 'Rosenthal 1946' ]):
+if args.mode == modes['w']:
+    cmd = f'../../16_directional_solidification/plots/binary.py b -a --stdin -w -K={args.K} -l'
+    if args.pdf:
+        cmd += ' --pdf'
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+        shell=True, text=True, bufsize=0)
+
+for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
     model = label.split(' ')[0]
 
     # 1. Find the melt-pool boundary
@@ -189,7 +198,31 @@ for n, label in enumerate([ 'Levin 2008', 'Rosenthal 1946' ]):
         plt.plot(X, CosPhi*GradT, label=_latex(label))
         plt.plot(xdepth, 0, **Style.point)
         plt.plot(xminmax, rate_minmax, **Style.point)
-        plt.ylabel(r'$\hat{\nabla}\hat{T}\cos\phi$', rotation=0, ha='right')
+        plt.ylabel(r'$\cos\phi\hat{\nabla}\hat{T}$', rotation=0, ha='right')
+
+    ### Mode 5: The most unstable wavelength from the linear stability theory
+    elif args.mode == modes['w']:
+        Wavelength = []
+        for cosPhi, gradT in zip(CosPhi[sol], GradT[sol]):
+            v, g = cosPhi*args.micro_coeffs[0], gradT*args.micro_coeffs[1]
+            p.stdin.write(f'{v}:{g}:{_latex(label)}\n')
+            wavelength, status = p.stdout.readline().rstrip('\n').split(':')
+            a = float(status.split('=')[1]) if status.startswith('a=') else -1
+            if a <= 0:
+                wavelength = 0
+            Wavelength.append(float(wavelength))
+        if args.verbose:
+            print(f'{label:>14s}: wavelength: ' +
+                f'min = {np.min(Wavelength):.5g}, max = {np.max(Wavelength):.5g}')
+        if args.arc:
+            xminmax = [0,1]
+            xdepth = np.interp(xdepth, X, S)
+            X = S
+        plt.plot(X[sol], Wavelength, label=_latex(label))
+        plt.ylabel(r'$\hat{\lambda}$', rotation=0, ha='right')
+
+if args.mode == modes['w']:
+    p.stdin.close()
 
 plt.axhline(**Style.thin)
 plt.legend()
