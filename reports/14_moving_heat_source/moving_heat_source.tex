@@ -336,9 +336,10 @@ which profile is shown in Fig.~\ref{fig:rate}.
     \caption{
         The nondimensional wavelength $\hat\lambda=\lambda/d_0$ predicted by the linear stability theory
         along the solidification part of the melt-pool boundary.
-        The values are in the following ranges:
-        $17.8\leq \hat\lambda \leq 103.5$ for Rosenthal's solution,
-        $0\leq \hat\lambda \leq 33.8$ for Levin's solution.
+        The maximum and average values are as follows:
+        $\hat\lambda \leq 152$ and $\ev*{\hat\lambda} = 25.1$ for Rosenthal's solution,
+        $\hat\lambda \leq 114$ and $\ev*{\hat\lambda} = 17.8$ for Levin's solution.
+        The dashed lines are drawn at the average value.
         Zero values correspond to a stable planar solidification front.
     }\label{fig:wavelength}
 \end{figure}
@@ -367,8 +368,8 @@ which profile is shown in Fig.~\ref{fig:rate}.
         \multirow{2}*{Coupling coefficients} & $\alpha_V$ & \num{2.26} & \multirow{2}*{---} & \multirow{2}*{Eq.~\eqref{eq:alphaVG}} \\
         & $\alpha_G$ & \num{1.17} & & \\[2pt]
         \hline\noalign{\smallskip}
-        \multirow{2}*{Most unstable wavelength} & \multirow{2}*{$\lambda$} & \num{0} & \multirow{2}*{\si{\um}} & $\min(\lambda)$ in Fig.~\ref{fig:wavelength} \\
-        & & \num{0.22} & & $\max(\lambda)$ in Fig.~\ref{fig:wavelength} \\[2pt]
+        \multirow{2}*{Most unstable wavelength} & \multirow{2}*{$\lambda$} & \num{0.115} & \multirow{2}*{\si{\um}} & $\ev*{\hat\lambda}$ from Eq.~\eqref{eq:mean_wavelength} \\
+        & & \num{0.74} & & $\max(\lambda)$ in Fig.~\ref{fig:wavelength} \\[2pt]
         \hline
     \end{tabular}
 \end{table}
@@ -391,6 +392,11 @@ are the dimensionless coupling coefficients.
 Here, $d_0$ is the capillary length (\si{\m}),
 $D_\liq$ is the solute diffusion coefficient in liquid (\si{\m\squared\per\s}),
 and $\Delta{T}_0$ is the freezing range of the alloy (\si{\K}).
+The average wavelength at the solidification front presented in Table~\ref{table:microstructure}
+is calculated as a weighted mean
+\begin{equation}\label{eq:mean_wavelength}
+    \ev*{\hat\lambda} = \frac{\int_{\lambda>0}\hat\lambda\cos\phi\dd{s}}{\int_{\lambda>0}\cos\phi\dd{s}}.
+\end{equation}
 
 \printbibliography
 

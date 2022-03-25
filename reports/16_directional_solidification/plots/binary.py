@@ -239,6 +239,10 @@ if args.mode == modes['b']:
     if args.stdin:
         for label in Ks:
             ax.plot(Vs[label], Gs[label], label=label)
+        if args.verbose:
+            ax.set_xlim(left=V[-1])
+        else:
+            ax.xlim(left=V[-1])
 
     ax.legend()
     ax.plot(v_star, Gmax, **Style.point)

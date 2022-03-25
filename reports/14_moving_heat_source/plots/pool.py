@@ -76,6 +76,15 @@ ddr = {
     'Levin': lambda r,x: _rho(r,x)*(1-_xi(x))**2*(1/_norm(2-_xi(x), _rho(r,x))**3 - 1/_norm(_xi(x), _rho(r,x))**3)
 }
 
+def update_coords(vlines=[0,1]):
+    global xminmax, xdepth, X
+    if args.arc:
+        xminmax = [0,1]
+        xdepth = np.interp(xdepth, X, S)
+        X = S
+        for x in vlines:
+            plt.axvline(x=x, **Style.thin)
+
 if args.debug:
     X = np.linspace(-3, 3, args.N)
     for m in func.keys():
@@ -102,16 +111,16 @@ if args.mode == modes['w']:
 for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
     model = label.split(' ')[0]
 
-    # 1. Find the melt-pool boundary
+    # 1. Find the dimensions of the melt-pool boundary
     xmin = root_scalar(partial(_contour_eq(model), 0), bracket=[-large, -small]).root
     xmax = root_scalar(partial(_contour_eq(model), 0), bracket=[small, large]).root
     length = xmax - xmin
     xminmax = np.array([xmin, xmax])
-    X = _mesh(xmin, xmax, logN+1, logN+1.5)
-    R = np.array([ root_scalar(_contour_eq(model), args=x, bracket=[small, large]).root for x in X ])
-
-    # 2. Find the deepest point
     depth, xdepth = root(_depth_eq(model), [depthAtZeroX, 0], method='lm').x
+
+    # 2. Find the melt-pool boundary
+    X = np.r_[_mesh(xmin, xdepth, logN+1, logN), _mesh(xdepth, xmax, logN, logN+1.5)]
+    R = np.array([ root_scalar(_contour_eq(model), args=x, bracket=[small, large]).root for x in X ])
     sol, fus = X <= xdepth, X > xdepth
 
     # 3. Find temperature gradient
@@ -119,7 +128,7 @@ for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
     gradT_minmax = _gradT(model)(np.zeros(2), xminmax)
     GradT = _gradT(model)(R,X)
 
-    # 4. Find the normal speed of the melt-pool boundary
+    # 4. Find the growth rate
     Phi = arctan2(ddr[model](R,X), ddx[model](R,X))
     CosPhi = cos(arctan2(ddr[model](R,X), ddx[model](R,X)))
     rate_minmax = np.array([1,-1])*gradT_minmax
@@ -142,13 +151,15 @@ for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
         plt.plot(xdepth, -depth, **Style.point)
         plt.axvline(**Style.thin)
         plt.axis('scaled')
-        plt.ylim(top=depth/4)
+        plt.ylim(top=depth/3)
         plt.ylabel(r'$\hat{z}$', rotation=0)
         if label.startswith('R'):
             plt.annotate('$\hat{x}_\mathrm{min}$', (xmin, 0), **Style.annotate)
+            plt.annotate('$\hat{x}_d$', (xdepth, 0), **Style.annotate)
             plt.annotate('$\hat{x}_\mathrm{max}$', (xmax, 0), **Style.annotate)
             plt.plot([xdepth, 0], [-depth, -depth], **Style.dashed)
-            plt.plot(0, -depth, **Style.point)
+            plt.plot([xdepth, xdepth], [-depth, 0], **Style.dashed)
+            plt.plot([0, xdepth], [-depth, 0], **Style.point)
             plt.annotate('$-\hat{d}$', (0, -depth), **Style.annotate)
 
     ### Mode 2: Temperature gradient along the melt-pool boundary
@@ -158,12 +169,9 @@ for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
             print(f'{label:>14s}: temperature gradient at solidification: ' +
                 f'min = {np.min(GradT1):.5g}, max = {np.max(GradT1):.5g} at fusion: ' +
                 f'min = {np.min(GradT2):.5g}, max = {np.max(GradT2):.5g}')
+        update_coords()
         if args.arc:
             X1, X2 = S[sol], S[fus]
-            xminmax = [0,1]
-            xdepth = np.interp(xdepth, X, S)
-            for x in [0,1]:
-                plt.axvline(x=x, **Style.thin)
         else:
             X1, X2 = X[sol], X[fus]
         plt.plot(xdepth, gradT_depth, **Style.point)
@@ -177,10 +185,7 @@ for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
     elif args.mode == modes['s']:
         for y in [-1,1]:
             plt.axhline(y=y, **Style.thin)
-        if args.arc:
-            xminmax = [0,1]
-            xdepth = np.interp(xdepth, X, S)
-            X = S
+        update_coords()
         plt.plot(X, CosPhi, label=_latex(label))
         plt.plot(xdepth, 0, **Style.point)
         plt.plot(xminmax, [1,-1], **Style.point)
@@ -191,10 +196,7 @@ for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
         if args.verbose:
             print(f'{label:>14s}: cooling rate: max = {rate_minmax[0]:.5g}' +
                 f' heating rate: max = {-rate_minmax[1]:.5g}')
-        if args.arc:
-            xminmax = [0,1]
-            xdepth = np.interp(xdepth, X, S)
-            X = S
+        update_coords()
         plt.plot(X, CosPhi*GradT, label=_latex(label))
         plt.plot(xdepth, 0, **Style.point)
         plt.plot(xminmax, rate_minmax, **Style.point)
@@ -203,7 +205,11 @@ for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
     ### Mode 5: The most unstable wavelength from the linear stability theory
     elif args.mode == modes['w']:
         Wavelength = []
-        for cosPhi, gradT in zip(CosPhi[sol], GradT[sol]):
+        X = np.r_[xmin, X[sol]]
+        S = np.r_[0, S[sol]]
+        CosPhi = np.r_[1,CosPhi[sol]]
+        GradT = np.r_[gradT_minmax[0], GradT[sol]]
+        for cosPhi, gradT in zip(CosPhi, GradT):
             v, g = cosPhi*args.micro_coeffs[0], gradT*args.micro_coeffs[1]
             p.stdin.write(f'{v}:{g}:{_latex(label)}\n')
             wavelength, status = p.stdout.readline().rstrip('\n').split(':')
@@ -211,15 +217,19 @@ for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
             if a <= 0:
                 wavelength = 0
             Wavelength.append(float(wavelength))
-        if args.verbose:
-            print(f'{label:>14s}: wavelength: ' +
-                f'min = {np.min(Wavelength):.5g}, max = {np.max(Wavelength):.5g}')
-        if args.arc:
-            xminmax = [0,1]
-            xdepth = np.interp(xdepth, X, S)
-            X = S
-        plt.plot(X[sol], Wavelength, label=_latex(label))
+        update_coords([0])
+        plt.plot(X, Wavelength, label=_latex(label))
         plt.ylabel(r'$\hat{\lambda}$', rotation=0, ha='right')
+        plt.plot([xminmax[0], xdepth], [Wavelength[0], 0], **Style.point)
+
+        if args.verbose:
+            Wavelength = np.array(Wavelength)
+            m = Wavelength > 0
+            mean_w = np.sum(CosPhi[m]*Wavelength[m])/np.sum(CosPhi[m])
+            plt.plot([X[m][0], X[m][-1]], [mean_w, mean_w], **Style.dashed)
+            print(f'{label:>14s}: most unstable wavelength: weighted mean = {mean_w:.5g}, ' +
+                f'min = {np.min(Wavelength):.5g},  max = {np.max(Wavelength):.5g}')
+
 
 if args.mode == modes['w']:
     p.stdin.close()
