@@ -90,9 +90,22 @@ if args.debug:
     for m in func.keys():
         plt.plot(X, func[m](1,X), label='func')
         plt.plot(X, ddx[m](1,X), label='der')
+        plt.axhline(**Style.thin); plt.axvline(**Style.thin)
         plt.title(m)
         plt.legend()
         plt.show()
+    for m in func.keys():
+        plt.plot(X, func[m](0,X), label=m)
+    plt.xlim(-3,3); plt.ylim(0,3)
+    plt.axvline(**Style.thin)
+    plt.xlabel('x')
+    plt.show()
+    for m in func.keys():
+        plt.plot(X, func[m](X,0), label=m)
+    plt.xlim(0,3); plt.ylim(0,3)
+    plt.xlabel('r')
+    plt.show()
+    sys.exit()
 
 logN = np.log10(args.N)
 small, large = 10*np.finfo(float).eps, 1e2*log(2/args.Tratio)**(1/3)
@@ -130,14 +143,15 @@ for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
 
     # 4. Find the growth rate
     Phi = arctan2(ddr[model](R,X), ddx[model](R,X))
-    CosPhi = cos(arctan2(ddr[model](R,X), ddx[model](R,X)))
+    CosPhi = cos(Phi)
     rate_minmax = np.array([1,-1])*gradT_minmax
 
     # 5. Find the coordinate along the curve using the midpoint integration rule
     DX = np.zeros_like(X)
     DX[0], DX[-1] = X[0] - xmin, xmax - X[-1]
     DX[1:-2] = (X[2:-1] - X[0:-3])/2
-    S = np.cumsum(sqrt(1 + 1/tan(Phi)**2)*DX)
+    DS = sqrt(1 + tan(Phi)**-2)*DX
+    S = np.cumsum(DS)
     arc_length = S[-1]
     S /= arc_length
 
@@ -206,7 +220,9 @@ for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
     elif args.mode == modes['w']:
         Wavelength = []
         X = np.r_[xmin, X[sol]]
+        R = np.r_[0, R[sol]]
         S = np.r_[0, S[sol]]
+        DS = np.r_[0, DS[sol]]
         CosPhi = np.r_[1,CosPhi[sol]]
         GradT = np.r_[gradT_minmax[0], GradT[sol]]
         for cosPhi, gradT in zip(CosPhi, GradT):
@@ -225,7 +241,7 @@ for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
         if args.verbose:
             Wavelength = np.array(Wavelength)
             m = Wavelength > 0
-            mean_w = np.sum(CosPhi[m]*Wavelength[m])/np.sum(CosPhi[m])
+            mean_w = np.sum(R[m]*CosPhi[m]*DS[m]*Wavelength[m])/np.sum(R[m]*CosPhi[m]*DS[m])
             plt.plot([X[m][0], X[m][-1]], [mean_w, mean_w], **Style.dashed)
             print(f'{label:>14s}: most unstable wavelength: weighted mean = {mean_w:.5g}, ' +
                 f'min = {np.min(Wavelength):.5g},  max = {np.max(Wavelength):.5g}')

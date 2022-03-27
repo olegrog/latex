@@ -254,7 +254,7 @@ mostly because the deepest point does not lie on the $x$ axis.
         The values on the solidification part of the curves vary in the following ranges:
         $0.00143 \leq \hat{\nabla}\hat{T} \leq 0.0113$ for Rosenthal's solution,
         $0.0168 \leq \hat{\nabla}\hat{T} \leq 0.068$ for Levin's solution,
-        and $\hat{\nabla}\hat{T} = ((\partial\hat{T}/\partial\hat{x})^2 + (\partial\hat{T}/\partial\hat{z})^2)^{1/2}$.
+        where $\hat{\nabla}\hat{T} = ((\partial\hat{T}/\partial\hat{x})^2 + (\partial\hat{T}/\partial\hat{z})^2)^{1/2}$.
     }\label{fig:gradient}
 \end{figure}
 
@@ -294,7 +294,7 @@ The temperature gradient can be evaluated using the following formulas:
 Its magnitude along the melt-pool boundary is shown in Fig.~\ref{fig:gradient},
 where $s$ in the normalized arc-length coordinate defined as
 \begin{equation}\label{eq:s}
-    s(\hat{x}) = \frac1{s_0}\int_{\hat{x}_\text{min}}^{\hat{x}}\sqrt{1+\tan^{-1}\phi}\dd{x}',
+    s(\hat{x}) = \frac1{s_0}\int_{\hat{x}_\text{min}}^{\hat{x}}\sqrt{1+\tan^{-2}\phi}\dd{x}',
         \quad s_0 = s(\hat{x}_\text{max}),
 \end{equation}
 and $\phi$ is the angle between the velocity vector and temperature gradient, i.e.,
@@ -320,12 +320,12 @@ which profile is shown in Fig.~\ref{fig:rate}.
     \caption{
         The bifurcation diagram for the linear stability of a planar solidification front
         in the dimensionless $(\hat{V},\hat{G})$ coordinates for the binary mixture
-        with properties specified in Table~\ref{table:microstructure}.
+        with the properties specified in Table~\ref{table:microstructure}.
         The temperature gradient and growth rate profiles along the melt-pool boundary,
         which are shown in Figs.~\ref{fig:gradient} and~\ref{fig:speed}, are projected on the diagram.
         The segments of the curves lying inside the hatched region of instability correspond to the case
         of microstructure formation. In the stability region, solidification proceeds homogeneously.
-        Thin dashed lines correspond to the constitutional supercooling ($\hat{G} = \hat{V}$)
+        The thin dashed lines are the constitutional supercooling ($\hat{G} = \hat{V}$)
         and absolute stability ($\hat{V} = 1/K$) limits.
     }\label{fig:bifurcation}
 \end{figure}
@@ -337,10 +337,10 @@ which profile is shown in Fig.~\ref{fig:rate}.
         The nondimensional wavelength $\hat\lambda=\lambda/d_0$ predicted by the linear stability theory
         along the solidification part of the melt-pool boundary.
         The maximum and average values are as follows:
-        $\hat\lambda \leq 152$ and $\ev*{\hat\lambda} = 25.1$ for Rosenthal's solution,
-        $\hat\lambda \leq 114$ and $\ev*{\hat\lambda} = 17.8$ for Levin's solution.
+        $\hat\lambda \leq 152$ and $\ev*{\hat\lambda} = 21.1$ for Rosenthal's solution,
+        $\hat\lambda \leq 114$ and $\ev*{\hat\lambda} = 15.8$ for Levin's solution.
         The dashed lines are drawn at the average value.
-        Zero values correspond to a stable planar solidification front.
+        Zero values correspond to the case of a stable planar solidification front.
     }\label{fig:wavelength}
 \end{figure}
 
@@ -368,7 +368,7 @@ which profile is shown in Fig.~\ref{fig:rate}.
         \multirow{2}*{Coupling coefficients} & $\alpha_V$ & \num{2.26} & \multirow{2}*{---} & \multirow{2}*{Eq.~\eqref{eq:alphaVG}} \\
         & $\alpha_G$ & \num{1.17} & & \\[2pt]
         \hline\noalign{\smallskip}
-        \multirow{2}*{Most unstable wavelength} & \multirow{2}*{$\lambda$} & \num{0.115} & \multirow{2}*{\si{\um}} & $\ev*{\hat\lambda}$ from Eq.~\eqref{eq:mean_wavelength} \\
+        \multirow{2}*{Most unstable wavelength} & \multirow{2}*{$\lambda$} & \num{0.102} & \multirow{2}*{\si{\um}} & $\ev*{\hat\lambda}$ from Eq.~\eqref{eq:mean_wavelength} \\
         & & \num{0.74} & & $\max(\lambda)$ in Fig.~\ref{fig:wavelength} \\[2pt]
         \hline
     \end{tabular}
@@ -382,7 +382,7 @@ to determine the conditions under which a cellular structure forms and to estima
 Such conditions and estimations based on the binary-mixture assumption are presented
 in Figs.~\ref{fig:bifurcation} and~\ref{fig:wavelength}, where
 \begin{equation}\label{eq:hatVG}
-    \hat{V} = \alpha_V\cos\phi, \quad \hat{G} = \alpha_G\nabla{T},
+    \hat{V} = \alpha_V\cos\phi, \quad \hat{G} = \alpha_G\hat\nabla\hat{T},
 \end{equation}
 and
 \begin{equation}\label{eq:alphaVG}
@@ -395,7 +395,7 @@ and $\Delta{T}_0$ is the freezing range of the alloy (\si{\K}).
 The average wavelength at the solidification front presented in Table~\ref{table:microstructure}
 is calculated as a weighted mean
 \begin{equation}\label{eq:mean_wavelength}
-    \ev*{\hat\lambda} = \frac{\int_{\lambda>0}\hat\lambda\cos\phi\dd{s}}{\int_{\lambda>0}\cos\phi\dd{s}}.
+    \ev*{\hat\lambda} = \frac{\int_{\lambda>0}\hat\lambda\hat{z}\cos\phi\dd{s}}{\int_{\lambda>0}\hat{z}\cos\phi\dd{s}}.
 \end{equation}
 
 \printbibliography
