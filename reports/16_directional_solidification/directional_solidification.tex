@@ -468,7 +468,7 @@ By perturbing the planar solidification front harmonically as
 \end{equation}
 one comes to the following dispersion relation:
 \begin{equation}\label{eq:binary:a0}
-    \Delta(a_0,k) = a_0 + K(\qS+1) - (\mathcal{G}-\beta k^2)(\qL-1 + K(\qS+1)) = 0,
+    \Delta(a_0,k) = a_0 - \qL+1 + (\mathcal{G} + \beta k^2)(\qL-1 + K(\qS+1)) = 0,
 \end{equation}
 where
 \begin{gather}
@@ -477,7 +477,7 @@ where
 \end{gather}
 and
 \begin{equation}\label{eq:Gbeta}
-    \mathcal{G} = 1 - \frac{2\tilde{G}}{(n+1)M(K-1)}, \quad
+    \mathcal{G} = \frac{2\tilde{G}}{(n+1)M(K-1)}, \quad
     \beta = \frac{\gamma}{M(K-1)}.
 \end{equation}
 
@@ -513,15 +513,15 @@ Substituting relations
 \end{equation}
 into Eqs.~\eqref{eq:Gbeta}, we obtain
 \begin{equation}\label{eq:Gbeta2}
-    \mathcal{G} = 1 - 2\hG/(n+1)\hV, \quad \beta = \hV.
+    \mathcal{G} = 2\hG/(n+1)\hV, \quad \beta = \hV.
 \end{equation}
 
 %%% Bifurcation diagram
 The typical bifurcation diagram in the ($\hV,\hG$) coordinates is shown in Fig.~\ref{fig:bifurcation}.
-The planar front is stable for all wavenumbers when $\mathcal{G} < \mathcal{G}_c(\beta_c(k))$ given by
+The planar front is stable for all wavenumbers when $\mathcal{G} > \mathcal{G}_c(\beta_c(k))$ given by
 \begin{equation}\label{eq:bifurcation}
     \beta_c = \frac{K}{\mathcal{D}^2}\qty(\frac{\pS+1}{2\pL-1} - \eta^2\frac{\pL-1}{2\pS+1}), \quad
-    \mathcal{G}_c = \beta_c k^2 + \frac{K(\pS+1)}{\mathcal{D}},
+    \mathcal{G}_c = \frac{\pL-1}{\mathcal{D}} - \beta_c k^2,
 \end{equation}
 where $\pL(k)=\qL(0,k)$, $\pS(k)=\qS(0,k)$, and $\mathcal{D} = \pL-1 + K(\pS+1)$.
 Eqs.~\eqref{eq:bifurcation} are obtained by taking $\Delta(0,k)=0$ and ${\pdv*{\Delta}{k^2}}(0,k)=0$.
@@ -541,10 +541,13 @@ Moving back to the dimensional variables, we have
 \end{equation}
 The maximum point $\hG_\text{max}$ on the curve $\hG_c(\hV_c)$ can be found by adding
 \begin{equation}\label{eq:Gmax}
-    \mathcal{G}_c = 1 - \beta_ck^2
+    \mathcal{G}_c = \beta_c k^2
 \end{equation}
 to the system of equations~\eqref{eq:bifurcation}.
-Eq.~\eqref{eq:Gmax} can be obtained from ${\pdv*{\Delta}{\hV}}(0,k;\hV_c,\hG_c)=0$.
+Eq.~\eqref{eq:Gmax} is obtained from
+\begin{equation*}
+    {\pdv{\Delta(a_0,k;\hV,\hG)}{\hV}}(0,k;\hV_c,\hG_c) = 0.
+\end{equation*}
 
 \begin{figure}
     \begin{adjustbox}{max width=1.4\linewidth,center}
@@ -634,13 +637,13 @@ where $V_D$ is the so-called diffusion speed, which can be estimated as
 \end{equation}
 where $\delta_{\sol\liq}$ is the thickness of the diffuse interface.
 In this sense, the dimensionless ratio $V/V_D$ can be interpreted as an interface P\'eclet number
-and (cf.~Eq~\eqref{eq:hatGV})
+and (cf.~Eq.~\eqref{eq:hatGV})
 \begin{equation}\label{eq:hatV_D}
     \hV_D = d_0/\delta_{\sol\liq}.
 \end{equation}
 Eq.~\eqref{eq:Aziz} correctly describes both limits:
 $K_V$ tends to the equilibrium value $K$ as $V/V_D\to0$ and to unity as $V/V_D\to\infty$.
-The latter case corresponds to complete solute trapping, where diffusion can be ignored.
+The latter case corresponds to complete solute trapping, when diffusion can be ignored.
 
 %%% Changing of slopes
 It can be shown that the kinetic liquidus slope for a dilute solution
@@ -674,9 +677,11 @@ The only amendment is that now the partition coefficient $K$ should be replaced 
 which is a function of the velocity $\hV$.
 For $K<1$, this correction leads to shrinking the area of instability as seen in Fig.~\ref{fig:rapid}.
 This shrinkage is mainly observed in the region of larger $\hV$.
-Note also that Eq.~\eqref{eq:Gmax} should be replaced by
+Given the dependence of $K_V(V)$, some of the above derived formulas should be also corrected.
+In particular, the asymptotic relations~\eqref{eq:Vmax} and~\eqref{eq:Vmin} becomes nonlinear equations,
+and Eq.~\eqref{eq:Gmax} is replaced by
 \begin{equation}\label{eq:Gmax_rapid}
-    \mathcal{G}_c = 1 - \beta_ck^2\frac{\mathcal{D} + K_V'\beta_c(p_\sol+1)}{\mathcal{D} - K_V'\beta_c(p_\sol+1)},
+    \mathcal{G}_c = \beta_ck^2\frac{\mathcal{D} + K_V'\beta_c(p_\sol+1)}{\mathcal{D} - K_V'\beta_c(p_\sol+1)},
 \end{equation}
 where
 \begin{equation}\label{eq:dK_V}
@@ -689,7 +694,7 @@ where
 \textcite{coriell1987stability} have extended the presented theory to the multicomponent case
 under the following assumptions:
 \begin{enumerate}
-    \item Solute diffusion in solid is absent.
+    \item Solute diffusion in solid is absent ($\eta=0$).
     \item There is no diffusional interaction amongst solutes.
     \item The interface conditions are independent for each solute.
 \end{enumerate}
@@ -708,13 +713,14 @@ where $r_i = D_i/D_0$, $D_0$ is the reference diffusion coefficient,
 \end{equation}
 and
 \begin{equation}\label{eq:multi:gI}
-    g = \frac{2GD_0}{(n+1)\Gamma V^2}, \quad I_i = \frac{\Delta{T}_{0i}D_0}{\Gamma V}.
+    g = \frac{\mathcal{G}}{\beta} = \frac{2D_0^2G}{(n+1)\Gamma V^2}, \quad
+    I_i = \frac{D_0\Delta{T}_{0i}}{r_i\Gamma V}.
 \end{equation}
 Here, $\Delta{T}_{0i} = m_{\liq i}C_{0i}(K_i-1)/K_i$ is the $i$th contribution to the solidification range
 $\Delta{T}_0 = \sum_i \Delta{T}_{0i}$.
 Using the same definition of $\hV$ and $\hG$, given in~\eqref{eq:hatGV}, one can find that
 \begin{equation}\label{eq:multi:gI2}
-    g = \frac{2\hG}{(n+1)\hV^2}, \quad I_i = \frac{\Delta{T}_{0i}}{\Delta{T}_0}\frac1{\hV}.
+    g = \frac{2\hG}{(n+1)\hV^2}, \quad I_i = \frac{\Delta{T}_{0i}}{\Delta{T}_0}\frac1{r_i\hV}.
 \end{equation}
 It is easy to check that Eq.~\eqref{eq:multi:a0} reduces to Eq.~\eqref{eq:binary:a0} at $N=1$, $\eta=0$, $r_1=1$.
 

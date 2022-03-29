@@ -60,8 +60,6 @@ factorY = 1.1
 kmin, kmax = 1e-5, 1e5  #TODO: provide some reasonable estimates
 
 ### Parameter-dependent constants
-Vmax = 1/args.K
-etaK = args.Dratio*args.K
 logN = np.log10(args.N)
 
 ### Auxiliary functions in the a_0(k) relation
@@ -73,28 +71,44 @@ _S = lambda a,k: -1/2 + sqrt(1/4 + args.Dratio*a + (args.Dratio*k)**2)
 _S_a = lambda a,k: args.Dratio/(2*_S(a,k) + 1)
 _S_kk = lambda a,k: args.Dratio**2/(2*_S(a,k) + 1)
 _s = lambda k: _S(0,k)
+
+### Partition coefficient and its derivative
 _K = lambda v: (args.K + v/args.VD)/(1 + v/args.VD)
 _dK = lambda v: (1 - args.K)/args.VD/(1 + v/args.VD)**2
+_etaK = lambda v: args.Dratio*_K(v)
+
+### Absolute stability and constitutional undercooling limits
+if args.VD == np.infty:
+    Vmax = 1/args.K
+    _Vmin = lambda g: 2*g*(1 + _etaK(0))/(args.kratio + 1)
+    _Gmin = lambda v: v*(args.kratio + 1)/2/(1 + _etaK(0))
+else:
+    Vmax = (1 - args.K*args.VD + sqrt((1 - args.K*args.VD)**2 + 4*args.VD))/2
+    _Vmin_eq = lambda g,v: 2*g*(1 + _etaK(v))/(args.kratio + 1) - v
+    _Vmin = np.vectorize(lambda g: root_scalar(partial(_Vmin_eq, g), bracket=[0, Vmax]).root)
+    _Gmin = np.vectorize(lambda v: root_scalar(_Vmin_eq, args=v, bracket=[0, Vmax]).root)
 
 ### Formulas for calculating calG, G
-_calG = lambda g,v: 1 - 2*g/(args.kratio+1)/v
-_G = lambda calG,v: (args.kratio+1)*v*(1 - calG)/2
+_calG = lambda g,v: 2*g/(args.kratio+1)/v
+_G = lambda calG,v: (args.kratio+1)*v*calG/2
+
+### A simple estimate for the reference wavenumber (depends on G, V, kratio, Dratio, K)
+_k0 = lambda g,v: sqrt(max(0, 1/(1+_etaK(v)) - _calG(g,v))/v)
 
 ### Formulas for marginal stability (a_0 = 0)
 _denom = lambda k,v: (_l(k)-1) + _K(v)*(_s(k)+1)
-_calG_kv = lambda k,v: v*k**2 + _K(v)*(_s(k)+1)/_denom(k,v)
+_calG_kv = lambda k,v: (_l(k)-1)/_denom(k,v) - v*k**2
 _G_kv = lambda k,v: _G(_calG_kv(k,v), v)
 
-### Formulas for finding bifurcation points
+### Formulas for finding the bifurcation curve
 _V_bif_eq = lambda v,k: v - _K(v)/_denom(k,v)**2*(
     (_s(k)+1)/(2*_l(k)-1) - args.Dratio**2*(_l(k)-1)/(2*_s(k)+1) )
 _V_bif = np.vectorize(lambda k: root_scalar(_V_bif_eq, args=k, bracket=[0, Vmax]).root + small)
-_Vmin = lambda G: 2*G*(1 + etaK)/(args.kratio + 1)
 
 ### The 2D equation for finding the most unstable wavenumber
-__f = lambda a,k,g,v: a + _K(v)*(_S(a,k)+1) - (_calG(g,v) - v*k**2)*(
+__f = lambda a,k,g,v: a + -_L(a,k)+1 + (_calG(g,v) + v*k**2)*(
     _L(a,k)-1 + _K(v)*(_S(a,k)+1) )
-__f_kk = lambda a,k,g,v: _K(v)*_S_kk(a,k) - (_calG(g,v) - v*k**2)*(
+__f_kk = lambda a,k,g,v: -_L_kk(a,k) + (_calG(g,v) + v*k**2)*(
     _L_kk(a,k) + _K(v)*_S_kk(a,k)) + v*(_L(a,k)-1 + _K(v)*(_S(a,k)+1))
 _most_eq = lambda a,k,g,v: (__f(a,k,g,v), __f_kk(a,k,g,v))
 
@@ -112,12 +126,12 @@ def error(msg):
 
 def pdas_models(G, V, axes, X, Y=None):
     # This model is described in [Dantzig & Rappaz 2009]
-    _LGK = lambda g,v: l2k((72*pi**2/args.K/v/g**2)**0.25, v)
-    a = 5.273e-3 + 0.5519*args.K - 0.1865*args.K**2
-    _dT = lambda g,v: g/v + (a + (1-a)*(args.K*v)**0.45)*(1-g/v)
-    _HuntLu = lambda g,v: l2k(8.18*args.K**-0.075*v**-0.29*(v-g)**-0.3*_dT(g,v)**-0.3*(1-(args.K*v))**-1.4, v)
+    _LGK = lambda g,v: l2k((72*pi**2/_K(v)/v/g**2)**0.25, v)
+    _a = lambda v: 5.273e-3 + 0.5519*_K(v) - 0.1865*_K(v)**2
+    _dT = lambda g,v: g/v + (_a(v) + (1-_a(v))*(_K(v)*v)**0.45)*(1-g/v)
+    _HuntLu = lambda g,v: l2k(8.18*_K(v)**-0.075*v**-0.29*(v-g)**-0.3*_dT(g,v)**-0.3*(1-(_K(v)*v))**-1.4, v)
     # This is a very crude estimate from Hunt & Lu => we do not use it
-    #_HuntLu1 = lambda g,v: l2k(8.18*args.K**-0.075*v**-0.59), v) + 0*g
+    #_HuntLu1 = lambda g,v: l2k(8.18*_K(v)**-0.075*v**-0.59), v) + 0*g
 
     if Y is None:
         _plot = lambda X,_,V,K,**kwargs: axes.plot(X, k2k(K,V), **kwargs)
@@ -130,11 +144,11 @@ def pdas_models(G, V, axes, X, Y=None):
 
     if args.debug:
         # J.D.Hunt, Solidification and Casting of Metals, pp.3-9 (1979)
-        _Hunt = lambda g,v: l2k((64*args.K*(1+g/v)/v/g**2)**0.25, v)
+        _Hunt = lambda g,v: l2k((64*_K(v)*(1+g/v)/v/g**2)**0.25, v)
         # W.Kurz & D.J.Fisher, Acta Metallurgica, V.29, pp.11-20 (1981)
-        _KF_lowV = lambda g,v: sqrt(6*(1/v - args.K/g)*(1-g/v)/g)/(1-args.K)
-        _KF_highV = lambda g,v: 4.3/(args.K*v*g**2)**0.25
-        _KF = np.vectorize(lambda g,v: l2k(_KF_highV(g,v) if v>g/args.K else _KF_lowV(g,v), v))
+        _KF_lowV = lambda g,v: sqrt(6*(1/v - _K(v)/g)*(1-g/v)/g)/(1-_K(v))
+        _KF_highV = lambda g,v: 4.3/(_K(v)*v*g**2)**0.25
+        _KF = np.vectorize(lambda g,v: l2k(_KF_highV(g,v) if v>g/_K(v) else _KF_lowV(g,v), v))
 
         _plot(X, Y, V, _Hunt(G,V), label='$\\mathrm{Hunt79}$')
         _plot(X, Y, V, _KF(G,V), label='$\\mathrm{KurzFisher81}$')
@@ -157,7 +171,7 @@ if args.pdf:
 
 ### Calculate Gmax
 _rapid_Gmax = lambda k,v: (_denom(k,v) + _dK(v)*v*(_s(k)+1))/(_denom(k,v) - _dK(v)*v*(_s(k)+1))
-_Gmax = lambda k: 1 - k**2*_V_bif(k)*_rapid_Gmax(k, _V_bif(k))
+_Gmax = lambda k: k**2*_V_bif(k)*_rapid_Gmax(k, _V_bif(k))
 _k_star_eq = lambda k: _calG_kv(k, _V_bif(k)) - _Gmax(k)
 k_star = root_scalar(_k_star_eq, bracket=[1e-3, 1e3]).root
 v_star = _V_bif(k_star)
@@ -180,7 +194,6 @@ if args.stdin:
         elif g > Gmax:
             k_max, status = np.infty, 'too_large_gradient'
         else:
-            _k0 = lambda g,v: sqrt(max(0, _calG(g,v)*(1+etaK) - etaK)/v/(1+etaK))
             k0 = _k0(g,v)
             a0 = -__f(0,k0,g,v)
             res = root(lambda x: _most_eq(*x,g,v), [a0,k0], method='lm')
@@ -200,7 +213,7 @@ if args.mode == modes['b']:
 
     factor = 1 if args.Dratio > 0 else 2    # NB: asymptotics for Dratio=0 differ!
     # Asymptotic approximation of v(k) for small v
-    _vsmall = lambda k: _V(factor*args.K*(1+args.Dratio)/4/k**3/(1+etaK)**2)
+    _vsmall = lambda k: _V(factor*args.K*(1+args.Dratio)/4/k**3/(1+_etaK(0))**2)
 
     K = np.logspace(-1, 1, args.N)*k_star
     V = _V_bif(K)
@@ -223,7 +236,7 @@ if args.mode == modes['b']:
         else:
             axs[0].semilogx(); ax.semilogx()
 
-        if args.asymptotics:
+        if args.asymptotics and args.VD == np.infty:
             K1, K2 = np.split(K, 2)
             V1, V2 = np.split(V, 2)
             axs[0].plot(k2k(K2,V2), _vsmall(K2), **Style.dashed)
@@ -271,16 +284,16 @@ if args.mode == modes['b']:
         V2, V1 = np.split(V, 2)
 
         if args.verbose:
-            _calG_asym1 = lambda k: args.K/(1+etaK)*(
-                args.Dratio + (1 + (1+args.Dratio)/2/(1+etaK))*factor/2/k )
-            #_calG_asym2 = lambda k: 1 - 1*k**4 # TODO: calculate the coefficient
+            if args.VD == np.infty:
+                _calG_asym1 = lambda k: 1 - args.K/(1+_etaK(0))*(
+                    args.Dratio + (1 + (1+args.Dratio)/2/(1+_etaK(0)))*factor/2/k )
+                #_calG_asym2 = lambda k: 1*k**4 # TODO: calculate the coefficient
 
-            V1 = _vsmall(K2)
-            ax.plot(V1, _G(_calG_asym1(K2), V1), **Style.dashed)
-            #ax.plot(V2, _G(_calG_asym2(K1), V2), **Style.dashed)
+                V1 = _vsmall(K2)
+                ax.plot(V1, _G(_calG_asym1(K2), V1), **Style.dashed)
+                #ax.plot(V2, _G(_calG_asym2(K1), V2), **Style.dashed)
         else:
-            slope = (1+args.kratio)/2/(1+etaK)
-            ax.plot(V, slope*V, **Style.dashed)
+            ax.plot(V, _Gmin(V), **Style.dashed)
             ax.axvline(Vmax, **Style.dashed)
 
 ### Mode 2: Amplification rate (a_0) vs wave number (k)
@@ -289,32 +302,30 @@ elif args.mode == modes['f']:
         print(f' -- Plot a0(k) for given G = {args.G} and V = {args.V}')
 
     calG = _calG(args.G, args.V)
-    omax = 10*(1 + sqrt(args.K*etaK))**2
+    omax = 10*(1 + sqrt(args.K*_etaK(0)))**2
 
-    # Simple estimate for the reference wavenumber (depends on G, V, kratio, Dratio, K)
-    _k0 = lambda g,v: sqrt(max(0, _calG(g,v)*(1+etaK) - etaK)/v/(1+etaK))
     k0 = _k0(args.G, args.V)
     if args.verbose:
         print(f'k_0 = {k0:.5g}')
 
     # Equation for a_0(k) and its derivatives w.r.t. a_0 and k^2
-    _a_eq = lambda a,k: a + args.K*(_S(a,k)+1) - (calG - args.V*k**2)*(
-        _L(a,k)-1 + args.K*(_S(a,k)+1) )
-    _a_eq_a = lambda a,k: 1 + args.K*_S_a(a,k) - (calG - args.V*k**2)*(
-        _L_a(a,k) + args.K*_S_a(a,k) )
-    _a_eq_kk = lambda a,k: args.K*_S_kk(a,k) - (calG - args.V*k**2)*(
-        _L_kk(a,k) + args.K*_S_kk(a,k)) + args.V*(_L(a,k)-1 + args.K*(_S(a,k)+1))
+    _a_eq = lambda a,k: a - _L(a,k)+1 + (calG + args.V*k**2)*(
+        _L(a,k)-1 + _K(args.V)*(_S(a,k)+1) )
+    _a_eq_a = lambda a,k: 1 - _L_a(a,k) + (calG + args.V*k**2)*(
+        _L_a(a,k) + _K(args.V)*_S_a(a,k) )
+    _a_eq_kk = lambda a,k: -_L_kk(a,k) + (calG + args.V*k**2)*(
+        _L_kk(a,k) + _K(args.V)*_S_kk(a,k)) + args.V*(_L(a,k)-1 + _K(args.V)*(_S(a,k)+1))
 
-    ### 1. Find a critical point (where a1(k)=a2(k)); a_0 is complex behind this point
+    ### 1. Find the critical point (where a1(k)=a2(k)); a_0 is complex behind this point
     if args.G > 0:
-        # Try the exact solution for Dratio=0 as initial guess
-        A = calG + 2*args.K - 1
-        D = (A-2/args.V)**2 + (2*args.K)**2 - A**2
+        # Try the exact solution for Dratio=0 as an initial guess
+        A = 2*_K(args.V) - calG
+        D = (A-2/args.V)**2 + (2*_K(args.V))**2 - A**2
         if D > 0:
             B = A-2/args.V + sqrt(D)
             if B > 0:
                 k_crit = sqrt(B/args.V)
-                _a_crit = lambda k: -k**2 - (1 - (calG-args.V*k**2)**2)/4
+                _a_crit = lambda k: -k**2 - (1 - (1-calG-args.V*k**2)**2)/4
                 a_crit = _a_crit(k_crit)
         try:
             k_crit
@@ -322,7 +333,7 @@ elif args.mode == modes['f']:
             error('Failed to use a good initial guess!')
             a_crit, k_crit = 1, 1
         if args.verbose:
-            print(f'Initial guess: k = {k_crit:.5g}, a = {a_crit:.5g}')
+            print(f'Initial guess for the critical point: k = {k_crit:.5g}, a = {a_crit:.5g}')
         try:
             _ak_crit_eq = lambda x: (_a_eq(*x), _a_eq_a(*x))
             res = root(_ak_crit_eq, [a_crit, k_crit])
@@ -336,7 +347,7 @@ elif args.mode == modes['f']:
                 plt.annotate(klabel(s='_c'), (_k2k(k_crit), a_crit), **style)
                 print(f'Critical point: k = {k_crit:.5g}, a = {a_crit:.5g}')
         except (ValueError, FloatingPointError) as err:
-            error(f'Failed to find a critical point: {err}')
+            error(f'Failed to find the critical point: {err}')
     else:
         k_crit = 0
 
@@ -379,7 +390,7 @@ elif args.mode == modes['f']:
     _aminL = lambda k: -k**2 - 1/4
     _aminS = lambda k: -args.Dratio*k**2 - 1/4/args.Dratio if args.Dratio > 0 else -np.infty
     _amin = lambda k: almost_one*np.maximum(_aminL(k), _aminS(k))
-    # For Dratio = 0: _amean = lambda k: -k**2 - (1 - (calG-args.V*k**2)**2)/4
+    # For Dratio = 0: _amean = lambda k: -k**2 - (1 - (1-calG-args.V*k**2)**2)/4
     _amean = lambda k: root_scalar(_a_eq_a, args=k, bracket=[_amin(k), omax]).root
 
     K = np.geomspace(*args.xrange, args.N) if args.xrange else np.logspace(-1.5, 0.5, args.N)*k0
@@ -430,6 +441,13 @@ elif args.mode == modes['f']:
         A_real, A_imag = np.array([ root(_a_complex_eq, [a,0], args=k).x for a,k in zip(A_guess,Kc) ]).T
         plt.plot(Kc, A_real)
         plt.ylim(add_tmargin(np.min(np.r_[A1,A2]), np.max(np.r_[A1,A_real])))
+
+    ### Draw one of the points of the stable branch
+    if args.debug:
+        a_debug = -_K(args.V)/(1 + _etaK(args.V))
+        k_debug = abs(a_debug)
+        plt.plot(_k2k(k_debug), a_debug, **Style.point)
+        print(f'One of the points: k = {k_debug:.5g}, a = {a_debug:.5g}')
 
 ### Mode 3a: Stability diagram in the (V,k) coordinates
 elif args.mode == modes['G']:
