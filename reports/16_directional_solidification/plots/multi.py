@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 from scipy.optimize import root_scalar, root
 from scipy.special import erf
 from numpy import pi, sqrt, real, imag
+from collections import defaultdict, namedtuple
 from functools import partial
-from collections import defaultdict
 from termcolor import colored
 
 parser = argparse.ArgumentParser(
-    description='Solver for analyzing the Mullins--Sekerka instability of a binary mixture')
+    description='Solver for analyzing the Mullins--Sekerka instability of a multicomponent mixture')
 
 modes = { 'b': 'bifurcation', 'f': 'fixedGV', 'G': 'diagramVk', 'V': 'diagramGk', '3': 'diagramVGk', 'n': None }
 class ParseMode(argparse.Action):
@@ -23,7 +23,6 @@ str2pair = lambda s: [float(item) for item in s.split(':')]
 parser.add_argument('mode', choices=[*modes.keys(), *modes.values()], action=ParseMode, help='Execution mode')
 parser.add_argument('-N', type=int, default=100, help='number of points')
 parser.add_argument('-k', '--kratio', type=float, default=1, help='k_S/k_L')
-parser.add_argument('-D', '--Dratio', type=float, default=0, help='D_S/D_L')
 parser.add_argument('-K', type=float, default=0.5, help='partition coefficient')
 parser.add_argument('-V', type=float, default=0.02, help='capillary length/diffusion length')
 parser.add_argument('-VD', type=float, default=np.infty, help='solute trapping velocity')
@@ -41,6 +40,19 @@ parser.add_argument('--yrange', type=str2pair, default=None, help='range of valu
 parser.add_argument('--pad', type=float, default=0.1, help='amount of padding around the figures (inches)')
 parser.add_argument('--pdf', action='store_true', help='save a PDF file instead')
 args = parser.parse_args()
+
+### Alloy properties for bcc Fe-Cr-Ni taken from [Bobadilla, Lacaze & Lesoult 1988]
+### Solute trapping length = 5nm is taken from [KGT 1986] for Ag-Cu and used in [Loser & Herlach 1992]
+T_M = 1776  # Melting point of the pure solvent
+Solute = namedtuple('Solute', 'C m K D')
+alloy = {
+    'Cr': Solute(0.185, -0.67, 0.9, 1.8e-9),
+    'Ni': Solute(0.110, -3.13, 0.8, 0.8e-9)
+}
+Dmean = np.mean([ s.D for s in alloy.values() ])
+_r = lambda s: s.D/Dmean
+_dT = lambda s: s.m*s.C*(s.K-1)/s.K
+DeltaT = np.sum([ _dT(s) for s in alloy.values() ])
 
 class Style:
     dotted = { 'linestyle': ':', 'linewidth': 0.5, 'color': 'k' }
@@ -63,54 +75,47 @@ kmin, kmax = 1e-5, 1e5  #TODO: provide some reasonable estimates
 logN = np.log10(args.N)
 
 ### Auxiliary functions in the a_0(k) relation
-_L = lambda a,k: 1/2 + sqrt(1/4 + a + k**2)
-_L_a = lambda a,k: 1/(2*_L(a,k) - 1)
-_L_kk = lambda a,k: 1/(2*_L(a,k) - 1)
-_l = lambda k: _L(0,k)
-_S = lambda a,k: -1/2 + sqrt(1/4 + args.Dratio*a + (args.Dratio*k)**2)
-_S_a = lambda a,k: args.Dratio/(2*_S(a,k) + 1)
-_S_kk = lambda a,k: args.Dratio**2/(2*_S(a,k) + 1)
-_s = lambda k: _S(0,k)
+_q = lambda a,k,s: 1/2 + sqrt(1/4 + _r(s)*a + (_r(s)*k)**2)
+_q_a = lambda a,k,s: _r(s)/(2*_q(a,k,s) - 1)
+_q_kk = lambda a,k,s: _r(s)**2/(2*_q(a,k,s) - 1)
+_p = lambda k,s: _q(0,k,s)
 
 ### Partition coefficient and its derivative
-_K = lambda v: (args.K + v/args.VD)/(1 + v/args.VD)
-_dK = lambda v: (1 - args.K)/args.VD/(1 + v/args.VD)**2
-_etaK = lambda v: args.Dratio*_K(v)
+_K = lambda v,s: (s.K + v/args.VD)/(1 + v/args.VD)
+_dK = lambda v,s: (1 - s.K)/args.VD/(1 + v/args.VD)**2
+
+### Formulas for calculating calG and I
+_calG = lambda g,v: 2*g/(args.kratio+1)/v**2
+_I = lambda v,s: _dT(s)/DeltaT/_r(s)/v
+_G = lambda calG,v: calG*(args.kratio+1)*v**2/2
 
 ### Absolute stability and constitutional undercooling limits
-if args.VD == np.infty:
-    Vmax = 1/args.K
-    _Vmin = lambda g: 2*g*(1 + _etaK(0))/(args.kratio + 1)
-    _Gmin = lambda v: v*(args.kratio + 1)/2/(1 + _etaK(0))
-else:
-    Vmax = (1 - args.K*args.VD + sqrt((1 - args.K*args.VD)**2 + 4*args.VD))/2
-    _Vmin_eq = lambda g,v: 2*g*(1 + _etaK(v))/(args.kratio + 1) - v
-    _Vmin = np.vectorize(lambda g: root_scalar(partial(_Vmin_eq, g), bracket=[0, Vmax]).root)
-    _Gmin = np.vectorize(lambda v: root_scalar(_Vmin_eq, args=v, bracket=[0, Vmax]).root)
+_Vmax_eq = lambda v: np.sum([ _r(s)**2*_I(v,s)/_K(v,s) for s in alloy.values() ], axis=0) - 1
+Vmax = root_scalar(_Vmax_eq, bracket=[small, 10/args.K]).root
+_Vmin_eq = lambda g,v: np.sum([ _I(v,s) for s in alloy.values() ], axis=0) - _calG(g,v)
+_Vmin = np.vectorize(lambda g: root_scalar(partial(_Vmin_eq, g), bracket=[small, 10*Vmax]).root)
+_Gmin = np.vectorize(lambda v: root_scalar(_Vmin_eq, args=v, bracket=[small, 10*Vmax]).root)
 
-### Formulas for calculating calG, G
-_calG = lambda g,v: 2*g/(args.kratio+1)/v
-_G = lambda calG,v: (args.kratio+1)*v*calG/2
+### A simple estimate for the reference wavenumber (depends on G, V, kratio, K)
+_sumI = lambda v: np.sum([ _I(v,s) for s in alloy.values() ], axis=0)
+_k0 = lambda g,v: sqrt(max(0, _sumI(v) - _calG(g,v)))
 
-### A simple estimate for the reference wavenumber (depends on G, V, kratio, Dratio, K)
-_k0 = lambda g,v: sqrt(max(0, 1/(1+_etaK(v)) - _calG(g,v))/v)
+### Dispersion relation
+_Iqq = lambda a,k,v,s: _I(v,s)*(_q(a,k,s) - 1 - _r(s)*a)/(_q(a,k,s) - 1 + _K(v,s))
+_Iqq_kk = lambda a,k,v,s: _q_kk(a,k,s)*_I(v,s)*(_K(v,s) + _r(s)*a)/(_q(a,k,s) - 1 + _K(v,s))**2
+__f = lambda a,k,g,v: np.sum([ _Iqq(a,k,v,s) for s in alloy.values() ], axis=0) - _calG(g,v) - k**2
+__f_kk = lambda a,k,g,v: np.sum([ _Iqq_kk(a,k,v,s) for s in alloy.values() ], axis=0) - 1
+
+### Formulas for finding the most unstable wavenumber
+_most_eq = lambda a,k,g,v: (__f(a,k,g,v), __f_kk(a,k,g,v))
 
 ### Formulas for marginal stability (a_0 = 0)
-_denom = lambda k,v: (_l(k)-1) + _K(v)*(_s(k)+1)
-_calG_kv = lambda k,v: (_l(k)-1)/_denom(k,v) - v*k**2
+_calG_kv = lambda k,v: np.sum([ _Iqq(0,k,v,s) for s in alloy.values() ], axis=0) - k**2
 _G_kv = lambda k,v: _G(_calG_kv(k,v), v)
 
-### Formulas for finding the bifurcation curve
-_V_bif_eq = lambda v,k: v - _K(v)/_denom(k,v)**2*(
-    (_s(k)+1)/(2*_l(k)-1) - args.Dratio**2*(_l(k)-1)/(2*_s(k)+1) )
-_V_bif = np.vectorize(lambda k: root_scalar(_V_bif_eq, args=k, bracket=[0, Vmax]).root + small)
-
-### The 2D equation for finding the most unstable wavenumber
-__f = lambda a,k,g,v: a + -_L(a,k)+1 + (_calG(g,v) + v*k**2)*(
-    _L(a,k)-1 + _K(v)*(_S(a,k)+1) )
-__f_kk = lambda a,k,g,v: -_L_kk(a,k) + (_calG(g,v) + v*k**2)*(
-    _L_kk(a,k) + _K(v)*_S_kk(a,k)) + v*(_L(a,k)-1 + _K(v)*(_S(a,k)+1))
-_most_eq = lambda a,k,g,v: (__f(a,k,g,v), __f_kk(a,k,g,v))
+### Formulas for finding bifurcation points
+_V_bif_eq = lambda v,k: np.sum([ _Iqq_kk(0,k,v,s) for s in alloy.values() ], axis=0) - 1
+_V_bif = np.vectorize(lambda k: root_scalar(_V_bif_eq, args=k, bracket=[small, Vmax]).root + small)
 
 ### Other functions
 interval_mesh = lambda a, b, va, vb: (erf(np.linspace(-va, vb, args.N)) + 1)*(b-a)/2 + a
@@ -123,35 +128,6 @@ add_tmargin = lambda a,b: (a, b+(factorY-1)*(b-a))
 
 def error(msg):
     print(colored(msg, 'red'), file=sys.stderr)
-
-def pdas_models(G, V, axes, X, Y=None):
-    # This model is described in [Dantzig & Rappaz 2009]
-    _LGK = lambda g,v: l2k((72*pi**2/_K(v)/v/g**2)**0.25, v)
-    _a = lambda v: 5.273e-3 + 0.5519*_K(v) - 0.1865*_K(v)**2
-    _dT = lambda g,v: g/v + (_a(v) + (1-_a(v))*(_K(v)*v)**0.45)*(1-g/v)
-    _HuntLu = lambda g,v: l2k(8.18*_K(v)**-0.075*v**-0.29*(v-g)**-0.3*_dT(g,v)**-0.3*(1-(_K(v)*v))**-1.4, v)
-    # This is a very crude estimate from Hunt & Lu => we do not use it
-    #_HuntLu1 = lambda g,v: l2k(8.18*_K(v)**-0.075*v**-0.59), v) + 0*g
-
-    if Y is None:
-        _plot = lambda X,_,V,K,**kwargs: axes.plot(X, k2k(K,V), **kwargs)
-    else:
-        _plot = lambda X,Y,V,K,**kwargs: \
-            axes.plot_surface(X, Y, make_log(k2k(K,V)), **Style.surface, **kwargs)
-
-    _plot(X, Y, V, _LGK(G,V), label='$\\mathrm{analytical\ model}$')
-    _plot(X, Y, V, _HuntLu(G,V), label='$\\mathrm{numerical\ model}$')
-
-    if args.debug:
-        # J.D.Hunt, Solidification and Casting of Metals, pp.3-9 (1979)
-        _Hunt = lambda g,v: l2k((64*_K(v)*(1+g/v)/v/g**2)**0.25, v)
-        # W.Kurz & D.J.Fisher, Acta Metallurgica, V.29, pp.11-20 (1981)
-        _KF_lowV = lambda g,v: sqrt(6*(1/v - _K(v)/g)*(1-g/v)/g)/(1-_K(v))
-        _KF_highV = lambda g,v: 4.3/(_K(v)*v*g**2)**0.25
-        _KF = np.vectorize(lambda g,v: l2k(_KF_highV(g,v) if v>g/_K(v) else _KF_lowV(g,v), v))
-
-        _plot(X, Y, V, _Hunt(G,V), label='$\\mathrm{Hunt79}$')
-        _plot(X, Y, V, _KF(G,V), label='$\\mathrm{KurzFisher81}$')
 
 np.seterr(all='raise')  # Consider warnings as errors
 
@@ -170,16 +146,15 @@ if args.pdf:
     plt.rcParams.update(params)
 
 ### Calculate Gmax
-_rapid_Gmax = lambda k,v: (_denom(k,v) + _dK(v)*v*(_s(k)+1))/(_denom(k,v) - _dK(v)*v*(_s(k)+1))
-_Gmax = lambda k: k**2*_V_bif(k)*_rapid_Gmax(k, _V_bif(k))
-_k_star_eq = lambda k: _calG_kv(k, _V_bif(k)) - _Gmax(k)
+_Iqq0_v = lambda k,v,s: _I(v,s)*(_p(k,s) - 1)*(_p(k,s) - 1 + _K(v,s) + _dK(v,s)*v)/(_p(k,s) - 1 + _K(v,s))**2
+_calGmax = lambda k,v: np.sum([ _Iqq0_v(k,v,s) for s in alloy.values() ], axis=0)/2
+_k_star_eq = lambda k: _calG_kv(k, _V_bif(k)) - _calGmax(k, _V_bif(k))
 k_star = root_scalar(_k_star_eq, bracket=[1e-3, 1e3]).root
 v_star = _V_bif(k_star)
 Gmax = _G_kv(k_star, v_star)
 if args.verbose:
     print(f'Vmax = {Vmax:.5g} at G = 0 and k -> 0')
     print(f'Gmax = {Gmax:.5g} at V = {v_star:.5g} and k = {k_star:.5g}')
-
 
 ### Dump stability results for given pairs of (V,G) reading from stdin
 if args.stdin:
@@ -211,9 +186,11 @@ if args.mode == modes['b']:
     if args.verbose:
         print(f' -- Plot the (V,G) bifurcation diagram')
 
-    factor = 1 if args.Dratio > 0 else 2    # NB: asymptotics for Dratio=0 differ!
-    # Asymptotic approximation of v(k) for large wavenumbers
-    _Vlarge = lambda k: factor*args.K*(1+args.Dratio)/4/k**3/(1+_etaK(0))**2
+    # Asymptotic approximations of v(k) and g(k) for large wavenumbers
+    _Vlarge_eq = lambda k,v: np.sum([ _K(v,s)*_I(v,s)/_r(s) for s in alloy.values() ], axis=0) - 2*k**3
+    _Vlarge = np.vectorize(lambda k: root_scalar(partial(_Vlarge_eq, k), bracket=[small, 10*Vmax]).root)
+    _Glarge_kv = lambda k,v: _G(np.sum([ _I(v,s) for s in alloy.values() ], axis=0) - k**2, v)
+    _Glarge = lambda k: _Glarge_kv(k, _Vlarge(k))
 
     K = np.logspace(-1, 1, args.N)*k_star
     V = _V_bif(K)
@@ -236,10 +213,11 @@ if args.mode == modes['b']:
         else:
             axs[0].semilogx(); ax.semilogx()
 
-        if args.asymptotics and args.VD == np.infty:
+        if args.asymptotics:
             K1, K2 = np.split(K, 2)
             V1, V2 = np.split(V, 2)
             axs[0].plot(k2k(K2,V2), _Vlarge(K2), **Style.dashed)
+            ax.plot(k2k(K2,V2), _Glarge(K2), **Style.dashed)
 
     K = np.logspace(-logN+1, logN-1, args.N)*k_star
     V = _V_bif(K)
@@ -280,21 +258,8 @@ if args.mode == modes['b']:
             ax.ylim(add_tmargin(0, Gmax))
 
     if args.asymptotics:
-        K1, K2 = np.split(K, 2)
-        V2, V1 = np.split(V, 2)
-
-        if args.verbose:
-            if args.VD == np.infty:
-                _calG_asym1 = lambda k: 1 - args.K/(1+_etaK(0))*(
-                    args.Dratio + (1 + (1+args.Dratio)/2/(1+_etaK(0)))*factor/2/k )
-                #_calG_asym2 = lambda k: 1*k**4 # TODO: calculate the coefficient
-
-                V1 = _Vlarge(K2)
-                ax.plot(V1, _G(_calG_asym1(K2), V1), **Style.dashed)
-                #ax.plot(V2, _G(_calG_asym2(K1), V2), **Style.dashed)
-        else:
-            ax.plot(V, _Gmin(V), **Style.dashed)
-            ax.axvline(Vmax, **Style.dashed)
+        ax.plot(V, _Gmin(V), **Style.dashed)
+        ax.axvline(Vmax, **Style.dashed)
 
 ### Mode 2: Amplification rate (a_0) vs wave number (k)
 elif args.mode == modes['f']:
@@ -302,30 +267,40 @@ elif args.mode == modes['f']:
         print(f' -- Plot a0(k) for given G = {args.G} and V = {args.V}')
 
     calG = _calG(args.G, args.V)
-    omax = 10*(1 + sqrt(args.K*_etaK(0)))**2
+    omax = 10
 
     k0 = _k0(args.G, args.V)
     if args.verbose:
         print(f'k_0 = {k0:.5g}')
 
     # Equation for a_0(k) and its derivatives w.r.t. a_0 and k^2
-    _a_eq = lambda a,k: a - _L(a,k)+1 + (calG + args.V*k**2)*(
-        _L(a,k)-1 + _K(args.V)*(_S(a,k)+1) )
-    _a_eq_a = lambda a,k: 1 - _L_a(a,k) + (calG + args.V*k**2)*(
-        _L_a(a,k) + _K(args.V)*_S_a(a,k) )
-    _a_eq_kk = lambda a,k: -_L_kk(a,k) + (calG + args.V*k**2)*(
-        _L_kk(a,k) + _K(args.V)*_S_kk(a,k)) + args.V*(_L(a,k)-1 + _K(args.V)*(_S(a,k)+1))
+    def _a_eq(a,k):
+        res = calG + k**2
+        for s in alloy.values():
+            res -= _I(args.V,s)*(_q(a,k,s)-1-_r(s)*a)/(_q(a,k,s)-1+s.K)
+        return res
+    def _a_eq_a(a,k):
+        res = 0*k
+        for s in alloy.values():
+            res -= _I(args.V,s)*(_q_a(a,k,s)*(s.K+_r(s)*a)-_r(s)*(_q(a,k,s)-1+s.K))/(_q(a,k,s)-1+s.K)**2
+        return res
+    def _a_eq_kk(a,k):
+        res = k**0
+        for s in alloy.values():
+            res -= _I(args.V,s)*_q_kk(a,k,s)*(s.K+_r(s)*a)/(_q(a,k,s)-1+s.K)**2
+        return res
 
     ### 1. Find the critical point (where a1(k)=a2(k)); a_0 is complex behind this point
     if args.G > 0:
-        # Try the exact solution for Dratio=0 as an initial guess
-        A = 2*_K(args.V) - calG
+        # Try the exact solution for Dratio=0 and binary mixture as an initial guess
+        calG = 1 - calG*args.V
+        A = calG + 2*_K(args.V) - 1
         D = (A-2/args.V)**2 + (2*_K(args.V))**2 - A**2
         if D > 0:
             B = A-2/args.V + sqrt(D)
             if B > 0:
                 k_crit = sqrt(B/args.V)
-                _a_crit = lambda k: -k**2 - (1 - (1-calG-args.V*k**2)**2)/4
+                _a_crit = lambda k: -k**2 - (1 - (calG-args.V*k**2)**2)/4
                 a_crit = _a_crit(k_crit)
         try:
             k_crit
@@ -387,10 +362,13 @@ elif args.mode == modes['f']:
 
     ### 3. Create a mesh and find solutions on it
     # Lower boundary for a_0
-    _aminL = lambda k: -k**2 - 1/4
-    _aminS = lambda k: -args.Dratio*k**2 - 1/4/args.Dratio if args.Dratio > 0 else -np.infty
-    _amin = lambda k: almost_one*np.maximum(_aminL(k), _aminS(k))
-    # For Dratio = 0: _amean = lambda k: -k**2 - (1 - (1-calG-args.V*k**2)**2)/4
+    _amin_ = lambda k,s: -_r(s)*k**2 - 1/4/_r(s)
+    def _amin(k):
+        res = 0*k - np.infty
+        for s in alloy.values():
+            res = np.maximum(res, _amin_(k,s))
+        return almost_one*res
+    # For a binary mixture: _amean = lambda k: -k**2 - (1 - (calG-args.V*k**2)**2)/4
     _amean = lambda k: root_scalar(_a_eq_a, args=k, bracket=[_amin(k), omax]).root
 
     K = np.geomspace(*args.xrange, args.N) if args.xrange else np.logspace(-1.5, 0.5, args.N)*k0
@@ -422,7 +400,7 @@ elif args.mode == modes['f']:
     plt.plot(_k2k(K[m1]), A1)
     plt.semilogx()
     plt.xlabel(klabel())
-    plt.ylabel(r'$\mathrm{Re}(a_0)$', rotation=0)
+    plt.ylabel(r'$a_0$', rotation=0)
     plt.axhline(y=0, **Style.thin)
 
     ### 5. Plot a2(k)
@@ -437,17 +415,10 @@ elif args.mode == modes['f']:
         _ac = lambda x: x[0] + x[1]*1j
         _a_complex_eq = lambda x,k: (real(_a_eq(_ac(x),k)), imag(_a_eq(_ac(x),k)))
         Kc = interval_mesh(K[0], k_crit, 1, logN)[::2]
-        A_guess = np.vectorize(_amean)(Kc)*(1 - 0.5*(Kc-k_crit)/(Kc[0]-k_crit))
-        A_real, A_imag = np.array([ root(_a_complex_eq, [a,0], args=k).x for a,k in zip(A_guess,Kc) ]).T
+        A_guess = np.vectorize(_amean)(Kc)
+        A_real, A_imag = np.array([ root(_a_complex_eq, [a,-a], args=k).x for a,k in zip(A_guess,Kc) ]).T
         plt.plot(Kc, A_real)
         plt.ylim(add_tmargin(np.min(np.r_[A1,A2]), np.max(np.r_[A1,A_real])))
-
-    ### Draw one of the points of the stable branch
-    if args.debug:
-        a_debug = -_K(args.V)/(1 + _etaK(args.V))
-        k_debug = abs(a_debug)
-        plt.plot(_k2k(k_debug), a_debug, **Style.point)
-        print(f'One of the points: k = {k_debug:.5g}, a = {a_debug:.5g}')
 
 ### Mode 3a: Stability diagram in the (V,k) coordinates
 elif args.mode == modes['G']:
@@ -508,8 +479,6 @@ elif args.mode == modes['G']:
     plt.loglog() if args.log else plt.semilogy()
     plt.xlabel(r'$\hat{V}$')
     plt.ylabel(klabel(), rotation=0)
-    if args.asymptotics:
-        pdas_models(args.G, V, plt, X=V)
     plt.legend()
     if args.xrange:
         plt.xlim(args.xrange)
@@ -557,8 +526,6 @@ elif args.mode == modes['V']:
     plt.loglog() if args.log else plt.semilogy()
     plt.xlabel(r'$\hat{G}$')
     plt.ylabel(klabel(), rotation=0)
-    if args.asymptotics:
-        pdas_models(G, args.V, plt, X=G)
     plt.legend()
 
     if args.verbose:
@@ -632,9 +599,6 @@ elif args.mode == modes['3']:
         K1 = np.log10(k2k(K1,_V_bif(K1))); K2 = np.log10(k2k(K2,_V_bif(K2)))
         ax.plot3D(V1, G, K1, **Style.thick)
         ax.plot3D(V2, G, K2, **Style.thick)
-
-    if args.asymptotics:
-        pdas_models(GG, VV, ax, X=pVV, Y=pGG)
 
 if args.mode:
     filename = args.output if args.output else f'{args.mode}.pdf'

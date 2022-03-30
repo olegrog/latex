@@ -14,5 +14,5 @@ $(PROJECT).pdf: $(SOURCES) $(SUBDIRS)
 
 clean:
 	latexmk -C $(PROJECT)
-	rm -f $(PROJECT).{run.xml,bbl}
-
+	rm -f $(PROJECT).{run.xml,bbl,gnuploterrors}
+	rm -rf gnuplottex
