@@ -442,7 +442,7 @@ This solution is shown in Fig.~\ref{fig:binary:diagram} and~\ref{fig:binary:solu
         Both linear (\subref{sfig:bifurcation}) and logarithmic (\subref{sfig:bifurcation-log}) scales are shown.
         The maximum velocity given by~\eqref{eq:Vmax} is $\hV_\text{max} = 2$.
         The dashed line corresponds to the constitutional undercooling limit~\eqref{eq:Vmin},
-        which takes the form $\hG = \hV_\text{min}$.
+        which takes the form $\hG = \hV$.
         The bifurcation curve has a single maximum $\hG_\text{max} = 0.09017$ at $\hV = 0.47214$ and $k = 0.63601$.
     }\label{fig:bifurcation}
 \end{figure}
@@ -604,7 +604,7 @@ in Fig.~\ref{fig:binary:lambda}.
 The following models imply that $\eta=0$ and $n=1$.
 First, a simple model can be formulated based on some ansatz for the shape of the solidification front.
 For example, assuming that the solid is a dense hexagonal array of semi-ellipsoids,
-we can obtain~\cite{rappaz2009solidification}
+we can obtain~\cite{dantzig2016solidification}
 \begin{equation}\label{eq:cell_spacing}
     \hat\lambda^4 = \frac{72\pi^2}{K\hV\hG^2}.
 \end{equation}
@@ -705,7 +705,7 @@ and diffusion coefficient of the $i$th solute.
 Its equilibrium solid--liquid concentration ratio is $K_i = m_{\liq i}/m_{\sol i}$.
 Then the dispersion relation for an $(N+1)$-component mixture takes the form
 \begin{equation}\label{eq:multi:a0}
-    \Delta(a_0,k) = \sum_{i=1}^{N}I_i\frac{q_i - 1 - r_ia_0}{q_i - 1 + K_i} - g - k^2 = 0,
+    \Delta(a_0,k) = \sum_{i=1}^N I_i\frac{q_i - 1 - r_ia_0}{q_i - 1 + K_i} - g - k^2 = 0,
 \end{equation}
 where $r_i = D_i/D_0$, $D_0$ is the reference diffusion coefficient,
 \begin{equation}\label{eq:multi:q}
@@ -723,6 +723,115 @@ Using the same definition of $\hV$ and $\hG$, given in~\eqref{eq:hatGV}, one can
     g = \frac{2\hG}{(n+1)\hV^2}, \quad I_i = \frac{\Delta{T}_{0i}}{\Delta{T}_0}\frac1{r_i\hV}.
 \end{equation}
 It is easy to check that Eq.~\eqref{eq:multi:a0} reduces to Eq.~\eqref{eq:binary:a0} at $N=1$, $\eta=0$, $r_1=1$.
+
+%%% Critical curve and its limits
+The critical curve $\hG_c(\hV_c)$ on the bifurcation diagram is found from
+\begin{equation}\label{eq:multi:crit}
+    \sum_{i=1}^{N}\pdv{p_i}{k^2}\frac{K_iI_i(\hV_c)}{(p_i - 1 + K_i)^2} = 1,
+\end{equation}
+where $p_i(k) = q_i(0,k)$; its maximum point $\hG_\text{max}$ is obtained from inserting
+\begin{equation}\label{eq:multi:Gmax}
+    g_c = k^2
+\end{equation}
+into $\Delta(0,k)=0$ and Eq.~\eqref{eq:multi:crit}.
+In the case of rapid solidification, described by Eq.~\eqref{eq:Aziz}, Eq.~\eqref{eq:multi:Gmax} should be replaced by
+\begin{equation}\label{eq:multi:Gmax_rapid}
+    \sum_{i=1}^{N}\frac{(p_i-1)I_i(\hV_c)}{(p_i - 1 + K_{Vi})^2}\qty(p_i-1+K_{Vi}+K_{Vi}'\hV) = 2g_c.
+\end{equation}
+The absolute stability limit ($k\to0$) is given by
+\begin{equation}\label{eq:multi:absolute}
+    \sum_{i=1}^{N}\frac{r_i^2I_i(\hV_\text{max})}{K_{Vi}} = 1,
+\end{equation}
+while the constitutional undercooling limit ($k\to\infty$) takes the form
+\begin{equation}\label{eq:multi:constitutional}
+    \sum_{i=1}^{N}I_i(\hV_\text{min}) = g(\hV_\text{min}).
+\end{equation}
+
+\appendix
+
+\section{Calculation of the equilibrium slopes}
+
+%%% Slopes along the solidification path
+For a multicomponent dilute mixture, the liquidus hypersurface is given by
+\begin{equation}\label{eq:multi:liquidus}
+    T = T_M + \sum_{i=1}^N m_{\liq i} C_i = T_{\liq0} + \sum_{i=1}^N m_{\liq i} (C_i - C_{0i}),
+\end{equation}
+where $T_{\liq0}$ is the liquidus temperature of the given alloy.
+However, in practice (e.g., from CALPHAD computations) we know only the equilibrium \emph{solidification path},
+which can be linearized near the liquidus temperature as
+\begin{equation}\label{eq:multi:path}
+    C_i = C_{0i} + \frac{T - T_{\liq0}}{m_{\liq i}'},
+\end{equation}
+where $m_{\liq i}'$ is the liquidus slope along the solidification path.
+Substituting Eq.~\eqref{eq:multi:path} into Eq.~\eqref{eq:multi:liquidus}, we find that
+\begin{equation}\label{eq:multi:slopes}
+    \sum_{i=1}^N \frac{m_{\liq i}}{m_{\liq i}'} = 1,
+\end{equation}
+which reduces to a simple identity $m_{\liq i} = m_{\liq i}'$ in the case of a binary mixture.
+In the general case, the real liquidus slope can be written in the form
+\begin{equation}\label{eq:multi:A_Li}
+    m_{\liq i} = A_{\liq i} \qty(\sum_{i=1}^N \frac{A_{\liq i}}{m_{\liq i}'})^{-1},
+\end{equation}
+where $A_{\liq i}$ is the quantity to be determined.
+
+%%% Lever rule
+For any point of the equilibrium solidification path, the concentrations of the $i$th component
+in the liquid ($C_{\liq i}$) and solid ($C_{\sol i}$) phases obey the \emph{lever rule}
+\begin{equation}\label{eq:multi:lever}
+    f_\sol = \frac{C_{\liq i} - C_{0i}}{C_{\liq i} - C_{\sol i}}, \quad
+    f_\liq = \frac{C_{0i} - C_{\sol i}}{C_{\liq i} - C_{\sol i}},
+\end{equation}
+where $f_\sol$ and $f_\liq$ are the solid and liquid phase mass fractions, respectively.
+Substituting Eq.~\eqref{eq:multi:path} into the formula for $f_\sol$,
+when it goes to zero at $T\to T_{\liq0}$, we obtain
+\begin{equation}\label{eq:multi:dTdfs}
+    m_{\liq i}'C_{0i}(1-K_i) = \eval{\dv{T}{f_\sol}}_{f_\sol=0},
+\end{equation}
+which is valid for any multicomponent mixture.
+For a dilute mixture, we additionally have
+\begin{equation}\label{eq:multi:deltaT-dilute}
+    m_{\liq i}'C_{0i}(K_i-1)/K_i = \Delta{T}_0,
+\end{equation}
+which implies that $K_i$ is the same for all components.
+
+%%% Slopes in terms of the entropy change
+The real slopes of the phase diagram can be found from the Gibbs energies of the liquid and solid phases,
+$G_\liq$ and $G_\sol$, respectively.
+For an ideal multicomponent solution~\cite{dantzig2016solidification},
+\begin{equation}\label{eq:multi:Gibbs}
+    \begin{gathered}
+        G_\liq = RT\qty(\qty(1-\sum_{i=1}^N C_i)\ln\qty(1-\sum_{i=1}^N C_i) + \sum_{i=1}^N C_i\ln C_i), \\
+        G_\sol = G_\liq + \qty(1-\sum_{i=1}^N C_i)\Delta{S}(T - T_M) + \sum_{i=1}^N C_i\Delta{S}_i(T - T_{Mi}),
+    \end{gathered}
+\end{equation}
+where $\Delta{S} = S_\liq - S_\sol$ is the entropy of fusion in the absence of impurities,
+$\Delta{S}_i$ and $T_{Mi}$ are the entropy of fusion and the melting temperature of the $i$th pure component.
+According to the \emph{tangent rule} construction,
+\begin{equation}\label{eq:multi:tangent_rule}
+    \mu_\alpha(C_{\alpha i}) = G_\alpha(C_{\alpha i}) - \sum_{i=1}^N C_i{\pdv{G_\alpha}{C_i}}(C_{\alpha i}),
+\end{equation}
+is the chemical potential of the pure solvent being in phase $\alpha$.
+Substituting Eq.~\eqref{eq:multi:Gibbs} into Eq.~\eqref{eq:multi:tangent_rule}, we find that
+\begin{equation}\label{eq:multi:mu}
+    \begin{gathered}
+        \mu_\liq(C_{\liq i}) = RT\ln\qty(1 - \sum_{i=1}^N C_{\liq i}), \\
+        \mu_\sol(C_{\sol i}) = G_\sol(C_{\sol i}) - G_\liq(C_{\sol i}) + RT\ln\qty(1 - \sum_{i=1}^N C_{\sol i}).
+    \end{gathered}
+\end{equation}
+The liquidus and solidus hypersurfaces are found from the \emph{common tangent} rule
+\begin{equation}\label{eq:multi:common_tangent}
+    \mu_\liq(C_{\liq i}) = \mu_\sol(C_{\sol i}),
+\end{equation}
+which can be rewritten in the dilute-solution approximation ($C_i\ll1$) as follows:
+\begin{equation}\label{eq:multi:common_tangent2}
+    T = T_M + \frac{RT_M}{\Delta{S}}\sum_{i=1}^N(C_{\sol i} - C_{\liq i}).
+\end{equation}
+Comparing it with Eq.~\eqref{eq:multi:liquidus}, we can obtain the liquidus slope
+\begin{equation}\label{eq:multi:mL}
+    m_{\liq i} = \frac{RT_M}{\Delta{S}}(K_i - 1),
+\end{equation}
+which yields $A_i = K_i-1$ for Eq.~\eqref{eq:multi:A_Li}.
+The similar result is presented in~\cite[Appendix C]{kundin2015phase}.
 
 \printbibliography
 
