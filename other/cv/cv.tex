@@ -4,7 +4,7 @@
 %% ModernCV themes
 \moderncvstyle{classic}                    % style options are 'casual' (default), 'classic', 'oldstyle' and 'banking'
 \moderncvcolor{blue}
-\nopagenumbers{}
+%\nopagenumbers{}
 
 %% Adjust the page margins
 \usepackage[scale=0.75]{geometry}
@@ -36,7 +36,7 @@
 
 \usepackage[
     backend=biber,
-    style=numeric,
+    style=ext-numeric,
     language=auto,
     maxbibnames=99, minbibnames=99,
     natbib=true,
@@ -46,9 +46,12 @@
     doi=true,
     pagetracker,
     defernumbers=true,
-    firstinits,
+    giveninits=true,
 ]{biblatex}
-\bibliography{main, other}
+% Year and parantheses in bold
+\DeclareFieldFormat{date}{\bfseries{#1}}
+\addbibresource{main.bib}
+\addbibresource{other.bib}
 
 \DeclareSourcemap{
   \maps[datatype=bibtex, overwrite]{
@@ -65,8 +68,8 @@
 
 \newcommand{\Skoltech}{Skolkovo Institute of Science and Technology}
 \newcommand{\Mipt}{Moscow Institute of Physics and Technology}
-\newcommand{\Kurchatov}{National Research Centre "Kurchatov Institute"}
-\newcommand{\Fic}{Federal Research Center "Computer Science and Control" of Russian Academy of Sciences}
+\newcommand{\Kurchatov}{National Research Centre ``Kurchatov Institute''}
+\newcommand{\Fic}{Federal Research Center ``Computer Science and Control'' of Russian Academy of Sciences}
 \newcommand{\Dolgopa}{Dolgoprudny}
 \newcommand{\Moscow}{Moscow}
 
@@ -78,27 +81,70 @@
 \subsection{Research}
 \cventry{2017--now}{Postdoctoral Research}{\Skoltech}{\Moscow}{}{
 \begin{itemize}
-    \item Multiscale modeling and simulation of physical processes in selective laser melting
-    \item Macroscopic modeling of ceramic additive manufacturing
+    \item \textbf{Multiscale multiphysics modeling and simulation of laser powder bed fusion}
+    (funded by \underline{Oerlikon AM} in 2018--2022):
+    \begin{itemize}
+        \item Developed a set of computational tools for large-scale detailed simulations of a wide range
+        of physical processes occurring in the laser powder-bed fusion technology
+        (within the OpenFOAM environment).
+        \item Developed a thermo-fluid-dynamic model of powder particle fusion for high-fidelity
+        simulations of the melt-pool dynamics including a ray-tracing-based algorithm for evaluating
+        absorptivity of the laser energy.
+        \item Developed a multi-component phase-field model of dendritic alloy solidification
+        for predicting subgrain structure and microsegregation patterns in 3D-printed materials
+        from commercial alloys.
+        \item Developed a thermo-mechanical model for predicting residual macroscopic stresses
+        in parts produced by layer-by-layer 3D printing.
+    \end{itemize}
+    \item \textbf{Macroscopic modeling of ceramic additive manufacturing}
+    (funded by \underline{Ministry of Science and Higher Education grant No.~05.618.21.0006} in 2020):
+    \begin{itemize}
+        \item Developed a mechanical model of a green body for predicting residual stresses occurring
+        in ceramic stereolithography technologies.
+        \item Developed a fluid-dynamic model of polymer binder removal from green parts produced
+        by ceramic stereolithography for predicting critical conditions of thermal debinding.
+    \end{itemize}
+    \item \textbf{Large-scale simulations of gaseous detonation in complex geometries}
+    (funded by \underline{RFBR grant No.~20-51-00004} in 2020--2022):
+    \begin{itemize}
+        \item Developed an OpenFOAM solver for reactive compressible viscous flows for unsteady
+        three-dimensional simulations of gaseous detonation based on the one-step kinetics.
+        \item Studied numerically the influence of momentum and energy losses on the detonation
+        wave dynamics in a rectangular channel with obstacles.
+    \end{itemize}
 \end{itemize}
 }
 \cventry{2017--now}{Postdoctoral Research}{\Fic}{\Moscow}{}{
 \begin{itemize}
-    \item High-accuracy simulations of rarefied gas flows on the basis of the Boltzmann equation
-    \item Kinetic-based numerical methods for multiscale gas flows
+    \item \textbf{High-accuracy simulations of rarefied gas flows on the basis of the Boltzmann equation}
+    (funded by \underline{RFBR grant No.~18-07-01500-a} in 2018--2020):
+    \begin{itemize}
+        \item Validated the original solver for the Boltzmann equation against the computational results,
+        obtained by the DSMC method and BGK-type model equations~\cite{rogozin2019regularization}.
+    \end{itemize}
+    \item \textbf{Kinetic-based numerical methods for multiscale gas flows}
+    (funded by \underline{RFBR grant No.~18-01-00899-a} in 2018--2020):
+    \begin{itemize}
+        \item Developed a novel hybrid computational method based on the discrete-velocity and
+        lattice-Boltzmann methods~\cite{aristov2020kinetic, aristov2019hybrid}.
+    \end{itemize}
 \end{itemize}
 }
 \cventry{2015--2017}{Doctoral Research}{}{}{}{
 \begin{itemize}
-    \item Development and parallel implementation of the conservative projection discrete-velocity method for solving the Boltzmann equation
-    \item Numerical and asymptotic analysis of rarefied gas flows, including those driven by large temperature variations
+    \item Development and implementation of the conservative projection discrete-velocity method
+    for solving the Boltzmann equation using nonuniform grids~\cite{rogozin2016numerical}
+    \item Numerical and asymptotic analysis of rarefied gas flows, including those
+    driven by large temperature variations~\cite{rogozin2017slow}
 \end{itemize}
 }
 \cventry{2009--2014}{Doctoral Research}{\Mipt}{\Dolgopa}{}{
 \begin{itemize}
-    \item Design and development of the problem solving environment for high-performance computing
-    \item Development of numerical methods and algorithms for kinetic and fluid-dynamic-type equations
-    \item Computer simulation of the some classical problems of molecular gas dynamics
+    \item Design and development of the problem solving environment for high-performance
+    computing~\cite{dodulad2011problem, anikin2010computing}
+    \item Development of numerical methods and algorithms for kinetic and fluid-dynamic-type
+    equations~\cite{rogozin2014computer, dodulad2011problem}
+    \item Computer simulation of the some classical problems of molecular gas dynamics~\cite{kloss2010computer}
 \end{itemize}
 }
 
@@ -118,7 +164,6 @@
 }
 \cventry{2006--2011}{Laboratory Assistant}{\Kurchatov}{\Moscow}{}{
 \begin{itemize}
-    \item Scientific research on rarefied gas dynamics
     \item Administration of Linux-based stations
 \end{itemize}
 }
@@ -126,13 +171,19 @@
 \subsection{Teaching}
 \cventry{2018--now}{Lecturer}{\Skoltech}{\Moscow}{}{
 \begin{itemize}
-    \item "Numerical methods in engineering and science" for graduate students
+    \item ``Numerical methods in engineering and science'' for graduate students
         under the guidance of Prof. Oleg Vasilyev and Prof. Aslan Kasimov
 \end{itemize}
 }
 \cventry{2012--2012}{Lecturer}{\Mipt}{\Dolgopa}{}{
 \begin{itemize}
-    \item "Computer architecture" for undergraduate students
+    \item ``Computer architecture'' for undergraduate students
+\end{itemize}
+}
+\cventry{2010--2012}{Teaching assistant}{\Mipt}{\Dolgopa}{}{
+\begin{itemize}
+    \item ``Introduction to numerical methods in rarefied gas dynamics''
+    for undergraduate students~\cite{anikin2011introduction}
 \end{itemize}
 }
 \cventry{2005--2006}{Instructor}{\Mipt}{\Dolgopa}{}{
@@ -144,12 +195,12 @@
 \section{Education}
 \cventry{2011--2014}{Ph.D. (Physics and Mathematics)}{\Mipt}{\Dolgopa}
 {}{
-Numerical and asymptotic analysis of some classical problems of molecular gas dynamics
+\httplink[Numerical and asymptotic analysis of some classical problems of molecular gas dynamics]
+{http://www.frccsc.ru/diss-council/00207303/diss/list/rogozin_oa}
 \begin{itemize}
     \item Supervisor: Prof. Felix Tcheremissine
     \item Speciality: Mechanics of liquid, gas, and plasma
-    \item \httplink[Defended]{http://www.frccsc.ru/diss-council/00207303/diss/list/rogozin_oa}
-    at Computing Center of RAS on May 24, 2018
+    \item Defended at Computing Center of RAS on May 24, 2018
 \end{itemize}
 }
 \cventry{2009--2011}{M.Sc. (Applied Mathematics and Physics)}{\Mipt}{\Dolgopa}{\textit{4.88/5.00}}
@@ -157,26 +208,26 @@ Numerical and asymptotic analysis of some classical problems of molecular gas dy
 \cventry{2005--2009}{B.Sc. (Applied Mathematics and Physics)}{\Mipt}{\Dolgopa}{\textit{4.97/5.00}}
 {Nonequilibrium gas flows simulation in channels with different geometry on the basis of the Boltzmann equation}
 
-\section{Languages}
-\cvitem{Russian}{Native}
-\cvitem{English}{Upper-intermediate}
-\cvitem{German}{Basic}
-\cvitem{French}{Basic}
-
-\section{Computer skills}
-\cvitem{OSes}{Linux (administration), OS X, Windows}
-\cvitem{Languages}{C++98/11/14/17/20, Python, Matlab/Octave, Fortran, Javascript, Shell, SQL, Assembler}
-\cvitem{Software}{OpenFOAM, Amazon Web Services}
-\cvitem{Parallel}{MPI, OpenMP, Hadoop, HPX}
-\cvitem{Networking}{Ethernet, InfiniBand}
+% \section{Languages}
+% \cvitem{Russian}{Native}
+% \cvitem{English}{Upper-intermediate}
+% \cvitem{German}{Basic}
+% \cvitem{French}{Basic}
+%
+% \section{Computer skills}
+% \cvitem{OSes}{Linux (administration), OS X, Windows}
+% \cvitem{Languages}{C++98/11/14/17/20, Python, Matlab/Octave, Fortran, Javascript, Shell, SQL, Assembler}
+% \cvitem{Software}{OpenFOAM, Amazon Web Services}
+% \cvitem{Parallel}{MPI, OpenMP, Hadoop, HPX}
+% \cvitem{Networking}{Ethernet, InfiniBand}
 
 % \section{Hobbies}
 % \cvitem{Sport}{Cross-country skiing, Triathlon, Adventure racing, Volleyball, Football, Table tennis, Orienteering, Chess}
 % \cvitem{Music}{Classic, Progressive Rock/Metal}
 
-\section{Research Interests}
-\cvitem{Current}{Computational fluid mechanics, Multiscale modeling, Additive manufacturing}
-\cvitem{Previous}{Boltzmann equation, Rarefied gas dynamics, Numerical methods, High-performance computing}
+% \section{Research Interests}
+% \cvitem{Current}{Computational fluid mechanics, Multiscale modeling, Additive manufacturing}
+% \cvitem{Previous}{Boltzmann equation, Rarefied gas dynamics, Numerical methods, High-performance computing}
 
 \section{Invited speaker}
 \begin{itemize}
@@ -195,7 +246,8 @@ Numerical and asymptotic analysis of some classical problems of molecular gas dy
 
 %\newpage
 \nocite{*}
-\printbibliography[title=Main Publications, keyword=primary, resetnumbers=true]
-\printbibliography[title=Other Publications, keyword=secondary, resetnumbers=true]
+\printbibliography
+% \printbibliography[title=Main Publications, keyword=primary, resetnumbers=true]
+% \printbibliography[title=Other Publications, keyword=secondary, resetnumbers=true]
 
 \end{document}
