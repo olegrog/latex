@@ -289,8 +289,10 @@ gamma, Ma, T, P, Pvap, rho, g, S, r_crit, r_mean, J, dotr, mu = calc_all(xmin, y
 hatJ = J/vapor.J0
 hatdotr = dotr*cond.rho/P*sqrt(fixed.R*T/vapor.M)
 c0 = sqrt(gamma*fixed.R*T/_Mmean(g))
+T_stag, P_stag = T0*(gamma+1)/2, P0*((gamma+1)/2)**(gamma/(gamma-1))
 print('Initial values:')
-print(f' -- T = {T0} K, P = {args.pressure} atm, Ma = {Ma0:.3g}, w0 = {args.w0:.3g}')
+print(f' -- T_o = {T_stag:.3g} K, P_o = {P_stag/fixed.P:.3g} atm (stagnation values)')
+print(f' -- T_* = {T0:.3g} K, P_* = {args.pressure:.3g} atm, Ma_* = {Ma0:.3g}, w0 = {args.w0:.3g}')
 print(f' -- S_* = {S:.3g}, c_* = {c0:.3g} m/s, g_* = {g:.3g}')
 print(f' -- vapor mass flow rate = {dotm*args.w0*1e3*60:.3g} g/min')
 print(f' -- condensate mass flow rate = {dotm*g*1e3*60:.3g} g/min')
@@ -454,7 +456,7 @@ if args.dry:
     gamma, c_p = _gamma(g0), _c_p(g0)
     Aratio = nozzle.A(X*L1)/nozzle.A(0)
     Ma = Ma0*np.array([ root_scalar(isentropic, args=x, x0=x, bracket=[1,1e2]).root for x in Aratio ])
-    T = T0*(1 + (gamma-1)*Ma0**2/2)/(1 + (gamma-1)*Ma**2/2)
+    T = T0*(2 + (gamma-1)*Ma0**2)/(2 + (gamma-1)*Ma**2)
     P = dotm*sqrt((gamma-1)*c_p*T)/gamma/Ma/nozzle.A(X*L1)
     kwargs = { 'color': 'black', 'linewidth': 1, 'label': 'dry' }
     axs[0, 0].plot(X, P/fixed.P, **kwargs); axs[0, 0].legend(loc='upper center')
