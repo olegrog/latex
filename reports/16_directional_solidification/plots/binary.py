@@ -105,12 +105,14 @@ _V_bif_eq = lambda v,k: v - _K(v)/_denom(k,v)**2*(
     (_s(k)+1)/(2*_l(k)-1) - args.Dratio**2*(_l(k)-1)/(2*_s(k)+1) )
 _V_bif = np.vectorize(lambda k: root_scalar(_V_bif_eq, args=k, bracket=[0, Vmax]).root + small)
 
-### The 2D equation for finding the most unstable wavenumber
-__f = lambda a,k,g,v: a + -_L(a,k)+1 + (_calG(g,v) + v*k**2)*(
-    _L(a,k)-1 + _K(v)*(_S(a,k)+1) )
-__f_kk = lambda a,k,g,v: -_L_kk(a,k) + (_calG(g,v) + v*k**2)*(
-    _L_kk(a,k) + _K(v)*_S_kk(a,k)) + v*(_L(a,k)-1 + _K(v)*(_S(a,k)+1))
-_most_eq = lambda a,k,g,v: (__f(a,k,g,v), __f_kk(a,k,g,v))
+### Dispersion relation
+_f = lambda a,k,g,v: a - _L(a,k)+1 + (_calG(g,v) + v*k**2)*(_L(a,k)-1 + _K(v)*(_S(a,k)+1))
+_f_a = lambda a,k,g,v: 1 - _L_a(a,k) + (_calG(g,v) + v*k**2)*(_L_a(a,k) + _K(v)*_S_a(a,k))
+_f_kk = lambda a,k,g,v: -_L_kk(a,k) + (_calG(g,v) + v*k**2)*(_L_kk(a,k) + _K(v)*_S_kk(a,k)) \
+    + v*(_L(a,k)-1 + _K(v)*(_S(a,k)+1))
+
+### Equation for finding the most unstable wavenumber
+_most_eq = lambda a,k,g,v: (_f(a,k,g,v), _f_kk(a,k,g,v))
 
 ### Other functions
 interval_mesh = lambda a, b, va, vb: (erf(np.linspace(-va, vb, args.N)) + 1)*(b-a)/2 + a
@@ -195,7 +197,7 @@ if args.stdin:
             k_max, status = np.infty, 'too_large_gradient'
         else:
             k0 = _k0(g,v)
-            a0 = -__f(0,k0,g,v)
+            a0 = -_f(0,k0,g,v)
             res = root(lambda x: _most_eq(*x,g,v), [a0,k0], method='lm')
             if not res.success:
                 k_max, status = np.infty, 'failed'
@@ -246,25 +248,24 @@ if args.mode == modes['b']:
     G = _G_kv(K,V)
 
     ax = axs[1] if args.verbose else plt
-    ax.plot(V, G)
-    ax.fill_between(V, np.min(G) + 0*G, G, **Style.unstable)
 
     if args.stdin:
         for label in Ks:
             ax.plot(Vs[label], Gs[label], label=label)
-        if args.verbose:
-            ax.set_xlim(left=V[-1])
-        else:
-            ax.xlim(left=V[-1])
+
+    ax.plot(V, G)
+    ax.fill_between(V, np.min(G) + 0*G, G, **Style.unstable)
 
     ax.legend()
     ax.plot(v_star, Gmax, **Style.point)
     ax.annotate(r'$\hat{G}_\mathrm{max}$', (v_star, Gmax), **Style.annotate)
 
     if args.verbose:
+        ax.set_xlim(left=V[-1])
         ax.set_xlabel(r'$\hat{V}$')
         ax.set_ylabel(r'$\hat{G}$', rotation=0)
     else:
+        ax.xlim(left=V[-1])
         ax.xlabel(r'$\hat{V}$')
         ax.ylabel(r'$\hat{G}$', rotation=0)
 
@@ -309,12 +310,9 @@ elif args.mode == modes['f']:
         print(f'k_0 = {k0:.5g}')
 
     # Equation for a_0(k) and its derivatives w.r.t. a_0 and k^2
-    _a_eq = lambda a,k: a - _L(a,k)+1 + (calG + args.V*k**2)*(
-        _L(a,k)-1 + _K(args.V)*(_S(a,k)+1) )
-    _a_eq_a = lambda a,k: 1 - _L_a(a,k) + (calG + args.V*k**2)*(
-        _L_a(a,k) + _K(args.V)*_S_a(a,k) )
-    _a_eq_kk = lambda a,k: -_L_kk(a,k) + (calG + args.V*k**2)*(
-        _L_kk(a,k) + _K(args.V)*_S_kk(a,k)) + args.V*(_L(a,k)-1 + _K(args.V)*(_S(a,k)+1))
+    _a_eq = lambda a,k: _f(a,k,args.G,args.V)
+    _a_eq_a = lambda a,k: _f_a(a,k,args.G,args.V)
+    _a_eq_kk = lambda a,k: _f_kk(a,k,args.G,args.V)
 
     ### 1. Find the critical point (where a1(k)=a2(k)); a_0 is complex behind this point
     if args.G > 0:
@@ -438,8 +436,10 @@ elif args.mode == modes['f']:
         _a_complex_eq = lambda x,k: (real(_a_eq(_ac(x),k)), imag(_a_eq(_ac(x),k)))
         Kc = interval_mesh(K[0], k_crit, 1, logN)[::2]
         A_guess = np.vectorize(_amean)(Kc)*(1 - 0.5*(Kc-k_crit)/(Kc[0]-k_crit))
-        A_real, A_imag = np.array([ root(_a_complex_eq, [a,0], args=k).x for a,k in zip(A_guess,Kc) ]).T
+        A_real, A_imag = np.array([ root(_a_complex_eq, [a,-a], args=k).x for a,k in zip(A_guess,Kc) ]).T
         plt.plot(Kc, A_real)
+        if args.debug:
+            plt.plot(Kc, A_imag)
         plt.ylim(add_tmargin(np.min(np.r_[A1,A2]), np.max(np.r_[A1,A_real])))
 
     ### Draw one of the points of the stable branch

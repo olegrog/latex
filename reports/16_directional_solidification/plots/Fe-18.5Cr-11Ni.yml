@@ -1,0 +1,5 @@
+# The data are from [Bobadilla, Lacaze & Lesoult 1988] (bcc phase)
+{
+    Cr: [ 0.185, -67., 0.9, 1.8e-9 ],
+    Ni: [ 0.110, -313., 0.8, 0.8e-9 ]
+}

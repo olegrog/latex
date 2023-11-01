@@ -1,0 +1,7 @@
+# The thermodynamic data is from TCFE9 processes by read_thermocalc.py
+{
+    Cr: [ 0.17, 128.2, 1.028, 2.e-9 ],
+    Ni: [ 0.12, -779.8, 0.7613, 2.e-9 ],
+    Mo: [ 0.025, 103.7, 1.152, 2.e-9 ],
+     C: [ 0.0003, -7.277, 0.109, 2.e-9 ]
+}
