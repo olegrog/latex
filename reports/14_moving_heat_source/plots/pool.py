@@ -18,10 +18,10 @@ class ParseMode(argparse.Action):
 str2pair = lambda s: [float(item) for item in s.split(':')]
 
 parser.add_argument('mode', choices=[*modes.keys(), *modes.values()], action=ParseMode, help='Execution mode')
+parser.add_argument('--alloy', type=str, default='Fe-18.5Cr-11Ni.yml', help='alloy properties in the YAML format')
 parser.add_argument('-N', type=int, default=100, help='number of points along each axis')
 parser.add_argument('-T', '--Tratio', type=float, default=0.05, help='T_M/T_0')
 parser.add_argument('--micro-coeffs', type=str2pair, default='1:1', help='V/cosPhi and G/gradT')
-parser.add_argument('-K', type=float, default=0.5, help='partition coefficient')
 parser.add_argument('-s', '--figsize', type=str2pair, default='5:4', help='figure size')
 parser.add_argument('-a', '--arc', action='store_true', help='use the arc-length coordinate instead of x')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
@@ -85,7 +85,7 @@ def update_coords(vlines=[0,1]):
         for x in vlines:
             plt.axvline(x=x, **Style.thin)
 
-if args.debug:
+if args.debug and args.mode != modes['w']:
     X = np.linspace(-3, 3, args.N)
     for m in func.keys():
         plt.plot(X, func[m](1,X), label='func')
@@ -115,9 +115,13 @@ if args.verbose and args.mode == modes['b']:
     print(f'First estimation: length = {lengthApprox:.5g}, depth = {depthAtZeroX:.5g}')
 
 if args.mode == modes['w']:
-    cmd = f'../../16_directional_solidification/plots/binary.py b -a --stdin -w -K={args.K} -l'
+    sdir='../../16_directional_solidification/plots'
+    cmd = f'{sdir}/multi.py b -a --stdin -w -l --output=bifurcation-pool.pdf'
+    cmd = f'{sdir}/binary.py -K=0.834 b -a --stdin -w -l --output=bifurcation-pool.pdf'
     if args.pdf:
         cmd += ' --pdf'
+#    if args.alloy:
+#        cmd += f' {sdir}/{args.alloy}'
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
         shell=True, text=True, bufsize=0)
 
@@ -233,18 +237,20 @@ for n, label in enumerate([ 'Rosenthal 1946', 'Levin 2008' ]):
             if a <= 0:
                 wavelength = 0
             Wavelength.append(float(wavelength))
+            if args.debug:
+                print(label, v, g, status, wavelength, a)
         update_coords([0])
         plt.plot(X, Wavelength, label=_latex(label))
         plt.ylabel(r'$\hat{\lambda}$', rotation=0, ha='right')
         plt.plot([xminmax[0], xdepth], [Wavelength[0], 0], **Style.point)
 
-        if args.verbose:
+        if args.verbose and np.sum(Wavelength) > 0:
             Wavelength = np.array(Wavelength)
             m = Wavelength > 0
             mean_w = np.sum(R[m]*CosPhi[m]*DS[m]*Wavelength[m])/np.sum(R[m]*CosPhi[m]*DS[m])
             plt.plot([X[m][0], X[m][-1]], [mean_w, mean_w], **Style.dashed)
             print(f'{label:>14s}: most unstable wavelength: weighted mean = {mean_w:.5g}, ' +
-                f'min = {np.min(Wavelength):.5g},  max = {np.max(Wavelength):.5g}')
+                f'min = {np.min(Wavelength):.5g}, max = {np.max(Wavelength):.5g}')
 
 
 if args.mode == modes['w']:
