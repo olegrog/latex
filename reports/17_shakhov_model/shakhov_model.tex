@@ -1,0 +1,151 @@
+\documentclass{article}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+
+%%% Functional packages
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{physics}
+\usepackage{subcaption}
+\usepackage{graphicx}
+    \graphicspath{{relaxation/}}
+
+%%% Configuration packages
+%\usepackage{fullpage}
+
+%%% Problem-specific aliases
+\newcommand{\Kn}{\mathrm{Kn}}
+\newcommand{\Ma}{\mathrm{Ma}}
+\newcommand{\equil}[1]{#1^\mathrm{(eq)}}
+
+\usepackage[
+    pdfusetitle,
+    colorlinks
+]{hyperref}
+
+\usepackage[
+    backend=biber,
+    style=numeric,
+    giveninits=true,
+    sorting=none,
+    mincrossrefs=100, % do not add parent collections
+]{biblatex}
+\addbibresource{shakhov_model.bib}
+
+\title{Shakhov relaxation model for Boltzmann collisional operator}
+\author{Oleg Rogozin}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Kinetic equation}
+
+%%% Boltzmann--Shakhov equation
+The Boltzmann kinetic equation have the following dimensionless form:
+\begin{equation}\label{eq:Boltzmann}
+    \pdv{f}{t} + \xi_i\pdv{f}{x_i} = \frac1kJ(f),
+\end{equation}
+where $f(t,x_i,\xi_i)$ is the velocity distribution function, $k=\Kn\sqrt\pi/2$,
+and $\Kn$ is the Knudsen number.
+The collision operator $J(f)$ can be simplified by the relaxation model
+\begin{equation}\label{eq:model}
+    J_S(f) = \frac{\rho T^{1-\omega}}{\gamma_1}\qty(\equil{f} - f),
+\end{equation}
+which reproduces the viscosity coefficient $\gamma_1T^\omega$.
+\textcite{shakhov1968generalization} proposed the equilibrium function
+\begin{equation}\label{eq:Shakhov}
+    \equil{f} = f_M\qty(1 + \frac{1-\Pr}{5\pi^{3/2}}\frac{4q_ic_i}{pT}\qty(\frac{c^2}T - \frac52))
+\end{equation}
+to ensure the given Prandtl number $\Pr$. Here
+\begin{equation}\label{eq:Maxwell}
+    f_M = \frac{\rho}{(\pi T)^{3/2}}\exp(-\frac{c^2}T)
+\end{equation}
+is the Maxwell distribution.
+
+%%% Macroscopic variables
+The macroscopic variables are calculated as follows:
+\begin{equation}\label{eq:macro}
+    \rho = \int f \dd\xi, \quad
+    \rho v_i = \int \xi_i f \dd\xi, \quad
+    p = \rho T = \frac23\int c^2 f \dd\xi, \quad
+    q_i = \int c_i c^2 f \dd\xi,
+\end{equation}
+where \(\rho\) is the density, \(v_i\) is the velocity, \(T\) is the temperature, \(p\) is the pressure,
+and \(q_i\) is the heat-flux vector. For brevity, we use \(c_i = \xi_i - v_i\) and \(c = |\boldsymbol{c}|\).
+
+\section{Space-homogeneous relaxation problem}
+
+%%% Space-homogeneous solution
+In the space-homogeneous case, we have
+\begin{equation}\label{eq:relax}
+    \pdv{f}{t} = \frac1\tau\qty(\equil{f} - f),
+\end{equation}
+where the relaxation time $\tau$ is time-independent.
+This equation can be solved analytically (see, e.g., \cite{titarev2004numerical}).
+The heat flux relaxes uniformly:
+\begin{equation}\label{eq:relax:q}
+    q(t) = q(0)\exp(-\frac23\frac{t}\tau).
+\end{equation}
+In contrast, the distribution function evolves non-monotonically:
+\begin{equation}\label{eq:relax:f}
+    f(t) = f(0)\exp(-\frac{t}\tau) + f_M\qty(1 - \exp(-\frac{t}\tau) + 3A\qty(1-\exp(-\frac23\frac{t}\tau))),
+\end{equation}
+where
+\begin{equation}\label{eq:relax:A}
+    A = \frac{1-\Pr}{5\pi^{3/2}}\frac{4q(t)}{\rho T^2}(\xi_r - u)\qty(\frac{c^2}{T} - \frac52)
+\end{equation}
+for a radially symmetric distribution function.
+
+%%% H-function
+It is known that so called $H$-function defined as
+\begin{equation}\label{eq:relax:H}
+    H(t) = \int f\ln{f}\dd\xi
+\end{equation}
+never increases, i.e., $\pdv*{H}{t}\leq0$, for the Boltzmann equation,
+but this is not true for the Shakhov relaxation model.
+
+\section{Numerical tests}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{vdf-0.0}
+        \caption{$t=0$}
+        \label{fig:piecewise:0}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{vdf-1.0}
+        \caption{$t=1$}
+        \label{fig:piecewise:1}
+    \end{subfigure}\\
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{vdf-2.0}
+        \caption{$t=2$}
+        \label{fig:piecewise:2}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{vdf-4.0}
+        \caption{$t=4$}
+        \label{fig:piecewise:4}
+    \end{subfigure}
+    \caption{
+        Relaxation of the piecewise-constant distribution function.
+        The blue solid lines with markers are the solution at various time mo.
+        The orange dashed lines correspond to the Maxwellian with the same macroscopic variables. 
+    }\label{fig:piecewise}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{solution}
+    \caption{
+        Evolution of the $H$-function. The thin dotted line represents its value for the Maxwellian.
+    }\label{fig:piecewise:H}
+\end{figure}
+
+Evolution of the distribution function in the space-homogeneous case is shown in
+Figs.~\ref{fig:piecewise} and~\ref{fig:piecewise:H}.
+
+\printbibliography
+
+\end{document}
