@@ -18,6 +18,7 @@ parser.add_argument('-r', '--ratio', type=float, default=2, help='ratio of value
 parser.add_argument('-i', '--inner', type=float, default=1, help='outer cutting radius of VDF')
 parser.add_argument('-o', '--outer', type=float, default=2, help='outer cutting radius of VDF')
 parser.add_argument('-R', '--radius', type=float, default=5, help='radius of the velocity grid')
+parser.add_argument('-q', '--qflow', type=float, default=5, help='heat flux in grad13 distribution')
 parser.add_argument('-g', '--grid', default='uniform', metavar='uniform|hermite|polynomial|geometric', help='type of the grid')
 parser.add_argument('-p', '--plot', type=int, default=10, help='plot every <int> steps')
 parser.add_argument('-l', '--log', action='store_true', help='use log axes')
@@ -59,22 +60,24 @@ def maxwell(macro):
     ))
 
     psi = np.vstack(( ones, xi, sqr(xi) ))
-    moments = rho*np.array([ 1, speed, fixed.D*temp/2 ])
+    rho_, speed_, temp_ = macro[:3]
+    moments = rho_*np.array([ 1, speed_, fixed.D*temp_/2 ])
     vdf = maxw5
     vdf_jac = lambda m: np.einsum('i,li->li', maxw5(m), maxw5_jac(m))
 
     sol = optimize.root(
         fun = lambda m, psi, moments: np.einsum('li,i', psi, vdf(m)) - moments,
         jac = lambda m, psi, _: np.einsum('li,mi', psi, vdf_jac(m)),
-        x0 = macro, args=(psi, moments)
+        x0 = macro[:3], args=(psi, moments)
     )
     return vdf(sol.x)
 
 def grad13(macro):
+    qflow = macro[3]
     qc = lambda m: qflow * _c(m[1])
     cc_5T = lambda m: _cc(m[1]) / m[2] / (fixed.D+2)
     g_qflow = lambda m: qc(m) * (cc_5T(m) - 1)
-    vdf = lambda m: maxwell(macro) * (1 + g_qflow(m)) / m[0] / m[2]**2
+    vdf = lambda m: maxwell(macro) * (1 + g_qflow(m) / m[0] / m[2]**2)
     return vdf(macro)
 
 def initial_vdf():
@@ -95,7 +98,7 @@ def initial_vdf():
             if args.verbose:
                 print(f'VDF: left = {f[neg][0]:.3g}, right = {f[pos][0]:.3g}, ratio = {ratio:.3g}')
         case 'grad13':
-            macro = np.array([1, 0, 1])
+            macro = np.array([1, 0, 1, args.qflow])
             f = grad13(macro)
         case _:
             raise ValueError('Function type is undefined!')

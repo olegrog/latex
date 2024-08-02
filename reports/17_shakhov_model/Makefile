@@ -1,6 +1,6 @@
 PROJECT = $(shell git ls-files | grep \.tex$$ | cut -f 1 -d '.')
 SOLVER = relaxation/solver.py
-CASES = _piecewise _piecewise_hole #_grad13
+CASES = _piecewise _piecewise_hole _grad13
 FIGURES = $(addsuffix /solution.pdf, $(CASES))
 SOURCES = $(PROJECT).tex $(FIGURES)
 
@@ -14,7 +14,7 @@ options_piecewise = \
 options_piecewise_hole = \
 	--function=piecewise --inner=1 --outer=2 --ratio=2
 options_grad13 = \
-	--function=grad13
+	--function=grad13 --qflow=1 --radius=3
 
 _%/solution.pdf: $(SOLVER)
 	mkdir -p _$*

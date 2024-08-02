@@ -111,22 +111,22 @@ but this is not true for the Shakhov relaxation model.
     \centering
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{_#1/vdf-0.0}
-        \caption{$f(r,t=0)$}
+        \caption{$f(\xi_r)$ at $t=0$}
         \label{fig:#1:0}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{_#1/vdf-1.0}
-        \caption{$f(r,t=1)$}
+        \caption{$f(\xi_r)$ at $t=1$}
         \label{fig:#1:1}
     \end{subfigure}\\
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{_#1/vdf-2.0}
-        \caption{$f(r,t=2)$}
+        \caption{$f(\xi_r)$ at $t=2$}
         \label{fig:#1:2}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{_#1/vdf-4.0}
-        \caption{$f(r,t=4)$}
+        \caption{$f(\xi_r)$ at $t=4$}
         \label{fig:#1:4}
     \end{subfigure}
     \begin{subfigure}[b]{0.75\textwidth}
@@ -141,12 +141,27 @@ but this is not true for the Shakhov relaxation model.
     }\label{fig:#1}
 \end{figure}
 }
-\addfigure{piecewise}{a piecewise-constant function}
-\addfigure{piecewise_hole}{two-beam distribution function}
-%\addfigure{grad13}{a Grad's distribution function}
+\addfigure{piecewise}{a piecewise-constant function~\eqref{eq:piecewise} with $k=2$, $\xi_i=0$, and $\xi_o=2$}
+\addfigure{piecewise_hole}{two-beam distribution function~\eqref{eq:piecewise} with $k=2$, $\xi_i=1$, and $\xi_o=2$}
+\addfigure{grad13}{a Grad's distribution function~\eqref{eq:grad13} with $q_0=1$}
 
-Evolution of the distribution function in the space-homogeneous case is shown in
+Evolution of a piecewise-constant distribution function in the space-homogeneous case is shown in
 Figs.~\ref{fig:piecewise} and~\ref{fig:piecewise_hole}.
+When the initial distribution contains negative values,
+H-function can be negative and increase in time (Fig.~\ref{fig:grad13}).
+
+We consider several cases for initial-value problem. First, we set
+\begin{equation}\label{eq:piecewise}
+    f(\xi_r) = \begin{cases}
+        A &\text{if } -\xi_o < \xi_r < -\xi_i, \\
+        Ak &\text{if } \xi_i/\sqrt{k} < \xi_r < \xi_o/\sqrt{k}.
+    \end{cases}
+\end{equation}
+Second, we consider
+\begin{equation}\label{eq:grad13}
+    f(\xi_r) = f_M(\xi_r)\qty(1 + \frac{q_0}{\rho T^2}\int c\qty(\frac{c^2}{3T} - 1)\dd\xi_r).
+\end{equation}
+
 
 \printbibliography
 
