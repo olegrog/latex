@@ -102,8 +102,12 @@ It is known that so called $H$-function defined as
 \begin{equation}\label{eq:relax:H}
     H(t) = \int f\ln{f}\dd\xi
 \end{equation}
-never increases, i.e., $\pdv*{H}{t}\leq0$, for the Boltzmann equation,
-but this is not true for the Shakhov relaxation model.
+never increases, i.e., $\dv*{H}{t}\leq0$, for the Boltzmann equation.
+In the general case, this is not true for the Shakhov relaxation model.
+Nevertheless, it can be shown that
+\begin{equation}\label{eq:relax:dHdt}
+    \dv{H}{t} = -\frac{\Pr(1-\Pr)}{\tau(D+2)}\frac{4q^2}{pT^2} + \mathcal{O}(q^4).
+\end{equation}
 
 \section{Numerical tests}
 
