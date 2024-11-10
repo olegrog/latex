@@ -9,6 +9,7 @@ sys.path.append('../../09_bgk_lattice/couette')
 import vgrid
 
 parser = argparse.ArgumentParser(description='Solver for the Boltzmann--Shakhov equation')
+parser.add_argument('-P', '--Pr', type=float, default=2/3, help='Prandtl number')
 parser.add_argument('-N', type=int, default=20, help='number of points along xi_r')
 parser.add_argument('-t', '--timestep', type=float, default=0.2, help='time step')
 parser.add_argument('-e', '--end', type=float, default=10, help='total time')
@@ -18,13 +19,14 @@ parser.add_argument('-r', '--ratio', type=float, default=2, help='ratio of value
 parser.add_argument('-i', '--inner', type=float, default=1, help='outer cutting radius of VDF')
 parser.add_argument('-o', '--outer', type=float, default=2, help='outer cutting radius of VDF')
 parser.add_argument('-R', '--radius', type=float, default=5, help='radius of the velocity grid')
-parser.add_argument('-q', '--qflow', type=float, default=5, help='heat flux in grad13 distribution')
+parser.add_argument('-q', '--qflow', type=float, default=1, help='initial heat flux')
 parser.add_argument('-g', '--grid', default='uniform', metavar='uniform|hermite|polynomial|geometric', help='type of the grid')
 parser.add_argument('-p', '--plot', type=int, default=10, help='plot every <int> steps')
 parser.add_argument('-l', '--log', action='store_true', help='use log axes')
 parser.add_argument('--gratio', type=float, default=1.15, help='ratio for the geometric grid')
 parser.add_argument('--w-min', type=float, default=0.1, help='minimum weight for the polynomial grid')
 parser.add_argument('--poly', type=float, default=2, help='power for the polynomial grid')
+parser.add_argument('-c', '--non-conservative', action='store_true', help='use a non-conservative scheme')
 parser.add_argument('--pdf', action='store_true', help='save PDF file instead')
 parser.add_argument('-v', '--verbose', action='store_true', help='increase output verbosity')
 args = parser.parse_args()
@@ -32,7 +34,6 @@ args = parser.parse_args()
 ### Constants
 class fixed:
     D = 1                   # dimension of velocity space
-    Pr = 2/3                # Prandtl number
 
 sqr = lambda x: x*x
 _c = lambda vel: xi - vel
@@ -42,7 +43,7 @@ def calc_macro(f, time = -1):
     rho = np.sum(f)
     speed = np.sum(f*xi)/rho
     c, cc = _c(speed), _cc(speed)
-    temp = 2*np.sum(f*cc)/rho
+    temp = 2*np.sum(f*cc)/rho/fixed.D
     qflow = np.sum(f*c*cc)
     pos, neg = f>0, f<0
     hfunc = np.sum(f[pos]*log((f/w)[pos]))
@@ -156,7 +157,7 @@ for i in range(int(args.end // args.timestep)):
         print(f'# Iteration = {i}, time = {time:.5g}')
     e1, e23 = exp(-time/args.tau), exp(-1/fixed.D*time/args.tau)
     q = qflow0*e23
-    A = (1-fixed.Pr)/5/pi**(fixed.D/2)*4*q/rho/temp**2*_c(speed)*(_cc(speed)/temp - 5/2)
+    A = (1-args.Pr)/pi**(fixed.D/2)*2*q/rho/temp**2*_c(speed)*(2*_cc(speed)/(fixed.D+2)/temp - 1)
     f = f_0*e1 + f_M*(1 - e1 + fixed.D*A*(1 - e23))
 
     Q1.append(q)
