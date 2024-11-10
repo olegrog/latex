@@ -1,24 +1,29 @@
 PROJECT = $(shell git ls-files | grep \.tex$$ | cut -f 1 -d '.')
 SOLVER = relaxation/solver.py
-CASES = _piecewise _piecewise_hole _grad13
+CASES = _piecewise _piecewise_hole _bimaxwell _grad13
 FIGURES = $(addsuffix /solution.pdf, $(CASES))
-SOURCES = $(PROJECT).tex $(FIGURES)
+SOURCES = $(PROJECT).tex $(PROJECT).bib $(FIGURES)
 
-all: $(PROJECT).pdf
+all: $(PROJECT).pdf $(PROJECT).zip
 
 $(PROJECT).pdf: $(SOURCES)
 	latexmk -xelatex $(PROJECT) -shell-escape
 
+$(PROJECT).zip: $(SOURCES)
+	zip -r $@ $(PROJECT).tex $(PROJECT).bib $(CASES)
+
 options_piecewise = \
-	--function=piecewise --inner=0 --outer=2 --ratio=2
+	--function=piecewise --inner=0 --outer=2 --ratio=2 --radius=4
 options_piecewise_hole = \
-	--function=piecewise --inner=1 --outer=2 --ratio=2
+	--function=piecewise --inner=1 --outer=2 --ratio=2 --radius=4
+options_bimaxwell = \
+	--function=bimaxw --qflow=0.1 --radius=3
 options_grad13 = \
-	--function=grad13 --qflow=1 --radius=3
+	--function=grad13 --qflow=0.1 --radius=3
 
 _%/solution.pdf: $(SOLVER)
 	mkdir -p _$*
-	cd _$* && ../$(SOLVER) --pdf -N=200 --end=5 --timestep=0.05 --plot=20 --grid=uniform $(options_$*)
+	cd _$* && ../$(SOLVER) --pdf -N=200 --end=4.1 --timestep=0.025 --plot=40 --grid=uniform $(options_$*)
 
 .PHONY: clean
 

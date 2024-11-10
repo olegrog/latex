@@ -94,7 +94,7 @@ where
 \begin{equation}\label{eq:relax:A}
     A = \frac{1-\Pr}{5\pi^{3/2}}\frac{4q(t)}{\rho T^2}(\xi_r - u)\qty(\frac{c^2}{T} - \frac52)
 \end{equation}
-for a radially symmetric distribution function.
+for a radially symmetric distribution function $f(t,\xi_i) = f(t,\xi)$.
 
 %%% H-function
 It is known that so called $H$-function defined as
@@ -108,28 +108,29 @@ but this is not true for the Shakhov relaxation model.
 
 \newcommand{\addfigure}[2]{
 \begin{figure}
+    \vspace{-20pt}
     \centering
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{_#1/vdf-0.0}
-        \caption{$f(\xi_r)$ at $t=0$}
+        \caption{$f(\xi)$ at $t=0$}
         \label{fig:#1:0}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{_#1/vdf-1.0}
-        \caption{$f(\xi_r)$ at $t=1$}
+        \caption{$f(\xi)$ at $t=1$}
         \label{fig:#1:1}
     \end{subfigure}\\
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{_#1/vdf-2.0}
-        \caption{$f(\xi_r)$ at $t=2$}
+        \caption{$f(\xi)$ at $t=2$}
         \label{fig:#1:2}
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{_#1/vdf-4.0}
-        \caption{$f(\xi_r)$ at $t=4$}
+        \caption{$f(\xi)$ at $t=4$}
         \label{fig:#1:4}
     \end{subfigure}
-    \begin{subfigure}[b]{0.75\textwidth}
+    \begin{subfigure}[b]{0.6\textwidth}
         \includegraphics[width=\textwidth]{_#1/solution}
         \caption{$H$-function}
         \label{fig:#1:H}
@@ -143,24 +144,32 @@ but this is not true for the Shakhov relaxation model.
 }
 \addfigure{piecewise}{a piecewise-constant function~\eqref{eq:piecewise} with $k=2$, $\xi_i=0$, and $\xi_o=2$}
 \addfigure{piecewise_hole}{two-beam distribution function~\eqref{eq:piecewise} with $k=2$, $\xi_i=1$, and $\xi_o=2$}
-\addfigure{grad13}{a Grad's distribution function~\eqref{eq:grad13} with $q_0=1$}
+\addfigure{bimaxwell}{bi-maxwell distribution function~\eqref{eq:bimaxwell} with $T=1$ and $q_0=0.1$}
+\addfigure{grad13}{a Grad's distribution function~\eqref{eq:grad13} with $T=1$ and $q_0=0.1$}
 
-Evolution of a piecewise-constant distribution function in the space-homogeneous case is shown in
-Figs.~\ref{fig:piecewise} and~\ref{fig:piecewise_hole}.
-When the initial distribution contains negative values,
-H-function can be negative and increase in time (Fig.~\ref{fig:grad13}).
-
-We consider several cases for initial-value problem. First, we set
+Here, we simulate evolution of a distribution function for the 1-D space-homogeneous case with $\Pr = 2/3$.
+We consider several cases for initial-value problem with $\rho=1$ and $u=0$.
+Relaxation of a piecewise-constant VDF
 \begin{equation}\label{eq:piecewise}
-    f(\xi_r) = \begin{cases}
-        A &\text{if } -\xi_o < \xi_r < -\xi_i, \\
-        Ak &\text{if } \xi_i/\sqrt{k} < \xi_r < \xi_o/\sqrt{k}.
+    f(\xi) = \begin{cases}
+        A &\text{if } -\xi_o < \xi < -\xi_i, \\
+        Ak &\text{if } \xi_i/\sqrt{k} < \xi < \xi_o/\sqrt{k}
     \end{cases}
 \end{equation}
-Second, we consider
-\begin{equation}\label{eq:grad13}
-    f(\xi_r) = f_M(\xi_r)\qty(1 + \frac{q_0}{\rho T^2}\int c\qty(\frac{c^2}{3T} - 1)\dd\xi_r).
+is shown in Figs.~\ref{fig:piecewise} and~\ref{fig:piecewise_hole}.
+Relaxation of a bi-Maxwellian
+\begin{equation}\label{eq:bimaxwell}
+    f(\xi) = \begin{cases}
+        f_M[\rho_1, 0, T_1](\xi) &\text{if } \xi < 0, \\
+        f_M[\rho_2, 0, T_2](\xi) &\text{if } \xi > 0
+    \end{cases}
 \end{equation}
+is shown in Fig.~\ref{fig:bimaxwell}.
+Finally, relaxation of a smooth distribution function with a non-zero heat flux
+\begin{equation}\label{eq:grad13}
+    f(\xi) = f_M[1, 0, T](\xi)\qty(1 + \frac{2q_0\xi}{T^2}\qty(\frac{2\xi^2}{(D+2)T} - 1))
+\end{equation}
+is shown in Fig.~\ref{fig:grad13}.
 
 
 \printbibliography

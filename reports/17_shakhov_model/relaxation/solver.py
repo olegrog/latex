@@ -61,48 +61,65 @@ def maxwell(macro):
 
     psi = np.vstack(( ones, xi, sqr(xi) ))
     rho_, speed_, temp_ = macro[:3]
-    moments = rho_*np.array([ 1, speed_, fixed.D*temp_/2 ])
+    moments = rho_*np.array([ 1, speed_, fixed.D*temp_/2 + speed_**2 ])
     vdf = maxw5
     vdf_jac = lambda m: np.einsum('i,li->li', maxw5(m), maxw5_jac(m))
+
+    if args.non_conservative:
+        return vdf(macro)
 
     sol = optimize.root(
         fun = lambda m, psi, moments: np.einsum('li,i', psi, vdf(m)) - moments,
         jac = lambda m, psi, _: np.einsum('li,mi', psi, vdf_jac(m)),
         x0 = macro[:3], args=(psi, moments)
     )
+    if not sol.success:
+        raise Exception(sol)
+
     return vdf(sol.x)
 
 def grad13(macro):
     qflow = macro[3]
-    qc = lambda m: qflow * _c(m[1])
-    cc_5T = lambda m: _cc(m[1]) / m[2] / (fixed.D+2)
+    qc = lambda m: 2 * qflow * _c(m[1])
+    cc_5T = lambda m: 2 * _cc(m[1]) / (fixed.D+2) / m[2]
     g_qflow = lambda m: qc(m) * (cc_5T(m) - 1)
     vdf = lambda m: maxwell(macro) * (1 + g_qflow(m) / m[0] / m[2]**2)
     return vdf(macro)
 
 def initial_vdf():
     f = np.zeros_like(xi)
-    match args.function:
-        case 'piecewise':
-            i, o = args.inner, args.outer
-            ratio, R = args.ratio, args.radius
-            if (i >= o):
-                raise ValueError('Inner radius is larger than the outer one!')
-            if (o > R or o/sqrt(ratio) > R):
-                raise ValueError('Cutting radius is too big!')
-            neg, pos = (-o < xi) * (xi < -i), (i/sqrt(ratio) < xi) * (xi < o/sqrt(ratio))
-            ratio = -np.sum((xi*w)[neg])/np.sum((xi*w)[pos])
-            mass = np.sum(w[neg]) + ratio*np.sum(w[pos])
-            f[neg] = 1/mass
-            f[pos] = ratio/mass
-            if args.verbose:
-                print(f'VDF: left = {f[neg][0]:.3g}, right = {f[pos][0]:.3g}, ratio = {ratio:.3g}')
-        case 'grad13':
-            macro = np.array([1, 0, 1, args.qflow])
-            f = grad13(macro)
-        case _:
-            raise ValueError('Function type is undefined!')
-    return f*w
+    for function_type in args.function.split(','):
+        match function_type:
+            case 'maxwell':
+                f += maxwell(np.array([1, 0, 1]))
+            case 'grad13':
+                f += grad13(np.array([1, 0, 1, args.qflow]))
+            case 'piecewise':
+                i, o = args.inner, args.outer
+                ratio, R = args.ratio, args.radius
+                if (i >= o):
+                    raise ValueError('Inner radius is larger than the outer one!')
+                if (o > R or o/sqrt(ratio) > R):
+                    raise ValueError('Cutting radius is too big!')
+                neg, pos = (-o < xi) * (xi < -i), (i/sqrt(ratio) < xi) * (xi < o/sqrt(ratio))
+                ratio = -np.sum((xi*w)[neg])/np.sum((xi*w)[pos])
+                mass = np.sum(w[neg]) + ratio*np.sum(w[pos])
+                f0 = np.zeros_like(f)
+                f0[neg] = 1/mass
+                f0[pos] = ratio/mass
+                f += f0*w
+                if args.verbose:
+                    print(f'VDF: left = {f[neg][0]:.3g}, right = {f[pos][0]:.3g}, ratio = {ratio:.3g}')
+            case 'bimaxw':
+                neg, pos = xi < 0, xi > 0
+                delta = args.qflow/(1 + args.qflow**2)**.5
+                rho1, rho2 = 1 - delta, 1 + delta
+                temp1, temp2 = (2 - rho1)/rho1, (2- rho2)/rho2
+                f[neg] += maxwell(np.array([rho1, 0, temp1]))[neg]
+                f[pos] += maxwell(np.array([rho2, 0, temp2]))[pos]
+            case _:
+                raise ValueError(f'Function type {function_type} is undefined!')
+    return f/len(args.function.split(','))
 
 def print_macro(f):
     rho_, speed_, temp_, qflow_, hfunc_ = calc_macro(f)
@@ -165,8 +182,9 @@ for i in range(int(args.end // args.timestep)):
 ### 2. Plot heat flux
 X = np.array(X); H = np.array(H)
 Q1 = np.array(Q1); Q2 = np.array(Q2)
-plt.plot(X, -Q1, label='Q1')
-plt.plot(X, -Q2, label='Q2')
+sgn = np.sign(Q1[0])
+plt.plot(X, sgn*Q1, label='Q1')
+plt.plot(X, sgn*Q2, label='Q2')
 plt.title('Heat flux')
 plt.legend()
 plt.semilogy()
