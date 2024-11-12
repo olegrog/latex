@@ -1,6 +1,6 @@
 PROJECT = $(shell git ls-files | grep \.tex$$ | cut -f 1 -d '.')
 SOLVER = relaxation/solver.py
-CASES = _piecewise _piecewise_hole _bimaxwell _grad13
+CASES = _piecewise _piecewise_hole _bimaxwell _grad13 _grad13_N4 _grad13_Pr8
 FIGURES = $(addsuffix /solution.pdf, $(CASES))
 SOURCES = $(PROJECT).tex $(PROJECT).bib $(FIGURES)
 
@@ -20,10 +20,14 @@ options_bimaxwell = \
 	--function=bimaxw --qflow=0.1 --radius=3
 options_grad13 = \
 	--function=grad13 --qflow=0.1 --radius=3
+options_grad13_N4 = \
+	--function=grad13 --qflow=0.1 --radius=4 -N=4
+options_grad13_Pr8 = \
+	--function=grad13 --qflow=0.1 --radius=3 --Pr=8
 
 _%/solution.pdf: $(SOLVER)
 	mkdir -p _$*
-	cd _$* && ../$(SOLVER) --pdf -N=200 --end=4.1 --timestep=0.025 --plot=40 --grid=uniform $(options_$*)
+	cd _$* && ../$(SOLVER) --pdf -N=200 --end=4.1 --timestep=0.005 --plot=200 --grid=uniform $(options_$*)
 
 .PHONY: clean
 
