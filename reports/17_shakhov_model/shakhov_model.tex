@@ -7,6 +7,7 @@
 \usepackage{physics}
 \usepackage{subcaption}
 \usepackage{graphicx}
+\usepackage[subfolder]{gnuplottex}
 
 %%% Configuration packages
 \usepackage{fullpage}
@@ -16,6 +17,7 @@
 \newcommand{\Ma}{\mathrm{Ma}}
 \newcommand{\equil}[1]{#1^\mathrm{(eq)}}
 \newcommand{\bxi}{\boldsymbol{\xi}}
+\newcommand{\bzeta}{\boldsymbol{\zeta}}
 
 \usepackage[
     pdfusetitle,
@@ -27,7 +29,6 @@
     style=numeric,
     giveninits=true,
     sorting=none,
-    mincrossrefs=100, % do not add parent collections
 ]{biblatex}
 \addbibresource{shakhov_model.bib}
 
@@ -49,18 +50,19 @@ where $f(t,x_i,\xi_i)$ is the velocity distribution function, $k=\Kn\sqrt\pi/2$,
 and $\Kn$ is the Knudsen number.
 The collision operator $J(f)$ can be simplified by the relaxation model
 \begin{equation}\label{eq:model}
-    J_S(f) = \frac{\rho T^{1-\omega}}{\gamma_1}\qty(\equil{f} - f),
+    J(f) = \frac{\rho T^{1-\omega}}{\gamma_1}\qty(\equil{f} - f),
 \end{equation}
 which reproduces the viscosity coefficient $\gamma_1T^\omega$.
+When the equilibrium function $\equil{f}=f_M$, the model is called BGK~\cite{bhatnagar1954model}.
 \textcite{shakhov1968generalization} proposed the equilibrium function in the form
 \begin{equation}\label{eq:Shakhov}
-    \equil{f} = f_M\qty(1 + \frac{1-\Pr}{\pi^{D/2}}\frac{2q_ic_i}{pT}\qty(\frac{2c^2}{(D+2)T} - 1))
+    \equil{f} = f_S = f_M\qty(1 + \frac{1-\Pr}{D+2}\frac{4q_ic_i}{pT}\qty(\frac{c^2}{T} - \frac{D+2}2))
 \end{equation}
-to ensure the given Prandtl number $\Pr$. Here
+to ensure the given Prandtl number $\Pr$. Here,
 \begin{equation}\label{eq:Maxwell}
     f_M = \frac{\rho}{(\pi T)^{D/2}}\exp(-\frac{c^2}T)
 \end{equation}
-is the Maxwell distribution, $D$ is the dimensionality of the velocity space .
+is the Maxwell distribution, $D$ is the dimensionality of the velocity space.
 For brevity, we use \(c_i = \xi_i - v_i\) and \(c = |\boldsymbol{c}|\).
 
 %%% Macroscopic variables
@@ -74,40 +76,73 @@ The macroscopic variables are calculated as follows:
 where \(\rho\) is the density, \(v_i\) is the velocity, \(T\) is the temperature, \(p\) is the pressure,
 and \(q_i\) is the heat-flux vector.
 
-\section{Space-homogeneous relaxation problem}
+\section{Space-homogeneous problem}
 
 %%% Space-homogeneous solution
 In the space-homogeneous case, we have
 \begin{equation}\label{eq:relax}
-    \pdv{f}{t} = \frac1\tau\qty(\equil{f} - f),
+    \pdv{f}{t} = \frac1\tau\qty(f_S - f),
 \end{equation}
 where the relaxation time $\tau$ is time-independent.
 This equation can be solved analytically (see, e.g., \cite{titarev2004numerical}).
-The heat flux relaxes uniformly:
+The heat flux turns out to relax exponentially:
 \begin{equation}\label{eq:relax:q}
-    q(t) = q(0)\exp(-\frac1D\frac{t}\tau).
+    q_i(t) = q_i(0)\exp(-\Pr\frac{t}\tau).
 \end{equation}
 In contrast, the distribution function evolves non-monotonically:
 \begin{equation}\label{eq:relax:f}
-    f(t) = f(0)\exp(-\frac{t}\tau) + f_M\qty(1 - \exp(-\frac{t}\tau) + DA(t)\qty(1-\exp(-\frac1D\frac{t}\tau))),
+    f(t) = f(0)\exp(-\frac{t}\tau) + f_M\qty(1 + A\exp(-\Pr\frac{t}\tau) - (1+A)\exp(-\frac{t}\tau)),
 \end{equation}
 where
 \begin{equation}\label{eq:relax:A}
-    A(t) = \frac{1-\Pr}{\pi^{D/2}}\frac{2q(t)}{\rho T^2}(\xi - u)\qty(\frac{2c^2}{(D+2)T} - 1)
+    A(\xi) = \frac{4}{D+2}\frac{q_i(0)c_i}{pT}\qty(\frac{c^2}{T} - \frac{D+2}2).
 \end{equation}
-for a radially symmetric distribution function $f(t,\xi_i) = f(t,\xi)$.
 
-%%% H-function
-It is known that so called $H$-function defined as
-\begin{equation}\label{eq:relax:H}
-    H(t) = \int f\ln{f}\dd\xi
+\subsection{$H$ theorem}
+
+%%% H function
+For the Boltzmann equation, it is known that the so-called $H$ function defined as
+\begin{equation}\label{eq:H}
+    H[f](t) = \int f\ln{f}\dd\bxi
 \end{equation}
-never increases, i.e., $\dv*{H}{t}\leq0$, for the Boltzmann equation.
-In the general case, this is not true for the Shakhov relaxation model.
-Nevertheless, it can be shown that
-\begin{equation}\label{eq:relax:dHdt}
-    \dv{H}{t} = -\frac{\Pr(1-\Pr)}{\tau(D+2)}\frac{4q^2}{pT^2} + \mathcal{O}(q^4).
+never increases, i.e.,
+\begin{equation}\label{eq:dHdt}
+    \dv{H}{t} = \int \pdv{f}{t}\ln{f}\dd\bxi \leq 0,
 \end{equation}
+and the equality is achieved at $f = f_M$ only.
+This statement is referred to as the Boltzmann $H$ theorem.
+
+%%% H theorem for relaxation models
+For the BGK model, which preserves positiveness of the distribution function, the proof of the $H$ theorem is straightforward:
+\begin{equation}\label{eq:dHdt_BGK}
+    \tau\dv{H}{t} = \int(f_M-f)\ln{f}\dd\bxi = \int (f_M-f)(\ln{f}-\ln{f_M})\dd\bxi \leq 0.
+\end{equation}
+It is a particular case of the Shakhov model for $\Pr=1$. When $f$ is nonnegative and close to $f_M$ in some sense,
+it is possible to show that (see Appendix~\ref{sec:H_theorem})
+\begin{equation}\label{eq:dHdt_Shakhov}
+    \tau\dv{H}{t} \approx \int(f_S-f)(\ln{f}-\ln{f_S})\dd\bxi - \frac{\Pr(1-\Pr)}{D+2}\frac{4q^2}{pT^2},
+\end{equation}
+which effectively means that the $H$ theorem holds at least for $0\leq\Pr\leq1$ under these assumptions.
+However, in the general case, the solution~\eqref{eq:relax:f} admits negative values of the distribution function,
+which makes the definition~\eqref{eq:H} not applicable.
+Moreover, it is possible to find a positive distribution function for which $\dv*{H}{t}>0$ (see Appendix~\ref{sec:violateH}).
+
+%%% Method of regularization
+Adding an arbitrary positive constant to the distribution function in Eq.~\eqref{eq:H} is a typical way
+of regularizing such a singularity, but it makes derivation~\eqref{eq:dHdt_BGK} invalid.
+Alternatively, all the negative values of the distribution function can be discarded by using the functional
+\begin{equation}\label{eq:H_discarded}
+    \hat{H}[f] = H[\max(f,0)].
+\end{equation}
+The main advantage of this primitive approach is that it does not alter the definition of the $H$ function
+when $f\geq0$; however, it deteriorates the smootheness of the functional.
+The influence of this crude modification can be mollified by taking a convolution with a Maxwellian
+(also called the Weierstrass transform):
+\begin{equation}\label{eq:H_blurred}
+    \tilde{H}[f] = H[\max(g,0)], \quad g(\bxi) = \int f(\bzeta)f_M(\bxi-\bzeta)\dd\bzeta.
+\end{equation}
+An analogous convolution operation, known as the Husimi Q representation in quantum mechanics,
+is widely used for constructing quasiprobability distributions in phase space~\cite{husimi1940some}.
 
 \section{Numerical tests}
 
@@ -137,50 +172,133 @@ Nevertheless, it can be shown that
     \end{subfigure}
     \begin{subfigure}[b]{0.6\textwidth}
         \includegraphics[width=\textwidth]{_#1/solution}
-        \caption{$H$-function}
+        \caption{$\hat{H}(t)$ and $\tilde{H}(t)$ rescaled to the interval from $\hat{H}[f_M]$ to $\hat{H}[f(0)]$.}
         \label{fig:#1:H}
     \end{subfigure}
     \caption{
-        Relaxation of #2.
-        The blue solid lines with markers are the solution at various time moments.
+        Relaxation of the #2.
+        The blue solid lines are the solution at various time moments.
         The orange dashed lines correspond to the Maxwellian with the same macroscopic variables.
+        The green line shows the rescaled convolution of the $H$ function with $f_M$.
     }\label{fig:#1}
 \end{figure}
 }
-\addfigure{piecewise}{a piecewise-constant function~\eqref{eq:piecewise} with $k=2$, $\xi_i=0$, and $\xi_o=2$}
+\addfigure{piecewise}{piecewise-constant function~\eqref{eq:piecewise} with $k=2$, $\xi_i=0$, and $\xi_o=2$}
 \addfigure{piecewise_hole}{two-beam distribution function~\eqref{eq:piecewise} with $k=2$, $\xi_i=1$, and $\xi_o=2$}
-\addfigure{bimaxwell}{bi-maxwell distribution function~\eqref{eq:bimaxwell} with $T=1$ and $q_0=0.1$}
-\addfigure{grad13}{a Grad's distribution function~\eqref{eq:grad13} with $T=1$ and $q_0=0.1$}
-\addfigure{grad13_N4}{a Grad's distribution function~\eqref{eq:grad13} with $T=1$ and $q_0=0.1$ on a crude mesh}
-\addfigure{grad13_Pr8}{a Grad's distribution function~\eqref{eq:grad13} with $T=1$ and $q_0=0.1$ for $Pr=8$}
+\addfigure{pmaxwell}{piecewise-Maxwell distribution function~\eqref{eq:pmaxwell} with $q_0=0.1$}
+\addfigure{pmaxwell_Q2}{piecewise-Maxwell distribution function~\eqref{eq:pmaxwell} with $q_0=2$}
+\addfigure{grad13}{Grad's distribution function~\eqref{eq:grad13} with $q_0=0.1$}
+\addfigure{grad13_Q2}{Grad's distribution function~\eqref{eq:grad13} with $q_0=2$}
+\addfigure{grad13_N4}{Grad's distribution function~\eqref{eq:grad13} with $q_0=0.1$ on a coarse mesh}
 
-Here, we simulate evolution of a distribution function for the 1-D space-homogeneous case with $\Pr = 2/3$.
-We consider several cases for initial-value problem with $\rho=1$ and $u=0$.
-Relaxation of a piecewise-constant VDF
+In this section, we simulate the evolution of a distribution function
+for the 1-D space-homogeneous case with $\Pr = 2/3$.
+We consider several cases for initial-value problem with $\rho=1$, $v=0$.
+The relaxation of the piecewise-constant distribution function
 \begin{equation}\label{eq:piecewise}
-    f(\xi) = \begin{cases}
+    f_1(\xi) = \begin{cases}
         A &\text{if } -\xi_o < \xi < -\xi_i, \\
         Ak &\text{if } \xi_i/\sqrt{k} < \xi < \xi_o/\sqrt{k}
     \end{cases}
 \end{equation}
 is shown in Figs.~\ref{fig:piecewise} and~\ref{fig:piecewise_hole}.
-Relaxation of a bi-Maxwellian
-\begin{equation}\label{eq:bimaxwell}
-    f(\xi) = \begin{cases}
+The relaxation of the piecewise Maxwellian
+\begin{equation}\label{eq:pmaxwell}
+    f_2(\xi) = \begin{cases}
         f_M[\rho_1, 0, T_1](\xi) &\text{if } \xi < 0, \\
         f_M[\rho_2, 0, T_2](\xi) &\text{if } \xi > 0
     \end{cases}
 \end{equation}
-is shown in Fig.~\ref{fig:bimaxwell}.
-Finally, relaxation of a smooth distribution function with a non-zero heat flux
-\begin{equation}\label{eq:grad13}
-    f(\xi) = f_M[1, 0, T](\xi)\qty(1 + \frac{2q_0\xi}{T^2}\qty(\frac{2\xi^2}{(D+2)T} - 1))
+is shown in Fig.~\ref{fig:pmaxwell} and~\ref{fig:pmaxwell_Q2}, where parameters
+\begin{equation}\label{eq:pmaxwell_params}
+    \rho_1 = 1-\Delta, \quad \rho_2 = 1+\Delta, \quad T_1 = \rho_2/\rho_1, \quad T_2 = \rho_1/\rho_2
 \end{equation}
-is shown in Fig.~\ref{fig:grad13}.
+guarantee that $\rho=1$, $v=0$, $T=1$, and
+\begin{equation}\label{eq:pmaxwell_q}
+    q = -\frac2{\sqrt\pi}\frac{\Delta}{\sqrt{1-\Delta^2}}.
+\end{equation}
+Finally, the relaxation of a smooth distribution function with a non-zero heat flux
+\begin{equation}\label{eq:grad13}
+    f_3(\xi) = f_M[1, 0, T](\xi)\qty(1 + \frac{2q_0\xi}{T^2}\qty(\frac{2\xi^2}{(D+2)T} - 1))
+\end{equation}
+is shown in Fig.~\ref{fig:grad13} and~\ref{fig:grad13_Q2}.
 
-Crude discretization of the velocity space can lead to loss of monotonicity of $H$-function (Fig.~\ref{fig:grad13_N4}).
-In accordance with~\eqref{eq:relax:dHdt}, under large Prandtl numbers the $H$-theorem is also violates (Fig.~\ref{fig:grad13_Pr8}).
+%%% Discussion
+All the results obtained illustrate that the $H$ function decays monotonically.
+Moreover, in the absence of negative values, the relaxation is almost exponential.
+An example of a positive distribution function,
+which takes noticably negative values during its relaxation, is shown in Fig.~\ref{fig:pmaxwell_Q2}.
+A significantly nonpositive distribution function is considered in Fig.~\ref{fig:grad13_Q2},
+where the second derivative of $\hat{H}(t)$ is not positive everywhere unlike $\tilde{H}(t)$,
+which behavior is similar to the cases with a positive distribution function.
 
+%%% Coarse mesh
+Fig.~\ref{fig:grad13_N4} demonstrates that a crude discretization of the velocity space can lead
+to loss of monotonicity of the $\hat{H}$. This fact is explained by a significant contribution
+of the discarded negative values of the distribution function. It is also seen that $\tilde{H}(t)$
+still relaxes monotonically.
+
+\appendix
+
+\section{Proof of the $H$ theorem for the linearized case}\label{sec:H_theorem}
+
+From the definition of $f_S$ and $H$, we have
+\begin{equation}\label{eq:dHdt_S1}
+    \begin{aligned}
+    \tau\dv{H}{t} &= \int(f_S-f)(\ln{f}-\ln{f_S})\dd\bxi + \int(f_S-f)\ln{f_M}\dd\bxi \\
+    &+ \int(f_S-f)\ln(1+\frac{1-\Pr}{D+2}\frac{4q_ic_i}{pT}\qty(\frac{c^2}{T} - \frac{D+2}2))\dd\bxi.
+    \end{aligned}
+\end{equation}
+The first integral in Eq.~\eqref{eq:dHdt_S1} is nonpositive if we assume that $f\geq0$.
+The second integral is equal to zero, since $\ln{f_M}$ is a summational invariant (span of $1$, $\bxi$, and $\xi^2$).
+When $f$ is close to $f_M$, we can expand the third integrand (say, $I_3$) to the power series, i.e.,
+\begin{equation}\label{eq:dHdt_S2}
+    I_3 \approx \int(f_S-f)\frac{1-\Pr}{D+2}\frac{4q_ic_i}{pT}\qty(\frac{c^2}{T} - \frac{D+2}2)\dd\bxi
+    = \frac{1-\Pr}{D+2}\frac{4q_i}{pT^2}\int(f_S-f)c_ic^2\dd\bxi = -\frac{\Pr(1-\Pr)}{D+2}\frac{4q^2}{pT^2}.
+\end{equation}
+By substituting Eq.~\eqref{eq:dHdt_S2} into Eq.~\eqref{eq:dHdt_S1}, we obtain Eq.~\eqref{eq:dHdt_Shakhov}.
+
+\section{Evaluation of $\dv*{H}{t}$ for a piecewise Maxwellian}\label{sec:violateH}
+
+For the one-dimensional piecewise Maxwellian~\eqref{eq:pmaxwell},
+one can find the analytical value of the $H$ function and its time derivative:
+\begin{gather}
+    H(f_2) = \frac12\ln\frac{1-\Delta^2}{\pi} + \Delta\ln\frac{1+\Delta}{1-\Delta} - \frac12, \label{eq:H_2}\\
+    \begin{aligned}
+    \tau\dv{H(f_2)}{t} &= \overbrace{\int(f_M - f_2)\ln f_2 \dd\xi}^\text{BGK term}
+    + \overbrace{(1-\Pr)\int A(\xi)f_M\ln f_2\dd\xi}^\text{Shakhov correction} \\
+    &= - \frac{\Delta^2}{1-\Delta^2} - \Delta\ln\frac{1+\Delta}{1-\Delta}
+    + \frac{1-\Pr}{3\pi}\frac{4\Delta}{\sqrt{1-\Delta^2}}\qty(\frac{2\Delta}{1-\Delta^2} + \ln\frac{1+\Delta}{1-\Delta}).
+    \end{aligned}\label{eq:dHdt_2}
+\end{gather}
+The entropy production as a function of $\Delta$ is shown in Fig.~\ref{fig:dHdt_2}.
+It is seen that the entropy production changes the sign when $\Delta$ is close to unity for any $0\leq\Pr<1$,
+but this fact is elusive numerically, since positive values of $\dv*{H}{t}$ exist on an extremely small time interval,
+after which the distribution function loses its positivity.
+
+\begin{figure}
+    \centering
+    \footnotesize
+    \begin{gnuplot}[scale=1, terminal=epslatex, terminaloptions=color lw 3]
+        set sample 200
+        set xzeroaxis dt 0
+        set xrange [0:1]
+        set yrange [-4:4]
+        set key top center
+        f(x, Pr) = -x**2/(1-x**2) - x*log((1+x)/(1-x)) + (1-Pr)*4./3/pi*x/sqrt(1-x**2)*(2*x/(1-x**2) + log((1+x)/(1-x)))
+        do for [i=1:3] {
+            set style line i linewidth 3
+        }
+        plot f(x, 0) title '$\Pr=0$', f(x, 1./3) title '$\Pr=1/3$', f(x, 1./2) title '$\Pr=1/2$', \
+            f(x, 2./3) title '$\Pr=2/3$', f(x, 1) title '$\Pr=1$', f(x, 2) title '$\Pr=2$'
+    \end{gnuplot}
+    \caption{
+        The dependence of $\dv*{H}{t}$ on $\Delta$ for the normalized piecewise Maxwellian $f_2$,
+        defined by Eq.~\eqref{eq:pmaxwell}.
+        The analytical expression~\eqref{eq:dHdt_2} for various Prandtl numbers is shown.
+    }
+    \label{fig:dHdt_2}
+\end{figure}
 
 \printbibliography
 
