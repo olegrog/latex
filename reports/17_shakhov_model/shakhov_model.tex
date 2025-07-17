@@ -4,7 +4,7 @@
 
 %%% Functional packages
 \usepackage{amsmath, amssymb, amsthm}
-\usepackage{physics}
+\usepackage{physics, siunitx}
 \usepackage{subcaption}
 \usepackage{graphicx}
 \usepackage[subfolder]{gnuplottex}
@@ -15,7 +15,6 @@
 %%% Problem-specific aliases
 \newcommand{\Kn}{\mathrm{Kn}}
 \newcommand{\Ma}{\mathrm{Ma}}
-\newcommand{\equil}[1]{#1^\mathrm{(eq)}}
 \newcommand{\bxi}{\boldsymbol{\xi}}
 \newcommand{\bzeta}{\boldsymbol{\zeta}}
 
@@ -41,24 +40,23 @@
 
 \section{Kinetic equation}
 
-%%% Boltzmann--Shakhov equation
+%%% Boltzmann equation
 The Boltzmann kinetic equation have the following dimensionless form:
 \begin{equation}\label{eq:Boltzmann}
     \pdv{f}{t} + \xi_i\pdv{f}{x_i} = \frac1kJ(f),
 \end{equation}
 where $f(t,x_i,\xi_i)$ is the velocity distribution function, $k=\Kn\sqrt\pi/2$,
 and $\Kn$ is the Knudsen number.
-The collision operator $J(f)$ can be simplified by the relaxation model
+The collision operator $J(f)$ can be simplified by a relaxation model
 \begin{equation}\label{eq:model}
-    J(f) = \frac{\rho T^{1-\omega}}{\gamma_1}\qty(\equil{f} - f),
+    J(f) = \frac{\rho T^{1-\omega}}{\gamma_1}\qty(F - f),
 \end{equation}
-which reproduces the viscosity coefficient $\gamma_1T^\omega$.
-When the equilibrium function $\equil{f}=f_M$, the model is called BGK~\cite{bhatnagar1954model}.
-\textcite{shakhov1968generalization} proposed the equilibrium function in the form
-\begin{equation}\label{eq:Shakhov}
-    \equil{f} = f_S = f_M\qty(1 + \frac{1-\Pr}{D+2}\frac{4q_ic_i}{pT}\qty(\frac{c^2}{T} - \frac{D+2}2))
+which reproduces the viscosity coefficient $\gamma_1T^\omega$,
+preserving the following conservation properties:
+\begin{equation}\label{eq:F}
+    \int \begin{pmatrix} 1 \\ \xi_i \\ \xi^2 \end{pmatrix} J(f)\dd\bxi = 0.
 \end{equation}
-to ensure the given Prandtl number $\Pr$. Here,
+It is also crucial that $J(f_M) = 0$, where
 \begin{equation}\label{eq:Maxwell}
     f_M = \frac{\rho}{(\pi T)^{D/2}}\exp(-\frac{c^2}T)
 \end{equation}
@@ -73,8 +71,16 @@ The macroscopic variables are calculated as follows:
     p = \rho T = \frac2D\int c^2 f \dd\bxi, \quad
     q_i = \int c_i c^2 f \dd\bxi,
 \end{equation}
-where \(\rho\) is the density, \(v_i\) is the velocity, \(T\) is the temperature, \(p\) is the pressure,
-and \(q_i\) is the heat-flux vector.
+where \(\rho\) is the density, \(v_i\) is the velocity, \(T\) is the temperature,
+\(p\) is the pressure, and \(q_i\) is the heat-flux vector.
+
+%%% Specific relaxation models
+When $F=f_M$, the relaxation model is called BGK~\cite{bhatnagar1954model}.
+\textcite{shakhov1968generalization} proposed its modification
+\begin{equation}\label{eq:Shakhov}
+    F = f_S = f_M\qty(1 + \frac{1-\Pr}{D+2}\frac{4q_ic_i}{pT}\qty(\frac{c^2}{T} - \frac{D+2}2))
+\end{equation}
+to ensure the given Prandtl number $\Pr$.
 
 \section{Space-homogeneous problem}
 
