@@ -1,6 +1,6 @@
 PROJECT = $(shell git ls-files | grep \.tex$$ | cut -f 1 -d '.')
 SOLVER = relaxation/solver.py
-CASES = _piecewise _piecewise_hole _pmaxwell _pmaxwell_Q2 _grad13 _grad13_Q2 _grad13_N4
+CASES = _piecewise _piecewise_hole _pmaxwell _pmaxwell_Q2 _grad13 _grad13_Q1C _grad13_N4
 FIGURES = $(addsuffix /solution.pdf, $(CASES))
 SOURCES = $(PROJECT).tex $(PROJECT).bib $(FIGURES)
 
@@ -22,8 +22,8 @@ options_pmaxwell_Q2 = \
 	--function=pmaxw --qflow=2 --radius=5
 options_grad13 = \
 	--function=grad13 --qflow=0.1 --radius=3
-options_grad13_Q2 = \
-	--function=grad13 --qflow=2 --radius=4
+options_grad13_Q1C = \
+	--function=grad13,constant --qflow=1 --value=-2e-3 --radius=4
 options_grad13_N4 = \
 	--function=grad13 --qflow=0.1 --radius=4 -N=4
 

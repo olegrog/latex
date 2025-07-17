@@ -193,9 +193,9 @@ is widely used for constructing quasiprobability distributions in phase space~\c
 \addfigure{piecewise_hole}{two-beam distribution function~\eqref{eq:piecewise} with $k=2$, $\xi_i=1$, and $\xi_o=2$}
 \addfigure{pmaxwell}{piecewise-Maxwell distribution function~\eqref{eq:pmaxwell} with $q_0=0.1$}
 \addfigure{pmaxwell_Q2}{piecewise-Maxwell distribution function~\eqref{eq:pmaxwell} with $q_0=2$}
-\addfigure{grad13}{Grad's distribution function~\eqref{eq:grad13} with $q_0=0.1$}
-\addfigure{grad13_Q2}{Grad's distribution function~\eqref{eq:grad13} with $q_0=2$}
-\addfigure{grad13_N4}{Grad's distribution function~\eqref{eq:grad13} with $q_0=0.1$ on a coarse mesh}
+\addfigure{grad13}{Grad's distribution function~\eqref{eq:grad13} with $q_0=0.1$ and $T=1$}
+\addfigure{grad13_Q1C}{distribution function $f_3(\xi)-\epsilon$ with $q_0=1$, $T=1$, and $\epsilon=\num{2e-3}$}
+\addfigure{grad13_N4}{Grad's distribution function~\eqref{eq:grad13} with $q_0=0.1$ and $T=1$ on a coarse mesh}
 
 In this section, we simulate the evolution of a distribution function
 for the 1-D space-homogeneous case with $\Pr = 2/3$.
@@ -227,15 +227,15 @@ Finally, the relaxation of a smooth distribution function with a non-zero heat f
 \begin{equation}\label{eq:grad13}
     f_3(\xi) = f_M[1, 0, T](\xi)\qty(1 + \frac{2q_0\xi}{T^2}\qty(\frac{2\xi^2}{(D+2)T} - 1))
 \end{equation}
-is shown in Fig.~\ref{fig:grad13} and~\ref{fig:grad13_Q2}.
+is shown in Fig.~\ref{fig:grad13} and~\ref{fig:grad13_Q1C}.
 
 %%% Discussion
 All the results obtained illustrate that the $H$ function decays monotonically.
 Moreover, in the absence of negative values, the relaxation is almost exponential.
 An example of a positive distribution function,
 which takes noticably negative values during its relaxation, is shown in Fig.~\ref{fig:pmaxwell_Q2}.
-A significantly nonpositive distribution function is considered in Fig.~\ref{fig:grad13_Q2},
-where the second derivative of $\hat{H}(t)$ is not positive everywhere unlike $\tilde{H}(t)$,
+A significantly nonpositive distribution function is considered in Fig.~\ref{fig:grad13_Q1C},
+where $\hat{H}(t)$ exhibits two additional extrema unlike $\tilde{H}(t)$,
 which behavior is similar to the cases with a positive distribution function.
 
 %%% Coarse mesh

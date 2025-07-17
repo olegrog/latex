@@ -15,8 +15,9 @@ parser.add_argument('-t', '--timestep', type=float, default=0.2, help='time step
 parser.add_argument('-e', '--end', type=float, default=10, help='total time')
 parser.add_argument('--tau', type=float, default=1, help='relaxation time')
 parser.add_argument('-f', '--function', default='piecewise', help='type of VDF')
+parser.add_argument('-a', '--value', type=float, default=1, help='constant value in VDF')
 parser.add_argument('-r', '--ratio', type=float, default=2, help='ratio of values in VDF')
-parser.add_argument('-i', '--inner', type=float, default=1, help='outer cutting radius of VDF')
+parser.add_argument('-i', '--inner', type=float, default=1, help='inner cutting radius of VDF')
 parser.add_argument('-o', '--outer', type=float, default=2, help='outer cutting radius of VDF')
 parser.add_argument('-R', '--radius', type=float, default=5, help='radius of the velocity grid')
 parser.add_argument('-q', '--qflow', type=float, default=1, help='initial heat flux')
@@ -121,8 +122,12 @@ pmaxw_delta = lambda qflow: -sqrt(pi)*qflow/sqrt(4 + pi*qflow**2)
 
 def initial_vdf():
     f = np.zeros_like(xi)
+    skip = 0
     for function_type in args.function.split(','):
         match function_type:
+            case 'constant':
+                f += args.value*w
+                skip += 1
             case 'maxwell':
                 f += maxwell(np.array([1, 0, 1]))
             case 'grad13':
@@ -142,7 +147,7 @@ def initial_vdf():
                 f0[pos] = ratio/mass
                 f += f0*w
                 if args.verbose:
-                    print(f'VDF: left = {f[neg][0]:.3g}, right = {f[pos][0]:.3g}, ratio = {ratio:.3g}')
+                    print(f'VDF: left = {f0[neg][0]:.3g}, right = {f0[pos][0]:.3g}, ratio = {ratio:.3g}')
             case 'pmaxw':
                 neg, pos = xi < 0, xi > 0
                 delta = pmaxw_delta(args.qflow)
@@ -154,7 +159,7 @@ def initial_vdf():
                 f[pos] += maxwell(np.array([rho2, 0, temp2]))[pos]
             case _:
                 raise ValueError(f'Function type {function_type} is undefined!')
-    return f/len(args.function.split(','))
+    return f/(len(args.function.split(',')) - skip)
 
 def print_macro(f):
     rho_, speed_, temp_, qflow_ = calc_macro(f)
