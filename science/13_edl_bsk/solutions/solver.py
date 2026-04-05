@@ -46,7 +46,7 @@ f = lambda z, psi: [ psi[1], psi[2], psi[3], psi[2] - rhoC*rho(psi[0]) ]
 
 C = -args.alpha/args.epsilon**2
 psi0 = [ args.Psi, -sqrt(2*rhoC*int_rho(args.Psi)), 0, 0 ]
-sol = solve_ivp(f, [0, np.infty], psi0, dense_output=True)
+sol = solve_ivp(f, [0, np.inf], psi0, dense_output=True)
 
 X = np.linspace(0, sol.t[-1], args.N)
 Psi = sol.sol(X)[0]
