@@ -1,6 +1,6 @@
 %&pdflatex
 \documentclass[mathserif]{beamer} %, handout
-\usetheme[progressbar=foot]{metropolis}
+\usetheme[progressbar=foot]{moloch}
 \setbeamertemplate{caption}[numbered]
 
 \usepackage[utf8x]{inputenc}
@@ -784,7 +784,7 @@
     \frametitle{Задача Соне--Бобылева}
     \begin{columns}
         \column{.5\textwidth}
-        \hspace{-10pt}\includegraphics{sone_bobylev/geometry}
+        \hspace{-10pt}\includegraphics{snit_flows/geometry}
         \column{.6\textwidth}
         \[ T_B = 1 - \frac{\cos(2\pi x)}{2}, \quad v_{Bi} = 0 \]
         \begin{itemize}
@@ -802,12 +802,12 @@
     \begin{columns}
         \column{.55\textwidth}
         \begin{figure}
-            \includegraphics[width=\linewidth]{sone_bobylev/heat-temp}
+            \includegraphics[width=\linewidth]{snit_flows/heat-0-temp}
             \caption{уравнение теплопроводности}
         \end{figure}
         \column{.55\textwidth}
         \begin{figure}
-            \includegraphics[width=\linewidth]{sone_bobylev/snif-0-temp}
+            \includegraphics[width=\linewidth]{snit_flows/asym-0-temp}
             \caption{уравнения КГФ}
         \end{figure}
     \end{columns}
@@ -818,12 +818,12 @@
     \begin{columns}
         \column{.55\textwidth}
         \begin{figure}
-            \includegraphics[width=\linewidth]{sone_bobylev/snif-0-flow}
+            \includegraphics[width=\linewidth]{snit_flows/asym-0-vel}
             \caption{уравнения КГФ со скольжением (\(b_2^{(1)} = 0.64642\))}
         \end{figure}
         \column{.55\textwidth}
         \begin{figure}
-            \includegraphics[width=\linewidth]{sone_bobylev/nonslip-0-flow}
+            \includegraphics[width=\linewidth]{snit_flows/nonslip-0-vel}
             \caption{уравнение КГФ без скольжения (\(b_2^{(1)} = 0\))}
         \end{figure}
     \end{columns}
@@ -834,12 +834,12 @@
     \begin{columns}
         \column{.55\textwidth}
         \begin{figure}
-            \includegraphics[width=\linewidth]{{{sone_bobylev/asym-0.01-temp}}}
+            \includegraphics[width=\linewidth]{{{snit_flows/asym-0.01-temp}}}
             \caption{уравнения КГФ с учётом температурного скачка}
         \end{figure}
         \column{.55\textwidth}
         \begin{figure}
-            \includegraphics[width=\linewidth]{{{sone_bobylev/data-0.01-temp}}}
+            \includegraphics[width=\linewidth]{{{snit_flows/kes-0.01-temp}}}
             \caption{численное решение уравнения Больцмана}
         \end{figure}
     \end{columns}
@@ -850,12 +850,12 @@
     \begin{columns}
         \column{.55\textwidth}
         \begin{figure}
-            \includegraphics[width=\linewidth]{{{sone_bobylev/asym-0.01-flow}}}
+            \includegraphics[width=\linewidth]{{{snit_flows/asym-0.01-vel}}}
             \caption{уравнения КГФ с учётом температурного скачка}
         \end{figure}
         \column{.55\textwidth}
         \begin{figure}
-            \includegraphics[width=\linewidth]{{{sone_bobylev/data-0.01-flow}}}
+            \includegraphics[width=\linewidth]{{{snit_flows/kes-0.01-vel}}}
             \caption{численное решение уравнения Больцмана}
         \end{figure}
     \end{columns}
@@ -864,25 +864,25 @@
 \begin{frame}
     \frametitle{Зависимость температурного поля от \(\Kn\)}
     \centering
-    \includegraphics[width=0.9\linewidth]{sone_bobylev/bottom_temp}
+    \includegraphics[width=0.9\linewidth]{snit_flows/bottom_temp}
 \end{frame}
 
 \begin{frame}
     \frametitle{Зависимость скоростного поля от \(\Kn\)}
     \centering
-    \includegraphics[width=0.9\linewidth]{sone_bobylev/top_temp}
+    \includegraphics[width=0.9\linewidth]{snit_flows/top_temp}
 \end{frame}
 
 \begin{frame}
     \frametitle{Зависимость температурного поля от \(\Kn\)}
     \centering
-    \includegraphics[width=0.9\linewidth]{sone_bobylev/bottom_flow}
+    \includegraphics[width=0.9\linewidth]{snit_flows/bottom_flow}
 \end{frame}
 
 \begin{frame}
     \frametitle{Зависимость скоростного поля от \(\Kn\)}
     \centering
-    \includegraphics[width=0.9\linewidth]{sone_bobylev/top_flow}
+    \includegraphics[width=0.9\linewidth]{snit_flows/top_flow}
 \end{frame}
 
 \subsection{Течение между некоаксиальными цилиндрами}
